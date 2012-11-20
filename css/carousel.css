@@ -10,7 +10,6 @@
 }
 
 .carousel_position > * {
-	-webkit-transition: background .5s;
 	display: inline-block;
 	height: 8px;
 	width: 8px;
@@ -19,8 +18,13 @@
 	text-indent: -9999px;
 	background-color: #ccc;
 	cursor: pointer;
+	
+	-webkit-transition: background-color .5s;
+	-moz-transition: background-color .5s;
+	-ms-transition: background-color .5s;
+	transition: background-color .5s;
 }
 
 .carousel_position .active {
-	background-color: #a51324;
+	background-color: #000000;
 }
