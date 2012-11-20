@@ -9,13 +9,13 @@
 	text-align: center;
 }
 
-.carousel_position span {
+.carousel_position > * {
 	-webkit-transition: background .5s;
 	display: inline-block;
-	height: 10px;
-	width: 10px;
+	height: 8px;
+	width: 8px;
 	margin: 0 5px;
-	border-radius: 10px;
+	border-radius: 8px;
 	text-indent: -9999px;
 	background-color: #ccc;
 	cursor: pointer;

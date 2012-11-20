@@ -33,38 +33,18 @@
 					<a href="#"><img src="./images/image3.png"></a>
 				</li>
 			</ul>
-			<div id="product_carousel_position" class="carousel_position">
-				<span class='active'>1</span>
-				<span>2</span>
-				<span>3</span>
-			</div>
+			<div class="carousel_position"></div>
 		</div>
 	</body>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 	<script src="swipe.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
-			var bullets = document.getElementById('product_carousel_position').getElementsByTagName('span'),
-			carousel = new Swipe(document.getElementById('product_carousel'), {
+			var carousel = new BBCarousel(document.getElementById('product_carousel'), {
 				startSlide: 0,
 				speed: 400,
-				auto: 3000,
-				callback: function(event, position) {
-					var i = bullets.length;
-					while (i--) {
-						bullets[i].className = '';
-					}
-					bullets[position].className = 'active';
-				}
+				auto: 3000
 			});
-			
-			for (var i = 0; i < bullets.length; i++) {
-				bullets[i].setAttribute('data-position', i);
-				bullets[i].onclick = function(event) {
-					event.preventDefault();
-					carousel.slide(parseInt(this.getAttribute('data-position'), 10), 400);
-				}
-			}
 		});
 	</script>
 </html>
