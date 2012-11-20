@@ -46,6 +46,32 @@ window.BBCarousel = function(element, options) {
 		this.element.addEventListener('transitionend', this, false);
 		window.addEventListener('resize', this, false);
 	}
+	
+	// create position bullets
+	var bullets_container = this.container.querySelector(this.bullets_container),
+	bullet_element_tag = (bullets_container.tagName === 'UL') ? 'li' : 'span';
+	if (bullets_container !== null) {
+		this.bullets = [];
+		for (var i = 0; i < this.length; i++) {
+			var bullet = document.createElement(bullet_element_tag);
+			bullet.setAttribute('data-position', i);
+			
+			// add click events to bullets
+			bullet.onclick = function(event) {
+				event.preventDefault();
+				_this.slide(parseInt(this.getAttribute('data-position'), 10), 400);
+			}
+			
+			// give first bullet the active class
+			if (i === 0) {
+				bullet.className = this.active_class;
+			}
+
+			bullets_container.appendChild(bullet);
+
+			this.bullets[i] = bullet;
+		}
+	}
 
 };
 
@@ -79,32 +105,6 @@ BBCarousel.prototype = {
 			el.style.width = this.width + 'px';
 			el.style.display = 'table-cell';
 			el.style.verticalAlign = 'top';
-		}
-		
-		// create position bullets
-		var bullets_container = this.container.querySelector(this.bullets_container),
-		bullet_element_tag = (bullets_container.tagName === 'UL') ? 'li' : 'span';
-		if (bullets_container !== null) {
-			this.bullets = [];
-			for (var i = 0; i < this.length; i++) {
-				var bullet = document.createElement(bullet_element_tag);
-				bullet.setAttribute('data-position', i);
-				
-				// add click events to bullets
-				bullet.onclick = function(event) {
-					event.preventDefault();
-					_this.slide(parseInt(this.getAttribute('data-position'), 10), 400);
-				}
-				
-				// give first bullet the active class
-				if (i === 0) {
-					bullet.className = this.active_class;
-				}
-	
-				bullets_container.appendChild(bullet);
-	
-				this.bullets[i] = bullet;
-			}
 		}
 
 		// set start position and force translate to remove initial flickering
