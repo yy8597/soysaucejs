@@ -90,6 +90,9 @@ Swipe.prototype = {
   slide: function(index, duration) {
 
     var style = this.element.style;
+    
+    // cancel next scheduled automatic transition, if any
+    clearTimeout(this.interval);
 
     // fallback to default speed
     if (duration == undefined) {
