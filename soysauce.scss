@@ -74,7 +74,6 @@ Branding Brand's JS widget library styling.
 		opacity: 0.3;
 		border: 1px solid #333;
 		.icon {
-			background: url("../images/ss_ajax.gif") no-repeat 0%;
 			width: 16px;
 			opacity: 0.6;
 			top: 6px;
@@ -97,5 +96,34 @@ Branding Brand's JS widget library styling.
 	}
 }
 
-
-
+// Accordion Styles
+[ss-widget="accordion"]:not([ss-options*="slide"]) {
+	[ss-component="content"] {
+		display: none;
+		&[ss-state="enabled"] {
+			display: block;
+		}
+	}
+}
+[ss-component="button"] {
+	display: block;
+	position: relative;
+	padding: 14px 5px;
+	border: 1px solid black;
+	font-weight: bold;
+	&[ss-state="disabled"] {
+		.icon:before {
+			@include transform(rotate(90deg));
+		}
+	}
+	.icon {
+		&:before, &:after {
+			border-top: 2px solid black;
+			content: "";
+			position: absolute;
+			right: 10px;
+			top: 19px;
+			width: 12px;
+		}
+	}
+}

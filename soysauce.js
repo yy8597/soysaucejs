@@ -27,18 +27,12 @@ else {
 					},
 					setResponsiveButtons: function() {
 						// Listeners for active state
-						$("body").on("touchstart", "[ss-widget='button']:not([ss-options*='submit'])", function(e){
-							$(this).attr("ss-state", "active");
-						});
-						$("body").on("mousedown", "[ss-widget='button']", function(e){
+						$("body").on("mousedown touchstart", "[ss-widget='button']", function(e){
 							$(this).attr("ss-state", "active");
 						});
 
 						// Listeners for inactive state
-						$("body").on("touchend", "[ss-widget='button']", function(e){
-							$(this).attr("ss-state", "inactive");
-						});
-						$("body").on("mouseup", "[ss-widget='button']", function(e){
+						$("body").on("touchend mouseup", "[ss-widget='button']", function(e){
 							$(this).attr("ss-state", "inactive");
 						});
 						
@@ -75,6 +69,24 @@ else {
 								$(e.target).attr("ss-state", "undefined");
 						});
 					},
+					setAccordions: function(selector) {
+						$("[ss-widget='accordion']").find("[ss-component]:not([ss-state])").attr("ss-state", "disabled");
+						$("[ss-widget='accordion']").find("[ss-component='button']").append("<span class='icon'></span>");
+						// options - overlay, single, slidedown
+						
+						$("body").on("click", "[ss-component='button']", function(e) {
+							var parent = $(this).closest("[ss-widget]");
+							
+							if($(this).attr("ss-state") == "disabled") {
+								parent.find("[ss-component]").attr("ss-state", "enabled");
+								$(this).attr("ss-state", "enabled");
+							}
+							else {
+								parent.find("[ss-component]").attr("ss-state", "disabled");
+								$(this).attr("ss-state", "disabled");
+							}
+						});
+					},
 					reset: function(selector) {
 						return false;
 					},
@@ -86,6 +98,7 @@ else {
 		BB.soysauce.setIDs();
 		BB.soysauce.setResponsiveButtons();
 		BB.soysauce.setCCValidation();
+		BB.soysauce.setAccordions();
 		
 		/* 	
 		*		Button 
