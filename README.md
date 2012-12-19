@@ -14,13 +14,27 @@ stuff
 
 ### 2) Lateload
 
-stuff
+Lateloading is an optimization technique. There are two events that get fired as browser processes the page, "DOMContentLoaded", which is fired on the document object, and "load," which is fired on the window object.
 
-more stuff:
+The process goes like this:
 
-	asfesef
-	
-test
+	User hits the page and waits --> "DOMContentLoaded" occurs and user can see the page processing --> "load" occurs and user doesn't see the page loading anymore
+
+##### "DOMContentLoaded" event
+
+It's recommended load content on this event for hidden, but necessary content such as non-primary images in a carousel.
+
+Usage:
+
+	<img ss-dcl-src="/images/brownie.png">
+
+##### "load" event
+
+It's recommended to load all unnecessary images/scripts on this event, such as images in an accordion or images in a popup.
+
+Usage:
+
+	<img ss-ll-src="/images/brownie.png">
 
 Notes
 --------------
