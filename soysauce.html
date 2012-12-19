@@ -4,20 +4,50 @@
 		<link rel="stylesheet" href="assets/main.css">
 	</head>
 	<body>
-		<div ss-widget='test'></div>
-		<img ss-dcl-src="test">
-		<img ss-ll-src="test">
+		<div ss-widget="accordion" ss-options="slide">
+			<h1 ss-component="button">BUTTON</h1>
+			<div ss-component="content">
+				<ul>
+					<li>content</li>
+					<li>content</li>
+					<li>content</li>
+					<li>content</li>
+				</ul>
+			</div>
+		</div>
+		<div ss-widget="accordion" ss-options="slide">
+			<h1 ss-component="button">BUTTON</h1>
+			<div ss-component="content">
+				<ul>
+					<li>content</li>
+					<li>content</li>
+					<li>content</li>
+					<li>content</li>
+				</ul>
+			</div>
+		</div>
+		<div ss-widget="accordion">
+			<h1 ss-component="button">BUTTON</h1>
+			<div ss-component="content">
+				<ul>
+					<li>content</li>
+					<li>content</li>
+					<li>content</li>
+					<li>content</li>
+				</ul>
+			</div>
+		</div>
 		<script type="text/javascript">
 
-		  var _gaq = _gaq || [];
-		  _gaq.push(['_setAccount', 'UA-37029859-1']);
-		  _gaq.push(['_trackPageview']);
-
-		  (function() {
-		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-		  })();
+		  // var _gaq = _gaq || [];
+		  // 		  _gaq.push(['_setAccount', 'UA-37029859-1']);
+		  // 		  _gaq.push(['_trackPageview']);
+		  // 
+		  // 		  (function() {
+		  // 		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		  // 		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		  // 		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  // 		  })();
 
 		</script>
 		
@@ -26,5 +56,6 @@
 		<!-- SOYSAUCE -->
 		<script src="assets/javascript/soysauce/base.js"></script>
 		<script src="assets/javascript/soysauce/bucket.js"></script>
+		<script src="assets/javascript/soysauce/widgets/overlay.js"></script>
 	</body>
 </html>

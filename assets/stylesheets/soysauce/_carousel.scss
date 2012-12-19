@@ -1,0 +1,40 @@
+[ss-widget="carousel"] {
+	@include transition(opacity 1s ease-in-out);
+	-webkit-backface-visibility: hidden;
+	overflow: hidden;
+	opacity: 0;
+	* {
+		-webkit-user-drag: none;
+		-webkit-backface-visibility: hidden;
+	}
+	a {
+		float: left;
+		img {
+			display: block;
+		}
+	}
+	&[ss-state="ready"] {
+		opacity: 1;
+		[ss-component="view_container"]:not([ss-state="no-animation"]) {
+			@include transition(transform 1s ease);
+		}
+	}
+	[ss-component="view_container"] {
+		overflow: hidden;
+	}
+	[ss-component="dots"] {
+		text-align: right;
+		margin: 5px;
+		div {
+			@include border-radius(10px);
+			margin: 0 3px;
+			display: inline-block;
+			height: 8px;
+			width: 8px;
+			background: #777;
+			&[ss-state="active"] {
+				background: #D00;
+			}
+		}
+	}
+}

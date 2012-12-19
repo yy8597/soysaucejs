@@ -10,7 +10,25 @@ Widgets
 --------------
 ### 1) Accordion
 
-stuff
+Options:
+
+	* overlay
+	* ajax
+	* tab
+
+Usage:
+
+	<div ss-widget="accordion" ss-options="overlay">
+		<h1 ss-component="button">BUTTON</h1>
+		<div ss-component="content">
+			<ul>
+				<li>content</li>
+				<li>content</li>
+				<li>content</li>
+				<li>content</li>
+			</ul>
+		</div>
+	</div>
 
 ### 2) Lateload
 
@@ -18,7 +36,9 @@ Lateloading is an optimization technique. There are two events that get fired as
 
 The process goes like this:
 
-	User hits the page and waits --> "DOMContentLoaded" occurs and user can see the page processing --> "load" occurs and user doesn't see the page loading anymore
+	1) User hits the page and waits
+	2) "DOMContentLoaded" occurs and user can see the page processing
+	3) "load" occurs and user doesn't see the page loading anymore
 
 ##### "DOMContentLoaded" event
 
