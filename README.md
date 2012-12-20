@@ -12,9 +12,10 @@ Widgets
 
 Options:
 
-	* overlay
-	* ajax
-	* tab
+	1) overlay - provides a transparent overlay behind main content
+	2) ajax - transfer information
+	tab
+	
 
 Usage:
 
