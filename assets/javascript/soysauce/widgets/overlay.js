@@ -24,8 +24,10 @@ soysauce.overlay = function(cmd) {
 			break;
 		case undefined:
 			console.warn("Soysauce: Please provide a command.");
+			break;
 		default:
 			console.warn("Soysauce: Unrecognized command.");
+			break;
 	}
 };
 

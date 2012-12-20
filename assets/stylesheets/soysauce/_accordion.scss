@@ -38,7 +38,8 @@
 
 [ss-widget="accordion"][ss-options*="slide"] {
 	[ss-component="content"] {
-		@include transition(height 0.2s ease-in-out);
+		@include transition(height 0.15s ease-in-out);
+		overflow: hidden;
 	}
 }
 

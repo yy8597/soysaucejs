@@ -9,15 +9,31 @@ soysauce.accordions = function() {
 		this.content = $(obj).find("> [ss-component='content']");
 		this.overlay = false;
 		this.tab = false;
-		this.animate = false;
+		this.slide = false;
 		this.doAjax = false;
+		this.height = 0;
 	}
 
 	Accordion.prototype.open = function() {
+		var self = this;
+		if(this.tab) {
+			accordions.forEach(function(e,i) {
+				if(accordions[i].tab) accordions[i].close(false);
+			});
+		}
+		if (this.overlay) 
+			soysauce.overlay("on");
+		if (this.slide) {
+			this.content.css("height", this.height + "px");
+		}
 		this.setState("open");
 	};
 
-	Accordion.prototype.close = function() {
+	Accordion.prototype.close = function(closeOverlay) {
+		if (this.overlay && (closeOverlay === undefined) ? true : closeOverlay) 
+			soysauce.overlay("off");
+		if (this.slide)
+			this.content.css("height", "0px");
 		this.setState("closed");
 	};
 
@@ -39,16 +55,16 @@ soysauce.accordions = function() {
 				return;
 			}
 
-			stifle(e);
+			soysauce.stifle(e);
 			self.setState("ajaxing");
 
 			if(!obj.attr("ss-ajax-url")) {
-				console.warn("Soysauce: 'ss-ajax-url' tag not found on accordion.");
+				console.warn("Soysauce: 'ss-ajax-url' tag required. Must be on the same domain.");
 				return;
 			}
 
 			if(!obj.attr("ss-ajax-callback")) {
-				console.warn("Soysauce: 'ss-ajax-callback' tag not found on accordion.");
+				console.warn("Soysauce: 'ss-ajax-callback' tag required.");
 				return;
 			}
 
@@ -75,6 +91,7 @@ soysauce.accordions = function() {
 	(function() {
 		$("[ss-widget='accordion']").each(function() {
 			var item = new Accordion(this);
+			var self = this;
 			var options;
 
 			if(!$(this).attr("ss-state"))
@@ -82,24 +99,26 @@ soysauce.accordions = function() {
 
 			$(this).find("> [ss-component='button']").append("<span class='icon'></span>");
 
-			options = getOptions(this);
+			options = soysauce.getOptions(this);
 
 			if(options) {
 				options.forEach(function(option) {
 					switch(option) {
 						case "ajax":
-						item.doAjax = true;
-						item.handleAjax();
-						break;
+							item.doAjax = true;
+							item.handleAjax();
+							break;
 						case "overlay":
-						console.log("overlay TBI");
-						break;
+							item.overlay = true;
+							break;
 						case "tab":
-						console.log("tab TBI");
-						break;
-						case "animate":
-						console.log("animate TBI");
-						break;
+							item.tab = true;
+							break;
+						case "slide":
+							item.slide = true;
+							item.height = item.content.height();
+							item.content.css("height", "0px");
+							break;
 					}
 				});
 			}
