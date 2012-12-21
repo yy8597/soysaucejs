@@ -1,5 +1,6 @@
 soysauce.accordions = function() {
 	var accordions = new Array();
+	accordion_groups = new Array();
 
 	function Accordion(obj) {
 		this.id = $(obj).attr("ss-id");
@@ -12,13 +13,14 @@ soysauce.accordions = function() {
 		this.slide = false;
 		this.doAjax = false;
 		this.height = 0;
+		this.hasAccordions = false;
+		this.tabID = 0;
 	}
 
 	Accordion.prototype.open = function() {
-		var self = this;
 		if(this.tab) {
-			accordions.forEach(function(e,i) {
-				if(accordions[i].tab) accordions[i].close(false);
+			accordion_groups[this.tabID - 1].forEach(function(e) {
+				e.close(false);
 			});
 		}
 		if (this.overlay) 
@@ -89,6 +91,8 @@ soysauce.accordions = function() {
 
 	// Initialize
 	(function() {
+		var tabID = 1;
+		var group;
 		$("[ss-widget='accordion']").each(function() {
 			var item = new Accordion(this);
 			var self = this;
@@ -98,6 +102,8 @@ soysauce.accordions = function() {
 			item.close();
 
 			$(this).find("> [ss-component='button']").append("<span class='icon'></span>");
+
+			item.hasAccordions = ($(this).has("[ss-widget='accordion']").length > 0) ? true : false; 
 
 			options = soysauce.getOptions(this);
 
@@ -113,6 +119,21 @@ soysauce.accordions = function() {
 							break;
 						case "tab":
 							item.tab = true;
+							if (!$(self).attr("ss-tab-id")) {
+								var siblings = $(self).find("~ [ss-options*='tab']");
+								var group_name = "group"
+								group = new Array();
+								item.tabID = tabID;
+								$(self).attr("ss-tab-id", tabID);
+								siblings.attr("ss-tab-id", tabID);
+								group.push(item);
+								accordion_groups.push(group);
+								tabID++;
+							} else {
+								item.tabID = $(self).attr("ss-tab-id");
+								accordion_groups[item.tabID - 1].push(item);
+							}
+							
 							break;
 						case "slide":
 							item.slide = true;

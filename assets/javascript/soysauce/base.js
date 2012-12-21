@@ -16,6 +16,23 @@ soysauce = {
 		e.stopImmediatePropagation();
 		e.preventDefault();
 	},
+	fetch: function(selector) {
+		if (selector === undefined) return false;
+		// Fetch by ID
+		if (selector===+selector && selector===(selector|0) || selector.match(/^\d+$/).length > 0) {
+			var query = "[ss-id='" + selector + "']";
+			var type = $(query).attr("ss-widget");
+			switch(type) {
+				case "accordion":
+					console.log("accordion!");
+					break;
+			}
+		}
+		// Fetch by Selector
+		else {
+			console.log("else");
+		}
+	},
 	browserInfo: {
 		userAgent: navigator.userAgent,
 		supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,

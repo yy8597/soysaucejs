@@ -14,8 +14,8 @@ Options:
 
 	1) overlay - provides a transparent overlay behind main content
 	2) ajax - transfer information
-	tab
-	
+	3) tab
+	4) slide
 
 Usage:
 
