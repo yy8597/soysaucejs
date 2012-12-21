@@ -28,10 +28,12 @@
 }
 
 [ss-widget="accordion"]:not([ss-options*="slide"]) {
-	[ss-component="content"] {
-		display: none;
+	> [ss-component="content"] {
 		&[ss-state="open"] {
 			display: block;
+		}
+		&[ss-state="closed"] {
+			display: none;
 		}
 	}
 }
