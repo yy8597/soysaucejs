@@ -141,14 +141,25 @@ soysauce.accordions = function() {
 			}
 
 			if(!obj.attr("ss-ajax-callback")) {
-				console.warn("Soysauce: 'ss-ajax-callback' tag required.");
+				console.warn("Soysauce: 'ss-ajax-callback' tag not found on accordion.");
 				return;
 			}
-
+			
 			url = obj.attr("ss-ajax-url");
 			callback = obj.attr("ss-ajax-callback");
-			$.get(url, eval(callback));
-
+			
+			if (soysauce.browserInfo["supportsSessionStorage"]) {
+				if (sessionStorage.getItem(url) === null)
+					$.get(url, function(data) {
+						sessionStorage.setItem(url, JSON.stringify(data));
+						eval(callback + "(" + JSON.stringify(data) + ")");
+					});
+				else
+					eval(callback + "(" + sessionStorage.getItem(url) + ")");
+			}
+			else
+				$.get(url, eval(callback));
+			
 			self.setAjaxComplete();
 		});
 	};

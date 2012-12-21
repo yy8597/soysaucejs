@@ -40,8 +40,8 @@ soysauce = {
 	browserInfo: {
 		userAgent: navigator.userAgent,
 		supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,
-		supportsLocalStorage: (typeof(window.localStorage)) ? true : false,
-		supportsSessionStorage: (typeof(window.sessionStorage)) ? true : false
+		supportsLocalStorage: (typeof(window.localStorage) !== "undefined") ? true : false,
+		supportsSessionStorage: (typeof(window.sessionStorage) !== "undefined") ? true : false
 	},
 	accordions: {},
 	buttons: {},

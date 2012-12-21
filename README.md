@@ -4,22 +4,27 @@ Original Author: Edward Gaba
 
 About
 --------------
-Soysauce is a mobile-specific javascript widget package.
+Soysauce is a mobile-specific javascript widget package that expedites development.
 
 Widgets
 --------------
+
+These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality.
+
 ### 1) Accordion
+
+Accordions allow for hiding and showing content when necessary.
 
 Options:
 
 	1) overlay - provides a transparent overlay behind main content
-	2) ajax - transfer information
-	3) tab
-	4) slide
+	2) ajax - transfer JSON information from the same-domain
+	3) tab - only one accordion open at a time per group
+	4) slide - animate a slidedown effect
 
 Usage:
 
-	<div ss-widget="accordion" ss-options="overlay">
+	<div ss-widget="accordion" ss-options="tab slide">
 		<h1 ss-component="button">BUTTON</h1>
 		<div ss-component="content">
 			<ul>
