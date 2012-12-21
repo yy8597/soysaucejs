@@ -16,16 +16,20 @@ soysauce = {
 		e.stopImmediatePropagation();
 		e.preventDefault();
 	},
-	fetch: function(selector) {
+	fetch: function(selector) { // Fetch by ID
 		if (selector === undefined) return false;
-		// Fetch by ID
+		if (typeof(selector) === "object") selector = $(selector).attr("ss-id");
 		if (selector===+selector && selector===(selector|0) || selector.match(/^\d+$/).length > 0) {
 			var query = "[ss-id='" + selector + "']";
 			var type = $(query).attr("ss-widget");
+			var ret;
+			selector = parseInt(selector);
 			switch(type) {
 				case "accordion":
-					console.log("accordion!");
-					break;
+					soysauce.accordions.forEach(function(e) {
+						if (e.id == selector) ret = e;
+					});
+					return ret;
 			}
 		}
 		// Fetch by Selector
