@@ -141,14 +141,14 @@ soysauce.accordions = function() {
 			}
 
 			if(!obj.attr("ss-ajax-callback")) {
-				console.warn("Soysauce: 'ss-ajax-callback' tag not found on accordion.");
+				console.warn("Soysauce: 'ss-ajax-callback' required.");
 				return;
 			}
 			
 			url = obj.attr("ss-ajax-url");
 			callback = obj.attr("ss-ajax-callback");
 			
-			if (soysauce.browserInfo["supportsSessionStorage"]) {
+			if (soysauce.browserInfo.supportsSessionStorage) {
 				if (sessionStorage.getItem(url) === null)
 					$.get(url, function(data) {
 						sessionStorage.setItem(url, JSON.stringify(data));
