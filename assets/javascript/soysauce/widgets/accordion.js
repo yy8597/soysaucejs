@@ -1,6 +1,6 @@
 soysauce.accordions = function() {
 	var accordions = new Array();
-	accordionTabGroups = new Array();
+	var accordionTabGroups = new Array();
 
 	function AccordionTabGroup(id) {
 		this.accordions = new Array();
