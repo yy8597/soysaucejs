@@ -1,9 +1,38 @@
 soysauce.accordions = function() {
 	var accordions = new Array();
-	accordion_groups = new Array();
+	accordionTabGroups = new Array();
+
+	function AccordionTabGroup(id) {
+		this.accordions = new Array();
+		this.groupid = id;
+		this.currOpen;
+	}
+	
+	AccordionTabGroup.prototype.setCurrOpen = function(selector) {
+		this.currOpen = selector;
+	}
+	
+	AccordionTabGroup.prototype.addAccordion = function(selector) {
+		if (selector === undefined || !typeof(Accordion)) return false;
+		this.accordions.push(selector);
+	}
+	
+	AccordionTabGroup.prototype.getCurrOpen = function() {
+		return this.currOpen;
+	}
+	
+	AccordionTabGroup.prototype.getAccordions = function() {
+		return this.accordions
+	}
+	
+	AccordionTabGroup.prototype.getID = function() {
+		return this.groupid;
+	}
 
 	function Accordion(obj) {
 		this.id = $(obj).attr("ss-id");
+		this.parentID = 0;
+		this.tabID = 0;
 		this.state = "closed";
 		this.obj = $(obj);
 		this.button = $(obj).find("> [ss-component='button']");
@@ -13,30 +42,76 @@ soysauce.accordions = function() {
 		this.slide = false;
 		this.doAjax = false;
 		this.height = 0;
+		this.isChildAccordion = false;
 		this.hasAccordions = false;
-		this.tabID = 0;
+		this.childTabOpen = false;
+		this.tabGroup = undefined;
+		this.parent = undefined;
 	}
 
 	Accordion.prototype.open = function() {
-		if(this.tab) {
-			accordion_groups[this.tabID - 1].forEach(function(e) {
-				e.close(false);
-			});
+		var self = this;
+		var prevHeight = 0;
+		if (this.tab) {
+			if(this.tabGroup.getCurrOpen() !== undefined) {
+				prevHeight = this.tabGroup.getCurrOpen().height;
+				this.tabGroup.getCurrOpen().close();
+			}
+			this.tabGroup.setCurrOpen(self);
 		}
 		if (this.overlay) 
 			soysauce.overlay("on");
 		if (this.slide) {
+			if (this.parent === undefined) this.parent = soysauce.fetch(this.parentID);
+			if (this.isChildAccordion && this.parent.slide) {
+				if (this.tab) {
+					if (!this.parent.childTabOpen) {
+						this.parent.addHeight(this.height);
+						this.parent.childTabOpen = true;
+					}
+					else {
+						var offset = this.height - prevHeight;
+						this.parent.addHeight(offset);
+					}
+				}
+				else this.parent.addHeight(this.height);
+			}
 			this.content.css("height", this.height + "px");
 		}
 		this.setState("open");
 	};
 
 	Accordion.prototype.close = function(closeOverlay) {
+		var self = this;
 		if (this.overlay && (closeOverlay === undefined) ? true : closeOverlay) 
 			soysauce.overlay("off");
-		if (this.slide)
+		if (this.slide) {
+			if (this.parent === undefined) this.parent = soysauce.fetch(this.parentID);
+			if (this.isChildAccordion && this.parent.slide) {
+				if (!this.tab) this.parent.addHeight(-this.height);
+			}
 			this.content.css("height", "0px");
+		}
+		if (this.tab) {
+			var currTabOpen;
+			currTabOpen = this.tabGroup.getCurrOpen();
+			if (currTabOpen !== undefined && currTabOpen.id == self.id) this.tabGroup.setCurrOpen(undefined);	
+		}
 		this.setState("closed");
+	};
+
+	Accordion.prototype.addHeight = function(height) {
+		if (!height===+height || !height===(height|0)) return;
+		this.height += height;
+		this.height = (this.height < 0) ? 0 : this.height;
+		this.content.css("height", this.height + "px");
+	};
+
+	Accordion.prototype.setHeight = function(height) {
+		if (!height===+height || !height===(height|0)) return;
+		this.height = height;
+		this.height = (this.height < 0) ? 0 : this.height;
+		this.content.css("height", height + "px");
 	};
 
 	Accordion.prototype.toggle = function() {
@@ -98,13 +173,11 @@ soysauce.accordions = function() {
 			var self = this;
 			var options;
 
-			if(!$(this).attr("ss-state"))
-			item.close();
-
 			$(this).find("> [ss-component='button']").append("<span class='icon'></span>");
 
 			item.hasAccordions = ($(this).has("[ss-widget='accordion']").length > 0) ? true : false; 
-
+			item.isChildAccordion = ($(this).parents("[ss-widget='accordion']").length > 0) ? true : false;
+			item.parentID = $(this).parents("[ss-widget='accordion']").attr("ss-id");
 			options = soysauce.getOptions(this);
 
 			if(options) {
@@ -122,22 +195,38 @@ soysauce.accordions = function() {
 							if (!$(self).attr("ss-tab-id")) {
 								var siblings = $(self).find("~ [ss-options*='tab']");
 								var group_name = "group"
-								group = new Array();
+								group = new AccordionTabGroup(tabID);
 								item.tabID = tabID;
 								$(self).attr("ss-tab-id", tabID);
 								siblings.attr("ss-tab-id", tabID);
-								group.push(item);
-								accordion_groups.push(group);
+								item.tabGroup = group;
+								group.addAccordion(item);
+								accordionTabGroups.push(group);
 								tabID++;
 							} else {
 								item.tabID = $(self).attr("ss-tab-id");
-								accordion_groups[item.tabID - 1].push(item);
+								accordionTabGroups.forEach(function(e) {
+									if (e.groupid == item.tabID) {
+										item.tabGroup = e;
+										e.addAccordion(item);
+									}
+								});
 							}
 							
 							break;
 						case "slide":
 							item.slide = true;
-							item.height = item.content.height();
+							
+							if (item.hasAccordions) {
+								var height = 0;
+								item.content.find("[ss-component='button']").each(function() {
+									height += $(this).height();
+								});
+								item.height = height;
+							}
+							else
+								item.height = item.content.height();
+							
 							item.content.css("height", "0px");
 							break;
 					}
@@ -155,4 +244,9 @@ soysauce.accordions = function() {
 	return accordions;
 };
 
-soysauce.accordions();
+soysauce.accordions = soysauce.accordions();
+
+soysauce.accordions.forEach(function(e) {
+	if (e.state == "closed") e.setState("closed");
+	if (e.state == "closed" && e.slide) e.content.css("height", "0px");
+});
