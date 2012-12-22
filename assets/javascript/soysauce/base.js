@@ -1,3 +1,13 @@
+jQuery(document).ready(function($) {
+	// Add hasAttr() function to jQuery
+	$.fn.hasAttr = function(attr) {
+		return this.attr(attr) !== undefined;
+	};
+	setTimeout(function(){
+		window.scrollTo(0, 1);
+	}, 0);
+});
+
 if(typeof(soysauce) == "undefined") {
 	
 soysauce = {
@@ -32,10 +42,6 @@ soysauce = {
 					return ret;
 			}
 		}
-		// Fetch by Selector
-		else {
-			console.log("else");
-		}
 	},
 	browserInfo: {
 		userAgent: navigator.userAgent,
@@ -46,7 +52,8 @@ soysauce = {
 	accordions: {},
 	buttons: {},
 	lateload: {},
-	overlay: {}
+	overlay: {},
+	ccValidation: {}
 }
 
 soysauce.init();

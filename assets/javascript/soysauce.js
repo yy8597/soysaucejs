@@ -1,10 +1,5 @@
 
-jQuery(document).ready(function($) {
-	// Add hasAttr() function to jQuery
-	$.fn.hasAttr = function(attr) {
-		return this.attr(attr) !== undefined;
-	}
-});
+
 
 
 // Initialize Soysauce object
@@ -226,122 +221,6 @@ if(typeof(soysauce) == "undefined") {
 					// soysauce.hideAddressBar();
 					// soysauce.lateloadImages();
 
-soysauce.accordions = (function() {
-	var accordions = new Array();
-
-	function Accordion(obj) {
-		this.id = $(obj).attr("ss-id");
-		this.state = "closed";
-		this.obj = $(obj);
-		this.button = $(obj).find("> [ss-component='button']");
-		this.content = $(obj).find("> [ss-component='content']");
-		this.overlay = false;
-		this.tab = false;
-		this.animate = false;
-		this.doAjax = false;
-	}
-
-	Accordion.prototype.open = function() {
-		this.setState("open");
-	};
-
-	Accordion.prototype.close = function() {
-		this.setState("closed");
-	};
-
-	Accordion.prototype.toggle = function() {
-		(this.state != "open") ? this.open() : this.close();
-	};
-
-	Accordion.prototype.handleAjax = function() {
-		var obj = this.obj;
-		var content = this.content;
-		var url = "";
-		var callback;
-		var self = this;
-
-		this.button.click(function(e) {
-			if (!self.doAjax) {
-				self.toggle();
-				stifle(e);
-				return;
-			}
-
-			stifle(e);
-			self.setState("ajaxing");
-
-			if(!obj.attr("ss-ajax-url")) {
-				console.warn("Soysauce: 'ss-ajax-url' tag not found on accordion.");
-				return;
-			}
-
-			if(!obj.attr("ss-ajax-callback")) {
-				console.warn("Soysauce: 'ss-ajax-callback' tag not found on accordion.");
-				return;
-			}
-
-			url = obj.attr("ss-ajax-url");
-			callback = obj.attr("ss-ajax-callback");
-			$.get(url, eval(callback));
-
-			self.setAjaxComplete();
-		});
-	};
-
-	Accordion.prototype.setState = function(state) {
-		this.state = state;
-		this.obj.attr("ss-state", state);
-		this.button.attr("ss-state", state);
-		this.content.attr("ss-state", state);
-	};
-
-	Accordion.prototype.setAjaxComplete = function() {
-		this.doAjax = false;
-	};
-
-	// Initialize
-	(function() {
-		$("[ss-widget='accordion']").each(function() {
-			var item = new Accordion(this);
-			var options;
-
-			if(!$(this).attr("ss-state"))
-			item.close();
-
-			$(this).find("> [ss-component='button']").append("<span class='icon'></span>");
-
-			options = getOptions(this);
-
-			if(options) {
-				options.forEach(function(option) {
-					switch(option) {
-						case "ajax":
-						item.doAjax = true;
-						item.handleAjax();
-						break;
-						case "overlay":
-						console.log("overlay TBI");
-						break;
-						case "tab":
-						console.log("tab TBI");
-						break;
-						case "animate":
-						console.log("animate TBI");
-						break;
-					}
-				});
-			}
-
-			$(this).find("> [ss-component='button']").click(function() {
-				item.toggle();
-			});
-
-			accordions.push(item);
-		});
-	})(); // end init
-
-		return accordions;
-})(); // end accordions
 
 soysauce.buttons = (function() {
 	var buttons = new Array();
@@ -397,52 +276,6 @@ soysauce.buttons = (function() {
 	
 	return buttons;
 })(); // end responsive buttons
-
-soysauce.ga = (function() {
-	console.log("test");
-	
-	
-	
-})();
-
-
-// soysauce.ga = function(id) {
-// 	
-// 	console.log(id);
-// 	if(id === undefined || !id.match(/^UA-\d{4,10}-\d{1,4}$/)) {
-// 		console.log("Please enter a valid GA Account ID.");
-// 		return false;
-// 	}
-// 	function GA(id) {
-// 		this.id = id; // UA-XXXXX-X
-// 	}
-// 	
-// 	this.init = function() {
-// 		var _gaq = _gaq || [];
-// 		_gaq.push(['_setAccount', 'UA-XXXXX-X']);
-// 		_gaq.push(['_trackPageview']);
-// 
-// 		(function() {
-// 			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-// 			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-// 			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-// 		})();
-// 		
-// 	};
-// 	
-// 	return new GA(id);
-// }; // end events
-
-function getOptions(obj) {
-	if($(obj).attr("ss-options") == undefined) return false;
-	return $(obj).attr("ss-options").split(" ");
-}
-
-function stifle(e) {
-	e.stopImmediatePropagation();
-	e.preventDefault();
-}
-
 
 
 
