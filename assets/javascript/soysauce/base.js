@@ -21,6 +21,13 @@ soysauce = {
 		if($(selector).attr("ss-options") == undefined) return false;
 		return $(selector).attr("ss-options").split(" ");
 	},
+	getPrefix: function() {
+		if (navigator.userAgent.match(/webkit/i) !== null) return "-webkit-";
+		else if (navigator.userAgent.match(/windows\sphone|msie/i) !== null) return "-ms-";
+		else if (navigator.userAgent.match(/^mozilla/i) !== null) return "-moz-";
+		else if (navigator.userAgent.match(/opera/i) !== null) return "-o-";
+		return "";
+	},
 	stifle: function(e) {
 		if (e === undefined) return false;
 		e.stopImmediatePropagation();
@@ -40,6 +47,13 @@ soysauce = {
 						if (e.id == selector) ret = e;
 					});
 					return ret;
+				case "carousel":
+					soysauce.carousels.forEach(function(e) {
+						if (e.id == selector) ret = e;
+					});
+					return ret;
+				default:
+					console.warn("Soysauce: Unfetchable item.");
 			}
 		}
 	},

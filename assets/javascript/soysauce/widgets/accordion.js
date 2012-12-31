@@ -190,25 +190,23 @@ soysauce.accordions = (function() {
 			item.isChildAccordion = ($(this).parents("[ss-widget='accordion']").length > 0) ? true : false;
 			item.parentID = $(this).parents("[ss-widget='accordion']").attr("ss-id");
 
-			if(options) {
-				options.forEach(function(option) {
-					switch(option) {
-						case "ajax":
-							item.doAjax = true;
-							item.handleAjax();
-							break;
-						case "overlay":
-							item.overlay = true;
-							break;
-						case "tab":
-							item.tab = true;
-							break;
-						case "slide":
-							item.slide = true;
-							break;
-					}
-				});
-			}
+			if(options) options.forEach(function(option) {
+				switch(option) {
+					case "ajax":
+						item.doAjax = true;
+						item.handleAjax();
+						break;
+					case "overlay":
+						item.overlay = true;
+						break;
+					case "tab":
+						item.tab = true;
+						break;
+					case "slide":
+						item.slide = true;
+						break;
+				}
+			});
 			
 			if (item.tab) {
 				if (!$(self).attr("ss-tab-id")) {
