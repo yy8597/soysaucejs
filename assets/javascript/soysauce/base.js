@@ -53,7 +53,8 @@ soysauce = {
 	buttons: {},
 	lateload: {},
 	overlay: {},
-	ccValidation: {}
+	ccValidation: {},
+	carousels: {}
 }
 
 soysauce.init();

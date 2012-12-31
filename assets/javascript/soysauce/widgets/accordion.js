@@ -1,4 +1,4 @@
-soysauce.accordions = function() {
+soysauce.accordions = (function() {
 	var accordions = new Array();
 	var accordionTabGroups = new Array();
 
@@ -182,14 +182,13 @@ soysauce.accordions = function() {
 		$("[ss-widget='accordion']").each(function() {
 			var item = new Accordion(this);
 			var self = this;
-			var options;
+			var options = soysauce.getOptions(this);
 
 			$(this).find("> [ss-component='button']").append("<span class='icon'></span>");
 
 			item.hasAccordions = ($(this).has("[ss-widget='accordion']").length > 0) ? true : false; 
 			item.isChildAccordion = ($(this).parents("[ss-widget='accordion']").length > 0) ? true : false;
 			item.parentID = $(this).parents("[ss-widget='accordion']").attr("ss-id");
-			options = soysauce.getOptions(this);
 
 			if(options) {
 				options.forEach(function(option) {
@@ -203,47 +202,51 @@ soysauce.accordions = function() {
 							break;
 						case "tab":
 							item.tab = true;
-							if (!$(self).attr("ss-tab-id")) {
-								var siblings = $(self).find("~ [ss-options*='tab']");
-								var group_name = "group"
-								group = new AccordionTabGroup(tabID);
-								item.tabID = tabID;
-								$(self).attr("ss-tab-id", tabID);
-								siblings.attr("ss-tab-id", tabID);
-								item.tabGroup = group;
-								group.addAccordion(item);
-								accordionTabGroups.push(group);
-								tabID++;
-							} else {
-								item.tabID = $(self).attr("ss-tab-id");
-								accordionTabGroups.forEach(function(e) {
-									if (e.groupid == item.tabID) {
-										item.tabGroup = e;
-										e.addAccordion(item);
-									}
-								});
-							}
-							
 							break;
 						case "slide":
 							item.slide = true;
-							
-							if (item.hasAccordions) {
-								var height = 0;
-								item.content.find("[ss-component='button']").each(function() {
-									height += $(this).height();
-								});
-								item.height = height;
-							}
-							else
-								item.height = item.content.height();
-							
-							item.content.css("height", "0px");
 							break;
 					}
 				});
 			}
-
+			
+			if (item.tab) {
+				if (!$(self).attr("ss-tab-id")) {
+					var siblings = $(self).find("~ [ss-options*='tab']");
+					var group_name = "group"
+					group = new AccordionTabGroup(tabID);
+					item.tabID = tabID;
+					$(self).attr("ss-tab-id", tabID);
+					siblings.attr("ss-tab-id", tabID);
+					item.tabGroup = group;
+					group.addAccordion(item);
+					accordionTabGroups.push(group);
+					tabID++;
+				} else {
+					item.tabID = $(self).attr("ss-tab-id");
+					accordionTabGroups.forEach(function(e) {
+						if (e.groupid == item.tabID) {
+							item.tabGroup = e;
+							e.addAccordion(item);
+						}
+					});
+				}
+			}
+			
+			if (item.slide) {
+				if (item.hasAccordions) {
+					var height = 0;
+					item.content.find("[ss-component='button']").each(function() {
+						height += $(this).height();
+					});
+					item.height = height;
+				}
+				else
+					item.height = item.content.height();
+				
+				item.content.css("height", "0px");
+			}
+			
 			$(this).find("> [ss-component='button']").click(function() {
 				item.toggle();
 			});
@@ -253,9 +256,7 @@ soysauce.accordions = function() {
 	})(); // end init
 
 	return accordions;
-};
-
-soysauce.accordions = soysauce.accordions();
+})();
 
 soysauce.accordions.forEach(function(e) {
 	if (e.state == "closed") e.setState("closed");
