@@ -1,4 +1,5 @@
 [ss-widget="carousel"] {
+	@include transition(opacity 0.5s ease-in-out);
 	overflow: hidden;
 	a, img {
 		display: block;
@@ -6,7 +7,13 @@
 	[ss-component="item"] {
 		float: left;
 	}
-	[ss-component="container"] {
+	&:not([ss-state]) {
+		opacity: 0;
+	}
+	&[ss-state] {
+		opacity: 1;
+	}
+	&[ss-state] [ss-component="container"] {
 		@include transition(transform .9s);
 	}
 }
