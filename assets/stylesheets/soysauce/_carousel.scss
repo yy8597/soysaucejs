@@ -15,7 +15,7 @@
 	[ss-component="container_wrapper"] {
 		overflow: hidden;
 	}
-	&[ss-state] [ss-component="container"] {
+	&[ss-state] [ss-component="container"]:not([ss-state="notransition"]) {
 		@include transition(transform .9s);
 	}
 	[ss-component="button"] {
