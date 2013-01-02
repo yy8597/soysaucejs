@@ -16,7 +16,7 @@
 		overflow: hidden;
 	}
 	&[ss-state] [ss-component="container"]:not([ss-state="notransition"]) {
-		@include transition(transform .9s);
+		@include transition(transform .85s);
 	}
 	[ss-component="button"] {
 		position: absolute;
