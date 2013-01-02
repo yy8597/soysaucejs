@@ -62,6 +62,8 @@ soysauce = {
 			return {x: e.touches[0].clientX, y: e.touches[0].clientY};
 		else if (e.clientX != undefined)
 			return {x: e.clientX, y: e.clientY};
+		else if (e.changedTouches && e.changedTouches.length > 0)
+			return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY};
 		return null;
 	},
 	getArrayFromMatrix: function(matrix) {

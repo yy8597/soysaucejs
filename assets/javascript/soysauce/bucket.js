@@ -108,7 +108,6 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleInterrupt = function(e) {
-		console.log("interrupt");
 		var self = this;
 		var coords1, coords2, ret;
 		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
@@ -155,6 +154,9 @@ soysauce.carousels = (function() {
 			
 			if (coords2 !== null) lastX = coords2.x;
 			
+			console.log(e1);
+			console.log(e2);
+			
 			var dist = coords1.x - lastX;
 			var velocity = dist / (e2.timeStamp - e1.timeStamp);
 			var fast = (velocity > 0.35) ? true : false;
@@ -162,6 +164,8 @@ soysauce.carousels = (function() {
 			self.container.off("touchmove mousemove");
 			self.ready = true;
 			self.container.attr("ss-state", "ready");
+
+			console.log(dist);
 
 			if (Math.abs(dist) < 15)
 				self.goto(self.offset, true);
