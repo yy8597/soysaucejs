@@ -17,3 +17,16 @@ img {
 	-webkit-user-select: none;
 	-webkit-tap-highlight-color:  rgba(255, 255, 255, 0); 
 }
+
+[ss-component="button"] {
+	position: absolute !important;
+	bottom: -20px;
+	height: 40px;
+	width: 40px;
+	left: 10px;
+	background: #AAA;
+	&[ss-button-type="next"] {
+		left: auto;
+		right: 10px;
+	}
+}

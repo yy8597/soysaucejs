@@ -1,6 +1,5 @@
 [ss-widget="carousel"] {
 	@include transition(opacity 0.5s ease-in-out);
-	overflow: hidden;
 	a, img {
 		display: block;
 	}
@@ -13,7 +12,13 @@
 	&[ss-state] {
 		opacity: 1;
 	}
+	[ss-component="container_wrapper"] {
+		overflow: hidden;
+	}
 	&[ss-state] [ss-component="container"] {
 		@include transition(transform .9s);
+	}
+	[ss-component="button"] {
+		position: absolute;
 	}
 }
