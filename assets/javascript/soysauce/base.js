@@ -57,6 +57,13 @@ soysauce = {
 			}
 		}
 	},
+	getCoords: function(e) {
+		if (e.touches && e.touches.length > 0)
+			return {x: e.touches[0].clientX, y: e.touches[0].clientY};
+		else if (e.clientX != undefined)
+			return {x: e.clientX, y: e.clientY};
+		return null;
+	},
 	browserInfo: {
 		userAgent: navigator.userAgent,
 		supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,

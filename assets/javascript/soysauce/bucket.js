@@ -99,18 +99,31 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.handleSwipe = function(e1) {
 		var self = this;
+		var coords1, coords2, lastX;
+		
 		soysauce.stifle(e1);
 		
 		if (!this.ready) return;
 		
+		coords1 = soysauce.getCoords(e1);
+		
 		this.container.on("touchmove mousemove", function(e2) {
-			var dragOffset = e1.clientX - e2.clientX;
+			var dragOffset;
+			
+			coords2 = soysauce.getCoords(e2.originalEvent);
+			lastX = coords2.x;
+			dragOffset = coords1.x - coords2.x;
+			
 			self.container.attr("ss-state", "notransition");
 			self.container[0].style.webkitTransform = self.container[0].style.msTransform = self.container[0].style.OTransform = self.container[0].style.MozTransform = self.container[0].style.transform = "translate" + ((self.supports3d) ? "3d(" : "(") + (self.offset - dragOffset) + "px,0,0)";
 		});
 		
 		this.container.one("touchend mouseup", function(e2) {
-			var dist = e1.clientX - e2.clientX;
+			var coords2 = soysauce.getCoords(e2.originalEvent);
+			
+			if (coords2 !== null) lastX = coords2.x;
+			
+			var dist = coords1.x - lastX;
 			var velocity = dist / (e2.timeStamp - e1.timeStamp);
 			var fast = (velocity > 0.35) ? true : false;
 			
@@ -126,8 +139,6 @@ soysauce.carousels = (function() {
 				self.slideBackward(fast);
 			}
 		});
-		
-		
 	};
 	
 	Carousel.prototype.pause = function(e) {
@@ -259,10 +270,10 @@ soysauce.carousels = (function() {
 				});
 			});
 			else if (carousel.swipe) carousel.container.on("touchstart mousedown", function(e) {
-				carousel.handleSwipe(e);
+				carousel.handleSwipe(e.originalEvent);
 			});
 			else if (carousel.zoom) carousel.container.click(function(e) {
-				carousel.handleZoom(e);
+				carousel.handleZoom(e.originalEvent);
 			});
 			
 			carousel.ready = true;
