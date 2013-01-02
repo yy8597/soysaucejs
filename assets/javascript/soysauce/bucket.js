@@ -20,7 +20,7 @@ soysauce.carousels = (function() {
 		this.ready = false;
 	}
 	
-	Carousel.prototype.goto = function(x, forward) {
+	Carousel.prototype.goto = function(x, forward, fast) {
 		var self = this;
 		this.offset = x;
 		this.container[0].style.webkitTransform = this.container[0].style.msTransform = this.container[0].style.OTransform = this.container[0].style.MozTransform = this.container[0].style.transform = "translate" + ((this.supports3d) ? "3d(" : "(") + x + "px,0,0)";
@@ -29,7 +29,7 @@ soysauce.carousels = (function() {
 			this.container.attr("ss-state", "ready");
 		}
 		else {
-			this.container.attr("ss-state", "intransit");
+			this.container.attr("ss-state", (fast) ? "intransit-fast" : "intransit");
 		}
 	
 		if (this.infinite) {
@@ -52,7 +52,7 @@ soysauce.carousels = (function() {
 		}
 	};
 	
-	Carousel.prototype.slideForward = function() {
+	Carousel.prototype.slideForward = function(fast) {
 		if (!this.ready || (!this.infinite && this.index == this.numChildren - 1)) return false;
 		
 		$(this.items[this.index++]).attr("ss-state", "inactive");
@@ -65,12 +65,12 @@ soysauce.carousels = (function() {
 			$(this.items[this.index]).attr("ss-state", "active");
 		
 		this.ready = false;
-		this.goto(this.offset - this.itemWidth, true);
+		this.goto(this.offset - this.itemWidth, true, fast);
 		
 		return true;
 	};
 	
-	Carousel.prototype.slideBackward = function() {
+	Carousel.prototype.slideBackward = function(fast) {
 		if (!this.ready || (!this.infinite && this.index == 0)) return false;
 		
 		$(this.items[this.index--]).attr("ss-state", "inactive");
@@ -83,7 +83,7 @@ soysauce.carousels = (function() {
 			$(this.items[this.index]).attr("ss-state", "active");
 		
 		this.ready = false;
-		this.goto(this.offset + this.itemWidth, false);
+		this.goto(this.offset + this.itemWidth, false, fast);
 		
 		return true;
 	};
@@ -111,17 +111,19 @@ soysauce.carousels = (function() {
 		
 		this.container.one("touchend mouseup", function(e2) {
 			var dist = e1.clientX - e2.clientX;
-
+			var velocity = dist / (e2.timeStamp - e1.timeStamp);
+			var fast = (velocity > 0.35) ? true : false;
+			
 			self.container.off("touchmove mousemove");
 
 			if (Math.abs(dist) < 15) {
 				self.goto(self.offset, true);
 			}
 			else if (dist > 0) {
-				self.slideForward();
+				self.slideForward(fast);
 			}
 			else {
-				self.slideBackward();
+				self.slideBackward(fast);
 			}
 		});
 		

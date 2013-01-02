@@ -17,6 +17,9 @@
 	}
 	&[ss-state] [ss-component="container"]:not([ss-state="notransition"]) {
 		@include transition(transform .85s);
+		&[ss-state="intransit-fast"] {
+			@include transition(transform .6s);
+		}
 	}
 	[ss-component="button"] {
 		position: absolute;
