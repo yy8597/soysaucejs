@@ -64,6 +64,9 @@ soysauce = {
 			return {x: e.clientX, y: e.clientY};
 		return null;
 	},
+	getArrayFromMatrix: function(matrix) {
+		return matrix.substr(7, matrix.length - 8).split(', ');
+	},
 	browserInfo: {
 		userAgent: navigator.userAgent,
 		supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,
