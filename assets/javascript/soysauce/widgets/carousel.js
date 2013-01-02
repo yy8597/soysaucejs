@@ -250,10 +250,6 @@ soysauce.carousels = (function() {
 			});
 			else if (carousel.swipe) carousel.container.on("touchstart mousedown", function(e) {
 				carousel.handleSwipe(e);
-				// soysauce.stifle(e1);
-				// 				carousel.container.one("touchend mouseup", function(e2) {
-				// 					carousel.handleSwipe(e1, e2);
-				// 				});
 			});
 			else if (carousel.zoom) carousel.container.click(function(e) {
 				carousel.handleZoom(e);
