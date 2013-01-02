@@ -25,57 +25,36 @@ soysauce.carousels = (function() {
 		this.offset = x;
 		this.setStyle(x);
 		
-		if (this.ready) {
+		if (this.ready)
 			this.container.attr("ss-state", "ready");
-		}
-		else {
+		else
 			this.container.attr("ss-state", (fast) ? "intransit-fast" : "intransit");
-		}
 	
 		if (this.infinite) {
-			if (this.index == this.numChildren - 2 && !forward) this.container.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+			if (this.index == this.numChildren - 2 && !forward)  {
+				var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
+				var newOffset = -self.index*self.itemWidth;
 				self.container.attr("ss-state", "notransition");
-				self.offset = -self.index*self.itemWidth;
+				self.offset = newOffset + xcoord;
 				self.setStyle(self.offset);
 				window.setTimeout(function() {
-					self.container.attr("ss-state", "ready");
+					self.container.attr("ss-state", "intransit");
+					self.setStyle(newOffset);
+					self.offset = newOffset;
 				}, 0);
-			});
-			
-			// else if (this.index == this.numChildren - 2 && !forward && !this.ready)  {
-			// 			var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
-			// 			self.container.attr("ss-state", "notransition");
-			// 			self.offset = -self.index*self.itemWidth + xcoord;
-			// 			console.log("extra offset: " + xcoord);
-			// 			console.log("new offset: " + self.offset)
-			// 			self.setStyle(self.offset);
-			// 			window.setTimeout(function() {
-			// 				self.container.attr("ss-state", "intransit");
-			// 				self.setStyle(-self.index*self.itemWidth);
-			// 			}, 0);
-			// 		}
-			// 		
-			
-			else if (this.index == 1 && forward) this.container.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+			}
+			else if (this.index == 1 && forward)  {
+				var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
+				var newOffset = self.offset + self.itemWidth - xcoord;
 				self.container.attr("ss-state", "notransition");
-				self.offset = -self.itemWidth;
-				self.setStyle(self.offset);
+				self.offset = -newOffset + xcoord;
+				self.setStyle(-newOffset);
 				window.setTimeout(function() {
-					self.container.attr("ss-state", "ready");
+					self.container.attr("ss-state", "intransit");
+					self.setStyle(-self.itemWidth);
+					self.offset = -self.itemWidth;
 				}, 0);
-			});
-					// 	
-					// else if (this.index == 1 && forward && !this.ready) {
-					// 	var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
-					// 	console.log("inside2: " + xcoord);
-					// 	self.container.attr("ss-state", "notransition");
-					// 	self.offset = -self.itemWidth;
-					// 	self.setStyle(self.offset);
-					// 	window.setTimeout(function() {
-					// 		self.container.attr("ss-state", "ready");
-					// 	}, 0);
-					// }
-			
+			}	
 		}
 	};
 	
