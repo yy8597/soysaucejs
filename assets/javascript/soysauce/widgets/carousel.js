@@ -25,10 +25,12 @@ soysauce.carousels = (function() {
 		this.offset = x;
 		this.container[0].style.webkitTransform = this.container[0].style.msTransform = this.container[0].style.OTransform = this.container[0].style.MozTransform = this.container[0].style.transform = "translate" + ((this.supports3d) ? "3d(" : "(") + x + "px,0,0)";
 		
-		if (this.ready) 
+		if (this.ready) {
 			this.container.attr("ss-state", "ready");
-		else
+		}
+		else {
 			this.container.attr("ss-state", "intransit");
+		}
 	
 		if (this.infinite) {
 			if (this.index == this.numChildren - 2 && !forward) this.container.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
@@ -98,20 +100,22 @@ soysauce.carousels = (function() {
 	Carousel.prototype.handleSwipe = function(e1) {
 		var self = this;
 		soysauce.stifle(e1);
-		// if (!this.ready) return false;
+		
+		if (!this.ready) return;
 		
 		this.container.on("touchmove mousemove", function(e2) {
 			var dragOffset = e1.clientX - e2.clientX;
 			self.container.attr("ss-state", "notransition");
 			self.container[0].style.webkitTransform = self.container[0].style.msTransform = self.container[0].style.OTransform = self.container[0].style.MozTransform = self.container[0].style.transform = "translate" + ((self.supports3d) ? "3d(" : "(") + (self.offset - dragOffset) + "px,0,0)";
 		});
+		
 		this.container.one("touchend mouseup", function(e2) {
 			var dist = e1.clientX - e2.clientX;
 
 			self.container.off("touchmove mousemove");
-			
+
 			if (Math.abs(dist) < 15) {
-				console.log("return");
+				self.goto(self.offset, true);
 			}
 			else if (dist > 0) {
 				self.slideForward();
@@ -121,6 +125,10 @@ soysauce.carousels = (function() {
 			}
 		});
 		
+		
+	};
+	
+	Carousel.prototype.pause = function(e) {
 		
 	};
 	
