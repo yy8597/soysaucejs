@@ -1,91 +1,102 @@
-bb-carousel
-===========
+Soysauce (BETA)
+==========================
+Original Author: Edward Gaba
 
-HTML Structure
+About
 --------------
-The basic structure of a carousel is:
+Soysauce is a mobile-specific javascript widget library.
 
-	<carousel>
-		<items>
-			<item>Item Content</item>
-			<item>Item Content</item>
-		</items>
-	</carousel>
+Widgets
+--------------
 
-The preferred HTML layout is:
+These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. I will bundle these later, but to use for now you will need to include:
 
-	<div id="product_carousel" class="carousel">
-		<ul>
-			<li>
-				<a href="#"><img src="images/image1.png" alt="Image 1"></a>
-			</i>
-			<li>
-				<a href="#"><img src="images/image2.png" alt="Image 2"></a>
-			</i>
-			<li>
-				<a href="#"><img src="images/image1.png" alt="Image 3"></a>
-			</i>
-		</ul>
+	soysauce.css
+	fastclick.js
+	base.js
+	[your widget].js
+
+### 1) Carousel
+
+Carousels allow for "slideshow" effects for images.
+
+Required Attributes:
+
+	1) ss-widget="carousel"
+	2) ss-component="item"
+
+Usage:
+
+	<div ss-widget="carousel">
+		<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+		<img ss-component="item" src="http://placehold.it/300x200/cdcdcd">
+		<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+		<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
 	</div>
 
-The actual elements used do not matter, as long as the structure remains the same. So, for example, you could use this instead:
+Additional Options:
 
-	<div id="product_carousel" class="carousel">
-		<div>
-			<a href="#"><img src="images/image1.png" alt="Image 1"></a>
-			<a href="#"><img src="images/image2.png" alt="Image 2"></a>
-			<a href="#"><img src="images/image3.png" alt="Image 3"></a>
+	1) autoscroll - timer based autoscrolling, default is 5000ms. To change, use [ss-autoscroll-interval="x"]
+	2) fullscreen
+	3) peek
+	4) finite
+	5) noswipe
+	6) zoom - coming soon
+
+### 2) Accordion
+
+Accordions allow for hiding and showing content when necessary.
+
+Usage:
+
+	<div ss-widget="accordion" ss-options="tab slide">
+		<h1 ss-component="button">BUTTON</h1>
+		<div ss-component="content">
+			<ul>
+				<li>content</li>
+				<li>content</li>
+				<li>content</li>
+				<li>content</li>
+			</ul>
 		</div>
 	</div>
 
-Slide Position Indicators
--------------------------
+Options:
 
-You can add slide position indicators, usually in the form of bullets, by creating a containing element as a child of the carousel container and giving it the class `carousel_position`. (You can change this selector in the options described in the next section.)
+	1) overlay - provides a transparent overlay behind main content
+	2) ajax - transfer JSON information from the same-domain
+	3) tab - only one accordion open at a time per group
+	4) slide - animate a slidedown effect
 
-	<div id="product_carousel" class="carousel">
-		<div>
-			<a href="#"><img src="images/image1.png" alt="Image 1"></a>
-			<a href="#"><img src="images/image2.png" alt="Image 2"></a>
-			<a href="#"><img src="images/image3.png" alt="Image 3"></a>
-		</div>
-		<div class="carousel_position"></div>
-	</div>
-	
-The bullets will be automatically generated. As an example:
+### 3) Lateload
 
-	<div class="carousel_position">
-		<span class="active">1</span>
-		<span>2</span>
-		<span>3</span>
-	</div>	
+Lateloading is an optimization technique. There are two events that get fired as browser processes the page, "DOMContentLoaded", which is fired on the document object, and "load," which is fired on the window object.
 
-If the position container is a list, the indicators will appropriately wrapped in `li`, otherwise they will be wrapped in `span`.
+The process goes like this:
 
-JavaScript
------------
+	1) User hits the page and waits
+	2) "DOMContentLoaded" occurs and user can see the page processing
+	3) "load" occurs and user doesn't see the page loading anymore
 
-To create a carousel, simply pass the carousel container element to a new BBCarousel object.
+##### "DOMContentLoaded" event
 
-	$(function() {
-		var carousel = new BBCarousel(document.getElementById('product_carousel'));
-	});
+It's recommended load content on this event for hidden, but necessary content such as non-primary images in a carousel.
 
-### Carousel Options
+Usage:
 
-	$(function() {
-		var carousel = new BBCarousel(document.getElementById('product_carousel'), {
-			startSlide: 0,
-				// integer, index position
-			speed: 300,
-				// integer, speed of transitions in milliseconds
-			auto: 0,
-				// integer, time in milliseconds between slides
-			callback: function() {},
-				// function, runs at the end of a slide change
-			bullets_container: '.carousel_position',
-				// string, query selector of container to place bullets in
-			active_class: 'active'
-				// string, class name applied to active position bullets
-		});
-	});
+	<img ss-dcl-src="/images/brownie.png">
+
+##### "load" event
+
+It's recommended to load all unnecessary images/scripts on this event, such as images in an accordion or images in a popup.
+
+Usage:
+
+	<img ss-ll-src="/images/brownie.png">
+
+
+
+Notes
+--------------
+* This widget package requires jQuery 1.7+
+

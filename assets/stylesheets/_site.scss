@@ -1,0 +1,103 @@
+* {
+	@include box-sizing(border-box);
+}
+
+html {
+	-webkit-text-size-adjust: none;
+}
+
+body {
+	position: relative;
+	font-size: 13px;
+	font-family: 'Open Sans', sans-serif;
+}
+
+img {
+	max-width: 100%;
+	-webkit-user-select: none;
+	-webkit-tap-highlight-color:  rgba(255, 255, 255, 0); 
+}
+
+h1 {
+	margin: 10px 5px;
+	padding-bottom: 10px;
+	border-bottom: 2px solid #AAA;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+h2 {
+	margin: 10px 5px 5px;
+}
+
+.options {
+	@include border-radius(3px);
+	background: #eee;
+	border: 1px solid #777;
+	margin: 10px 5px;
+	padding: 10px;
+	h3 {
+		font-weight: bold;
+		padding-bottom: 5px;
+		border-bottom: 1px solid #aaa;
+		margin-bottom: 5px;
+	}
+	li:not(:last-of-type) {
+		margin: 3px 0;
+		padding-bottom: 3px;
+		border-bottom: 1px dotted #AAA;
+	}
+	li:hover {
+		color: #cd0000;
+		text-shadow: 0 1px 0 white;
+	}
+}
+
+.ss_carousels {
+	.carousel2 {
+		[ss-component="dots"] {
+			width: 100%;
+			background: #ddd;
+			position: absolute;
+			bottom: 0px;
+			padding: 5px;
+			text-align: right;
+			border: solid #777;
+			border-width: 1px 0;
+		}
+
+		[ss-component="dot"] {
+			@include border-radius(8px);
+			display: inline-block;
+			background: #333;
+			height: 12px;
+			width: 12px;
+			margin-right: 5px;
+			&[ss-state="active"] {
+				background: #cd0000;
+			}
+		}
+	}
+	.carousel3 {
+		[ss-component="item"] {
+			@include transition(opacity .7s);
+		}
+		[ss-component="item"][ss-state="inactive"] {
+			opacity: 0.4;
+		}
+	}
+	.carousel4 {
+		[ss-component="button"] {
+			position: absolute;
+			right: 10px;
+			bottom: 10px;
+			width: 50px;
+			height: 50px;
+			background: #333;
+			&[ss-button-type="prev"] {
+				right: auto;
+				left: 10px;
+			}
+		}
+	}
+}
