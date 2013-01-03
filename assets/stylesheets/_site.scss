@@ -20,7 +20,7 @@ img {
 
 [ss-component="button"] {
 	position: absolute !important;
-	bottom: -20px;
+	bottom: 30px;
 	height: 40px;
 	width: 40px;
 	left: 10px;
@@ -28,5 +28,22 @@ img {
 	&[ss-button-type="next"] {
 		left: auto;
 		right: 10px;
+	}
+}
+
+[ss-component="dots"] {
+	height: 20px;
+	width: 100%;
+	background: white;
+}
+
+[ss-component="dot"] {
+	@include border-radius(8px);
+	display: inline-block;
+	background: #333;
+	height: 8px;
+	width: 8px;
+	&[ss-state="active"] {
+		background: #cd0000;
 	}
 }
