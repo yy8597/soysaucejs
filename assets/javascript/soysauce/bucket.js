@@ -8,6 +8,9 @@ soysauce.carousels = (function() {
 		this.dots;
 		this.infinite = true;
 		this.autoscroll = false;
+		this.autoscrollID;
+		this.autoscrollInterval = 5000;
+		this.autoscrollRestartInterval;
 		this.fullscreen = false;
 		this.peek = false;
 		this.peekWidth = 0;
@@ -124,6 +127,13 @@ soysauce.carousels = (function() {
 		var self = this;
 		var coords1, coords2, ret;
 		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
+		
+		if (this.autoscroll){
+			this.autoscrollOff();
+			if (this.autoscrollRestartInterval !== undefined)
+				window.clearInterval(self.autoscrollRestartInterval);
+		}
+		
 		this.container.attr("ss-state", "notransition");
 		this.setStyle(xcoord);
 		
@@ -175,17 +185,43 @@ soysauce.carousels = (function() {
 			self.ready = true;
 			self.container.attr("ss-state", "ready");
 
+			self.autoscrollRestartInterval = window.setTimeout(function() {
+				self.slideForward();
+			}, self.autoscrollInterval);
+
 			if (Math.abs(dist) < 15)
 				self.goto(self.offset, true);
 			else if (dist > 0)
 				self.slideForward(fast);
 			else
 				self.slideBackward(fast);
+				
 		});
 	};
 	
 	Carousel.prototype.handleZoom = function(e) {
 		console.log("zooming");
+	};
+	
+	Carousel.prototype.autoscrollOn = function() {
+		var self = this;
+		if (this.autoscrollID === undefined) {
+			this.autoscrollID = window.setInterval(function() {
+				self.slideForward();
+			}, self.autoscrollInterval);
+			return true;
+		}
+		return false;
+	};
+	
+	Carousel.prototype.autoscrollOff = function() {
+		var self = this;
+		if (this.autoscrollID !== undefined) {
+			window.clearInterval(self.autoscrollID);
+			this.autoscrollID = undefined;
+			return true;
+		}
+		return false;
 	};
 	
 	// Init
@@ -210,21 +246,17 @@ soysauce.carousels = (function() {
 						break;
 					case "autoscroll":
 						carousel.autoscroll = true;
-						console.log("autoscroll enabled on: " + carousel.id);
 						break;
 					case "fullscreen":
 						carousel.fullscreen = true;
 						break;
 					case "noswipe":
 						carousel.swipe = false;
-						console.log("noswipe enabled on: " + carousel.id);
 						break;
 					case "zoom":
-						console.log("zoom enabled on: " + carousel.id);
 						carousel.zoom = true;
 						break;
 					case "3d":
-						console.log("3d enabled on: " + carousel.id);
 						carousel.supports3d = true;
 						break;
 				}
@@ -331,9 +363,13 @@ soysauce.carousels = (function() {
 			});
 			
 			// implement with play/pause functionality
-			// if (carousel.autoscroll) setTimeout(function() {
-			// 				carousel.slideForward();
-			// 			}, 5000);
+			if (carousel.autoscroll) {
+				var interval = $(this).attr("ss-autoscroll-interval");
+				if (interval !== undefined)
+					carousel.autoscrollInterval = parseInt(interval);
+				carousel.autoscrollOn();
+			}
+				
 			
 			carousels.push(carousel);
 		});
