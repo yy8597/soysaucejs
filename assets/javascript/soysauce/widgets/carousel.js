@@ -5,12 +5,15 @@ soysauce.carousels = (function() {
 		this.id = $(obj).attr("ss-id");
 		this.container;
 		this.items;
+		this.dots;
 		this.infinite = true;
 		this.autoscroll = false;
+		this.autoscrollID;
+		this.autoscrollInterval = 5000;
+		this.autoscrollRestartInterval;
 		this.fullscreen = false;
 		this.peek = false;
 		this.peekWidth = 0;
-		this.dots = false;
 		this.swipe = true;
 		this.numChildren = 0;
 		this.index = 0;
@@ -61,6 +64,7 @@ soysauce.carousels = (function() {
 	Carousel.prototype.slideForward = function(fast) {
 		if (!this.ready || (!this.infinite && this.index == this.numChildren - 1)) return false;
 		
+		$(this.dots[this.index - 1]).attr("ss-state", "inactive");
 		$(this.items[this.index++]).attr("ss-state", "inactive");
 		
 		if (this.infinite && this.index == this.numChildren - 1) {
@@ -70,6 +74,7 @@ soysauce.carousels = (function() {
 		else
 			$(this.items[this.index]).attr("ss-state", "active");
 		
+		$(this.dots[this.index - 1]).attr("ss-state", "active");
 		this.ready = false;
 		this.goto(this.offset - this.itemWidth, true, fast);
 		
@@ -79,6 +84,7 @@ soysauce.carousels = (function() {
 	Carousel.prototype.slideBackward = function(fast) {
 		if (!this.ready || (!this.infinite && this.index == 0)) return false;
 		
+		$(this.dots[this.index - 1]).attr("ss-state", "inactive");
 		$(this.items[this.index--]).attr("ss-state", "inactive");
 		
 		if (this.infinite && this.index == 0) {
@@ -88,6 +94,7 @@ soysauce.carousels = (function() {
 		else
 			$(this.items[this.index]).attr("ss-state", "active");
 		
+		$(this.dots[this.index - 1]).attr("ss-state", "active");
 		this.ready = false;
 		this.goto(this.offset + this.itemWidth, false, fast);
 		
@@ -99,8 +106,17 @@ soysauce.carousels = (function() {
 			this.container.width(this.itemWidth * (this.numChildren + 2));
 		else
 			this.container.width(this.itemWidth * this.numChildren);
-		this.itemWidth = $(window).width();
-		this.container.find("[ss-component='item']").width(this.itemWidth);
+		
+		if (this.fullscreen) {
+			var diff = $(window).width() - this.itemWidth;
+			var prevState = this.container.attr("ss-state");
+			var self = this;
+			this.itemWidth += diff;
+			this.offset = -this.index * this.itemWidth;
+			this.container.attr("ss-state", "notransition");
+			this.setStyle(this.offset);			
+			this.container.find("[ss-component='item']").width(this.itemWidth);
+		}
 	};
 	
 	Carousel.prototype.setStyle = function(x) {
@@ -111,6 +127,15 @@ soysauce.carousels = (function() {
 		var self = this;
 		var coords1, coords2, ret;
 		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
+		
+		if (this.autoscroll) {
+			this.autoscrollOff();
+			if (this.autoscrollRestartInterval !== undefined) {
+				window.clearInterval(self.autoscrollRestartInterval);
+				self.autoscrollRestartInterval = undefined;
+			}
+		}
+		
 		this.container.attr("ss-state", "notransition");
 		this.setStyle(xcoord);
 		
@@ -162,6 +187,11 @@ soysauce.carousels = (function() {
 			self.ready = true;
 			self.container.attr("ss-state", "ready");
 
+			if (self.autoscroll && self.autoscrollRestartInterval === undefined) 
+				self.autoscrollRestartInterval = window.setTimeout(function() {
+					self.slideForward();
+				}, self.autoscrollInterval);
+
 			if (Math.abs(dist) < 15)
 				self.goto(self.offset, true);
 			else if (dist > 0)
@@ -175,6 +205,27 @@ soysauce.carousels = (function() {
 		console.log("zooming");
 	};
 	
+	Carousel.prototype.autoscrollOn = function() {
+		var self = this;
+		if (this.autoscrollID === undefined) {
+			this.autoscrollID = window.setInterval(function() {
+				self.slideForward();
+			}, self.autoscrollInterval);
+			return true;
+		}
+		return false;
+	};
+	
+	Carousel.prototype.autoscrollOff = function() {
+		var self = this;
+		if (this.autoscrollID !== undefined) {
+			window.clearInterval(self.autoscrollID);
+			this.autoscrollID = undefined;
+			return true;
+		}
+		return false;
+	};
+	
 	// Init
 	(function() {
 		$("[ss-widget='carousel']").each(function() {
@@ -185,6 +236,7 @@ soysauce.carousels = (function() {
 			var items = $(this).find("[ss-component='item']");
 			var first_item, last_item;
 			var wrapper;
+			var i = 0;
 			
 			if(options) options.forEach(function(option) {
 				switch(option) {
@@ -196,25 +248,17 @@ soysauce.carousels = (function() {
 						break;
 					case "autoscroll":
 						carousel.autoscroll = true;
-						console.log("autoscroll enabled on: " + carousel.id);
 						break;
 					case "fullscreen":
 						carousel.fullscreen = true;
 						break;
-					case "dots":
-						carousel.dots = true;
-						console.log("dots enabled on: " + carousel.id);
-						break;
 					case "noswipe":
 						carousel.swipe = false;
-						console.log("noswipe enabled on: " + carousel.id);
 						break;
 					case "zoom":
-						console.log("zoom enabled on: " + carousel.id);
 						carousel.zoom = true;
 						break;
 					case "3d":
-						console.log("3d enabled on: " + carousel.id);
 						carousel.supports3d = true;
 						break;
 				}
@@ -225,6 +269,8 @@ soysauce.carousels = (function() {
 			carousel.container = $(this).find("[ss-component='container']");
 			wrapper = $(this).find("[ss-component='container_wrapper']");
 			wrapper.after("<div ss-component='button' ss-button-type='prev'></div><div ss-component='button' ss-button-type='next'></div>");
+			wrapper.after("<div ss-component='dots'></div>")
+			carousel.dots = $(this).find("[ss-component='dots']");
 			
 			wrapper.find("~ [ss-button-type='prev']").click(function() {
 				carousel.slideBackward();
@@ -241,6 +287,16 @@ soysauce.carousels = (function() {
 			
 			carousel.items = items;
 			carousel.numChildren = items.length;
+			
+			var dotsHtml = "";
+			var numDots = (carousel.infinite) ? carousel.numChildren - 2 : carousel.numChildren;
+			for (i = 0; i < numDots; i++) {
+				dotsHtml += "<div ss-component='dot'></div>";
+			}
+			carousel.dots.html(dotsHtml);
+			carousel.dots = carousel.dots.find("div");
+			carousel.dots.attr("ss-state", "inactive")
+			carousel.dots.first().attr("ss-state", "active");
 			
 			if (carousel.peek) {
 				carousel.peekWidth = ($(this).attr("ss-peek-width") !== undefined) ? parseInt($(this).attr("ss-peek-width")) : 0;
@@ -309,9 +365,13 @@ soysauce.carousels = (function() {
 			});
 			
 			// implement with play/pause functionality
-			// if (carousel.autoscroll) setTimeout(function() {
-			// 				carousel.slideForward();
-			// 			}, 5000);
+			if (carousel.autoscroll) {
+				var interval = $(this).attr("ss-autoscroll-interval");
+				if (interval !== undefined)
+					carousel.autoscrollInterval = parseInt(interval);
+				carousel.autoscrollOn();
+			}
+				
 			
 			carousels.push(carousel);
 		});

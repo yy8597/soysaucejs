@@ -128,10 +128,12 @@ soysauce.carousels = (function() {
 		var coords1, coords2, ret;
 		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
 		
-		if (this.autoscroll){
+		if (this.autoscroll) {
 			this.autoscrollOff();
-			if (this.autoscrollRestartInterval !== undefined)
+			if (this.autoscrollRestartInterval !== undefined) {
 				window.clearInterval(self.autoscrollRestartInterval);
+				self.autoscrollRestartInterval = undefined;
+			}
 		}
 		
 		this.container.attr("ss-state", "notransition");
@@ -185,9 +187,10 @@ soysauce.carousels = (function() {
 			self.ready = true;
 			self.container.attr("ss-state", "ready");
 
-			self.autoscrollRestartInterval = window.setTimeout(function() {
-				self.slideForward();
-			}, self.autoscrollInterval);
+			if (self.autoscroll && self.autoscrollRestartInterval === undefined) 
+				self.autoscrollRestartInterval = window.setTimeout(function() {
+					self.slideForward();
+				}, self.autoscrollInterval);
 
 			if (Math.abs(dist) < 15)
 				self.goto(self.offset, true);
@@ -195,7 +198,6 @@ soysauce.carousels = (function() {
 				self.slideForward(fast);
 			else
 				self.slideBackward(fast);
-				
 		});
 	};
 	

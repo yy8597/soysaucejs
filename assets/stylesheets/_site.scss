@@ -18,32 +18,32 @@ img {
 	-webkit-tap-highlight-color:  rgba(255, 255, 255, 0); 
 }
 
-[ss-component="button"] {
-	position: absolute !important;
-	bottom: 30px;
-	height: 40px;
-	width: 40px;
-	left: 10px;
-	background: #AAA;
-	&[ss-button-type="next"] {
-		left: auto;
-		right: 10px;
-	}
-}
-
-[ss-component="dots"] {
-	height: 20px;
-	width: 100%;
-	background: white;
-}
-
-[ss-component="dot"] {
-	@include border-radius(8px);
-	display: inline-block;
-	background: #333;
-	height: 8px;
-	width: 8px;
-	&[ss-state="active"] {
-		background: #cd0000;
-	}
-}
+//[ss-component="button"] {
+//	position: absolute !important;
+//	bottom: 30px;
+//	height: 40px;
+//	width: 40px;
+//	left: 10px;
+//	background: #AAA;
+//	&[ss-button-type="next"] {
+//		left: auto;
+//		right: 10px;
+//	}
+//}
+//
+//[ss-component="dots"] {
+//	height: 20px;
+//	width: 100%;
+//	background: white;
+//}
+//
+//[ss-component="dot"] {
+//	@include border-radius(8px);
+//	display: inline-block;
+//	background: #333;
+//	height: 8px;
+//	width: 8px;
+//	&[ss-state="active"] {
+//		background: #cd0000;
+//	}
+//}
