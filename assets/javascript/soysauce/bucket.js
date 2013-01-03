@@ -99,8 +99,17 @@ soysauce.carousels = (function() {
 			this.container.width(this.itemWidth * (this.numChildren + 2));
 		else
 			this.container.width(this.itemWidth * this.numChildren);
-		this.itemWidth = $(window).width();
-		this.container.find("[ss-component='item']").width(this.itemWidth);
+		
+		if (this.fullscreen) {
+			var diff = $(window).width() - this.itemWidth;
+			var prevState = this.container.attr("ss-state");
+			var self = this;
+			this.itemWidth += diff;
+			this.offset = -this.index * this.itemWidth;
+			this.container.attr("ss-state", "notransition");
+			this.setStyle(this.offset);			
+			this.container.find("[ss-component='item']").width(this.itemWidth);
+		}
 	};
 	
 	Carousel.prototype.setStyle = function(x) {
