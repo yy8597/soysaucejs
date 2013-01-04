@@ -21,6 +21,7 @@ soysauce.carousels = (function() {
 		this.itemWidth = 0;
 		this.offset = 0;
 		this.ready = false;
+		this.interrupted = false;
 	}
 	
 	Carousel.prototype.gotoPos = function(x, forward, fast) {
@@ -60,12 +61,17 @@ soysauce.carousels = (function() {
 			}	
 		}
 		
+		if (self.interrupted)
+			this.container.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+				self.interrupted = false;
+			});
+		
 		if (self.autoscroll && self.autoscrollRestartID === undefined)
 			this.container.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
-				self.autoscrollRestartID = window.setTimeout(function() {
-					self.autoscrollOn();
-			}, 1000);
-		});
+					self.autoscrollRestartID = window.setTimeout(function() {
+						self.autoscrollOn();
+					}, 1000);
+			});
 			
 	};
 	
@@ -137,6 +143,8 @@ soysauce.carousels = (function() {
 		var coords1, coords2, ret;
 		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
 		
+		this.interrupted = true;
+		
 		if (this.autoscroll) {
 			this.autoscrollOff();
 			if (this.autoscrollRestartID !== undefined) {
@@ -197,9 +205,10 @@ soysauce.carousels = (function() {
 		}
 		
 		this.container.one("touchend mouseup", function(e2) {
+			soysauce.stifle(e2);
 			coords2 = soysauce.getCoords(e2.originalEvent);
-			if (coords2 !== null) lastX = coords2.x;
-			
+			if (lastX === undefined && coords2 !== null) lastX = coords2.x;
+
 			var dist = coords1.x - lastX;
 			var velocity = dist / (e2.timeStamp - e1.timeStamp);
 			var fast = (velocity > 0.35) ? true : false;
@@ -207,13 +216,16 @@ soysauce.carousels = (function() {
 			self.container.off("touchmove mousemove");
 			self.ready = true;
 			self.container.attr("ss-state", "ready");
-
-			if (Math.abs(dist) < 15)
+			
+			if (Math.abs(dist) < 15 || (self.interrupted && Math.abs(dist) < 25)) {
+				soysauce.stifle(e1);
 				self.gotoPos(self.offset, true);
+			}
 			else if (dist > 0)
 				self.slideForward(fast);
 			else
 				self.slideBackward(fast);
+			
 		});
 	};
 	
