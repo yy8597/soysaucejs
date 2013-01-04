@@ -1,52 +1,223 @@
 <html>
 	<head>
 		<title>Soysauce - Accordion Examples</title>
+		<link rel="stylesheet" href="../assets/soysauce.css">
 		<link rel="stylesheet" href="../assets/main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	</head>
-	<body class="ss_carousels">
-		<h1>Carousels</h1>
+	<body class="ss_accordions">
+		<h1>Accordions</h1>
 		
 		<div class="options">
 			<h3>Full list of options</h3>
 			<ul>
-				<li>peek - shows images on left and right</li>
-				<li>finite - does not repeat</li>
-				<li>autoscroll - timer based forward scrolling</li>
-				<li>noswipe - user cannot swipe</li>
-				<li>3d - force 3d, off on androids by default</li>
-				<li>zoom - COMING SOON</li>
+				<li>overlay - enables background overlay</li>
+				<li>tab - only one accordion open at a time (nested have different groups)</li>
+				<li>ajax - import data from same domain</li>
+				<li>slide - css animated dropdown</li>
 			</ul>
 		</div>
 		
-		<h2>Basic Carousel - infinite, swipe, dots, and buttons are standard for all carousels</h2>
-		<div ss-widget="carousel">
-			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img ss-component="item" src="http://placehold.it/300x200/cdcdcd">
-			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+		<h2>Basic Accordion</h2>
+		<div ss-widget="accordion">
+			<div class="bar1" ss-component="button">Basic Accordion - Click me</div>
+			<div ss-component="content">
+				<img ss-component="item" src="http://placehold.it/300x200/cdcdcd">
+			</div>
 		</div>
-		<h2>Carousel w/ fullscreen and autoscroll. Added css to dots.</h2>
-		<div ss-widget="carousel" class="carousel2" ss-options="fullscreen autoscroll">
-			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img ss-component="item" src="http://placehold.it/300x200/cdcdcd">
-			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+		<h2>Slide Accordion</h2>
+		<div ss-widget="accordion" class="accordion2" ss-options="slide">
+			<div class="bar1" ss-component="button">Slide Accordion - Click me</div>
+			<div ss-component="content">
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus luctus dolor id ante eleifend a placerat 
+				risus porta. Donec lectus purus, porta sed bibendum quis, mollis ut tellus. Maecenas pellentesque metus 
+				vel est auctor auctor. Suspendisse imperdiet ipsum ac turpis commodo non dignissim velit suscipit. 
+				Donec felis metus, ornare in posuere id, dignissim in nibh. Donec lorem nisl, viverra ac tempus nec, 
+				vestibulum vitae dui. Maecenas mollis facilisis odio in euismod. Cras ut quam purus. Aliquam erat 
+				volutpat. Nam bibendum tempor massa. Suspendisse eu quam urna. Vivamus imperdiet dui semper dui 
+				sollicitudin vitae pulvinar quam rhoncus. Proin in nulla leo. Sed facilisis nulla ut lacus dignissim 
+				nec sollicitudin dolor faucibus. Ut ac orci auctor nisi vehicula interdum.
+				Curabitur feugiat metus nec mauris bibendum vel gravida libero condimentum. Phasellus adipiscing 
+				neque sit amet odio aliquam et auctor velit sagittis. Nulla nisi purus, pretium eu mattis nec, 
+				lacinia ac tortor. Praesent adipiscing erat eget mi ornare vulputate. Donec ultrices dignissim 
+				vestibulum. Fusce dictum bibendum nulla consectetur tincidunt. Fusce aliquet lacinia laoreet.
+			</div>
 		</div>
-		<h2>Carousel w/ fullscreen and peek. ss-peek-width attribute required. In this example, it has a peek width of 40px, 20 on each side.</h2>
-		<div ss-widget="carousel" class="carousel3" ss-peek-width="40" ss-options="fullscreen peek">
-			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img ss-component="item" src="http://placehold.it/300x200/cdcdcd">
-			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+		<h2>Tab Accordions</h2>
+		<div ss-widget="accordion" class="accordion2" ss-options="tab">
+			<div class="bar1" ss-component="button">Tab Accordion - Click me</div>
+			<div ss-component="content">
+				<div ss-widget="accordion" class="accordion2" ss-options="tab">
+					<div class="bar1" ss-component="button">Inner Tab Accordion - Click me</div>
+					<div ss-component="content">
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus luctus dolor id ante eleifend a placerat 
+						risus porta. Donec lectus purus, porta sed bibendum quis, mollis ut tellus. Maecenas pellentesque metus 
+						vel est auctor auctor. Suspendisse imperdiet ipsum ac turpis commodo non dignissim velit suscipit. 
+						Donec felis metus, ornare in posuere id, dignissim in nibh. Donec lorem nisl, viverra ac tempus nec, 
+						vestibulum vitae dui. Maecenas mollis facilisis odio in euismod. Cras ut quam purus. Aliquam erat 
+						volutpat. Nam bibendum tempor massa. Suspendisse eu quam urna. Vivamus imperdiet dui semper dui 
+						sollicitudin vitae pulvinar quam rhoncus. Proin in nulla leo. Sed facilisis nulla ut lacus dignissim 
+						nec sollicitudin dolor faucibus. Ut ac orci auctor nisi vehicula interdum.
+						Curabitur feugiat metus nec mauris bibendum vel gravida libero condimentum. Phasellus adipiscing 
+						neque sit amet odio aliquam et auctor velit sagittis. Nulla nisi purus, pretium eu mattis nec, 
+						lacinia ac tortor. Praesent adipiscing erat eget mi ornare vulputate. Donec ultrices dignissim 
+						vestibulum. Fusce dictum bibendum nulla consectetur tincidunt. Fusce aliquet lacinia laoreet.
+					</div>
+				</div>
+				<div ss-widget="accordion" class="accordion2" ss-options="tab">
+					<div class="bar1" ss-component="button">Inner Tab Accordion - Click me</div>
+					<div ss-component="content">
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus luctus dolor id ante eleifend a placerat 
+						risus porta. Donec lectus purus, porta sed bibendum quis, mollis ut tellus. Maecenas pellentesque metus 
+						vel est auctor auctor. Suspendisse imperdiet ipsum ac turpis commodo non dignissim velit suscipit. 
+						Donec felis metus, ornare in posuere id, dignissim in nibh. Donec lorem nisl, viverra ac tempus nec, 
+						vestibulum vitae dui. Maecenas mollis facilisis odio in euismod. Cras ut quam purus. Aliquam erat 
+						volutpat. Nam bibendum tempor massa. Suspendisse eu quam urna. Vivamus imperdiet dui semper dui 
+						sollicitudin vitae pulvinar quam rhoncus. Proin in nulla leo. Sed facilisis nulla ut lacus dignissim 
+						nec sollicitudin dolor faucibus. Ut ac orci auctor nisi vehicula interdum.
+						Curabitur feugiat metus nec mauris bibendum vel gravida libero condimentum. Phasellus adipiscing 
+						neque sit amet odio aliquam et auctor velit sagittis. Nulla nisi purus, pretium eu mattis nec, 
+						lacinia ac tortor. Praesent adipiscing erat eget mi ornare vulputate. Donec ultrices dignissim 
+						vestibulum. Fusce dictum bibendum nulla consectetur tincidunt. Fusce aliquet lacinia laoreet.
+					</div>
+				</div>
+				<div ss-widget="accordion" class="accordion2" ss-options="tab">
+					<div class="bar1" ss-component="button">Inner Tab Accordion - Click me</div>
+					<div ss-component="content">
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus luctus dolor id ante eleifend a placerat 
+						risus porta. Donec lectus purus, porta sed bibendum quis, mollis ut tellus. Maecenas pellentesque metus 
+						vel est auctor auctor. Suspendisse imperdiet ipsum ac turpis commodo non dignissim velit suscipit. 
+						Donec felis metus, ornare in posuere id, dignissim in nibh. Donec lorem nisl, viverra ac tempus nec, 
+						vestibulum vitae dui. Maecenas mollis facilisis odio in euismod. Cras ut quam purus. Aliquam erat 
+						volutpat. Nam bibendum tempor massa. Suspendisse eu quam urna. Vivamus imperdiet dui semper dui 
+						sollicitudin vitae pulvinar quam rhoncus. Proin in nulla leo. Sed facilisis nulla ut lacus dignissim 
+						nec sollicitudin dolor faucibus. Ut ac orci auctor nisi vehicula interdum.
+						Curabitur feugiat metus nec mauris bibendum vel gravida libero condimentum. Phasellus adipiscing 
+						neque sit amet odio aliquam et auctor velit sagittis. Nulla nisi purus, pretium eu mattis nec, 
+						lacinia ac tortor. Praesent adipiscing erat eget mi ornare vulputate. Donec ultrices dignissim 
+						vestibulum. Fusce dictum bibendum nulla consectetur tincidunt. Fusce aliquet lacinia laoreet.
+					</div>
+				</div>
+			</div>
 		</div>
-		<h2>Finite Carousel /w noswipe and fullscreen. Added css to buttons.</h2>
-		<div ss-widget="carousel" class="carousel4" ss-peek-width="40" ss-options="finite fullscreen noswipe">
-			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img ss-component="item" src="http://placehold.it/300x200/cdcdcd">
-			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+		<div ss-widget="accordion" class="accordion2" ss-options="tab">
+			<div class="bar1" ss-component="button">Tab Accordion - Click me</div>
+			<div ss-component="content">
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus luctus dolor id ante eleifend a placerat 
+				risus porta. Donec lectus purus, porta sed bibendum quis, mollis ut tellus. Maecenas pellentesque metus 
+				vel est auctor auctor. Suspendisse imperdiet ipsum ac turpis commodo non dignissim velit suscipit. 
+				Donec felis metus, ornare in posuere id, dignissim in nibh. Donec lorem nisl, viverra ac tempus nec, 
+				vestibulum vitae dui. Maecenas mollis facilisis odio in euismod. Cras ut quam purus. Aliquam erat 
+				volutpat. Nam bibendum tempor massa. Suspendisse eu quam urna. Vivamus imperdiet dui semper dui 
+				sollicitudin vitae pulvinar quam rhoncus. Proin in nulla leo. Sed facilisis nulla ut lacus dignissim 
+				nec sollicitudin dolor faucibus. Ut ac orci auctor nisi vehicula interdum.
+				Curabitur feugiat metus nec mauris bibendum vel gravida libero condimentum. Phasellus adipiscing 
+				neque sit amet odio aliquam et auctor velit sagittis. Nulla nisi purus, pretium eu mattis nec, 
+				lacinia ac tortor. Praesent adipiscing erat eget mi ornare vulputate. Donec ultrices dignissim 
+				vestibulum. Fusce dictum bibendum nulla consectetur tincidunt. Fusce aliquet lacinia laoreet.
+			</div>
 		</div>
+		<div ss-widget="accordion" class="accordion2" ss-options="tab">
+			<div class="bar1" ss-component="button">Tab Accordion - Click me</div>
+			<div ss-component="content">
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus luctus dolor id ante eleifend a placerat 
+				risus porta. Donec lectus purus, porta sed bibendum quis, mollis ut tellus. Maecenas pellentesque metus 
+				vel est auctor auctor. Suspendisse imperdiet ipsum ac turpis commodo non dignissim velit suscipit. 
+				Donec felis metus, ornare in posuere id, dignissim in nibh. Donec lorem nisl, viverra ac tempus nec, 
+				vestibulum vitae dui. Maecenas mollis facilisis odio in euismod. Cras ut quam purus. Aliquam erat 
+				volutpat. Nam bibendum tempor massa. Suspendisse eu quam urna. Vivamus imperdiet dui semper dui 
+				sollicitudin vitae pulvinar quam rhoncus. Proin in nulla leo. Sed facilisis nulla ut lacus dignissim 
+				nec sollicitudin dolor faucibus. Ut ac orci auctor nisi vehicula interdum.
+				Curabitur feugiat metus nec mauris bibendum vel gravida libero condimentum. Phasellus adipiscing 
+				neque sit amet odio aliquam et auctor velit sagittis. Nulla nisi purus, pretium eu mattis nec, 
+				lacinia ac tortor. Praesent adipiscing erat eget mi ornare vulputate. Donec ultrices dignissim 
+				vestibulum. Fusce dictum bibendum nulla consectetur tincidunt. Fusce aliquet lacinia laoreet.
+			</div>
+		</div>
+		<div>
+		<h2>Tab/Slide Accordions</h2>
+		<div ss-widget="accordion" class="accordion2" ss-options="tab slide">
+			<div class="bar1" ss-component="button">Tab/Slide Accordion - Click me</div>
+			<div ss-component="content">
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus luctus dolor id ante eleifend a placerat 
+				risus porta. Donec lectus purus, porta sed bibendum quis, mollis ut tellus. Maecenas pellentesque metus 
+				vel est auctor auctor. Suspendisse imperdiet ipsum ac turpis commodo non dignissim velit suscipit. 
+				Donec felis metus, ornare in posuere id, dignissim in nibh. Donec lorem nisl, viverra ac tempus nec, 
+				vestibulum vitae dui. Maecenas mollis facilisis odio in euismod. Cras ut quam purus. Aliquam erat 
+				volutpat. Nam bibendum tempor massa. Suspendisse eu quam urna. Vivamus imperdiet dui semper dui 
+				sollicitudin vitae pulvinar quam rhoncus. Proin in nulla leo. Sed facilisis nulla ut lacus dignissim 
+				nec sollicitudin dolor faucibus. Ut ac orci auctor nisi vehicula interdum.
+				Curabitur feugiat metus nec mauris bibendum vel gravida libero condimentum. Phasellus adipiscing 
+				neque sit amet odio aliquam et auctor velit sagittis. Nulla nisi purus, pretium eu mattis nec, 
+				lacinia ac tortor. Praesent adipiscing erat eget mi ornare vulputate. Donec ultrices dignissim 
+				vestibulum. Fusce dictum bibendum nulla consectetur tincidunt. Fusce aliquet lacinia laoreet.
+			</div>
+		</div>
+		<div ss-widget="accordion" class="accordion2" ss-options="tab slide">
+			<div class="bar1" ss-component="button">Tab/Slide Accordion - Click me</div>
+			<div ss-component="content">
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus luctus dolor id ante eleifend a placerat 
+				risus porta. Donec lectus purus, porta sed bibendum quis, mollis ut tellus. Maecenas pellentesque metus 
+				vel est auctor auctor. Suspendisse imperdiet ipsum ac turpis commodo non dignissim velit suscipit. 
+				Donec felis metus, ornare in posuere id, dignissim in nibh. Donec lorem nisl, viverra ac tempus nec, 
+				vestibulum vitae dui. Maecenas mollis facilisis odio in euismod. Cras ut quam purus. Aliquam erat 
+				volutpat. Nam bibendum tempor massa. Suspendisse eu quam urna. Vivamus imperdiet dui semper dui 
+				sollicitudin vitae pulvinar quam rhoncus. Proin in nulla leo. Sed facilisis nulla ut lacus dignissim 
+				nec sollicitudin dolor faucibus. Ut ac orci auctor nisi vehicula interdum.
+				Curabitur feugiat metus nec mauris bibendum vel gravida libero condimentum. Phasellus adipiscing 
+				neque sit amet odio aliquam et auctor velit sagittis. Nulla nisi purus, pretium eu mattis nec, 
+				lacinia ac tortor. Praesent adipiscing erat eget mi ornare vulputate. Donec ultrices dignissim 
+				vestibulum. Fusce dictum bibendum nulla consectetur tincidunt. Fusce aliquet lacinia laoreet.
+			</div>
+		</div>
+		<div ss-widget="accordion" class="accordion2" ss-options="tab slide">
+			<div class="bar1" ss-component="button">Tab/Slide Accordion - Click me</div>
+			<div ss-component="content">
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus luctus dolor id ante eleifend a placerat 
+				risus porta. Donec lectus purus, porta sed bibendum quis, mollis ut tellus. Maecenas pellentesque metus 
+				vel est auctor auctor. Suspendisse imperdiet ipsum ac turpis commodo non dignissim velit suscipit. 
+				Donec felis metus, ornare in posuere id, dignissim in nibh. Donec lorem nisl, viverra ac tempus nec, 
+				vestibulum vitae dui. Maecenas mollis facilisis odio in euismod. Cras ut quam purus. Aliquam erat 
+				volutpat. Nam bibendum tempor massa. Suspendisse eu quam urna. Vivamus imperdiet dui semper dui 
+				sollicitudin vitae pulvinar quam rhoncus. Proin in nulla leo. Sed facilisis nulla ut lacus dignissim 
+				nec sollicitudin dolor faucibus. Ut ac orci auctor nisi vehicula interdum.
+				Curabitur feugiat metus nec mauris bibendum vel gravida libero condimentum. Phasellus adipiscing 
+				neque sit amet odio aliquam et auctor velit sagittis. Nulla nisi purus, pretium eu mattis nec, 
+				lacinia ac tortor. Praesent adipiscing erat eget mi ornare vulputate. Donec ultrices dignissim 
+				vestibulum. Fusce dictum bibendum nulla consectetur tincidunt. Fusce aliquet lacinia laoreet.
+			</div>
+		</div>
+		<div ss-widget="accordion" class="accordion2" ss-options="tab slide">
+			<div class="bar1" ss-component="button">Tab/Slide Accordion - Click me</div>
+			<div ss-component="content">
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus luctus dolor id ante eleifend a placerat 
+				risus porta. Donec lectus purus, porta sed bibendum quis, mollis ut tellus. Maecenas pellentesque metus 
+				vel est auctor auctor. Suspendisse imperdiet ipsum ac turpis commodo non dignissim velit suscipit. 
+				Donec felis metus, ornare in posuere id, dignissim in nibh. Donec lorem nisl, viverra ac tempus nec, 
+				vestibulum vitae dui. Maecenas mollis facilisis odio in euismod. Cras ut quam purus. Aliquam erat 
+				volutpat. Nam bibendum tempor massa. Suspendisse eu quam urna. Vivamus imperdiet dui semper dui 
+				sollicitudin vitae pulvinar quam rhoncus. Proin in nulla leo. Sed facilisis nulla ut lacus dignissim 
+				nec sollicitudin dolor faucibus. Ut ac orci auctor nisi vehicula interdum.
+				Curabitur feugiat metus nec mauris bibendum vel gravida libero condimentum. Phasellus adipiscing 
+				neque sit amet odio aliquam et auctor velit sagittis. Nulla nisi purus, pretium eu mattis nec, 
+				lacinia ac tortor. Praesent adipiscing erat eget mi ornare vulputate. Donec ultrices dignissim 
+				vestibulum. Fusce dictum bibendum nulla consectetur tincidunt. Fusce aliquet lacinia laoreet.
+			</div>
+		</div>
+		</div>
+		<h2>Ajax Accordion - local is seen as a null origin, so this will throw a CORS error. m.truerunner.com has an example if you click on 'brands' on the home page</h2>
+		<div ss-widget="accordion" class="accordion1" ss-options="ajax" ss-ajax-url="accordionsExample.json" ss-ajax-callback="getData">
+			<div class="bar1" ss-component="button">Ajax Accordion - Click me</div>
+			<div class="injectHere" ss-component="content"></div>
+		</div>
+		<script>
+			function getData(data) {
+				console.log("here");
+			}
+		</script>
 		<script src="../assets/javascript/jquery.js"></script>
-		<script src="../assets/javascript/soysauce.js"></script>
+		<script src="../assets/javascript/fastclick.js"></script>
+		<script src="../assets/javascript/soysauce/base.js"></script>
+		<script src="../assets/javascript/soysauce/widgets/accordion.js"></script>
 	</body>
 </html>

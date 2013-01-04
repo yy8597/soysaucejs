@@ -101,3 +101,27 @@ h2 {
 		}
 	}
 }
+
+.ss_accordions {
+	h2 {
+		font-weight: bold;
+		font-size: 14px;
+		border-bottom: 1px solid #AAA;
+		padding-bottom: 10px;
+	}
+	[ss-widget="accordion"] {
+		margin: 10px 5px;
+	}
+	[ss-component="content"][ss-state="open"] {
+		margin: 10px 5px;
+	}
+	.bar1 {
+		border: 1px solid #333;
+		padding: 7px 5px;
+		border-radius: 3px;
+	}
+	.bar2 {
+		border-color: black;
+		color: #cd0000;
+	}
+}

@@ -47,6 +47,12 @@ Additional Options:
 
 Accordions allow for hiding and showing content when necessary.
 
+Required Attributes:
+
+	1) ss-widget="accordion"
+	2) ss-component="button"
+	3) ss-component="content"
+
 Usage:
 
 	<div ss-widget="accordion" ss-options="tab slide">
