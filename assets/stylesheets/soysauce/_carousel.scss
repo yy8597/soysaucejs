@@ -21,4 +21,7 @@
 			@include transition(transform .6s);
 		}
 	}
+	&[ss-options*="noswipe"] img {
+		-webkit-user-drag: none;
+	}
 }

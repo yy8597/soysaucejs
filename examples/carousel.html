@@ -1,0 +1,56 @@
+<html>
+	<head>
+		<title>Soysauce - Carousel Examples</title>
+		<link rel="stylesheet" href="../assets/soysauce.css">
+		<link rel="stylesheet" href="../assets/main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	</head>
+	<body class="ss_carousels">
+		<h1>Carousels</h1>
+		
+		<div class="options">
+			<h3>Full list of options</h3>
+			<ul>
+				<li>peek - shows images on left and right</li>
+				<li>finite - does not repeat</li>
+				<li>autoscroll - timer based forward scrolling</li>
+				<li>noswipe - user cannot swipe</li>
+				<li>3d - force 3d, off on androids by default</li>
+				<li>zoom - COMING SOON</li>
+			</ul>
+		</div>
+		
+		<h2>Basic Carousel - infinite, swipe, dots, and buttons are standard for all carousels</h2>
+		<div ss-widget="carousel">
+			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+			<img ss-component="item" src="http://placehold.it/300x200/cdcdcd">
+			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+		</div>
+		<h2>Carousel w/ fullscreen and autoscroll. Added css to dots.</h2>
+		<div ss-widget="carousel" class="carousel2" ss-options="fullscreen autoscroll">
+			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+			<img ss-component="item" src="http://placehold.it/300x200/cdcdcd">
+			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+		</div>
+		<h2>Carousel w/ fullscreen and peek. ss-peek-width attribute required. In this example, it has a peek width of 40px, 20 on each side.</h2>
+		<div ss-widget="carousel" class="carousel3" ss-peek-width="40" ss-options="fullscreen peek">
+			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+			<img ss-component="item" src="http://placehold.it/300x200/cdcdcd">
+			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+		</div>
+		<h2>Finite Carousel /w noswipe and fullscreen. Added css to buttons.</h2>
+		<div ss-widget="carousel" class="carousel4" ss-peek-width="40" ss-options="finite fullscreen noswipe">
+			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+			<img ss-component="item" src="http://placehold.it/300x200/cdcdcd">
+			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+			<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+		</div>
+		<script src="../assets/javascript/jquery.js"></script>
+		<script src="../assets/javascript/fastclick.js"></script>
+		<script src="../assets/javascript/soysauce/base.js"></script>
+		<script src="../assets/javascript/soysauce/widgets/carousel.js"></script>
+	</body>
+</html>

@@ -10,24 +10,24 @@ soysauce.accordions = (function() {
 	
 	AccordionTabGroup.prototype.setCurrOpen = function(selector) {
 		this.currOpen = selector;
-	}
+	};
 	
 	AccordionTabGroup.prototype.addAccordion = function(selector) {
 		if (selector === undefined || !typeof(Accordion)) return false;
 		this.accordions.push(selector);
-	}
+	};
 	
 	AccordionTabGroup.prototype.getCurrOpen = function() {
 		return this.currOpen;
-	}
+	};
 	
 	AccordionTabGroup.prototype.getAccordions = function() {
-		return this.accordions
-	}
+		return this.accordions;
+	};
 	
 	AccordionTabGroup.prototype.getID = function() {
 		return this.groupid;
-	}
+	};
 
 	function Accordion(obj) {
 		this.id = $(obj).attr("ss-id");

@@ -3,11 +3,12 @@ embed_assets:           on                    # (on, off, datauri)
 compress_assets:        on                    # (on, off)
 gzip_assets:            off                   # (on, off)
 template_function:      _.template            # (defaults to the built-in micro-templating)
-package_path:           ../assets     # (defaults to assets)
+package_path:           ../assets/javascript  # (defaults to assets)
 javascript_compressor:  closure               # (yui, closure)
 
 javascripts:
-  main:
-      - assets/javascript/jquery.js
+  soysauce:
       - assets/javascript/fastclick.js
-      - assets/javascript/soysauce.js
+      - assets/javascript/soysauce/base.js
+      - assets/javascript/soysauce/utilities/*.js
+      - assets/javascript/soysauce/widgets/*.js

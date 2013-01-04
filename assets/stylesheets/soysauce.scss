@@ -1,6 +1,10 @@
+@import "compass/reset";
+@import "compass/css3";
+
 // Global Styles
 [ss-widget], [ss-component] {
 	-webkit-tap-highlight-color:  rgba(255, 255, 255, 0); 
+	-webkit-backface-visibility: hidden;
 	position: relative;
 	z-index: 5;
 	&:not([ss-widget="ccValidation"]) {
