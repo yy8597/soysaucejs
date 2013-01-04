@@ -22,21 +22,21 @@ Carousels allow for "slideshow" effects for images.
 
 Required Attributes:
 
-	1) ss-widget="carousel"
-	2) ss-component="item"
+	1) data-ss-widget="carousel"
+	2) data-ss-component="item"
 
 Usage:
 
-	<div ss-widget="carousel">
-		<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-		<img ss-component="item" src="http://placehold.it/300x200/cdcdcd">
-		<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-		<img ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+	<div data-ss-widget="carousel">
+		<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+		<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
+		<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+		<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
 	</div>
 
 Additional Options:
 
-	1) autoscroll - timer based autoscrolling, default is 5000ms. To change, use [ss-autoscroll-interval="x"]
+	1) autoscroll - timer based autoscrolling, default is 5000ms. To change, use [data-ss-autoscroll-interval="x"]
 	2) fullscreen
 	3) peek
 	4) finite
@@ -49,15 +49,15 @@ Accordions allow for hiding and showing content when necessary.
 
 Required Attributes:
 
-	1) ss-widget="accordion"
-	2) ss-component="button"
-	3) ss-component="content"
+	1) data-ss-widget="accordion"
+	2) data-ss-component="button"
+	3) data-ss-component="content"
 
 Usage:
 
-	<div ss-widget="accordion" ss-options="tab slide">
-		<h1 ss-component="button">BUTTON</h1>
-		<div ss-component="content">
+	<div data-ss-widget="accordion" data-ss-options="tab slide">
+		<h1 data-ss-component="button">BUTTON</h1>
+		<div data-ss-component="content">
 			<ul>
 				<li>content</li>
 				<li>content</li>
@@ -90,7 +90,7 @@ It's recommended load content on this event for hidden, but necessary content su
 
 Usage:
 
-	<img ss-dcl-src="/images/brownie.png">
+	<img data-ss-dcl-src="/images/brownie.png">
 
 ##### "load" event
 
@@ -98,7 +98,7 @@ It's recommended to load all unnecessary images/scripts on this event, such as i
 
 Usage:
 
-	<img ss-ll-src="/images/brownie.png">
+	<img data-ss-ll-src="/images/brownie.png">
 
 Notes
 --------------
