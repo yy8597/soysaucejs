@@ -55,7 +55,7 @@ h2 {
 
 .ss_carousels {
 	.carousel2 {
-		[ss-component="dots"] {
+		[data-ss-component="dots"] {
 			width: 100%;
 			background: #ddd;
 			position: absolute;
@@ -66,42 +66,42 @@ h2 {
 			border-width: 1px 0;
 		}
 
-		[ss-component="dot"] {
+		[data-ss-component="dot"] {
 			@include border-radius(8px);
 			display: inline-block;
 			background: #333;
 			height: 12px;
 			width: 12px;
 			margin-right: 5px;
-			&[ss-state="active"] {
+			&[data-ss-state="active"] {
 				background: #cd0000;
 			}
 		}
 	}
 	.carousel3 {
-		[ss-component="item"] {
+		[data-ss-component="item"] {
 			@include transition(opacity .7s);
 		}
-		[ss-component="item"][ss-state="inactive"] {
+		[data-ss-component="item"][data-ss-state="inactive"] {
 			opacity: 0.4;
 		}
 	}
 	.carousel4 {
-		[ss-component="button"] {
+		[data-ss-component="button"] {
 			position: absolute;
 			right: 10px;
 			bottom: 10px;
 			width: 50px;
 			height: 50px;
 			background: #333;
-			&[ss-button-type="prev"] {
+			&[data-ss-button-type="prev"] {
 				right: auto;
 				left: 10px;
 			}
 		}
 	}
 	.carousel5 {
-		[ss-component="item"] {
+		[data-ss-component="item"] {
 			@include display-box;
 		}
 		img {
@@ -119,10 +119,10 @@ h2 {
 		border-bottom: 1px solid #AAA;
 		padding-bottom: 10px;
 	}
-	[ss-widget="accordion"] {
+	[data-ss-widget="accordion"] {
 		margin: 10px 5px;
 	}
-	[ss-component="content"][ss-state="open"] {
+	[data-ss-component="content"][data-ss-state="open"] {
 		margin: 10px 5px;
 	}
 	.bar1 {

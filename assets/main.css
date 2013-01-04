@@ -115,7 +115,7 @@ h2 {
   text-shadow: 0 1px 0 white;
 }
 
-.ss_carousels .carousel2 [ss-component="dots"] {
+.ss_carousels .carousel2 [data-ss-component="dots"] {
   width: 100%;
   background: #ddd;
   position: absolute;
@@ -125,7 +125,7 @@ h2 {
   border: solid #777;
   border-width: 1px 0;
 }
-.ss_carousels .carousel2 [ss-component="dot"] {
+.ss_carousels .carousel2 [data-ss-component="dot"] {
   -webkit-border-radius: 8px;
   -moz-border-radius: 8px;
   -ms-border-radius: 8px;
@@ -137,19 +137,19 @@ h2 {
   width: 12px;
   margin-right: 5px;
 }
-.ss_carousels .carousel2 [ss-component="dot"][ss-state="active"] {
+.ss_carousels .carousel2 [data-ss-component="dot"][data-ss-state="active"] {
   background: #cd0000;
 }
-.ss_carousels .carousel3 [ss-component="item"] {
+.ss_carousels .carousel3 [data-ss-component="item"] {
   -webkit-transition: opacity 0.7s;
   -moz-transition: opacity 0.7s;
   -o-transition: opacity 0.7s;
   transition: opacity 0.7s;
 }
-.ss_carousels .carousel3 [ss-component="item"][ss-state="inactive"] {
+.ss_carousels .carousel3 [data-ss-component="item"][data-ss-state="inactive"] {
   opacity: 0.4;
 }
-.ss_carousels .carousel4 [ss-component="button"] {
+.ss_carousels .carousel4 [data-ss-component="button"] {
   position: absolute;
   right: 10px;
   bottom: 10px;
@@ -157,11 +157,11 @@ h2 {
   height: 50px;
   background: #333;
 }
-.ss_carousels .carousel4 [ss-component="button"][ss-button-type="prev"] {
+.ss_carousels .carousel4 [data-ss-component="button"][data-ss-button-type="prev"] {
   right: auto;
   left: 10px;
 }
-.ss_carousels .carousel5 [ss-component="item"] {
+.ss_carousels .carousel5 [data-ss-component="item"] {
   display: -webkit-box;
   display: -moz-box;
   display: -ms-box;
@@ -182,10 +182,10 @@ h2 {
   border-bottom: 1px solid #AAA;
   padding-bottom: 10px;
 }
-.ss_accordions [ss-widget="accordion"] {
+.ss_accordions [data-ss-widget="accordion"] {
   margin: 10px 5px;
 }
-.ss_accordions [ss-component="content"][ss-state="open"] {
+.ss_accordions [data-ss-component="content"][data-ss-state="open"] {
   margin: 10px 5px;
 }
 .ss_accordions .bar1 {

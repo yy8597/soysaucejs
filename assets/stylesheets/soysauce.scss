@@ -2,12 +2,12 @@
 @import "compass/css3";
 
 // Global Styles
-[ss-widget], [ss-component] {
+[data-ss-widget], [data-ss-component] {
 	-webkit-tap-highlight-color:  rgba(255, 255, 255, 0); 
 	-webkit-backface-visibility: hidden;
 	position: relative;
 	z-index: 5;
-	&:not([ss-widget="ccValidation"]) {
+	&:not([data-ss-widget="ccValidation"]) {
 		-webkit-user-select: none;
 	}
 }

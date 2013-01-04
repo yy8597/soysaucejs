@@ -30,13 +30,13 @@ soysauce.accordions = (function() {
 	};
 
 	function Accordion(obj) {
-		this.id = $(obj).attr("ss-id");
+		this.id = $(obj).attr("data-ss-id");
 		this.parentID = 0;
 		this.tabID = 0;
 		this.state = "closed";
 		this.obj = $(obj);
-		this.button = $(obj).find("> [ss-component='button']");
-		this.content = $(obj).find("> [ss-component='content']");
+		this.button = $(obj).find("> [data-ss-component='button']");
+		this.content = $(obj).find("> [data-ss-component='content']");
 		this.overlay = false;
 		this.tab = false;
 		this.slide = false;
@@ -135,18 +135,18 @@ soysauce.accordions = (function() {
 			soysauce.stifle(e);
 			self.setState("ajaxing");
 
-			if(!obj.attr("ss-ajax-url")) {
-				console.warn("Soysauce: 'ss-ajax-url' tag required. Must be on the same domain.");
+			if(!obj.attr("data-ss-ajax-url")) {
+				console.warn("Soysauce: 'data-ss-ajax-url' tag required. Must be on the same domain.");
 				return;
 			}
 
-			if(!obj.attr("ss-ajax-callback")) {
-				console.warn("Soysauce: 'ss-ajax-callback' required.");
+			if(!obj.attr("data-ss-ajax-callback")) {
+				console.warn("Soysauce: 'data-ss-ajax-callback' required.");
 				return;
 			}
 			
-			url = obj.attr("ss-ajax-url");
-			callback = obj.attr("ss-ajax-callback");
+			url = obj.attr("data-ss-ajax-url");
+			callback = obj.attr("data-ss-ajax-callback");
 			
 			if (soysauce.browserInfo.supportsSessionStorage) {
 				if (sessionStorage.getItem(url) === null)
@@ -166,9 +166,9 @@ soysauce.accordions = (function() {
 
 	Accordion.prototype.setState = function(state) {
 		this.state = state;
-		this.obj.attr("ss-state", state);
-		this.button.attr("ss-state", state);
-		this.content.attr("ss-state", state);
+		this.obj.attr("data-ss-state", state);
+		this.button.attr("data-ss-state", state);
+		this.content.attr("data-ss-state", state);
 	};
 
 	Accordion.prototype.setAjaxComplete = function() {
@@ -179,16 +179,16 @@ soysauce.accordions = (function() {
 	(function() {
 		var tabID = 1;
 		var group;
-		$("[ss-widget='accordion']").each(function() {
+		$("[data-ss-widget='accordion']").each(function() {
 			var item = new Accordion(this);
 			var self = this;
 			var options = soysauce.getOptions(this);
 
-			$(this).find("> [ss-component='button']").append("<span class='icon'></span>");
+			$(this).find("> [data-ss-component='button']").append("<span class='icon'></span>");
 
-			item.hasAccordions = ($(this).has("[ss-widget='accordion']").length > 0) ? true : false; 
-			item.isChildAccordion = ($(this).parents("[ss-widget='accordion']").length > 0) ? true : false;
-			item.parentID = $(this).parents("[ss-widget='accordion']").attr("ss-id");
+			item.hasAccordions = ($(this).has("[data-ss-widget='accordion']").length > 0) ? true : false; 
+			item.isChildAccordion = ($(this).parents("[data-ss-widget='accordion']").length > 0) ? true : false;
+			item.parentID = $(this).parents("[data-ss-widget='accordion']").attr("data-ss-id");
 
 			if(options) options.forEach(function(option) {
 				switch(option) {
@@ -209,19 +209,19 @@ soysauce.accordions = (function() {
 			});
 			
 			if (item.tab) {
-				if (!$(self).attr("ss-tab-id")) {
-					var siblings = $(self).find("~ [ss-options*='tab']");
+				if (!$(self).attr("data-ss-tab-id")) {
+					var siblings = $(self).find("~ [data-ss-options*='tab']");
 					var group_name = "group"
 					group = new AccordionTabGroup(tabID);
 					item.tabID = tabID;
-					$(self).attr("ss-tab-id", tabID);
-					siblings.attr("ss-tab-id", tabID);
+					$(self).attr("data-ss-tab-id", tabID);
+					siblings.attr("data-ss-tab-id", tabID);
 					item.tabGroup = group;
 					group.addAccordion(item);
 					accordionTabGroups.push(group);
 					tabID++;
 				} else {
-					item.tabID = $(self).attr("ss-tab-id");
+					item.tabID = $(self).attr("data-ss-tab-id");
 					accordionTabGroups.forEach(function(e) {
 						if (e.groupid == item.tabID) {
 							item.tabGroup = e;
@@ -234,7 +234,7 @@ soysauce.accordions = (function() {
 			if (item.slide) {
 				if (item.hasAccordions) {
 					var height = 0;
-					item.content.find("[ss-component='button']").each(function() {
+					item.content.find("[data-ss-component='button']").each(function() {
 						height += $(this).height();
 					});
 					item.height = height;
@@ -245,7 +245,7 @@ soysauce.accordions = (function() {
 				item.content.css("height", "0px");
 			}
 			
-			$(this).find("> [ss-component='button']").click(function() {
+			$(this).find("> [data-ss-component='button']").click(function() {
 				item.toggle();
 			});
 

@@ -54,13 +54,13 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   display: block;
 }
 
-[ss-widget], [ss-component] {
+[data-ss-widget], [data-ss-component] {
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
   -webkit-backface-visibility: hidden;
   position: relative;
   z-index: 5;
 }
-[ss-widget]:not([ss-widget="ccValidation"]), [ss-component]:not([ss-widget="ccValidation"]) {
+[data-ss-widget]:not([data-ss-widget="ccValidation"]), [data-ss-component]:not([data-ss-widget="ccValidation"]) {
   -webkit-user-select: none;
 }
 
@@ -132,14 +132,14 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   }
 }
 
-[ss-widget="accordion"]:not([ss-options*="slide"]) > [ss-component="content"][ss-state="open"] {
+[data-ss-widget="accordion"]:not([data-ss-options*="slide"]) > [data-ss-component="content"][data-ss-state="open"] {
   display: block;
 }
-[ss-widget="accordion"]:not([ss-options*="slide"]) > [ss-component="content"][ss-state="closed"] {
+[data-ss-widget="accordion"]:not([data-ss-options*="slide"]) > [data-ss-component="content"][data-ss-state="closed"] {
   display: none;
 }
 
-[ss-widget="accordion"][ss-options*="slide"] [ss-component="content"] {
+[data-ss-widget="accordion"][data-ss-options*="slide"] [data-ss-component="content"] {
   -webkit-transition: height 0.15s ease-in-out;
   -moz-transition: height 0.15s ease-in-out;
   -o-transition: height 0.15s ease-in-out;
@@ -147,10 +147,10 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   overflow: hidden;
 }
 
-[ss-widget="accordion"][ss-state="ajaxing"] [ss-component="button"] {
+[data-ss-widget="accordion"][data-ss-state="ajaxing"] [data-ss-component="button"] {
   position: relative;
 }
-[ss-widget="accordion"][ss-state="ajaxing"] [ss-component="button"] .icon {
+[data-ss-widget="accordion"][data-ss-state="ajaxing"] [data-ss-component="button"] .icon {
   -webkit-border-radius: 20px;
   -moz-border-radius: 20px;
   -ms-border-radius: 20px;
@@ -174,12 +174,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   animation: spin 1s linear infinite;
 }
 
-[ss-widget="overlay"] {
-  -webkit-transform: translate3d(0, 0, 0);
-  -moz-transform: translate3d(0, 0, 0);
-  -ms-transform: translate3d(0, 0, 0);
-  -o-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
+[data-ss-widget="overlay"] {
   -webkit-transition: opacity 0.4s ease-in-out;
   -moz-transition: opacity 0.4s ease-in-out;
   -o-transition: opacity 0.4s ease-in-out;
@@ -194,43 +189,43 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   opacity: 0;
   z-index: 1;
 }
-[ss-widget="overlay"][ss-state="active"] {
+[data-ss-widget="overlay"][data-ss-state="active"] {
   opacity: 0.7;
 }
 
-[ss-widget="carousel"] {
+[data-ss-widget="carousel"] {
   -webkit-transition: opacity 0.5s ease-in-out;
   -moz-transition: opacity 0.5s ease-in-out;
   -o-transition: opacity 0.5s ease-in-out;
   transition: opacity 0.5s ease-in-out;
 }
-[ss-widget="carousel"] a, [ss-widget="carousel"] img {
+[data-ss-widget="carousel"] a, [data-ss-widget="carousel"] img {
   display: block;
 }
-[ss-widget="carousel"] [ss-component="item"] {
+[data-ss-widget="carousel"] [data-ss-component="item"] {
   float: left;
 }
-[ss-widget="carousel"]:not([ss-state]) {
+[data-ss-widget="carousel"]:not([data-ss-state]) {
   opacity: 0;
 }
-[ss-widget="carousel"][ss-state] {
+[data-ss-widget="carousel"][data-ss-state] {
   opacity: 1;
 }
-[ss-widget="carousel"] [ss-component="container_wrapper"] {
+[data-ss-widget="carousel"] [data-ss-component="container_wrapper"] {
   overflow: hidden;
 }
-[ss-widget="carousel"][ss-state] [ss-component="container"]:not([ss-state="notransition"]) {
+[data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"]) {
   -webkit-transition: -webkit-transform 0.85s;
   -moz-transition: -moz-transform 0.85s;
   -o-transition: -o-transform 0.85s;
   transition: transform 0.85s;
 }
-[ss-widget="carousel"][ss-state] [ss-component="container"]:not([ss-state="notransition"])[ss-state="intransit-fast"] {
+[data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"])[data-ss-state="intransit-fast"] {
   -webkit-transition: -webkit-transform 0.6s;
   -moz-transition: -moz-transform 0.6s;
   -o-transition: -o-transform 0.6s;
   transition: transform 0.6s;
 }
-[ss-widget="carousel"][ss-options*="noswipe"] img {
+[data-ss-widget="carousel"][data-ss-options*="noswipe"] img {
   -webkit-user-drag: none;
 }

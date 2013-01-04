@@ -27,26 +27,26 @@
     to   { transform: rotateZ(360deg); opacity: 0.6; }  
 }
 
-[ss-widget="accordion"]:not([ss-options*="slide"]) {
-	> [ss-component="content"] {
-		&[ss-state="open"] {
+[data-ss-widget="accordion"]:not([data-ss-options*="slide"]) {
+	> [data-ss-component="content"] {
+		&[data-ss-state="open"] {
 			display: block;
 		}
-		&[ss-state="closed"] {
+		&[data-ss-state="closed"] {
 			display: none;
 		}
 	}
 }
 
-[ss-widget="accordion"][ss-options*="slide"] {
-	[ss-component="content"] {
+[data-ss-widget="accordion"][data-ss-options*="slide"] {
+	[data-ss-component="content"] {
 		@include transition(height 0.15s ease-in-out);
 		overflow: hidden;
 	}
 }
 
-[ss-widget="accordion"][ss-state="ajaxing"] {
-	[ss-component="button"] {
+[data-ss-widget="accordion"][data-ss-state="ajaxing"] {
+	[data-ss-component="button"] {
 		position: relative;
 		.icon {
 			@include border-radius(20px);

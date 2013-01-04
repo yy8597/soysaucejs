@@ -1,25 +1,25 @@
 soysauce.overlay = function(cmd) {
 	switch(cmd) {
 		case "init":
-			if ($("[ss-widget='overlay']") === undefined) break;
+			if ($("[data-ss-widget='overlay']") === undefined) break;
 			var div = document.createElement("div");
-			div.setAttribute("ss-widget", "overlay");
-			div.setAttribute("ss-state", "inactive");
+			div.setAttribute("data-ss-widget", "overlay");
+			div.setAttribute("data-ss-state", "inactive");
 			document.body.appendChild(div);
-			$("[ss-widget='overlay']").on("click", function() {
+			$("[data-ss-widget='overlay']").on("click", function() {
 				soysauce.overlay("off");
 			});
 			break;
 		case "on":
-			$("[ss-widget='overlay']").show();
+			$("[data-ss-widget='overlay']").show();
 			window.setTimeout(function() {
-				$("[ss-widget='overlay']").attr("ss-state","active");
+				$("[data-ss-widget='overlay']").attr("data-ss-state","active");
 			}, 0);
 			break;
 		case "off":
-			$("[ss-widget='overlay']").attr("ss-state","inactive");
+			$("[data-ss-widget='overlay']").attr("data-ss-state","inactive");
 			window.setTimeout(function() {
-				$("[ss-widget='overlay']").hide();
+				$("[data-ss-widget='overlay']").hide();
 			}, 400);
 			break;
 		case undefined:

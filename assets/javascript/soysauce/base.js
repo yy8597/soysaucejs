@@ -12,14 +12,14 @@ if(typeof(soysauce) == "undefined") {
 	
 soysauce = {
 	init: function() {
-		var set = $("[ss-widget]");
+		var set = $("[data-ss-widget]");
 		for (var i = 0; i < set.length; i++) {
-				$(set[i]).attr("ss-id", i+1);
+				$(set[i]).attr("data-ss-id", i+1);
 		}
 	},
 	getOptions: function(selector) {
-		if($(selector).attr("ss-options") == undefined) return false;
-		return $(selector).attr("ss-options").split(" ");
+		if($(selector).attr("data-ss-options") == undefined) return false;
+		return $(selector).attr("data-ss-options").split(" ");
 	},
 	getPrefix: function() {
 		if (navigator.userAgent.match(/webkit/i) !== null) return "-webkit-";
@@ -35,10 +35,10 @@ soysauce = {
 	},
 	fetch: function(selector) { // Fetch by ID
 		if (selector === undefined) return false;
-		if (typeof(selector) === "object") selector = $(selector).attr("ss-id");
+		if (typeof(selector) === "object") selector = $(selector).attr("data-ss-id");
 		if (selector===+selector && selector===(selector|0) || selector.match(/^\d+$/).length > 0) {
-			var query = "[ss-id='" + selector + "']";
-			var type = $(query).attr("ss-widget");
+			var query = "[data-ss-id='" + selector + "']";
+			var type = $(query).attr("data-ss-widget");
 			var ret;
 			selector = parseInt(selector);
 			switch(type) {
