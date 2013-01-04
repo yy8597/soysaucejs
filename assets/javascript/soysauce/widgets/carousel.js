@@ -313,8 +313,10 @@ soysauce.carousels = (function() {
 			});
 			
 			if (carousel.infinite) {
-				first_item = carousel.container.find("[ss-component='item']").first().clone().appendTo(carousel.container);
-				last_item = carousel.container.find("[ss-component='item']").last().clone().prependTo(carousel.container);
+				first_item = carousel.container.find("[ss-component='item']").first().clone();
+				last_item = carousel.container.find("[ss-component='item']").last().clone();
+				first_item.appendTo(carousel.container);
+				last_item.prependTo(carousel.container);
 				items = $(this).find("[ss-component='item']");
 			}
 			
