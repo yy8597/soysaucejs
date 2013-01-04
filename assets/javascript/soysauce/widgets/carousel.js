@@ -344,8 +344,17 @@ soysauce.carousels = (function() {
 				carousel.index++;
 			}
 			
-			items.each(function(i) {
-				function handleItem() {
+			items.each(function(i, e) {
+				function handleChildren() {
+					var loadCount = 0;
+					var numImgs = $(e).find("img").length;
+					$(e).find("img").ready(function() {
+						loadCount++;
+						if (++loadCount == numImgs) 
+							handleItem();
+					});
+				}
+				function handleItem() {	
 					if (carousel.fullscreen)
 						carousel.itemWidth = $(window).width();
 					else
@@ -368,9 +377,11 @@ soysauce.carousels = (function() {
 						}, 1);
 					}
 				}
-				if (this.tagName.match(/img/i) !== undefined) 
-					$(this).load(handleItem);
-				else 
+				if (e.tagName.match(/img/i) !== null)
+					$(e).ready(handleItem());
+				else if ($(e).find("img").length > 0)
+					handleChildren();
+				else
 					handleItem();
 					
 				if (i === 0 && !carousel.infinite) $(this).attr("ss-state", "active");

@@ -161,6 +161,20 @@ h2 {
   right: auto;
   left: 10px;
 }
+.ss_carousels .carousel5 [ss-component="item"] {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-box;
+  display: box;
+}
+.ss_carousels .carousel5 img {
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -ms-box-flex: 1;
+  box-flex: 1;
+  width: 100%;
+  min-height: 200px;
+}
 
 .ss_accordions h2 {
   font-weight: bold;
