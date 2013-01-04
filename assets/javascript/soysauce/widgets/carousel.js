@@ -22,6 +22,7 @@ soysauce.carousels = (function() {
 		this.offset = 0;
 		this.ready = false;
 		this.interrupted = false;
+		this.coords1x = 0;
 	}
 	
 	Carousel.prototype.gotoPos = function(x, forward, fast) {
@@ -180,11 +181,15 @@ soysauce.carousels = (function() {
 		var self = this;
 		var coords1, coords2, lastX;
 		
+		var coords1x;
+		
 		coords1 = soysauce.getCoords(e1);
 		
-		if (e1.type.match(/mousedown/) !== null) soysauce.stifle(e1); // for desktop debugging
+		this.coords1x = coords1.x;
 		
-		if (!this.ready)
+		if (e1.type.match(/mousedown/) !== null) soysauce.stifle(e1); // for desktop debugging
+
+		if (!this.ready) 
 			lastX = this.handleInterrupt(e1);
 		else {
 			this.container.on("touchmove mousemove", function(e2) {
@@ -203,13 +208,13 @@ soysauce.carousels = (function() {
 				self.setStyle(self.offset - dragOffset);
 			});
 		}
-		
+
 		this.container.one("touchend mouseup", function(e2) {
 			soysauce.stifle(e2);
 			coords2 = soysauce.getCoords(e2.originalEvent);
 			if (lastX === undefined && coords2 !== null) lastX = coords2.x;
 
-			var dist = coords1.x - lastX;
+			var dist = self.coords1x - lastX;
 			var velocity = dist / (e2.timeStamp - e1.timeStamp);
 			var fast = (velocity > 0.35) ? true : false;
 			
