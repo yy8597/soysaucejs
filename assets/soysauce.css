@@ -232,7 +232,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 [data-ss-widget="carousel"][data-ss-options*="fullscreen"] img {
   width: 100%;
 }
-[data-ss-widget="carousel"][data-ss-options*="zoom"] img {
+[data-ss-widget="carousel"][data-ss-options*="zoom"] img:not([ss-state="notransition"]) {
   -webkit-transition: -webkit-transform 0.5s;
   -moz-transition: -moz-transform 0.5s;
   -o-transition: -o-transform 0.5s;

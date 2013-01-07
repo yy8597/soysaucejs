@@ -23,11 +23,14 @@ soysauce.carousels = (function() {
 		this.ready = false;
 		this.interrupted = false;
 		this.coords1x = 0;
+		this.coords1y = 0;
 		this.links = false;
 		
 		this.zoom = false;
 		this.zoomMultiplier = 2;
 		this.isZoomed = false;
+		this.zoomMax = {x:0, y:0};
+		this.panCoords = {x:0, y:0};
 	}
 	
 	Carousel.prototype.gotoPos = function(x, forward, fast) {
@@ -191,13 +194,37 @@ soysauce.carousels = (function() {
 		coords1 = soysauce.getCoords(e1);
 		
 		this.coords1x = coords1.x;
+		this.coords1y = coords1.y
 		
 		if (e1.type.match(/mousedown/) !== null) soysauce.stifle(e1); // for desktop debugging
 
 		if (!this.ready) 
 			lastX = this.handleInterrupt(e1);
 		else {
-			this.container.on("touchmove mousemove", function(e2) {
+			if (this.zoom && this.isZoomed) {
+				
+				this.container.on("touchmove mousemove", function(e2) {
+					soysauce.stifle(e2);
+					var dragOffset = {x:0, y:0}, newCoords = {x:0, y:0};
+					var currCoords = {
+						x:(Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[12])) > 0) ? parseInt(soysauce.getArrayFromMatrix($($0).css("webkitTransform"))[12]) : 0, 
+						y:(Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[13])) > 0) ? parseInt(soysauce.getArrayFromMatrix($($0).css("webkitTransform"))[12]) : 0
+					};
+					coords2 = soysauce.getCoords(e2.originalEvent);
+					
+					$(e2.target).attr("ss-state", "notransition");
+					dragOffset.x =  coords2.x - self.coords1x;
+					dragOffset.y =  coords2.y - self.coords1y;
+					newCoords.x = dragOffset.x + currCoords.x;
+					newCoords.y = dragOffset.y + currCoords.y;
+					
+					console.log("translate" + ((self.supports3d) ? "3d(" : "(") + newCoords.x + "px," + newCoords.y + "px,0) " + "scale" + ((self.supports3d) ? "3d(" : "(") + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)");
+					
+					e2.target.style.webkitTransform = e2.target.style.msTransform = e2.target.style.OTransform = e2.target.style.MozTransform = e2.target.style.transform 
+					= "translate" + ((self.supports3d) ? "3d(" : "(") + newCoords.x + "px," + newCoords.y + "px,0) " + "scale" + ((self.supports3d) ? "3d(" : "(") + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)";
+				});
+			}
+			else this.container.on("touchmove mousemove", function(e2) {
 				var dragOffset;
 
 				coords2 = soysauce.getCoords(e2.originalEvent);
@@ -227,16 +254,15 @@ soysauce.carousels = (function() {
 			self.ready = true;
 			self.container.attr("data-ss-state", "ready");
 			
-			
 			if (!self.interrupted && self.links && Math.abs(dist) === 0) {
 				if (e2.target.tagName.match(/^a$/i) !== null)
 					window.location.href = $(e2).attr("href");
 				else
 					window.location.href = $(e2.target).closest("a").attr("href");
 			}
-			else if (!self.interrupted && self.zoom && Math.abs(dist) === 0) {
+			else if (!self.interrupted && self.zoom && (Math.abs(dist) === 0 || self.isZoomed)) {
 				soysauce.stifle(e1);
-				self.handleZoom(e1);
+				self.handleZoom(e1, Math.abs(dist));
 			}
 			else if (Math.abs(dist) < 15 || (self.interrupted && Math.abs(dist) < 25)) {
 				soysauce.stifle(e1);
@@ -250,21 +276,18 @@ soysauce.carousels = (function() {
 		});
 	};
 	
-	Carousel.prototype.handleZoom = function(e) {
+	Carousel.prototype.handleZoom = function(e, dist) {
 		var zoomImg = e.target;
-		
-		
-		console.log(soysauce.getCoords(e));
-			
+		$(zoomImg).attr("ss-state", "ready");
 		if (!this.isZoomed) {
-			console.log("zoom in");
 			this.isZoomed = true;
-			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform = "scale" + ((this.supports3d) ? "3d(" : "(") + this.zoomMultiplier + "," + this.zoomMultiplier + ",1)";
+			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
+			= "translate" + ((this.supports3d) ? "3d(" : "(") + "0,0,0) " + "scale" + ((this.supports3d) ? "3d(" : "(") + this.zoomMultiplier + "," + this.zoomMultiplier + ",1)";
 		}
-		else {
-			console.log("zoom out");
+		else if (dist < 3) {
 			this.isZoomed = false;
-			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform = "scale" + ((this.supports3d) ? "3d(" : "(") + "1,1,1)";
+			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
+			= "translate" + ((this.supports3d) ? "3d(" : "(") + "0,0,0) "; "scale" + ((this.supports3d) ? "3d(" : "(") + "1,1,1)";
 		}
 			
 	};
@@ -407,7 +430,13 @@ soysauce.carousels = (function() {
 							carousel.gotoPos(-carousel.itemWidth + carousel.offset);							
 						else
 							carousel.gotoPos(carousel.offset);
-						
+						if (carousel.zoom) {
+							var zoomMultiplier = $(this).attr("data-ss-zoom-multiplier");
+							if (zoomMultiplier !== undefined)
+							carousel.zoomMultiplier = parseInt(zoomMultiplier);
+							carousel.zoomMax.x = carousel.itemWidth / carousel.zoomMultiplier;
+							carousel.zoomMax.y = $(this).height() / carousel.zoomMultiplier;
+						}
 						window.setTimeout(function() {
 							$(self).trigger("SSWidgetReady").attr("data-ss-state", "ready");
 						}, 1);
@@ -442,12 +471,6 @@ soysauce.carousels = (function() {
 				if (interval !== undefined)
 					carousel.autoscrollInterval = parseInt(interval);
 				carousel.autoscrollOn();
-			}
-			
-			if (carousel.zoom) {
-				var zoomMultiplier = $(this).attr("data-ss-zoom-multiplier");
-				if (zoomMultiplier !== undefined)
-					carousel.zoomMultiplier = parseInt(zoomMultiplier);
 			}
 			
 			carousels.push(carousel);
