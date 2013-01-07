@@ -27,7 +27,7 @@
 	&[data-ss-options*="fullscreen"] img {
 		width: 100%;
 	}
-	&[data-ss-options*="zoom"] img:not([ss-state="notransition"]) {
+	&[data-ss-options*="zoom"] img[ss-state="ready"] {
 		@include transition(transform .5s);
 	}
 }

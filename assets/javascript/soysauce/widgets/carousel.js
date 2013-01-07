@@ -202,26 +202,24 @@ soysauce.carousels = (function() {
 			lastX = this.handleInterrupt(e1);
 		else {
 			if (this.zoom && this.isZoomed) {
-				
 				this.container.on("touchmove mousemove", function(e2) {
 					soysauce.stifle(e2);
-					var dragOffset = {x:0, y:0}, newCoords = {x:0, y:0};
-					var currCoords = {
-						x:(Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[12])) > 0) ? parseInt(soysauce.getArrayFromMatrix($($0).css("webkitTransform"))[12]) : 0, 
-						y:(Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[13])) > 0) ? parseInt(soysauce.getArrayFromMatrix($($0).css("webkitTransform"))[12]) : 0
-					};
-					coords2 = soysauce.getCoords(e2.originalEvent);
+					var dragOffset = {x:0, y:0};
 					
-					$(e2.target).attr("ss-state", "notransition");
+					self.panCoords.x = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[12])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[12]) : 0;
+					self.panCoords.y = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[13])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[13]) : 0;
+					
+					coords2 = soysauce.getCoords(e2.originalEvent);
+					$(e2.target).attr("ss-state", "panning");
 					dragOffset.x =  coords2.x - self.coords1x;
 					dragOffset.y =  coords2.y - self.coords1y;
-					newCoords.x = dragOffset.x + currCoords.x;
-					newCoords.y = dragOffset.y + currCoords.y;
+					self.panCoords.x = dragOffset.x - self.panCoords.x;
+					self.panCoords.y = dragOffset.y - self.panCoords.y;
 					
-					console.log("translate" + ((self.supports3d) ? "3d(" : "(") + newCoords.x + "px," + newCoords.y + "px,0) " + "scale" + ((self.supports3d) ? "3d(" : "(") + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)");
+					console.log(self.panCoords);
 					
 					e2.target.style.webkitTransform = e2.target.style.msTransform = e2.target.style.OTransform = e2.target.style.MozTransform = e2.target.style.transform 
-					= "translate" + ((self.supports3d) ? "3d(" : "(") + newCoords.x + "px," + newCoords.y + "px,0) " + "scale" + ((self.supports3d) ? "3d(" : "(") + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)";
+					= "translate" + ((self.supports3d) ? "3d(" : "(") + self.panCoords.x + "px," + self.panCoords.y + "px,0) " + "scale" + ((self.supports3d) ? "3d(" : "(") + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)";
 				});
 			}
 			else this.container.on("touchmove mousemove", function(e2) {
