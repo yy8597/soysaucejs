@@ -23,6 +23,11 @@ soysauce.carousels = (function() {
 		this.ready = false;
 		this.interrupted = false;
 		this.coords1x = 0;
+		this.links = false;
+		
+		this.zoom = false;
+		this.zoomMultiplier = 2;
+		this.isZoomed = false;
 	}
 	
 	Carousel.prototype.gotoPos = function(x, forward, fast) {
@@ -222,7 +227,18 @@ soysauce.carousels = (function() {
 			self.ready = true;
 			self.container.attr("data-ss-state", "ready");
 			
-			if (Math.abs(dist) < 15 || (self.interrupted && Math.abs(dist) < 25)) {
+			
+			if (!self.interrupted && self.links && Math.abs(dist) === 0) {
+				if (e2.target.tagName.match(/^a$/i) !== null)
+					window.location.href = $(e2).attr("href");
+				else
+					window.location.href = $(e2.target).closest("a").attr("href");
+			}
+			else if (!self.interrupted && self.zoom && Math.abs(dist) === 0) {
+				soysauce.stifle(e1);
+				self.handleZoom(e1);
+			}
+			else if (Math.abs(dist) < 15 || (self.interrupted && Math.abs(dist) < 25)) {
 				soysauce.stifle(e1);
 				self.gotoPos(self.offset, true);
 			}
@@ -235,7 +251,22 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleZoom = function(e) {
-		console.log("zooming");
+		var zoomImg = e.target;
+		
+		
+		console.log(soysauce.getCoords(e));
+			
+		if (!this.isZoomed) {
+			console.log("zoom in");
+			this.isZoomed = true;
+			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform = "scale" + ((this.supports3d) ? "3d(" : "(") + this.zoomMultiplier + "," + this.zoomMultiplier + ",1)";
+		}
+		else {
+			console.log("zoom out");
+			this.isZoomed = false;
+			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform = "scale" + ((this.supports3d) ? "3d(" : "(") + "1,1,1)";
+		}
+			
 	};
 	
 	Carousel.prototype.autoscrollOn = function() {
@@ -297,6 +328,9 @@ soysauce.carousels = (function() {
 				}
 			});
 			
+			if (carousel.swipe)$(this).find("a").click(function(e) {
+				soysauce.stifle(e);
+			});
 			$(this).wrapInner("<div data-ss-component='container' />");
 			$(this).wrapInner("<div data-ss-component='container_wrapper' />");
 			carousel.container = $(this).find("[data-ss-component='container']");
@@ -322,6 +356,8 @@ soysauce.carousels = (function() {
 			
 			carousel.items = items;
 			carousel.numChildren = items.length;
+			
+			carousel.links = (items[0].tagName.match(/^a$/i) !== null) ? true : false;
 			
 			var dotsHtml = "";
 			var numDots = (carousel.infinite) ? carousel.numChildren - 2 : carousel.numChildren;
@@ -350,7 +386,7 @@ soysauce.carousels = (function() {
 					var numImgs = $(e).find("img").length;
 					$(e).find("img").ready(function() {
 						loadCount++;
-						if (++loadCount == numImgs) 
+						if (++loadCount == numImgs || numImgs == 1); 
 							handleItem();
 					});
 				}
@@ -391,17 +427,8 @@ soysauce.carousels = (function() {
 				carousel.adjustSize();
 			});
 			
-			if (carousel.swipe && carousel.zoom) carousel.container.on("touchstart mousedown", function(e1) {
-				soysauce.stifle(e1);
-				carousel.container.one("touchend mouseup touchmove mousemove", function(e2) {
-					(e2.timeStamp - e1.timeStamp > 200) ? carousel.handleSwipe(e1, e2) : carousel.handleZoom(e1);
-				});
-			});
-			else if (carousel.swipe) carousel.container.on("touchstart mousedown", function(e) {
+			if (carousel.swipe || carousel.zoom) carousel.container.on("touchstart mousedown", function(e) {
 				carousel.handleSwipe(e.originalEvent);
-			});
-			else if (carousel.zoom) carousel.container.click(function(e) {
-				carousel.handleZoom(e.originalEvent);
 			});
 			
 			carousel.ready = true;
@@ -410,12 +437,17 @@ soysauce.carousels = (function() {
 				carousel.container.attr("data-ss-state", "ready");
 			});
 			
-			// implement with play/pause functionality
 			if (carousel.autoscroll) {
 				var interval = $(this).attr("data-ss-autoscroll-interval");
 				if (interval !== undefined)
 					carousel.autoscrollInterval = parseInt(interval);
 				carousel.autoscrollOn();
+			}
+			
+			if (carousel.zoom) {
+				var zoomMultiplier = $(this).attr("data-ss-zoom-multiplier");
+				if (zoomMultiplier !== undefined)
+					carousel.zoomMultiplier = parseInt(zoomMultiplier);
 			}
 			
 			carousels.push(carousel);

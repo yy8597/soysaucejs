@@ -24,4 +24,10 @@
 	&[data-ss-options*="noswipe"] img {
 		-webkit-user-drag: none;
 	}
+	&[data-ss-options*="fullscreen"] img {
+		width: 100%;
+	}
+	&[data-ss-options*="zoom"] img {
+		@include transition(transform .5s);
+	}
 }
