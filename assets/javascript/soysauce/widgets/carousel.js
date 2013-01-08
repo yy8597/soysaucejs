@@ -29,7 +29,7 @@ soysauce.carousels = (function() {
 		this.zoom = false;
 		this.zoomMultiplier = 2;
 		this.isZoomed = false;
-		this.zoomMax = {x:0, y:0};
+		this.panMax = {x:0, y:0};
 		this.panCoords = {x:0, y:0};
 		this.panCoordsStart = {x:0, y:0};
 		this.panning = false;
@@ -210,16 +210,22 @@ soysauce.carousels = (function() {
 				});
 				this.container.on("touchmove mousemove", function(e2) {
 					soysauce.stifle(e2);
-					var dragOffset = {x:0, y:0};
 					
 					coords2 = soysauce.getCoords(e2.originalEvent);
 					$(e2.target).attr("ss-state", "panning");
 					
-					dragOffset.x = self.panCoordsStart.x + coords2.x - self.coords1x;
-					dragOffset.y = self.panCoordsStart.y + coords2.y - self.coords1y;
+					self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
+					self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
 					
-					self.panCoords.x = dragOffset.x;
-					self.panCoords.y = dragOffset.y;					
+					if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x > 0)
+						self.panCoords.x = self.panMax.x;
+					else if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x < 0)
+						self.panCoords.x = -self.panMax.x;
+						
+					if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y > 0)
+						self.panCoords.y = self.panMax.y;
+					else if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y < 0)
+						self.panCoords.y = -self.panMax.y;	
 					
 					e2.target.style.webkitTransform = e2.target.style.msTransform = e2.target.style.OTransform = e2.target.style.MozTransform = e2.target.style.transform 
 					= "translate" + ((self.supports3d) ? "3d(" : "(") + self.panCoords.x + "px," + self.panCoords.y + "px,0) " + "scale" + ((self.supports3d) ? "3d(" : "(") + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)";
@@ -263,7 +269,7 @@ soysauce.carousels = (function() {
 			}
 			else if (!self.interrupted && self.zoom && (Math.abs(dist) === 0 || self.isZoomed)) {
 				soysauce.stifle(e1);
-				self.handleZoom(e1, Math.abs(dist));
+				self.handleZoom(e1, e2, Math.abs(dist));
 			}
 			else if (Math.abs(dist) < 15 || (self.interrupted && Math.abs(dist) < 25)) {
 				soysauce.stifle(e1);
@@ -277,7 +283,7 @@ soysauce.carousels = (function() {
 		});
 	};
 	
-	Carousel.prototype.handleZoom = function(e, dist) {
+	Carousel.prototype.handleZoom = function(e, e2, dist) {
 		var zoomImg = e.target;
 		$(zoomImg).attr("ss-state", "ready");
 		if (!this.isZoomed) {
@@ -285,12 +291,11 @@ soysauce.carousels = (function() {
 			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
 			= "translate" + ((this.supports3d) ? "3d(" : "(") + "0,0,0) " + "scale" + ((this.supports3d) ? "3d(" : "(") + this.zoomMultiplier + "," + this.zoomMultiplier + ",1)";
 		}
-		else if (dist < 3) {
+		else if (dist < 3 && Math.abs(soysauce.getCoords(e).y - soysauce.getCoords(e2).y) < 3) {
 			this.isZoomed = false;
 			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
 			= "translate" + ((this.supports3d) ? "3d(" : "(") + "0,0,0) "; "scale" + ((this.supports3d) ? "3d(" : "(") + "1,1,1)";
 		}
-			
 	};
 	
 	Carousel.prototype.autoscrollOn = function() {
@@ -408,10 +413,12 @@ soysauce.carousels = (function() {
 				function handleChildren() {
 					var loadCount = 0;
 					var numImgs = $(e).find("img").length;
-					$(e).find("img").ready(function() {
+					$(e).find("img").load(function() {
 						loadCount++;
-						if (++loadCount == numImgs || numImgs == 1); 
+						if (++loadCount == numImgs || numImgs == 1)
 							handleItem();
+						if (carousel.zoom)
+							carousel.panMax.y = $(this).height() / carousel.zoomMultiplier;
 					});
 				}
 				function handleItem() {	
@@ -434,9 +441,9 @@ soysauce.carousels = (function() {
 						if (carousel.zoom) {
 							var zoomMultiplier = $(this).attr("data-ss-zoom-multiplier");
 							if (zoomMultiplier !== undefined)
-							carousel.zoomMultiplier = parseInt(zoomMultiplier);
-							carousel.zoomMax.x = carousel.itemWidth / carousel.zoomMultiplier;
-							carousel.zoomMax.y = $(this).height() / carousel.zoomMultiplier;
+								carousel.zoomMultiplier = parseInt(zoomMultiplier);
+								
+							carousel.panMax.x = carousel.itemWidth / carousel.zoomMultiplier;					
 						}
 						window.setTimeout(function() {
 							$(self).trigger("SSWidgetReady").attr("data-ss-state", "ready");
