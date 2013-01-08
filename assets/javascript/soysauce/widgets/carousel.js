@@ -87,7 +87,7 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.slideForward = function(fast) {
-		if (!this.ready || (!this.infinite && this.index === this.numChildren - 1)) return false;
+		if (!this.ready || (!this.infinite && this.index === this.numChildren - 1) || this.isZoomed) return false;
 		
 		$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
 		$(this.items[this.index++]).attr("data-ss-state", "inactive");
@@ -107,7 +107,7 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.slideBackward = function(fast) {
-		if (!this.ready || (!this.infinite && this.index === 0)) return false;
+		if (!this.ready || (!this.infinite && this.index === 0) || this.isZoomed) return false;
 		
 		$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
 		$(this.items[this.index--]).attr("data-ss-state", "inactive");
@@ -292,17 +292,32 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleZoom = function(e1, e2, xDist, yDist) {
-		var zoomImg = e1.target;
+		if (!this.ready) {
+			soysauce.stifle(e1);
+			soysauce.stifle(e2);
+			return;
+		}
+		
+		var zoomImg = this.container.find("[data-ss-component='item'][data-ss-state='active'] img")[0];
 		var self = this;
 		
 		$(zoomImg).attr("ss-state", "ready");
 		
 		if (!this.isZoomed) {
-			self.panCoords = soysauce.getCoords(e2);
+			var offset = 0;
+			
+			self.panCoords = soysauce.getCoords(e2.originalEvent);
 			self.panCoords.x -= self.itemWidth/2;
 			self.panCoords.x *= -self.zoomMultiplier;
 			
-			self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.zoomMultiplier) - e2.offsetY;
+			if (e1.type.match(/mousedown/i) !== null)
+				offset = e1.offsetY;
+				
+			else {
+				offset = e1.pageY - $(e1.target).offset().top;
+			}
+			
+			self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.zoomMultiplier) - offset;
 			self.panCoords.y *= self.zoomMultiplier;
 			
 			if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x > 0)
@@ -318,14 +333,24 @@ soysauce.carousels = (function() {
 			self.panCoordsStart.x = self.panCoords.x;
 			self.panCoordsStart.y = self.panCoords.y;
 			
-			this.isZoomed = true;
+			self.ready = false;
+			self.isZoomed = true;
 			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
-			= "translate" + ((this.supports3d) ? "3d(" : "(") + self.panCoords.x + "px," + self.panCoords.y + "px,0) " + "scale" + ((this.supports3d) ? "3d(" : "(") + this.zoomMultiplier + "," + this.zoomMultiplier + ",1)";
+			= "translate" + ((self.supports3d) ? "3d(" : "(") + self.panCoords.x + "px," + self.panCoords.y + "px,0) " + "scale" + ((self.supports3d) ? "3d(" : "(") + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)";
+		
+			$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+				self.ready = true;
+			});
 		}
 		else if (xDist < 3 && yDist < 3) {
-			this.isZoomed = false;
+			self.ready = false;
+			self.isZoomed = false;
 			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
-			= "translate" + ((this.supports3d) ? "3d(" : "(") + "0,0,0) "; "scale" + ((this.supports3d) ? "3d(" : "(") + "1,1,1)";
+			= "translate" + ((self.supports3d) ? "3d(" : "(") + "0,0,0) "; "scale" + ((self.supports3d) ? "3d(" : "(") + "1,1,1)";
+		
+			$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+				self.ready = true;
+			});
 		}
 	};
 	
