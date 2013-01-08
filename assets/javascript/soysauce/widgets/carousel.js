@@ -31,6 +31,8 @@ soysauce.carousels = (function() {
 		this.isZoomed = false;
 		this.zoomMax = {x:0, y:0};
 		this.panCoords = {x:0, y:0};
+		this.panCoordsStart = {x:0, y:0};
+		this.panning = false;
 	}
 	
 	Carousel.prototype.gotoPos = function(x, forward, fast) {
@@ -202,21 +204,22 @@ soysauce.carousels = (function() {
 			lastX = this.handleInterrupt(e1);
 		else {
 			if (this.zoom && this.isZoomed) {
+				this.container.on("touchend mouseup", function(e2) {
+					self.panCoordsStart.x = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[4])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[4]) : 0;
+					self.panCoordsStart.y = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[5])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[5]) : 0;
+				});
 				this.container.on("touchmove mousemove", function(e2) {
 					soysauce.stifle(e2);
 					var dragOffset = {x:0, y:0};
 					
-					self.panCoords.x = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[12])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[12]) : 0;
-					self.panCoords.y = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[13])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[13]) : 0;
-					
 					coords2 = soysauce.getCoords(e2.originalEvent);
 					$(e2.target).attr("ss-state", "panning");
-					dragOffset.x =  coords2.x - self.coords1x;
-					dragOffset.y =  coords2.y - self.coords1y;
-					self.panCoords.x = dragOffset.x - self.panCoords.x;
-					self.panCoords.y = dragOffset.y - self.panCoords.y;
 					
-					console.log(self.panCoords);
+					dragOffset.x = self.panCoordsStart.x + coords2.x - self.coords1x;
+					dragOffset.y = self.panCoordsStart.y + coords2.y - self.coords1y;
+					
+					self.panCoords.x = dragOffset.x;
+					self.panCoords.y = dragOffset.y;					
 					
 					e2.target.style.webkitTransform = e2.target.style.msTransform = e2.target.style.OTransform = e2.target.style.MozTransform = e2.target.style.transform 
 					= "translate" + ((self.supports3d) ? "3d(" : "(") + self.panCoords.x + "px," + self.panCoords.y + "px,0) " + "scale" + ((self.supports3d) ? "3d(" : "(") + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)";
