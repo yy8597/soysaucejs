@@ -313,9 +313,8 @@ soysauce.carousels = (function() {
 			if (e1.type.match(/mousedown/i) !== null)
 				offset = e1.offsetY;
 				
-			else {
+			else
 				offset = e1.pageY - $(e1.target).offset().top;
-			}
 			
 			self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.zoomMultiplier) - offset;
 			self.panCoords.y *= self.zoomMultiplier;
