@@ -37,11 +37,11 @@ Usage:
 Additional Options:
 
 	1) autoscroll - timer based autoscrolling, default is 5000ms. To change, use [data-ss-autoscroll-interval="x"]
-	2) fullscreen
-	3) peek
-	4) finite
-	5) noswipe
-	6) zoom - coming soon
+	2) fullscreen - takes on width of screen
+	3) peek - allows item "previewing" on both sides of the main item. modify width with [data-ss-peek-width="x"]
+	4) finite - does not continue once you hit the end
+	5) noswipe - disables the ability to swipe
+	6) zoom - allows the user to zoom in on an item. modify zoom multiplier with [data-ss-zoom-multiplier="x"]
 
 ### 2) Accordion
 
