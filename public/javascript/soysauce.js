@@ -944,7 +944,7 @@ soysauce.carousels = (function() {
 		this.container.one("touchend mouseup", function(e2) {
 			soysauce.stifle(e2);
 			coords2 = soysauce.getCoords(e2.originalEvent);
-			if (lastX === undefined && coords2 !== null) lastX = coords2.x;
+			if (coords2 !== null) lastX = coords2.x;
 
 			var xDist = self.coords1x - lastX;
 			var yDist = self.coords1y - coords2.y;
@@ -956,13 +956,13 @@ soysauce.carousels = (function() {
 			self.ready = true;
 			self.container.attr("data-ss-state", "ready");
 			
-			if (!self.interrupted && self.links && Math.abs(dist) === 0) {
+			if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
 				if (e2.target.tagName.match(/^a$/i) !== null)
 					window.location.href = $(e2).attr("href");
 				else
 					window.location.href = $(e2.target).closest("a").attr("href");
 			}
-			else if (!self.interrupted && self.zoom && (Math.abs(xDist) === 0 || self.isZoomed) && self.ready) {
+			else if (!self.interrupted && self.zoom && (Math.abs(xDist) < 3 || self.isZoomed) && Math.abs(yDist) < 3) {
 				soysauce.stifle(e1);
 				self.handleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
 			}
@@ -986,11 +986,12 @@ soysauce.carousels = (function() {
 			return;
 		}
 		
+		this.ready = false;
+		
 		var zoomImg = this.container.find("[data-ss-component='item'][data-ss-state='active'] img")[0];
 		zoomImg = (zoomImg === undefined) ? this.container.find("[data-ss-component='item'][data-ss-state='active']")[0] : zoomImg;
 		
 		var self = this;
-		
 		$(zoomImg).attr("ss-state", "ready");
 		
 		if (!this.isZoomed) {
@@ -1022,25 +1023,20 @@ soysauce.carousels = (function() {
 			self.panCoordsStart.x = self.panCoords.x;
 			self.panCoordsStart.y = self.panCoords.y;
 			
-			self.ready = false;
 			self.isZoomed = true;
 			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
 			= "translate" + ((self.supports3d) ? "3d(" : "(") + self.panCoords.x + "px," + self.panCoords.y + "px,0) " + "scale" + ((self.supports3d) ? "3d(" : "(") + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)";
-		
-			$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
-				self.ready = true;
-			});
 		}
 		else if (xDist < 3 && yDist < 3) {
-			self.ready = false;
 			self.isZoomed = false;
 			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
 			= "translate" + ((self.supports3d) ? "3d(" : "(") + "0,0,0) "; "scale" + ((self.supports3d) ? "3d(" : "(") + "1,1,1)";
-		
-			$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
-				self.ready = true;
-			});
 		}
+		
+		$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+			self.ready = true;
+			self.interrupted = false;
+		});
 	};
 	
 	Carousel.prototype.autoscrollOn = function() {
