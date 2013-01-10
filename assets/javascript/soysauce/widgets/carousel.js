@@ -327,7 +327,6 @@ soysauce.carousels = (function() {
 			
 			if (e1.type.match(/mousedown/i) !== null)
 				offset = e1.offsetY;
-				
 			else
 				offset = e1.pageY - $(e1.target).offset().top;
 			
