@@ -832,6 +832,11 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleInterrupt = function(e) {
+		if (this.isZoomed) {
+			soysauce.stifle(e);
+			return;
+		}
+		
 		var self = this;
 		var coords1, coords2, ret;
 		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
@@ -852,7 +857,7 @@ soysauce.carousels = (function() {
 		coords1 = soysauce.getCoords(e);
 		
 		this.container.on("touchmove mousemove", function(e2) {
-			if (self.isZoomed) {
+			if (self.isZoomed || (self.zoom && !self.ready)) {
 				soysauce.stifle(e);
 				soysauce.stifle(e2);
 				return;
