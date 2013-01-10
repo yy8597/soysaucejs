@@ -97,7 +97,11 @@ soysauce.accordions = (function() {
 			currTabOpen = this.tabGroup.getCurrOpen();
 			if (currTabOpen !== undefined && currTabOpen.id == self.id) this.tabGroup.setCurrOpen(undefined);	
 		}
-		this.setState("closed");
+		if (this.slide) this.content.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+			self.setState("closed");
+		});
+		else
+			this.setState("closed");
 	};
 
 	Accordion.prototype.addHeight = function(height) {
