@@ -934,6 +934,7 @@ soysauce.carousels = (function() {
 				else
 					soysauce.stifle(e2);
 				
+				self.panning = true;
 				lastX = coords2.x;
 				dragOffset = coords1.x - coords2.x;
 				self.container.attr("data-ss-state", "notransition");
@@ -980,7 +981,7 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleZoom = function(e1, e2, xDist, yDist) {
-		if (!this.ready) {
+		if (!this.ready || (e1.type.match(/touch/) !== null && e2.originalEvent.type.match(/mouse/) !== null)) {
 			soysauce.stifle(e1);
 			soysauce.stifle(e2);
 			return;
@@ -1033,7 +1034,7 @@ soysauce.carousels = (function() {
 			= "translate" + ((self.supports3d) ? "3d(" : "(") + "0,0,0) "; "scale" + ((self.supports3d) ? "3d(" : "(") + "1,1,1)";
 		}
 		
-		$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+		$(zoomImg).one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 			self.ready = true;
 			self.interrupted = false;
 		});
