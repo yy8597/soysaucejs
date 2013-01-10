@@ -25,7 +25,7 @@ soysauce.carousels = (function() {
 		this.coords1x = 0;
 		this.coords1y = 0;
 		this.links = false;
-		
+		this.cms = false;
 		this.zoom = false;
 		this.zoomMultiplier = 2;
 		this.isZoomed = false;
@@ -201,7 +201,7 @@ soysauce.carousels = (function() {
 		coords1 = soysauce.getCoords(e1);
 		
 		this.coords1x = coords1.x;
-		this.coords1y = coords1.y
+		this.coords1y = coords1.y;
 		
 		if (e1.type.match(/mousedown/) !== null) soysauce.stifle(e1); // for desktop debugging
 
@@ -388,6 +388,9 @@ soysauce.carousels = (function() {
 			
 			if(options) options.forEach(function(option) {
 				switch(option) {
+					case "cms":
+						carousel.cms = true;
+						break;
 					case "peek":
 						carousel.peek = true;
 						break;
@@ -412,7 +415,25 @@ soysauce.carousels = (function() {
 				}
 			});
 			
-			if (carousel.swipe)$(this).find("a").click(function(e) {
+			if (carousel.cms) {
+				var img_src = "";
+				$(this).find("style").each(function(e) {
+					// Create Image Tag
+					var img = "";
+				  img_src = $(this).html().match(/\/\/[\w_\.\/-]+-2x[\w\.\/]+/i)[0];
+					img = "<img src='" + img_src + "'>"
+					$(this).before(img);
+
+					// Add data tags
+					$(this).parent().attr("data-ss-component", "item")
+
+					// Clean Up
+					$(this).find("+ div").remove();
+					$(this).remove();
+				});
+			}
+			
+			if (carousel.swipe) $(this).find("a").click(function(e) {
 				soysauce.stifle(e);
 			});
 			$(this).wrapInner("<div data-ss-component='container' />");
