@@ -175,6 +175,12 @@ soysauce.carousels = (function() {
 		coords1 = soysauce.getCoords(e);
 		
 		this.container.on("touchmove mousemove", function(e2) {
+			if (self.isZoomed) {
+				soysauce.stifle(e);
+				soysauce.stifle(e2);
+				return;
+			}
+			
 			var dragOffset;
 
 			ret = coords2 = soysauce.getCoords(e2.originalEvent);
@@ -236,9 +242,9 @@ soysauce.carousels = (function() {
 					= "translate" + ((self.supports3d) ? "3d(" : "(") + self.panCoords.x + "px," + self.panCoords.y + "px,0) " + "scale" + ((self.supports3d) ? "3d(" : "(") + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)";
 				});
 			}
-			else this.container.on("touchmove mousemove", function(e2) {
+			else if (this.swipe) this.container.on("touchmove mousemove", function(e2) {
 				var dragOffset;
-
+				
 				coords2 = soysauce.getCoords(e2.originalEvent);
 				
 				if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)))
@@ -278,11 +284,11 @@ soysauce.carousels = (function() {
 				soysauce.stifle(e1);
 				self.handleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
 			}
-			else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25)) {
+			else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25) || Math.abs(xDist) > 15 && (self.index + 1 === (self.numChildren | 1) && !self.infinite)) {
 				soysauce.stifle(e1);
 				self.gotoPos(self.offset, true);
 			}
-			else if (Math.abs(xDist) > 3) {
+			else if (Math.abs(xDist) > 3 && self.swipe) {
 				if (xDist > 0)
 					self.slideForward(fast);
 				else
@@ -299,6 +305,8 @@ soysauce.carousels = (function() {
 		}
 		
 		var zoomImg = this.container.find("[data-ss-component='item'][data-ss-state='active'] img")[0];
+		zoomImg = (zoomImg === undefined) ? this.container.find("[data-ss-component='item'][data-ss-state='active']")[0] : zoomImg;
+		
 		var self = this;
 		
 		$(zoomImg).attr("ss-state", "ready");
@@ -493,8 +501,6 @@ soysauce.carousels = (function() {
 						loadCount++;
 						if (++loadCount == numImgs || numImgs == 1)
 							handleItem();
-						if (carousel.zoom)
-							carousel.panMax.y = $(this).height() / carousel.zoomMultiplier;
 					});
 				}
 				function handleItem() {	
@@ -519,7 +525,13 @@ soysauce.carousels = (function() {
 							if (zoomMultiplier !== undefined)
 								carousel.zoomMultiplier = parseInt(zoomMultiplier);
 								
-							carousel.panMax.x = carousel.itemWidth / carousel.zoomMultiplier;					
+							carousel.panMax.x = carousel.itemWidth / carousel.zoomMultiplier;				
+							carousel.panMax.y = $(self).find("[data-ss-component='item']").height() / carousel.zoomMultiplier;
+							if (carousel.panMax.y === 0) {
+								$(self).find("img").load(function() {
+									carousel.panMax.y = $(this).height() / carousel.zoomMultiplier;
+								});
+							}
 						}
 						window.setTimeout(function() {
 							$(self).trigger("SSWidgetReady").attr("data-ss-state", "ready");
