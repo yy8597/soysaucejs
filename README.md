@@ -12,9 +12,7 @@ Widgets
 These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. I will bundle these later, but to use for now you will need to include:
 
 	soysauce.css
-	fastclick.js
-	base.js
-	[your widget].js
+	soysauce.js (found in public/javascript)
 
 ### 1) Carousel
 
