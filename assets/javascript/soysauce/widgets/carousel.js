@@ -253,7 +253,6 @@ soysauce.carousels = (function() {
 				
 				coords2 = soysauce.getCoords(e2);
 				
-				console.log(Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)));
 				if(self.lockY || Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2) {
 					self.lockY = true;
 					return;
