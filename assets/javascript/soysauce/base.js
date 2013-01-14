@@ -3,19 +3,21 @@ jQuery(document).ready(function($) {
 	$.fn.hasAttr = function(attr) {
 		return this.attr(attr) !== undefined;
 	};
-	setTimeout(function(){
-		window.scrollTo(0, 1);
-	}, 0);
 });
 
 if(typeof(soysauce) == "undefined") {
-	
+"use strict";	
 soysauce = {
 	init: function() {
 		var set = $("[data-ss-widget]");
 		for (var i = 0; i < set.length; i++) {
 				$(set[i]).attr("data-ss-id", i+1);
 		}
+		$(document).ready(function() {
+			window.setTimeout(function(){
+				window.scrollTo(0, 1);
+			}, 0);
+		});
 	},
 	getOptions: function(selector) {
 		if($(selector).attr("data-ss-options") == undefined) return false;
