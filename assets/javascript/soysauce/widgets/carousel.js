@@ -319,7 +319,6 @@ soysauce.carousels = (function() {
 			soysauce.stifle(e2);
 			return;
 		}
-		
 		this.ready = false;
 		
 		var zoomImg = this.container.find("[data-ss-component='item'][data-ss-state='active'] img")[0];
@@ -335,10 +334,18 @@ soysauce.carousels = (function() {
 			self.panCoords.x -= self.itemWidth/2;
 			self.panCoords.x *= -self.zoomMultiplier;
 			
-			if (e1.type.match(/mousedown/i) !== null)
-				offset = e1.offsetY;
-			else
-				offset = e1.pageY - $(e1.target).offset().top;
+			if (e1.type.match(/mousedown/i) !== null) {
+				if (e1.originalEvent !== undefined) 
+					offset = e1.originalEvent.offsetY;
+				else 
+					offset = e1.offsetY;
+			}
+			else {
+				if (e1.originalEvent !== undefined) 
+					offset = e1.originalEvent.pageY - $(e1.target).offset().top;
+				else 
+					offset = e1.pageY - $(e1.target).offset().top;
+			}
 			
 			self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.zoomMultiplier) - offset;
 			self.panCoords.y *= self.zoomMultiplier;
@@ -356,9 +363,11 @@ soysauce.carousels = (function() {
 			self.panCoordsStart.x = self.panCoords.x;
 			self.panCoordsStart.y = self.panCoords.y;
 			
-			self.isZoomed = true;
-			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
-			= "translate" + ((self.supports3d) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((self.supports3d) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
+			if (self.panCoords.x && self.panCoords.y) {
+				self.isZoomed = true;
+				zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
+				= "translate" + ((self.supports3d) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((self.supports3d) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
+			}
 		}
 		else if (xDist < 3 && yDist < 3) {
 			self.isZoomed = false;
@@ -539,8 +548,9 @@ soysauce.carousels = (function() {
 							carousel.panMax.x = carousel.itemWidth / carousel.zoomMultiplier;				
 							carousel.panMax.y = $(self).find("[data-ss-component='item']").height() / carousel.zoomMultiplier;
 							if (carousel.panMax.y === 0) {
-								$(self).find("img").ready(function() {
-									carousel.panMax.y = $(this).height() / carousel.zoomMultiplier;
+								var imageToLoad = $(self).find("img")[0];
+								$(imageToLoad).load(function() {
+									carousel.panMax.y = imageToLoad.height / carousel.zoomMultiplier;
 								});
 							}
 						}
