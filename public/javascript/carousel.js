@@ -126,6 +126,7 @@ soysauce.carousels = (function() {
 		this.panCoords = {x:0, y:0};
 		this.panCoordsStart = {x:0, y:0};
 		this.panning = false;
+		this.lockY = false;
 	}
 	
 	Carousel.prototype.gotoPos = function(x, forward, fast) {
@@ -345,6 +346,12 @@ soysauce.carousels = (function() {
 				
 				coords2 = soysauce.getCoords(e2);
 				
+				console.log(Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)));
+				if(self.lockY || Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2) {
+					self.lockY = true;
+					return;
+				}
+				
 				if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)))
 					soysauce.stifle(e1);
 				else
@@ -388,6 +395,10 @@ soysauce.carousels = (function() {
 				self.gotoPos(self.offset, true);
 			}
 			else if (Math.abs(xDist) > 3 && self.swipe) {
+				if (self.lockY) {
+					self.lockY = false;
+					return;
+				}
 				if (xDist > 0)
 					self.slideForward(fast);
 				else
