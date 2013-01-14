@@ -421,6 +421,7 @@ soysauce.carousels = (function() {
 						break;
 					case "peek":
 						carousel.peek = true;
+						carousel.peekWidth = 40;
 						break;
 					case "finite":
 						carousel.infinite = false;
@@ -446,16 +447,13 @@ soysauce.carousels = (function() {
 			if (carousel.cms) {
 				var img_src = "";
 				$(this).find("style").each(function(e) {
-					// Create Image Tag
 					var img = "";
 				  img_src = $(this).html().match(/\/\/[\w_\.\/-]+-2x[\w\.\/]+/i)[0];
 					img = "<img src='" + img_src + "'>"
 					$(this).before(img);
 
-					// Add data tags
 					$(this).parent().attr("data-ss-component", "item")
 
-					// Clean Up
 					$(this).find("+ div").remove();
 					$(this).remove();
 				});
