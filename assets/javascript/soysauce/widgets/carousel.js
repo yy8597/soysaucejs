@@ -17,7 +17,7 @@ soysauce.carousels = (function() {
 		this.swipe = true;
 		this.numChildren = 0;
 		this.index = 0;
-		this.supports3d = (navigator.userAgent.match(/android/i) !== null) ? false : true;
+		this.supports3d = (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true;
 		this.itemWidth = 0;
 		this.offset = 0;
 		this.ready = false;
@@ -151,7 +151,7 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.setStyle = function(x) {
-		this.container[0].style.webkitTransform = this.container[0].style.msTransform = this.container[0].style.OTransform = this.container[0].style.MozTransform = this.container[0].style.transform = "translate" + ((this.supports3d) ? "3d(" : "(") + x + "px,0,0)";
+		this.container[0].style.webkitTransform = this.container[0].style.msTransform = this.container[0].style.OTransform = this.container[0].style.MozTransform = this.container[0].style.transform = "translate" + ((this.supports3d) ? "3d(" + x + "px,0,0)": "(" + x + "px,0)");
 	};
 	
 	Carousel.prototype.handleInterrupt = function(e) {
@@ -179,7 +179,7 @@ soysauce.carousels = (function() {
 		
 		coords1 = soysauce.getCoords(e);
 		
-		this.container.on("touchmove mousemove", function(e2) {
+		this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
 			if (self.isZoomed || (self.zoom && !self.ready)) {
 				soysauce.stifle(e);
 				soysauce.stifle(e2);
@@ -188,7 +188,7 @@ soysauce.carousels = (function() {
 			
 			var dragOffset;
 
-			ret = coords2 = soysauce.getCoords(e2.originalEvent);
+			ret = coords2 = soysauce.getCoords(e2);
 			
 			if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)))
 				soysauce.stifle(e);
@@ -220,14 +220,14 @@ soysauce.carousels = (function() {
 			lastX = this.handleInterrupt(e1);
 		else {
 			if (this.zoom && this.isZoomed) {
-				this.container.on("touchend mouseup", function(e2) {
+				this.container.closest("[data-ss-widget='carousel']").on("touchend mouseup", function(e2) {
 					self.panCoordsStart.x = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[4])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[4]) : 0;
 					self.panCoordsStart.y = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[5])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[5]) : 0;
 				});
-				this.container.on("touchmove mousemove", function(e2) {
+				this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
 					soysauce.stifle(e2);
 					
-					coords2 = soysauce.getCoords(e2.originalEvent);
+					coords2 = soysauce.getCoords(e2);
 					$(e2.target).attr("ss-state", "panning");
 					
 					self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
@@ -244,13 +244,13 @@ soysauce.carousels = (function() {
 						self.panCoords.y = -self.panMax.y;	
 					
 					e2.target.style.webkitTransform = e2.target.style.msTransform = e2.target.style.OTransform = e2.target.style.MozTransform = e2.target.style.transform 
-					= "translate" + ((self.supports3d) ? "3d(" : "(") + self.panCoords.x + "px," + self.panCoords.y + "px,0) " + "scale" + ((self.supports3d) ? "3d(" : "(") + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)";
+					= "translate" + ((self.supports3d) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((self.supports3d) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
 				});
 			}
-			else if (this.swipe) this.container.on("touchmove mousemove", function(e2) {
+			else if (this.swipe) this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
 				var dragOffset;
 				
-				coords2 = soysauce.getCoords(e2.originalEvent);
+				coords2 = soysauce.getCoords(e2);
 				
 				if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)))
 					soysauce.stifle(e1);
@@ -265,9 +265,9 @@ soysauce.carousels = (function() {
 			});
 		}
 
-		this.container.one("touchend mouseup", function(e2) {
+		this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
 			soysauce.stifle(e2);
-			coords2 = soysauce.getCoords(e2.originalEvent);
+			coords2 = soysauce.getCoords(e2);
 			if (coords2 !== null) lastX = coords2.x;
 
 			var xDist = self.coords1x - lastX;
@@ -276,7 +276,7 @@ soysauce.carousels = (function() {
 			var velocity = xDist / (e2.timeStamp - e1.timeStamp);
 			var fast = (velocity > 0.35) ? true : false;
 			
-			self.container.off("touchmove mousemove");
+			self.container.closest("[data-ss-widget='carousel']").off("touchmove mousemove");
 			self.ready = true;
 			self.container.attr("data-ss-state", "ready");
 			
@@ -304,7 +304,7 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleZoom = function(e1, e2, xDist, yDist) {
-		if (!this.ready || (e1.type.match(/touch/) !== null && e2.originalEvent.type.match(/mouse/) !== null)) {
+		if (!this.ready || (e1.type.match(/touch/) !== null && e2.type.match(/mouse/) !== null)) {
 			soysauce.stifle(e1);
 			soysauce.stifle(e2);
 			return;
@@ -321,7 +321,7 @@ soysauce.carousels = (function() {
 		if (!this.isZoomed) {
 			var offset = 0;
 			
-			self.panCoords = soysauce.getCoords(e2.originalEvent);
+			self.panCoords = soysauce.getCoords(e2);
 			self.panCoords.x -= self.itemWidth/2;
 			self.panCoords.x *= -self.zoomMultiplier;
 			
@@ -348,12 +348,12 @@ soysauce.carousels = (function() {
 			
 			self.isZoomed = true;
 			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
-			= "translate" + ((self.supports3d) ? "3d(" : "(") + self.panCoords.x + "px," + self.panCoords.y + "px,0) " + "scale" + ((self.supports3d) ? "3d(" : "(") + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)";
+			= "translate" + ((self.supports3d) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((self.supports3d) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
 		}
 		else if (xDist < 3 && yDist < 3) {
 			self.isZoomed = false;
 			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
-			= "translate" + ((self.supports3d) ? "3d(" : "(") + "0,0,0) "; "scale" + ((self.supports3d) ? "3d(" : "(") + "1,1,1)";
+			= "translate" + ((self.supports3d) ? "3d(0,0,0)" : "(0,0)") + " scale" + ((self.supports3d) ? "3d(1,1,1)" : "(1,1)") ;
 		}
 		
 		$(zoomImg).one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
@@ -498,7 +498,7 @@ soysauce.carousels = (function() {
 				function handleChildren() {
 					var loadCount = 0;
 					var numImgs = $(e).find("img").length;
-					$(e).find("img").load(function() {
+					$(e).find("img").ready(function() {
 						loadCount++;
 						if (++loadCount == numImgs || numImgs == 1)
 							handleItem();
@@ -529,7 +529,7 @@ soysauce.carousels = (function() {
 							carousel.panMax.x = carousel.itemWidth / carousel.zoomMultiplier;				
 							carousel.panMax.y = $(self).find("[data-ss-component='item']").height() / carousel.zoomMultiplier;
 							if (carousel.panMax.y === 0) {
-								$(self).find("img").load(function() {
+								$(self).find("img").ready(function() {
 									carousel.panMax.y = $(this).height() / carousel.zoomMultiplier;
 								});
 							}
@@ -553,8 +553,8 @@ soysauce.carousels = (function() {
 				carousel.adjustSize();
 			});
 			
-			if (carousel.swipe || carousel.zoom) carousel.container.on("touchstart mousedown", function(e) {
-				carousel.handleSwipe(e.originalEvent);
+			if (carousel.swipe || carousel.zoom) carousel.container.closest("[data-ss-widget='carousel']").on("touchstart mousedown", function(e) {
+				carousel.handleSwipe(e);
 			});
 			
 			carousel.ready = true;

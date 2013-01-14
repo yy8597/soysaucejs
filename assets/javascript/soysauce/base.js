@@ -58,6 +58,8 @@ soysauce = {
 		}
 	},
 	getCoords: function(e) {
+		if (e === undefined) return null;
+		if (e.originalEvent !== undefined) e = e.originalEvent;
 		if (e.touches && e.touches.length > 0)
 			return {x: e.touches[0].clientX, y: e.touches[0].clientY};
 		else if (e.clientX != undefined)
