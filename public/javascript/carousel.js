@@ -594,7 +594,7 @@ soysauce.carousels = (function() {
 			carousel.dots.first().attr("data-ss-state", "active");
 			
 			if (carousel.peek) {
-				carousel.peekWidth = ($(this).attr("data-ss-peek-width") !== undefined) ? parseInt($(this).attr("data-ss-peek-width")) : 0;
+				carousel.peekWidth = ($(this).attr("data-ss-peek-width") !== undefined) ? parseInt($(this).attr("data-ss-peek-width")) : 40;
 				if (carousel.peekWidth % 2) $(this).attr("data-ss-peek-width", ++carousel.peekWidth);
 			}
 			
