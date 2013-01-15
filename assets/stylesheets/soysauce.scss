@@ -1,0 +1,17 @@
+@import "compass/css3";
+
+// Global Styles
+[data-ss-widget], [data-ss-component] {
+	-webkit-tap-highlight-color:  rgba(255, 255, 255, 0); 
+	-webkit-backface-visibility: hidden;
+	position: relative;
+	z-index: 5;
+	&:not([data-ss-widget="ccValidation"]) {
+		-webkit-user-select: none;
+	}
+}
+
+// Widget Styles
+@import "soysauce/_accordion.scss";
+@import "soysauce/_overlay.scss";
+@import "soysauce/_carousel.scss";

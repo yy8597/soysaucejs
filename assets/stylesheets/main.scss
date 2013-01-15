@@ -1,0 +1,33 @@
+@import "compass/reset";
+@import "compass/css3";
+
+// Site
+@import "_site.scss";
+
+//[data-bb-abtest] {
+//	#mHomeBannerWrap {
+//		display: none;
+//	}
+//	#checkout, #bottomCheckout {
+//		@include border-radius(5px);
+//		@include background(linear-gradient(#003784 0%,#021f49 100%));
+//		width: 100%;
+//		border: 1px solid #003AC4;
+//		span:before {
+//			content: "PROCEED TO ";
+//		}
+//		span:after {
+//			text-shadow: 0 1px 0 black;
+//			display: inline-block;
+//			content: "";
+//			border-left: 6px solid white;
+//			border-top: 6px solid transparent;
+//			border-bottom: 6px solid transparent;
+//			margin-left: 5px;
+//		}
+//	}
+//	#topPayPal {
+//		float: none;
+//		text-align: center;
+//	}
+//}

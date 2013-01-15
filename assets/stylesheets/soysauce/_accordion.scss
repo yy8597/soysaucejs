@@ -1,0 +1,71 @@
+// Ajax keyframes
+@-webkit-keyframes spin  
+{  
+    from { -webkit-transform: rotateZ(0deg);   opacity: 0.6; }  
+    50%  { -webkit-transform: rotateZ(180deg); opacity: 1.0; }  
+    to   { -webkit-transform: rotateZ(360deg); opacity: 0.6; }  
+}
+
+@-moz-keyframes spin  
+{  
+    from { -moz-transform: rotateZ(0deg);   opacity: 0.6; }  
+    50%  { -moz-transform: rotateZ(180deg); opacity: 1.0; }  
+    to   { -moz-transform: rotateZ(360deg); opacity: 0.6; }  
+}
+
+@-o-keyframes spin  
+{  
+    from { -o-transform: rotateZ(0deg);   opacity: 0.6; }  
+    50%  { -o-transform: rotateZ(180deg); opacity: 1.0; }  
+    to   { -o-transform: rotateZ(360deg); opacity: 0.6; }  
+}
+
+@keyframes spin  
+{  
+    from { transform: rotateZ(0deg);   opacity: 0.6; }  
+    50%  { transform: rotateZ(180deg); opacity: 1.0; }  
+    to   { transform: rotateZ(360deg); opacity: 0.6; }  
+}
+
+[data-ss-widget="accordion"]:not([data-ss-options*="slide"]) {
+	> [data-ss-component="content"] {
+		&[data-ss-state="open"] {
+			display: block;
+		}
+		&[data-ss-state="closed"] {
+			display: none;
+		}
+	}
+}
+
+[data-ss-widget="accordion"][data-ss-options*="slide"] {
+	[data-ss-component="content"] {
+		@include transition(height 0.15s ease-in-out);
+		overflow: hidden;
+	}
+}
+
+[data-ss-widget="accordion"][data-ss-state="ajaxing"] {
+	[data-ss-component="button"] {
+		position: relative;
+		.icon {
+			@include border-radius(20px);
+			@include box-shadow(0 0 10px 2px rgba(255,255,255,.4));
+			position: absolute;
+			width: 20px;
+			height: 20px;
+			margin: -10px 0 0 -15px;
+			border: 5px solid white;
+			border-right-color: transparent;
+			right: 2px;
+			top: 50%;
+
+			// No mixin for this
+			-webkit-animation: spin 1s linear infinite;
+			-moz-animation: spin 1s linear infinite;
+			-ms-animation: spin 1s linear infinite;
+			-o-animation: spin 1s linear infinite;
+			animation: spin 1s linear infinite;
+		}
+	}
+}
