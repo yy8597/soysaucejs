@@ -101,4 +101,3 @@ Usage:
 Notes
 --------------
 * This widget package requires jQuery 1.7+
-
