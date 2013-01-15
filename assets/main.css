@@ -115,7 +115,7 @@ h2 {
   text-shadow: 0 1px 0 white;
 }
 
-.ss_carousels .carousel2 [data-ss-component="dots"], .ss_carousels .carousel6 [data-ss-component="dots"] {
+.ss_carousels .carousel2 [data-ss-component="dots"], .ss_carousels .carousel6 [data-ss-component="dots"], .ss_carousels .carousel1 [data-ss-component="dots"] {
   width: 100%;
   background: #ddd;
   position: absolute;
@@ -125,7 +125,7 @@ h2 {
   border: solid #777;
   border-width: 1px 0;
 }
-.ss_carousels .carousel2 [data-ss-component="dot"], .ss_carousels .carousel6 [data-ss-component="dot"] {
+.ss_carousels .carousel2 [data-ss-component="dot"], .ss_carousels .carousel6 [data-ss-component="dot"], .ss_carousels .carousel1 [data-ss-component="dot"] {
   -webkit-border-radius: 8px;
   -moz-border-radius: 8px;
   -ms-border-radius: 8px;
@@ -137,7 +137,7 @@ h2 {
   width: 12px;
   margin-right: 5px;
 }
-.ss_carousels .carousel2 [data-ss-component="dot"][data-ss-state="active"], .ss_carousels .carousel6 [data-ss-component="dot"][data-ss-state="active"] {
+.ss_carousels .carousel2 [data-ss-component="dot"][data-ss-state="active"], .ss_carousels .carousel6 [data-ss-component="dot"][data-ss-state="active"], .ss_carousels .carousel1 [data-ss-component="dot"][data-ss-state="active"] {
   background: #cd0000;
 }
 .ss_carousels .carousel3 [data-ss-component="item"] {

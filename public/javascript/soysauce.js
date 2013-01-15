@@ -771,7 +771,11 @@ soysauce.carousels = (function() {
 	Carousel.prototype.slideForward = function(fast) {
 		if (!this.ready || (!this.infinite && this.index === this.numChildren - 1) || this.isZoomed) return false;
 		
-		$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
+		if (this.infinite)
+			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
+		else
+			$(this.dots[this.index]).attr("data-ss-state", "inactive");
+			
 		$(this.items[this.index++]).attr("data-ss-state", "inactive");
 		
 		if (this.infinite && this.index === this.numChildren - 1) {
@@ -784,7 +788,11 @@ soysauce.carousels = (function() {
 		if ((this.offset / this.itemWidth) % 1 !== 0)
 			this.offset = -this.itemWidth * (this.index - (this.infinite) ? 0 : 1);
 		
-		$(this.dots[this.index - 1]).attr("data-ss-state", "active");
+		if (this.infinite)
+			$(this.dots[this.index - 1]).attr("data-ss-state", "active");
+		else
+			$(this.dots[this.index]).attr("data-ss-state", "active");
+			
 		this.ready = false;
 		this.gotoPos(this.offset - this.itemWidth, true, fast);
 		
@@ -794,7 +802,11 @@ soysauce.carousels = (function() {
 	Carousel.prototype.slideBackward = function(fast) {
 		if (!this.ready || (!this.infinite && this.index === 0) || this.isZoomed) return false;
 		
-		$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
+		if (this.infinite)
+			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
+		else
+			$(this.dots[this.index]).attr("data-ss-state", "inactive");
+			
 		$(this.items[this.index--]).attr("data-ss-state", "inactive");
 		
 		if (this.infinite && this.index === 0) {
@@ -807,7 +819,11 @@ soysauce.carousels = (function() {
 		if ((this.offset / this.itemWidth) % 1 !== 0)
 			this.offset = -this.itemWidth * (this.index - (this.infinite) ? 0 : 1);
 		
-		$(this.dots[this.index - 1]).attr("data-ss-state", "active");
+		if (this.infinite)
+			$(this.dots[this.index - 1]).attr("data-ss-state", "active");
+		else
+			$(this.dots[this.index]).attr("data-ss-state", "active");
+			
 		this.ready = false;
 		this.gotoPos(this.offset + this.itemWidth, false, fast);
 		
@@ -992,10 +1008,18 @@ soysauce.carousels = (function() {
 					self.lockY = false;
 					return;
 				}
-				if (xDist > 0)
-					self.slideForward(fast);
-				else
-					self.slideBackward(fast);
+				if (xDist > 0) {
+					if (!self.infinite && self.index === self.numChildren - 1)
+						self.gotoPos(self.index * -self.itemWidth);
+					else
+						self.slideForward(fast);
+				}
+				else {
+					if (!self.infinite && self.index === 0)
+						self.gotoPos(0);
+					else
+						self.slideBackward(fast);
+				}
 			}
 		});
 	};
