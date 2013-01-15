@@ -203,7 +203,7 @@ soysauce.carousels = (function() {
 		coords1 = soysauce.getCoords(e);
 		
 		this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
-			if (self.isZoomed || (self.zoom && !self.ready)) {
+			if (self.isZoomed) {
 				soysauce.stifle(e);
 				soysauce.stifle(e2);
 				return;
@@ -295,6 +295,7 @@ soysauce.carousels = (function() {
 
 		this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
 			soysauce.stifle(e2);
+			
 			coords2 = soysauce.getCoords(e2);
 			if (coords2 !== null) lastX = coords2.x;
 
@@ -305,10 +306,10 @@ soysauce.carousels = (function() {
 			var fast = (velocity > 0.9) ? true : false;
 			
 			self.container.closest("[data-ss-widget='carousel']").off("touchmove mousemove");
-			self.ready = true;
-			self.container.attr("data-ss-state", "ready");
 			
 			if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
+				self.ready = true;
+				self.container.attr("data-ss-state", "ready");
 				if (e2.target.tagName.match(/^a$/i) !== null)
 					window.location.href = $(e2).attr("href");
 				else
@@ -320,9 +321,13 @@ soysauce.carousels = (function() {
 			}
 			else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25) || Math.abs(xDist) > 15 && (self.index + 1 === (self.numChildren | 1) && !self.infinite)) {
 				soysauce.stifle(e1);
+				self.ready = true;
+				self.container.attr("data-ss-state", "ready");
 				self.gotoPos(self.offset, true);
 			}
 			else if (Math.abs(xDist) > 3 && self.swipe) {
+				self.ready = true;
+				self.container.attr("data-ss-state", "ready");
 				if (self.lockY) {
 					self.lockY = false;
 					return;
@@ -395,17 +400,21 @@ soysauce.carousels = (function() {
 			
 			if (self.panCoords.x && self.panCoords.y) {
 				self.isZoomed = true;
+				this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "zoomed");
 				zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
 				= "translate" + ((self.supports3d) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((self.supports3d) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
 			}
 		}
 		else if (xDist < 3 && yDist < 3) {
-			self.isZoomed = false;
+			this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "ready");
 			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
 			= "translate" + ((self.supports3d) ? "3d(0,0,0)" : "(0,0)") + " scale" + ((self.supports3d) ? "3d(1,1,1)" : "(1,1)") ;
+			$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+				self.isZoomed = false;
+			});
 		}
 		
-		$(zoomImg).one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+		$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 			self.ready = true;
 			self.interrupted = false;
 		});
@@ -474,6 +483,16 @@ soysauce.carousels = (function() {
 				}
 			});
 			
+			// Deprecated List - swipe-disabled phones
+			if (/android.*sgh-/i.test(navigator.userAgent)) {
+				var newOptions = $(this).attr("data-ss-options");
+				carousel.swipe = false;
+				if (newOptions !== undefined)
+					$(this).attr("data-ss-options", newOptions + " noswipe");
+				else
+					$(this).attr("data-ss-options", "noswipe");
+			}
+			
 			if (carousel.cms) {
 				var img_src = "";
 				$(this).find("style").each(function(e) {
@@ -500,11 +519,15 @@ soysauce.carousels = (function() {
 			wrapper.after("<div data-ss-component='dots'></div>")
 			carousel.dots = $(this).find("[data-ss-component='dots']");
 			
-			wrapper.find("~ [data-ss-button-type='prev']").click(function() {
-				carousel.slideBackward();
+			wrapper.find("~ [data-ss-button-type='prev']").click(function(e) {
+				soysauce.stifle(e);
+				if (carousel.ready && !carousel.interrupted)
+					carousel.slideBackward();
 			});
-			wrapper.find("~ [data-ss-button-type='next']").click(function() {
-				carousel.slideForward();
+			wrapper.find("~ [data-ss-button-type='next']").click(function(e) {
+				soysauce.stifle(e);
+				if (carousel.ready && !carousel.interrupted)
+					carousel.slideForward();
 			});
 			
 			if (carousel.infinite) {
@@ -602,7 +625,12 @@ soysauce.carousels = (function() {
 			});
 			
 			if (carousel.swipe || carousel.zoom) carousel.container.closest("[data-ss-widget='carousel']").on("touchstart mousedown", function(e) {
-				carousel.handleSwipe(e);
+				if ($(e.target).attr("data-ss-component") !== "button")
+					carousel.handleSwipe(e);
+				else if ($(e.target).attr("data-ss-button-type") === "next" && carousel.ready && !carousel.swipe)
+					carousel.slideForward();
+				else if ($(e.target).attr("data-ss-button-type") === "prev" && carousel.ready && !carousel.swipe)
+					carousel.slideBackward();
 			});
 			
 			carousel.ready = true;
