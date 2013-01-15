@@ -12,6 +12,3 @@ javascripts:
       - assets/javascript/soysauce/base.js
       - assets/javascript/soysauce/utilities/*.js
       - assets/javascript/soysauce/widgets/*.js
-  carousel:
-      - assets/javascript/soysauce/base.js
-      - assets/javascript/soysauce/widgets/carousel.js

@@ -9,10 +9,12 @@ Soysauce is a mobile-specific javascript widget library.
 Widgets
 --------------
 
-These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. I will bundle these later, but to use for now you will need to include:
+These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include:
 
-	soysauce.css
+	soysauce.css (found in assets)
 	soysauce.js (found in public/javascript)
+
+If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests.
 
 ### 1) Carousel
 
