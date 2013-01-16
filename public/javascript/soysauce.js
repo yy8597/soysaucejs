@@ -290,6 +290,12 @@
 	}, false);
 })();
 
+Array.prototype.remove = function(from, to) {
+  var rest = this.slice((to || from) + 1 || this.length);
+  this.length = from < 0 ? this.length + from : from;
+  return this.push.apply(this, rest);
+};
+
 jQuery(document).ready(function($) {
 	// Add hasAttr() function to jQuery
 	$.fn.hasAttr = function(attr) {
@@ -678,6 +684,8 @@ soysauce.accordions.forEach(function(e) {
 	if (e.state == "closed") e.setState("closed");
 	if (e.state == "closed" && e.slide) e.content.css("height", "0px");
 });
+
+
 
 soysauce.carousels = (function() {
 	var carousels = new Array();
@@ -1163,219 +1171,234 @@ soysauce.carousels = (function() {
 		return false;
 	};
 	
+	Carousel.prototype.reload = function(callback) {
+		var self = this;
+		var newCarousel = this.container.closest("[data-ss-widget='carousel']");
+		carousels.forEach(function(e,i) {
+			if (self.id === e.id)
+				carousels.remove(i);
+		});
+		newCarousel.removeAttr("data-ss-state");
+		callback();
+		newCarousel.each(loadWidget);
+		return true;
+	};
+	
 	// Init
 	(function() {
-		$("[data-ss-widget='carousel']").each(function() {
-			var carousel = new Carousel(this);
-			var self = this;
-			var options = soysauce.getOptions(this);
-			var loadCounter = 1;
-			var items = $(this).find("[data-ss-component='item']");
-			var first_item, last_item;
-			var wrapper;
-			var i = 0;
-			
-			if(options) options.forEach(function(option) {
-				switch(option) {
-					case "cms":
-						carousel.cms = true;
-						break;
-					case "peek":
-						carousel.peek = true;
-						carousel.peekWidth = 40;
-						break;
-					case "finite":
-						carousel.infinite = false;
-						break;
-					case "autoscroll":
-						carousel.autoscroll = true;
-						break;
-					case "fullscreen":
-						carousel.fullscreen = true;
-						break;
-					case "noswipe":
-						carousel.swipe = false;
-						break;
-					case "zoom":
-						carousel.zoom = true;
-						break;
-					case "3d":
-						carousel.supports3d = true;
-						break;
-				}
-			});
-			
-			// Deprecated List - swipe-disabled phones
-			if (/android.*sgh-/i.test(navigator.userAgent)) {
-				var newOptions = $(this).attr("data-ss-options");
-				carousel.swipe = false;
-				if (newOptions !== undefined)
-					$(this).attr("data-ss-options", newOptions + " noswipe");
-				else
-					$(this).attr("data-ss-options", "noswipe");
+		$("[data-ss-widget='carousel']").each(loadWidget);
+	})(); // end init
+	
+	function loadWidget() {
+		var carousel = new Carousel(this);
+		var self = this;
+		var options = soysauce.getOptions(this);
+		var loadCounter = 1;
+		var items = $(this).find("[data-ss-component='item']");
+		var first_item, last_item;
+		var wrapper;
+		var i = 0;
+		
+		if(options) options.forEach(function(option) {
+			switch(option) {
+				case "cms":
+					carousel.cms = true;
+					break;
+				case "peek":
+					carousel.peek = true;
+					carousel.peekWidth = 40;
+					break;
+				case "finite":
+					carousel.infinite = false;
+					break;
+				case "autoscroll":
+					carousel.autoscroll = true;
+					break;
+				case "fullscreen":
+					carousel.fullscreen = true;
+					break;
+				case "noswipe":
+					carousel.swipe = false;
+					break;
+				case "zoom":
+					carousel.zoom = true;
+					break;
+				case "3d":
+					carousel.supports3d = true;
+					break;
 			}
-			
-			if (carousel.cms) {
-				var img_src = "";
-				$(this).find("style").each(function(e) {
-					var img = "";
-				  img_src = $(this).html().match(/\/\/[\w_\.\/-]+-2x[\w\.\/]+/i)[0];
-					img = "<img src='" + img_src + "'>"
-					$(this).before(img);
+		});
+		
+		// Deprecated List - swipe-disabled phones
+		if (/android.*sgh-/i.test(navigator.userAgent)) {
+			var newOptions = $(this).attr("data-ss-options");
+			carousel.swipe = false;
+			if (newOptions !== undefined)
+				$(this).attr("data-ss-options", newOptions + " noswipe");
+			else
+				$(this).attr("data-ss-options", "noswipe");
+		}
+		
+		if (carousel.cms) {
+			var img_src = "";
+			$(this).find("style").each(function(e) {
+				var img = "";
+			  img_src = $(this).html().match(/\/\/[\w_\.\/-]+-2x[\w\.\/]+/i)[0];
+				img = "<img src='" + img_src + "'>"
+				$(this).before(img);
 
-					$(this).parent().attr("data-ss-component", "item")
+				$(this).parent().attr("data-ss-component", "item")
 
-					$(this).find("+ div").remove();
-					$(this).remove();
+				$(this).find("+ div").remove();
+				$(this).remove();
+			});
+		}
+		
+		if (carousel.swipe) $(this).find("a").click(function(e) {
+			soysauce.stifle(e);
+		});
+		$(this).wrapInner("<div data-ss-component='container' />");
+		$(this).wrapInner("<div data-ss-component='container_wrapper' />");
+		carousel.container = $(this).find("[data-ss-component='container']");
+		wrapper = $(this).find("[data-ss-component='container_wrapper']");
+		if (carousel.zoom) {
+			wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
+			carousel.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
+		}
+		wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='disabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
+		wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", (carousel.numChildren > 1) ? "enabled" : "disabled");
+		wrapper.after("<div data-ss-component='dots'></div>")
+		carousel.dots = $(this).find("[data-ss-component='dots']");
+		
+		wrapper.find("~ [data-ss-button-type='prev']").click(function(e) {
+			soysauce.stifle(e);
+			if (carousel.ready && !carousel.interrupted)
+				carousel.slideBackward();
+		});
+		wrapper.find("~ [data-ss-button-type='next']").click(function(e) {
+			soysauce.stifle(e);
+			if (carousel.ready && !carousel.interrupted)
+				carousel.slideForward();
+		});
+		
+		if (carousel.infinite) {
+			first_item = carousel.container.find("[data-ss-component='item']").first().clone();
+			last_item = carousel.container.find("[data-ss-component='item']").last().clone();
+			first_item.appendTo(carousel.container);
+			last_item.prependTo(carousel.container);
+			items = $(this).find("[data-ss-component='item']");
+		}
+		
+		carousel.items = items;
+		carousel.numChildren = items.length;
+		
+		carousel.links = (items[0].tagName.match(/^a$/i) !== null) ? true : false;
+		
+		var dotsHtml = "";
+		var numDots = (carousel.infinite) ? carousel.numChildren - 2 : carousel.numChildren;
+		for (i = 0; i < numDots; i++) {
+			dotsHtml += "<div data-ss-component='dot'></div>";
+		}
+		carousel.dots.html(dotsHtml);
+		carousel.dots = carousel.dots.find("div");
+		carousel.dots.attr("data-ss-state", "inactive")
+		carousel.dots.first().attr("data-ss-state", "active");
+		
+		if (carousel.peek) {
+			carousel.peekWidth = ($(this).attr("data-ss-peek-width") !== undefined) ? parseInt($(this).attr("data-ss-peek-width")) : 40;
+			if (carousel.peekWidth % 2) $(this).attr("data-ss-peek-width", ++carousel.peekWidth);
+		}
+		
+		items.attr("data-ss-state", "inactive");
+		if (carousel.infinite) {
+			$(items[1]).attr("data-ss-state", "active");
+			carousel.index++;
+		}
+		
+		items.each(function(i, e) {
+			function handleChildren() {
+				var loadCount = 0;
+				var numImgs = $(e).find("img").length;
+				$(e).find("img").ready(function() {
+					loadCount++;
+					if (++loadCount === numImgs || numImgs === 1)
+						handleItem();
 				});
 			}
-			
-			if (carousel.swipe) $(this).find("a").click(function(e) {
-				soysauce.stifle(e);
-			});
-			$(this).wrapInner("<div data-ss-component='container' />");
-			$(this).wrapInner("<div data-ss-component='container_wrapper' />");
-			carousel.container = $(this).find("[data-ss-component='container']");
-			wrapper = $(this).find("[data-ss-component='container_wrapper']");
-			if (carousel.zoom) {
-				wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
-				carousel.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
-			}
-			wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='disabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
-			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", (carousel.numChildren > 1) ? "enabled" : "disabled");
-			wrapper.after("<div data-ss-component='dots'></div>")
-			carousel.dots = $(this).find("[data-ss-component='dots']");
-			
-			wrapper.find("~ [data-ss-button-type='prev']").click(function(e) {
-				soysauce.stifle(e);
-				if (carousel.ready && !carousel.interrupted)
-					carousel.slideBackward();
-			});
-			wrapper.find("~ [data-ss-button-type='next']").click(function(e) {
-				soysauce.stifle(e);
-				if (carousel.ready && !carousel.interrupted)
-					carousel.slideForward();
-			});
-			
-			if (carousel.infinite) {
-				first_item = carousel.container.find("[data-ss-component='item']").first().clone();
-				last_item = carousel.container.find("[data-ss-component='item']").last().clone();
-				first_item.appendTo(carousel.container);
-				last_item.prependTo(carousel.container);
-				items = $(this).find("[data-ss-component='item']");
-			}
-			
-			carousel.items = items;
-			carousel.numChildren = items.length;
-			
-			carousel.links = (items[0].tagName.match(/^a$/i) !== null) ? true : false;
-			
-			var dotsHtml = "";
-			var numDots = (carousel.infinite) ? carousel.numChildren - 2 : carousel.numChildren;
-			for (i = 0; i < numDots; i++) {
-				dotsHtml += "<div data-ss-component='dot'></div>";
-			}
-			carousel.dots.html(dotsHtml);
-			carousel.dots = carousel.dots.find("div");
-			carousel.dots.attr("data-ss-state", "inactive")
-			carousel.dots.first().attr("data-ss-state", "active");
-			
-			if (carousel.peek) {
-				carousel.peekWidth = ($(this).attr("data-ss-peek-width") !== undefined) ? parseInt($(this).attr("data-ss-peek-width")) : 40;
-				if (carousel.peekWidth % 2) $(this).attr("data-ss-peek-width", ++carousel.peekWidth);
-			}
-			
-			items.attr("data-ss-state", "inactive");
-			if (carousel.infinite) {
-				$(items[1]).attr("data-ss-state", "active");
-				carousel.index++;
-			}
-			
-			items.each(function(i, e) {
-				function handleChildren() {
-					var loadCount = 0;
-					var numImgs = $(e).find("img").length;
-					$(e).find("img").ready(function() {
-						loadCount++;
-						if (++loadCount === numImgs || numImgs === 1)
-							handleItem();
-					});
-				}
-				function handleItem() {	
-					if (carousel.fullscreen)
-						carousel.itemWidth = $(window).width();
-					else
-						carousel.itemWidth = (carousel.itemWidth != 0 && carousel.itemWidth < $(this).width()) ? carousel.itemWidth : $(this).width();
-					
-					if (loadCounter++ === carousel.numChildren) {
-						$(self).find("[data-ss-component='item']").width(carousel.itemWidth - carousel.peekWidth);
-						carousel.container.width(carousel.itemWidth * (carousel.numChildren));
-						if (carousel.peek) {
-							carousel.itemWidth -= carousel.peekWidth;
-							carousel.offset += carousel.peekWidth/2;
-						}
-						if (carousel.infinite) 
-							carousel.gotoPos(-carousel.itemWidth + carousel.offset);							
-						else
-							carousel.gotoPos(carousel.offset);
-						if (carousel.zoom) {
-							var zoomMultiplier = $(this).attr("data-ss-zoom-multiplier");
-							if (zoomMultiplier !== undefined)
-								carousel.zoomMultiplier = parseInt(zoomMultiplier);
-								
-							carousel.panMax.x = carousel.itemWidth / carousel.zoomMultiplier;				
-							carousel.panMax.y = $(self).find("[data-ss-component='item']").height() / carousel.zoomMultiplier;
-							if (carousel.panMax.y === 0) {
-								var imageToLoad = $(self).find("img")[0];
-								$(imageToLoad).load(function() {
-									carousel.panMax.y = imageToLoad.height / carousel.zoomMultiplier;
-								});
-							}
-						}
-						window.setTimeout(function() {
-							$(self).trigger("SSWidgetReady").attr("data-ss-state", "ready");
-						}, 1);
-					}
-				}
-				if (e.tagName.match(/img/i) !== null)
-					$(e).ready(handleItem());
-				else if ($(e).find("img").length > 0)
-					handleChildren();
+			function handleItem() {	
+				if (carousel.fullscreen)
+					carousel.itemWidth = $(window).width();
 				else
-					handleItem();
-					
-				if (i === 0 && !carousel.infinite) $(this).attr("data-ss-state", "active");
-			});
-			
-			if (carousel.fullscreen) $(window).on("resize orientationchange", function() {
-				carousel.adjustSize();
-			});
-			
-			if (carousel.swipe || carousel.zoom) carousel.container.closest("[data-ss-widget='carousel']").on("touchstart mousedown", function(e) {
-				if ($(e.target).attr("data-ss-component") !== ("button" || "zoom_icon"))
-					carousel.handleSwipe(e);
-				else if ($(e.target).attr("data-ss-button-type") === "next" && carousel.ready)
-					carousel.slideForward();
-				else if ($(e.target).attr("data-ss-button-type") === "prev" && carousel.ready)
-					carousel.slideBackward();
-			});
-			
-			carousel.ready = true;
-			carousel.container.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
-				carousel.ready = true;
-				carousel.container.attr("data-ss-state", "ready");
-			});
-			
-			if (carousel.autoscroll) {
-				var interval = $(this).attr("data-ss-autoscroll-interval");
-				if (interval !== undefined)
-					carousel.autoscrollInterval = parseInt(interval);
-				carousel.autoscrollOn();
+					carousel.itemWidth = (carousel.itemWidth != 0 && carousel.itemWidth < $(this).width()) ? carousel.itemWidth : $(this).width();
+				
+				if (loadCounter++ === carousel.numChildren) {
+					$(self).find("[data-ss-component='item']").width(carousel.itemWidth - carousel.peekWidth);
+					carousel.container.width(carousel.itemWidth * (carousel.numChildren));
+					if (carousel.peek) {
+						carousel.itemWidth -= carousel.peekWidth;
+						carousel.offset += carousel.peekWidth/2;
+					}
+					if (carousel.infinite) 
+						carousel.gotoPos(-carousel.itemWidth + carousel.offset);							
+					else
+						carousel.gotoPos(carousel.offset);
+					if (carousel.zoom) {
+						var zoomMultiplier = $(this).attr("data-ss-zoom-multiplier");
+						if (zoomMultiplier !== undefined)
+							carousel.zoomMultiplier = parseInt(zoomMultiplier);
+							
+						carousel.panMax.x = carousel.itemWidth / carousel.zoomMultiplier;				
+						carousel.panMax.y = $(self).find("[data-ss-component='item']").height() / carousel.zoomMultiplier;
+						if (carousel.panMax.y === 0) {
+							var imageToLoad = $(self).find("img")[0];
+							$(imageToLoad).load(function() {
+								carousel.panMax.y = imageToLoad.height / carousel.zoomMultiplier;
+							});
+						}
+					}
+					window.setTimeout(function() {
+						$(self).trigger("SSWidgetReady").attr("data-ss-state", "ready");
+					}, 1);
+				}
 			}
-			
-			carousels.push(carousel);
+			if (e.tagName.match(/img/i) !== null)
+				$(e).ready(handleItem());
+			else if ($(e).find("img").length > 0)
+				handleChildren();
+			else
+				handleItem();
+				
+			if (i === 0 && !carousel.infinite) $(this).attr("data-ss-state", "active");
 		});
-	})(); // end init
+		
+		if (carousel.fullscreen) $(window).on("resize orientationchange", function() {
+			carousel.adjustSize();
+		});
+		
+		if (carousel.swipe || carousel.zoom) carousel.container.closest("[data-ss-widget='carousel']").on("touchstart mousedown", function(e) {
+			if ($(e.target).attr("data-ss-component") !== ("button" || "zoom_icon"))
+				carousel.handleSwipe(e);
+			else if ($(e.target).attr("data-ss-button-type") === "next" && carousel.ready)
+				carousel.slideForward();
+			else if ($(e.target).attr("data-ss-button-type") === "prev" && carousel.ready)
+				carousel.slideBackward();
+		});
+		
+		carousel.ready = true;
+		carousel.container.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+			carousel.ready = true;
+			carousel.container.attr("data-ss-state", "ready");
+		});
+		
+		if (carousel.autoscroll) {
+			var interval = $(this).attr("data-ss-autoscroll-interval");
+			if (interval !== undefined)
+				carousel.autoscrollInterval = parseInt(interval);
+			carousel.autoscrollOn();
+		}
+		
+		carousels.push(carousel);
+	}
 	
 	return carousels;
 })();
