@@ -33,7 +33,7 @@ soysauce.carousels = (function() {
 		this.panCoords = {x:0, y:0};
 		this.panCoordsStart = {x:0, y:0};
 		this.panning = false;
-		this.lockY = false;
+		this.lockScroll = undefined;
 		this.zoomIcon;
 	}
 	
@@ -220,6 +220,9 @@ soysauce.carousels = (function() {
 				return;
 			}
 			
+			if (self.lockScroll === "y")
+				return;
+			
 			var dragOffset;
 
 			ret = coords2 = soysauce.getCoords(e2);
@@ -261,6 +264,7 @@ soysauce.carousels = (function() {
 		if (!this.ready) 
 			lastX = this.handleInterrupt(e1);
 		else {
+			self.lockScroll = undefined;
 			if (this.zoom && this.isZoomed) {
 				this.container.closest("[data-ss-widget='carousel']").on("touchend mouseup", function(e2) {
 					self.panCoordsStart.x = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[4])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[4]) : 0;
@@ -294,10 +298,15 @@ soysauce.carousels = (function() {
 				
 				coords2 = soysauce.getCoords(e2);
 				
-				if(self.lockY || Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2) {
-					self.lockY = true;
-					return;
+				if (self.lockScroll === undefined) {
+					if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2)
+						self.lockScroll = "y";
+					else
+						self.lockScroll = "x";
 				}
+				
+				if (self.lockScroll === "y")
+					return;
 				
 				if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)))
 					soysauce.stifle(e1);
@@ -349,10 +358,10 @@ soysauce.carousels = (function() {
 			else if (Math.abs(xDist) > 3 && self.swipe) {
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
-				if (self.lockY) {
-					self.lockY = false;
+				
+				if (self.lockScroll === "y")
 					return;
-				}
+				
 				if (xDist > 0) {
 					if (!self.infinite && self.index === self.numChildren - 1)
 						self.gotoPos(self.index * -self.itemWidth);
