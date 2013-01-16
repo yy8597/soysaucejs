@@ -296,6 +296,8 @@ soysauce.carousels = (function() {
 		this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
 			soysauce.stifle(e2);
 			
+			if ($(e2.target).hasAttr("data-ss-button-type")) return;
+			
 			coords2 = soysauce.getCoords(e2);
 			if (coords2 !== null) lastX = coords2.x;
 
@@ -315,7 +317,7 @@ soysauce.carousels = (function() {
 				else
 					window.location.href = $(e2.target).closest("a").attr("href");
 			}
-			else if (!self.interrupted && self.zoom && (Math.abs(xDist) < 3 || self.isZoomed) && Math.abs(yDist) < 3) {
+			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 3 && Math.abs(yDist) < 3) || self.isZoomed)) {
 				soysauce.stifle(e1);
 				self.handleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
 			}
@@ -349,12 +351,11 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleZoom = function(e1, e2, xDist, yDist) {
-		if (!this.ready || (e1.type.match(/touch/) !== null && e2.type.match(/mouse/) !== null)) {
+		if (!this.ready && !(this.isZoomed && xDist < 3 && yDist < 3) || (e1.type.match(/touch/) !== null && e2.type.match(/mouse/) !== null)) {
 			soysauce.stifle(e1);
 			soysauce.stifle(e2);
 			return;
 		}
-		this.ready = false;
 		
 		var zoomImg = this.container.find("[data-ss-component='item'][data-ss-state='active'] img")[0];
 		zoomImg = (zoomImg === undefined) ? this.container.find("[data-ss-component='item'][data-ss-state='active']")[0] : zoomImg;
@@ -399,13 +400,17 @@ soysauce.carousels = (function() {
 			self.panCoordsStart.y = self.panCoords.y;
 			
 			if (self.panCoords.x && self.panCoords.y) {
-				self.isZoomed = true;
+				this.ready = false;
 				this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "zoomed");
 				zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
 				= "translate" + ((self.supports3d) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((self.supports3d) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
+				$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+					self.isZoomed = true;
+				});
 			}
 		}
 		else if (xDist < 3 && yDist < 3) {
+			this.ready = false;
 			this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "ready");
 			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
 			= "translate" + ((self.supports3d) ? "3d(0,0,0)" : "(0,0)") + " scale" + ((self.supports3d) ? "3d(1,1,1)" : "(1,1)") ;
@@ -627,9 +632,9 @@ soysauce.carousels = (function() {
 			if (carousel.swipe || carousel.zoom) carousel.container.closest("[data-ss-widget='carousel']").on("touchstart mousedown", function(e) {
 				if ($(e.target).attr("data-ss-component") !== "button")
 					carousel.handleSwipe(e);
-				else if ($(e.target).attr("data-ss-button-type") === "next" && carousel.ready && !carousel.swipe)
+				else if ($(e.target).attr("data-ss-button-type") === "next" && carousel.ready)
 					carousel.slideForward();
-				else if ($(e.target).attr("data-ss-button-type") === "prev" && carousel.ready && !carousel.swipe)
+				else if ($(e.target).attr("data-ss-button-type") === "prev" && carousel.ready)
 					carousel.slideBackward();
 			});
 			
