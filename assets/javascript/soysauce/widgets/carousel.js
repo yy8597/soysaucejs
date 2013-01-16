@@ -34,6 +34,7 @@ soysauce.carousels = (function() {
 		this.panCoordsStart = {x:0, y:0};
 		this.panning = false;
 		this.lockY = false;
+		this.zoomIcon;
 	}
 	
 	Carousel.prototype.gotoPos = function(x, forward, fast) {
@@ -365,43 +366,48 @@ soysauce.carousels = (function() {
 		
 		if (!this.isZoomed) {
 			var offset = 0;
-			
-			self.panCoords = soysauce.getCoords(e2);
-			self.panCoords.x -= self.itemWidth/2;
-			self.panCoords.x *= -self.zoomMultiplier;
-			
-			if (e1.type.match(/mousedown/i) !== null) {
-				if (e1.originalEvent !== undefined) 
-					offset = e1.originalEvent.offsetY;
-				else 
-					offset = e1.offsetY;
-			}
+
+			if ($(e2.target).attr("data-ss-component") === "zoom_icon")
+				self.panCoordsStart = self.panCoords = {x: 0, y: 0};
 			else {
-				if (e1.originalEvent !== undefined) 
-					offset = e1.originalEvent.pageY - $(e1.target).offset().top;
-				else 
-					offset = e1.pageY - $(e1.target).offset().top;
+				self.panCoords = soysauce.getCoords(e2);
+				self.panCoords.x -= self.itemWidth/2;
+				self.panCoords.x *= -self.zoomMultiplier;
+
+				if (e1.type.match(/mousedown/i) !== null) {
+					if (e1.originalEvent !== undefined) 
+						offset = e1.originalEvent.offsetY;
+					else 
+						offset = e1.offsetY;
+				}
+				else {
+					if (e1.originalEvent !== undefined) 
+						offset = e1.originalEvent.pageY - $(e1.target).offset().top;
+					else 
+						offset = e1.pageY - $(e1.target).offset().top;
+				}
+
+				self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.zoomMultiplier) - offset;
+				self.panCoords.y *= self.zoomMultiplier;
+
+				if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x > 0)
+					self.panCoords.x = self.panMax.x;
+				else if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x < 0)
+					self.panCoords.x = -self.panMax.x;
+
+				if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y > 0)
+					self.panCoords.y = self.panMax.y;
+				else if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y < 0)
+					self.panCoords.y = -self.panMax.y;
+
+				self.panCoordsStart.x = self.panCoords.x;
+				self.panCoordsStart.y = self.panCoords.y;
 			}
 			
-			self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.zoomMultiplier) - offset;
-			self.panCoords.y *= self.zoomMultiplier;
-			
-			if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x > 0)
-				self.panCoords.x = self.panMax.x;
-			else if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x < 0)
-				self.panCoords.x = -self.panMax.x;
-				
-			if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y > 0)
-				self.panCoords.y = self.panMax.y;
-			else if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y < 0)
-				self.panCoords.y = -self.panMax.y;
-			
-			self.panCoordsStart.x = self.panCoords.x;
-			self.panCoordsStart.y = self.panCoords.y;
-			
-			if (self.panCoords.x && self.panCoords.y) {
+			if (self.panCoords.x !== NaN && self.panCoords.y !== NaN) {
 				this.ready = false;
 				this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "zoomed");
+				this.zoomIcon.attr("data-ss-state", "in");
 				zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
 				= "translate" + ((self.supports3d) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((self.supports3d) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
 				$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
@@ -412,6 +418,7 @@ soysauce.carousels = (function() {
 		else if (xDist < 3 && yDist < 3) {
 			this.ready = false;
 			this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "ready");
+			this.zoomIcon.attr("data-ss-state", "out");
 			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
 			= "translate" + ((self.supports3d) ? "3d(0,0,0)" : "(0,0)") + " scale" + ((self.supports3d) ? "3d(1,1,1)" : "(1,1)") ;
 			$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
@@ -520,6 +527,10 @@ soysauce.carousels = (function() {
 			$(this).wrapInner("<div data-ss-component='container_wrapper' />");
 			carousel.container = $(this).find("[data-ss-component='container']");
 			wrapper = $(this).find("[data-ss-component='container_wrapper']");
+			if (carousel.zoom) {
+				wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
+				carousel.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
+			}
 			wrapper.after("<div data-ss-component='button' data-ss-button-type='prev'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
 			wrapper.after("<div data-ss-component='dots'></div>")
 			carousel.dots = $(this).find("[data-ss-component='dots']");
