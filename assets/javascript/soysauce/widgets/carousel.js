@@ -37,6 +37,8 @@ soysauce.carousels = (function() {
 		this.panning = false;
 		this.lockScroll = undefined;
 		this.zoomIcon;
+		this.nextBtn;
+		this.prevBtn;
 	}
 	
 	Carousel.prototype.gotoPos = function(x, forward, fast) {
@@ -115,9 +117,9 @@ soysauce.carousels = (function() {
 		else {
 			$(this.dots[this.index]).attr("data-ss-state", "active");
 			if (this.index === this.numChildren - 1)
-				this.container.find("[data-ss-button-type='next']").attr("data-ss-state", "disabled");
+				this.nextBtn.attr("data-ss-state", "disabled");
 			if (this.numChildren > 1)
-				this.container.find("[data-ss-button-type='prev']").attr("data-ss-state", "enabled");
+				this.prevBtn.attr("data-ss-state", "enabled");
 		}
 			
 		this.ready = false;
@@ -151,9 +153,9 @@ soysauce.carousels = (function() {
 		else {
 			$(this.dots[this.index]).attr("data-ss-state", "active");
 			if (this.index === 0)
-				this.container.find("[data-ss-button-type='prev']").attr("data-ss-state", "disabled");
+				this.prevBtn.attr("data-ss-state", "disabled");
 			if (this.numChildren > 1)
-				this.container.find("[data-ss-button-type='prev']").attr("data-ss-state", "enabled");
+				this.nextBtn.attr("data-ss-state", "enabled");
 		}
 			
 		this.ready = false;
@@ -579,9 +581,11 @@ soysauce.carousels = (function() {
 			carousel.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
 		}
 		wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='disabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
-		wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", (carousel.numChildren > 1) ? "enabled" : "disabled");
 		wrapper.after("<div data-ss-component='dots'></div>")
 		carousel.dots = $(this).find("[data-ss-component='dots']");
+		
+		carousel.nextBtn = wrapper.find("~ [data-ss-button-type='next']");
+		carousel.prevBtn = wrapper.find("~ [data-ss-button-type='prev']");
 		
 		wrapper.find("~ [data-ss-button-type='prev']").click(function(e) {
 			soysauce.stifle(e);
@@ -604,6 +608,8 @@ soysauce.carousels = (function() {
 		
 		carousel.items = items;
 		carousel.numChildren = items.length;
+		
+		wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", (carousel.numChildren > 1) ? "enabled" : "disabled");
 		
 		carousel.links = (items[0].tagName.match(/^a$/i) !== null) ? true : false;
 		
