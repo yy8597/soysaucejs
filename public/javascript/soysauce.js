@@ -791,8 +791,13 @@ soysauce.carousels = (function() {
 		
 		if (this.infinite)
 			$(this.dots[this.index - 1]).attr("data-ss-state", "active");
-		else
+		else {
 			$(this.dots[this.index]).attr("data-ss-state", "active");
+			if (this.index === this.numChildren - 1)
+				this.container.find("[data-ss-button-type='next']").attr("data-ss-state", "disabled");
+			if (this.numChildren > 1)
+				this.container.find("[data-ss-button-type='prev']").attr("data-ss-state", "enabled");
+		}
 			
 		this.ready = false;
 		this.gotoPos(this.offset - this.itemWidth, true, fast);
@@ -822,8 +827,13 @@ soysauce.carousels = (function() {
 		
 		if (this.infinite)
 			$(this.dots[this.index - 1]).attr("data-ss-state", "active");
-		else
+		else {
 			$(this.dots[this.index]).attr("data-ss-state", "active");
+			if (this.index === 0)
+				this.container.find("[data-ss-button-type='prev']").attr("data-ss-state", "disabled");
+			if (this.numChildren > 1)
+				this.container.find("[data-ss-button-type='prev']").attr("data-ss-state", "enabled");
+		}
 			
 		this.ready = false;
 		this.gotoPos(this.offset + this.itemWidth, false, fast);
@@ -860,7 +870,7 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleInterrupt = function(e) {
-		if (this.isZoomed) {
+		if (this.isZoomed || !this.swipe) {
 			soysauce.stifle(e);
 			return;
 		}
@@ -903,6 +913,14 @@ soysauce.carousels = (function() {
 			dragOffset = coords1.x - coords2.x;
 			self.container.attr("data-ss-state", "notransition");
 			self.setStyle(xcoord - dragOffset);
+		});
+		
+		this.container.closest("[data-ss-widget='carousel']").on("touchend mouseup", function(e2) {
+			ret = coords2 = soysauce.getCoords(e2);
+			if (Math.abs(coords1.x - coords2.x) === 0) {
+				self.interrupted = false;
+				self.ready = true;
+			}
 		});
 		
 		return ret;
@@ -1003,7 +1021,7 @@ soysauce.carousels = (function() {
 				soysauce.stifle(e1);
 				self.handleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
 			}
-			else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25) || Math.abs(xDist) > 15 && (self.index + 1 === (self.numChildren | 1) && !self.infinite)) {
+			else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25)) {
 				soysauce.stifle(e1);
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
@@ -1048,8 +1066,10 @@ soysauce.carousels = (function() {
 		if (!this.isZoomed) {
 			var offset = 0;
 
-			if ($(e2.target).attr("data-ss-component") === "zoom_icon")
-				self.panCoordsStart = self.panCoords = {x: 0, y: 0};
+			if ($(e2.target).attr("data-ss-component") === "zoom_icon") {
+				self.panCoords = {x: 0, y: 0};
+				self.panCoordsStart = {x: 0, y: 0};
+			}
 			else {
 				self.panCoords = soysauce.getCoords(e2);
 				self.panCoords.x -= self.itemWidth/2;
@@ -1212,7 +1232,8 @@ soysauce.carousels = (function() {
 				wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
 				carousel.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
 			}
-			wrapper.after("<div data-ss-component='button' data-ss-button-type='prev'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
+			wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='disabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
+			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", (carousel.numChildren > 1) ? "enabled" : "disabled");
 			wrapper.after("<div data-ss-component='dots'></div>")
 			carousel.dots = $(this).find("[data-ss-component='dots']");
 			
@@ -1322,7 +1343,7 @@ soysauce.carousels = (function() {
 			});
 			
 			if (carousel.swipe || carousel.zoom) carousel.container.closest("[data-ss-widget='carousel']").on("touchstart mousedown", function(e) {
-				if ($(e.target).attr("data-ss-component") !== "button")
+				if ($(e.target).attr("data-ss-component") !== ("button" | "zoom_icon"))
 					carousel.handleSwipe(e);
 				else if ($(e.target).attr("data-ss-button-type") === "next" && carousel.ready)
 					carousel.slideForward();
