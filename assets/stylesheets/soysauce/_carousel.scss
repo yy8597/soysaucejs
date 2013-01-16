@@ -28,7 +28,7 @@
 		@include box-sizing(border-box);
 		width: 100%;
 	}
-	&[data-ss-options*="zoom"] img[ss-state="ready"] {
+	&[data-ss-options*="zoom"] img[data-ss-state="ready"] {
 		@include transition(transform .5s);
 	}
 	[data-ss-component="zoom_icon"], [data-ss-component="button"] {

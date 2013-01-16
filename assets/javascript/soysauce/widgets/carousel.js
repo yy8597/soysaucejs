@@ -49,7 +49,7 @@ soysauce.carousels = (function() {
 	
 		if (this.infinite) {
 			if (this.index === this.numChildren - 2 && !forward)  {
-				var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
+				var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("-webkit-transform"))[4]);
 				var newOffset = -self.index*self.itemWidth;
 				self.container.attr("data-ss-state", "notransition");
 				self.offset = newOffset + xcoord;
@@ -61,7 +61,7 @@ soysauce.carousels = (function() {
 				}, 0);
 			}
 			else if (this.index === 1 && forward)  {
-				var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
+				var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("-webkit-transform"))[4]);
 				var newOffset = self.offset + self.itemWidth - xcoord;
 				self.container.attr("data-ss-state", "notransition");
 				self.offset = -newOffset + xcoord;
@@ -196,7 +196,7 @@ soysauce.carousels = (function() {
 		
 		var self = this;
 		var coords1, coords2, ret;
-		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
+		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("-webkit-transform"))[4]);
 		
 		this.interrupted = true;
 		
@@ -267,8 +267,8 @@ soysauce.carousels = (function() {
 			self.lockScroll = undefined;
 			if (this.zoom && this.isZoomed) {
 				this.container.closest("[data-ss-widget='carousel']").on("touchend mouseup", function(e2) {
-					self.panCoordsStart.x = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[4])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[4]) : 0;
-					self.panCoordsStart.y = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[5])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[5]) : 0;
+					self.panCoordsStart.x = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[4])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[4]) : 0;
+					self.panCoordsStart.y = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[5])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[5]) : 0;
 				});
 				this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
 					soysauce.stifle(e2);

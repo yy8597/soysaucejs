@@ -730,7 +730,7 @@ soysauce.carousels = (function() {
 	
 		if (this.infinite) {
 			if (this.index === this.numChildren - 2 && !forward)  {
-				var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
+				var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("-webkit-transform"))[4]);
 				var newOffset = -self.index*self.itemWidth;
 				self.container.attr("data-ss-state", "notransition");
 				self.offset = newOffset + xcoord;
@@ -742,7 +742,7 @@ soysauce.carousels = (function() {
 				}, 0);
 			}
 			else if (this.index === 1 && forward)  {
-				var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
+				var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("-webkit-transform"))[4]);
 				var newOffset = self.offset + self.itemWidth - xcoord;
 				self.container.attr("data-ss-state", "notransition");
 				self.offset = -newOffset + xcoord;
@@ -877,7 +877,7 @@ soysauce.carousels = (function() {
 		
 		var self = this;
 		var coords1, coords2, ret;
-		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("webkitTransform"))[4]);
+		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("-webkit-transform"))[4]);
 		
 		this.interrupted = true;
 		
@@ -948,14 +948,14 @@ soysauce.carousels = (function() {
 			self.lockScroll = undefined;
 			if (this.zoom && this.isZoomed) {
 				this.container.closest("[data-ss-widget='carousel']").on("touchend mouseup", function(e2) {
-					self.panCoordsStart.x = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[4])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[4]) : 0;
-					self.panCoordsStart.y = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[5])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("webkitTransform"))[5]) : 0;
+					self.panCoordsStart.x = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[4])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[4]) : 0;
+					self.panCoordsStart.y = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[5])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[5]) : 0;
 				});
 				this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
 					soysauce.stifle(e2);
 					
 					coords2 = soysauce.getCoords(e2);
-					$(e2.target).attr("ss-state", "panning");
+					$(e2.target).attr("data-ss-state", "panning");
 					
 					self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
 					self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
@@ -1070,7 +1070,7 @@ soysauce.carousels = (function() {
 		zoomImg = (zoomImg === undefined) ? this.container.find("[data-ss-component='item'][data-ss-state='active']")[0] : zoomImg;
 		
 		var self = this;
-		$(zoomImg).attr("ss-state", "ready");
+		$(zoomImg).attr("data-ss-state", "ready");
 		
 		if (!this.isZoomed) {
 			var offset = 0;
