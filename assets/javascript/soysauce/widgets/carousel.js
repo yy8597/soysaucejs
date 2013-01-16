@@ -609,7 +609,10 @@ soysauce.carousels = (function() {
 		carousel.items = items;
 		carousel.numChildren = items.length;
 		
-		wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", (carousel.numChildren > 1) ? "enabled" : "disabled");
+		if (!carousel.infinite)
+			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", (carousel.numChildren > 1) ? "enabled" : "disabled");
+		else
+			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		
 		carousel.links = (items[0].tagName.match(/^a$/i) !== null) ? true : false;
 		
