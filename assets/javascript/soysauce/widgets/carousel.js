@@ -1,5 +1,3 @@
-
-
 soysauce.carousels = (function() {
 	var carousels = new Array();
 	
@@ -218,6 +216,7 @@ soysauce.carousels = (function() {
 		coords1 = soysauce.getCoords(e);
 		
 		this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
+			soysauce.stifle(e2);
 			if (self.isZoomed) {
 				soysauce.stifle(e);
 				soysauce.stifle(e2);
@@ -230,11 +229,6 @@ soysauce.carousels = (function() {
 			var dragOffset;
 
 			ret = coords2 = soysauce.getCoords(e2);
-			
-			if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)))
-				soysauce.stifle(e);
-			else
-				soysauce.stifle(e2);
 			
 			dragOffset = coords1.x - coords2.x;
 			self.container.attr("data-ss-state", "notransition");
@@ -277,6 +271,8 @@ soysauce.carousels = (function() {
 				this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
 					soysauce.stifle(e2);
 					
+					if ($(e2.target).hasAttr("data-ss-button-type")) return;
+					
 					coords2 = soysauce.getCoords(e2);
 					$(e2.target).attr("data-ss-state", "panning");
 					
@@ -298,6 +294,8 @@ soysauce.carousels = (function() {
 				});
 			}
 			else if (this.swipe) this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
+				soysauce.stifle(e2);
+				
 				var dragOffset;
 				
 				coords2 = soysauce.getCoords(e2);
@@ -311,11 +309,6 @@ soysauce.carousels = (function() {
 				
 				if (self.lockScroll === "y")
 					return;
-				
-				if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)))
-					soysauce.stifle(e1);
-				else
-					soysauce.stifle(e2);
 				
 				self.panning = true;
 				lastX = coords2.x;
@@ -543,16 +536,6 @@ soysauce.carousels = (function() {
 					break;
 			}
 		});
-		
-		// Deprecated List - swipe-disabled phones
-		if (/android.*sgh-/i.test(navigator.userAgent)) {
-			var newOptions = $(this).attr("data-ss-options");
-			carousel.swipe = false;
-			if (newOptions !== undefined)
-				$(this).attr("data-ss-options", newOptions + " noswipe");
-			else
-				$(this).attr("data-ss-options", "noswipe");
-		}
 		
 		if (carousel.cms) {
 			var img_src = "";
