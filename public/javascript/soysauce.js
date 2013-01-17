@@ -1,3 +1,8 @@
+// Regex that excludes FastClick
+// Note: newer Android devices (4.0+) do not seem to have a click delay
+var excludeFastClick = !(/android [4]/i.test(navigator.userAgent)); 
+
+if (excludeFastClick) {
 (function() {
 	/*
 		FastClick (removes the click delay found on mobile devices).
@@ -289,7 +294,7 @@
 	    new FastClick(document.body);
 	}, false);
 })();
-
+}
 Array.prototype.remove = function(from, to) {
   var rest = this.slice((to || from) + 1 || this.length);
   this.length = from < 0 ? this.length + from : from;
