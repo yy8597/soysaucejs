@@ -54,35 +54,32 @@ soysauce.carousels = (function() {
 		else
 			this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
 	
-		if (this.infinite) {
-			if (this.index === this.numChildren - 2 && !forward)  {
-				var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("-webkit-transform"))[4]);
-				var newOffset = -self.index*self.itemWidth;
+		if (this.infinite && !this.interrupted) {
+			var duration = parseFloat(this.container.css("-webkit-transition-duration").replace(/s$/,"")) * 1000;
+			
+			if (duration === (undefined || null)) duration = 850;
+			
+			// Slide Backward
+			if (this.index === this.numChildren - 2 && !forward) window.setTimeout(function() {
 				self.container.attr("data-ss-state", "notransition");
-				self.offset = newOffset + xcoord;
+				self.offset = -self.index*self.itemWidth + self.peekWidth/2;
 				self.setStyle(self.offset);
 				window.setTimeout(function() {
-					self.container.attr("data-ss-state", "intransit");
-					self.offset = newOffset + self.peekWidth/2;
-					window.setTimeout(function() {
-						self.setStyle(self.offset);
-					}, 0);
+					self.container.attr("data-ss-state", "ready");
+					self.ready = true;
 				}, 0);
-			}
-			else if (this.index === 1 && forward)  {
-				var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("-webkit-transform"))[4]);
-				var newOffset = self.offset + self.itemWidth - xcoord;
-				self.container.attr("data-ss-state", "notransition");
-				self.offset = -newOffset + xcoord;
-				self.setStyle(-newOffset);
-				window.setTimeout(function() {
-					self.container.attr("data-ss-state", "intransit");
+			}, duration);
+
+			// Slide Forward
+			else if (this.index === 1 && forward) window.setTimeout(function() {
+					self.container.attr("data-ss-state", "notransition");
 					self.offset = -self.itemWidth + self.peekWidth/2;
+					self.setStyle(self.offset);
 					window.setTimeout(function() {
-						self.setStyle(self.offset);
+						self.container.attr("data-ss-state", "ready");
+						self.ready = true;
 					}, 0);
-				}, 0);
-			}	
+			}, duration);	
 		}
 		
 		if (self.interrupted)
