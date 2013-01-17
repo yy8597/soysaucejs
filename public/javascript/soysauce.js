@@ -914,24 +914,22 @@ soysauce.carousels = (function() {
 			}
 		}
 		
+		self.container.attr("data-ss-state", "notransition");
+		
 		// Forward Loop Interrupt
 		if (this.infinite && this.index === 1 && this.forward) {
 			window.clearInterval(self.infiniteID);
-			self.container.attr("data-ss-state", "notransition");
 			self.offset = self.itemWidth*(self.numChildren - 2) + xcoord;
 			self.setStyle(self.offset);
 		}
 		// Backward Loop Interrupt
 		else if (this.infinite && (this.index === this.numChildren - 2) && !this.forward) {
 			window.clearInterval(self.infiniteID);
-			self.container.attr("data-ss-state", "notransition");
 			self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
 			self.setStyle(self.offset);
 		}
-		else {
-			this.container.attr("data-ss-state", "notransition");
+		else
 			this.setStyle(xcoord);
-		}
 		
 		coords1 = soysauce.getCoords(e);
 		
@@ -957,8 +955,11 @@ soysauce.carousels = (function() {
 			
 			soysauce.stifle(e2);
 			dragOffset = coords1.x - coords2.x;
-			self.container.attr("data-ss-state", "notransition");
-			self.setStyle(self.offset - dragOffset);
+			
+			if (self.infiniteID !== undefined)
+				self.setStyle(self.offset - dragOffset);
+			else
+				self.setStyle(xcoord - dragOffset);
 		});
 		
 		if (this.infiniteID !== undefined) this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
