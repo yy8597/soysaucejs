@@ -38,6 +38,7 @@ soysauce.carousels = (function() {
 		this.zoomIcon;
 		this.nextBtn;
 		this.prevBtn;
+		this.infiniteID;
 	}
 	
 	Carousel.prototype.gotoPos = function(x, forward, fast) {
@@ -60,18 +61,20 @@ soysauce.carousels = (function() {
 			if (duration === (undefined || null)) duration = 850;
 			
 			// Slide Backward
-			if (this.index === this.numChildren - 2 && !forward) window.setTimeout(function() {
-				self.container.attr("data-ss-state", "notransition");
-				self.offset = -self.index*self.itemWidth + self.peekWidth/2;
-				self.setStyle(self.offset);
-				window.setTimeout(function() {
-					self.container.attr("data-ss-state", "ready");
-					self.ready = true;
-				}, 0);
-			}, duration);
-
+			if (this.index === this.numChildren - 2 && !forward) {
+				this.infiniteID = window.setTimeout(function() {
+					self.container.attr("data-ss-state", "notransition");
+					self.offset = -self.index*self.itemWidth + self.peekWidth/2;
+					self.setStyle(self.offset);
+					window.setTimeout(function() {
+						self.container.attr("data-ss-state", "ready");
+						self.ready = true;
+					}, 0);
+				}, duration);
+			}
 			// Slide Forward
-			else if (this.index === 1 && forward) window.setTimeout(function() {
+			else if (this.index === 1 && forward) {
+				this.infiniteID = window.setTimeout(function() {
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = -self.itemWidth + self.peekWidth/2;
 					self.setStyle(self.offset);
@@ -79,7 +82,10 @@ soysauce.carousels = (function() {
 						self.container.attr("data-ss-state", "ready");
 						self.ready = true;
 					}, 0);
-			}, duration);	
+				}, duration);
+			}
+			else
+				this.infiniteID = undefined;
 		}
 		
 		if (self.interrupted)
