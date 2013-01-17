@@ -217,7 +217,6 @@ soysauce.carousels = (function() {
 		coords1 = soysauce.getCoords(e);
 		
 		this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
-			soysauce.stifle(e2);
 			if (self.isZoomed) {
 				soysauce.stifle(e);
 				soysauce.stifle(e2);
@@ -227,10 +226,10 @@ soysauce.carousels = (function() {
 			if (self.lockScroll === "y")
 				return;
 			
-			var dragOffset;
-
-			ret = coords2 = soysauce.getCoords(e2);
+			soysauce.stifle(e2);
 			
+			var dragOffset;
+			ret = coords2 = soysauce.getCoords(e2);
 			dragOffset = coords1.x - coords2.x;
 			self.container.attr("data-ss-state", "notransition");
 			self.setStyle(xcoord - dragOffset);
@@ -264,6 +263,7 @@ soysauce.carousels = (function() {
 			lastX = this.handleInterrupt(e1);
 		else {
 			self.lockScroll = undefined;
+			// Panning
 			if (this.zoom && this.isZoomed) {
 				this.container.closest("[data-ss-widget='carousel']").on("touchend mouseup", function(e2) {
 					self.panCoordsStart.x = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[4])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[4]) : 0;
@@ -294,12 +294,13 @@ soysauce.carousels = (function() {
 					= "translate" + ((self.supports3d) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((self.supports3d) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
 				});
 			}
+			// Swipe Forward/Backward
 			else if (this.swipe) this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
-				soysauce.stifle(e2);
-				
 				var dragOffset;
 				
 				coords2 = soysauce.getCoords(e2);
+				
+				console.log(self.lockScroll);
 				
 				if (self.lockScroll === undefined) {
 					if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2)
@@ -311,6 +312,7 @@ soysauce.carousels = (function() {
 				if (self.lockScroll === "y")
 					return;
 				
+				soysauce.stifle(e2);
 				self.panning = true;
 				lastX = coords2.x;
 				dragOffset = coords1.x - coords2.x;
@@ -319,6 +321,7 @@ soysauce.carousels = (function() {
 			});
 		}
 
+		// Decides whether to zoom or move to next/prev item
 		this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
 			soysauce.stifle(e2);
 			
@@ -389,6 +392,7 @@ soysauce.carousels = (function() {
 		var self = this;
 		$(zoomImg).attr("data-ss-state", "ready");
 		
+		// Zoom In
 		if (!this.isZoomed) {
 			var offset = 0;
 
@@ -444,6 +448,7 @@ soysauce.carousels = (function() {
 				});
 			}
 		}
+		// Zoom Out
 		else if (xDist < 3 && yDist < 3) {
 			this.isZooming = true;
 			this.ready = false;
