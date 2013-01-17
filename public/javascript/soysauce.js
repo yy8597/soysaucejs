@@ -730,13 +730,12 @@ soysauce.carousels = (function() {
 		this.zoomIcon;
 		this.nextBtn;
 		this.prevBtn;
+		this.infiniteID;
+		this.forward;
 	}
 	
-	Carousel.prototype.gotoPos = function(x, forward, fast) {
+	Carousel.prototype.gotoPos = function(x, fast) {
 		var self = this;
-		
-		if (this.interrupted)
-			this.container.attr("data-ss-state", "intransit");
 		
 		this.offset = x;
 		this.setStyle(x);
@@ -746,24 +745,26 @@ soysauce.carousels = (function() {
 		else
 			this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
 	
-		if (this.infinite && !this.interrupted) {
+		if (this.infinite) {
 			var duration = parseFloat(this.container.css("-webkit-transition-duration").replace(/s$/,"")) * 1000;
 			
 			if (duration === (undefined || null)) duration = 850;
 			
 			// Slide Backward
-			if (this.index === this.numChildren - 2 && !forward) window.setTimeout(function() {
-				self.container.attr("data-ss-state", "notransition");
-				self.offset = -self.index*self.itemWidth + self.peekWidth/2;
-				self.setStyle(self.offset);
-				window.setTimeout(function() {
-					self.container.attr("data-ss-state", "ready");
-					self.ready = true;
-				}, 0);
-			}, duration);
-
+			if (this.index === this.numChildren - 2 && !this.forward) {
+				this.infiniteID = window.setTimeout(function() {
+					self.container.attr("data-ss-state", "notransition");
+					self.offset = -self.index*self.itemWidth + self.peekWidth/2;
+					self.setStyle(self.offset);
+					window.setTimeout(function() {
+						self.container.attr("data-ss-state", "ready");
+						self.ready = true;
+					}, 0);
+				}, duration);
+			}
 			// Slide Forward
-			else if (this.index === 1 && forward) window.setTimeout(function() {
+			else if (this.index === 1 && this.forward) {
+				this.infiniteID = window.setTimeout(function() {
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = -self.itemWidth + self.peekWidth/2;
 					self.setStyle(self.offset);
@@ -771,7 +772,10 @@ soysauce.carousels = (function() {
 						self.container.attr("data-ss-state", "ready");
 						self.ready = true;
 					}, 0);
-			}, duration);	
+				}, duration);
+			}
+			else
+				this.infiniteID = undefined;
 		}
 		
 		if (self.interrupted)
@@ -819,7 +823,8 @@ soysauce.carousels = (function() {
 		}
 			
 		this.ready = false;
-		this.gotoPos(this.offset - this.itemWidth, true, fast);
+		this.forward = true;
+		this.gotoPos(this.offset - this.itemWidth, fast);
 		
 		return true;
 	};
@@ -855,7 +860,8 @@ soysauce.carousels = (function() {
 		}
 			
 		this.ready = false;
-		this.gotoPos(this.offset + this.itemWidth, false, fast);
+		this.forward = false;
+		this.gotoPos(this.offset + this.itemWidth, fast);
 		
 		return true;
 	};
@@ -908,8 +914,24 @@ soysauce.carousels = (function() {
 			}
 		}
 		
-		this.container.attr("data-ss-state", "notransition");
-		this.setStyle(xcoord);
+		// Forward Loop Interrupt
+		if (this.infinite && this.index === 1 && this.forward) {
+			window.clearInterval(self.infiniteID);
+			self.container.attr("data-ss-state", "notransition");
+			self.offset = self.itemWidth*(self.numChildren - 2) + xcoord;
+			self.setStyle(self.offset);
+		}
+		// Backward Loop Interrupt
+		else if (this.infinite && (this.index === this.numChildren - 2) && !this.forward) {
+			window.clearInterval(self.infiniteID);
+			self.container.attr("data-ss-state", "notransition");
+			self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
+			self.setStyle(self.offset);
+		}
+		else {
+			this.container.attr("data-ss-state", "notransition");
+			this.setStyle(xcoord);
+		}
 		
 		coords1 = soysauce.getCoords(e);
 		
@@ -936,7 +958,21 @@ soysauce.carousels = (function() {
 			soysauce.stifle(e2);
 			dragOffset = coords1.x - coords2.x;
 			self.container.attr("data-ss-state", "notransition");
-			self.setStyle(xcoord - dragOffset);
+			self.setStyle(self.offset - dragOffset);
+		});
+		
+		if (this.infiniteID !== undefined) this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
+			self.infiniteID = undefined;
+			self.container.attr("data-ss-state", "intransit");
+			
+			if (self.index === self.numChildren - 2)
+				self.offset = -self.index*self.itemWidth + self.peekWidth/2;
+			else if (self.index === 1)
+				self.offset = -self.itemWidth + self.peekWidth/2;
+			
+			window.setTimeout(function() {
+				self.setStyle(self.offset);
+			}, 0);
 		});
 		
 		return ret;
