@@ -339,7 +339,9 @@ soysauce.carousels = (function() {
 			var xDist = self.coords1x - lastX;
 			var yDist = self.coords1y - coords2.y;
 			
-			var velocity = xDist / (e2.timeStamp - e1.timeStamp);
+			var time = Math.abs(e2.timeStamp - e1.timeStamp);
+			
+			var velocity = xDist / time;
 			var fast = (velocity > 0.9) ? true : false;
 			
 			self.container.closest("[data-ss-widget='carousel']").off("touchmove mousemove");
@@ -680,7 +682,7 @@ soysauce.carousels = (function() {
 					}
 					window.setTimeout(function() {
 						$(self).trigger("SSWidgetReady").attr("data-ss-state", "ready");
-					}, 1);
+					}, 0);
 				}
 			}
 			if (e.tagName.match(/img/i) !== null)
