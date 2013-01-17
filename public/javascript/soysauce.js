@@ -720,6 +720,7 @@ soysauce.carousels = (function() {
 		this.cms = false;
 		this.zoom = false;
 		this.zoomMultiplier = 2;
+		this.isZooming = false;
 		this.isZoomed = false;
 		this.panMax = {x:0, y:0};
 		this.panCoords = {x:0, y:0};
@@ -783,7 +784,7 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.slideForward = function(fast) {
-		if (!this.ready || (!this.infinite && this.index === this.numChildren - 1) || this.isZoomed) return false;
+		if (!this.ready || (!this.infinite && this.index === this.numChildren - 1) || this.isZooming) return false;
 		
 		if (this.infinite)
 			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
@@ -819,7 +820,7 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.slideBackward = function(fast) {
-		if (!this.ready || (!this.infinite && this.index === 0) || this.isZoomed) return false;
+		if (!this.ready || (!this.infinite && this.index === 0) || this.isZooming) return false;
 		
 		if (this.infinite)
 			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
@@ -883,7 +884,7 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleInterrupt = function(e) {
-		if (this.isZoomed || !this.swipe) {
+		if (this.isZooming || this.isZoomed || !this.swipe) {
 			soysauce.stifle(e);
 			return;
 		}
@@ -1123,6 +1124,7 @@ soysauce.carousels = (function() {
 			}
 			
 			if (self.panCoords.x !== NaN && self.panCoords.y !== NaN) {
+				this.isZooming = true;
 				this.ready = false;
 				this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "zoomed");
 				this.zoomIcon.attr("data-ss-state", "in");
@@ -1130,10 +1132,12 @@ soysauce.carousels = (function() {
 				= "translate" + ((self.supports3d) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((self.supports3d) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
 				$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 					self.isZoomed = true;
+					self.isZooming = false;
 				});
 			}
 		}
 		else if (xDist < 3 && yDist < 3) {
+			this.isZooming = true;
 			this.ready = false;
 			this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "ready");
 			this.zoomIcon.attr("data-ss-state", "out");
@@ -1141,12 +1145,14 @@ soysauce.carousels = (function() {
 			= "translate" + ((self.supports3d) ? "3d(0,0,0)" : "(0,0)") + " scale" + ((self.supports3d) ? "3d(1,1,1)" : "(1,1)") ;
 			$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 				self.isZoomed = false;
+				self.isZooming = false;
 			});
 		}
 		
 		$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 			self.ready = true;
 			self.interrupted = false;
+			self.isZooming = false;
 		});
 	};
 	
