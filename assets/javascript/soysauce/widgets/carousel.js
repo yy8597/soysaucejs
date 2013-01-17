@@ -42,6 +42,10 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.gotoPos = function(x, forward, fast) {
 		var self = this;
+		
+		if (this.interrupted)
+			this.container.attr("data-ss-state", "intransit");
+		
 		this.offset = x;
 		this.setStyle(x);
 		
@@ -60,7 +64,9 @@ soysauce.carousels = (function() {
 				window.setTimeout(function() {
 					self.container.attr("data-ss-state", "intransit");
 					self.offset = newOffset + self.peekWidth/2;
-					self.setStyle(self.offset);
+					window.setTimeout(function() {
+						self.setStyle(self.offset);
+					}, 0);
 				}, 0);
 			}
 			else if (this.index === 1 && forward)  {
@@ -72,7 +78,9 @@ soysauce.carousels = (function() {
 				window.setTimeout(function() {
 					self.container.attr("data-ss-state", "intransit");
 					self.offset = -self.itemWidth + self.peekWidth/2;
-					self.setStyle(self.offset);
+					window.setTimeout(function() {
+						self.setStyle(self.offset);
+					}, 0);
 				}, 0);
 			}	
 		}
@@ -223,24 +231,23 @@ soysauce.carousels = (function() {
 				return;
 			}
 			
+			var dragOffset;
+			ret = coords2 = soysauce.getCoords(e2);
+			
+			if (self.lockScroll === undefined) {
+				if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2)
+					self.lockScroll = "y";
+				else
+					self.lockScroll = "x";
+			}
+			
 			if (self.lockScroll === "y")
 				return;
 			
 			soysauce.stifle(e2);
-			
-			var dragOffset;
-			ret = coords2 = soysauce.getCoords(e2);
 			dragOffset = coords1.x - coords2.x;
 			self.container.attr("data-ss-state", "notransition");
 			self.setStyle(xcoord - dragOffset);
-		});
-		
-		this.container.closest("[data-ss-widget='carousel']").on("touchend mouseup", function(e2) {
-			ret = coords2 = soysauce.getCoords(e2);
-			if (Math.abs(coords1.x - coords2.x) === 0) {
-				self.interrupted = false;
-				self.ready = true;
-			}
 		});
 		
 		return ret;
@@ -259,10 +266,11 @@ soysauce.carousels = (function() {
 		
 		if (e1.type.match(/mousedown/) !== null) soysauce.stifle(e1); // for desktop debugging
 
+		this.lockScroll = undefined;
+
 		if (!this.ready) 
 			lastX = this.handleInterrupt(e1);
 		else {
-			self.lockScroll = undefined;
 			// Panning
 			if (this.zoom && this.isZoomed) {
 				this.container.closest("[data-ss-widget='carousel']").on("touchend mouseup", function(e2) {
@@ -299,8 +307,6 @@ soysauce.carousels = (function() {
 				var dragOffset;
 				
 				coords2 = soysauce.getCoords(e2);
-				
-				console.log(self.lockScroll);
 				
 				if (self.lockScroll === undefined) {
 					if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2)
