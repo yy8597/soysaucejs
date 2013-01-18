@@ -810,9 +810,6 @@ soysauce.carousels = (function() {
 		else
 			$(this.items[this.index]).attr("data-ss-state", "active");
 		
-		if ((this.offset / this.itemWidth) % 1 !== 0)
-			this.offset = -this.itemWidth * (this.index - (this.infinite) ? 0 : 1);
-		
 		if (this.infinite)
 			$(this.dots[this.index - 1]).attr("data-ss-state", "active");
 		else {
@@ -846,9 +843,6 @@ soysauce.carousels = (function() {
 		}
 		else
 			$(this.items[this.index]).attr("data-ss-state", "active");
-		
-		if ((this.offset / this.itemWidth) % 1 !== 0)
-			this.offset = -this.itemWidth * (this.index - (this.infinite) ? 0 : 1);
 		
 		if (this.infinite)
 			$(this.dots[this.index - 1]).attr("data-ss-state", "active");
