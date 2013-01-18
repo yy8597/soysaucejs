@@ -1422,10 +1422,6 @@ soysauce.carousels = (function() {
 		if (carousel.swipe || carousel.zoom) carousel.container.closest("[data-ss-widget='carousel']").on("touchstart mousedown", function(e) {
 			if ($(e.target).attr("data-ss-component") !== ("button" || "zoom_icon"))
 				carousel.handleSwipe(e);
-			else if ($(e.target).attr("data-ss-button-type") === "next" && carousel.ready)
-				carousel.slideForward();
-			else if ($(e.target).attr("data-ss-button-type") === "prev" && carousel.ready)
-				carousel.slideBackward();
 		});
 		
 		carousel.ready = true;
