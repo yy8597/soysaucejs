@@ -732,6 +732,7 @@ soysauce.carousels = (function() {
 		this.prevBtn;
 		this.infiniteID;
 		this.forward;
+		this.lastSlideTime;
 	}
 	
 	Carousel.prototype.gotoPos = function(x, fast) {
@@ -984,6 +985,12 @@ soysauce.carousels = (function() {
 		var coords1, coords2, lastX;
 		
 		var coords1x;
+		
+		if (this.infinite) {
+			var lastTime = this.lastSlideTime;
+			this.lastSlideTime = new Date().getTime();
+			if (new Date().getTime() - lastTime < 225) return;
+		}
 		
 		coords1 = soysauce.getCoords(e1);
 		
@@ -1332,6 +1339,7 @@ soysauce.carousels = (function() {
 			first_item.appendTo(carousel.container);
 			last_item.prependTo(carousel.container);
 			items = $(this).find("[data-ss-component='item']");
+			carousel.lastSlideTime = new Date().getTime();
 		}
 		
 		carousel.items = items;
