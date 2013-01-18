@@ -301,13 +301,6 @@ Array.prototype.remove = function(from, to) {
   return this.push.apply(this, rest);
 };
 
-jQuery(document).ready(function($) {
-	// Add hasAttr() function to jQuery
-	$.fn.hasAttr = function(attr) {
-		return this.attr(attr) !== undefined;
-	};
-});
-
 if(typeof(soysauce) == "undefined") {
 "use strict";	
 soysauce = {
@@ -1006,7 +999,7 @@ soysauce.carousels = (function() {
 				this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
 					soysauce.stifle(e2);
 					
-					if ($(e2.target).hasAttr("data-ss-button-type")) return;
+					if ($(e2.target).attr("data-ss-button-type") !== undefined) return;
 					
 					coords2 = soysauce.getCoords(e2);
 					$(e2.target).attr("data-ss-state", "panning");
@@ -1057,7 +1050,7 @@ soysauce.carousels = (function() {
 		this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
 			soysauce.stifle(e2);
 			
-			if ($(e2.target).hasAttr("data-ss-button-type")) return;
+			if ($(e2.target).attr("data-ss-button-type") !== undefined) return;
 			
 			coords2 = soysauce.getCoords(e2);
 			if (coords2 !== null) lastX = coords2.x;

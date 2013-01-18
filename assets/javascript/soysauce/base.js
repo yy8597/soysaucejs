@@ -4,13 +4,6 @@ Array.prototype.remove = function(from, to) {
   return this.push.apply(this, rest);
 };
 
-jQuery(document).ready(function($) {
-	// Add hasAttr() function to jQuery
-	$.fn.hasAttr = function(attr) {
-		return this.attr(attr) !== undefined;
-	};
-});
-
 if(typeof(soysauce) == "undefined") {
 "use strict";	
 soysauce = {
