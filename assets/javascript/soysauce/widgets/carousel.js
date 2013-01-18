@@ -708,7 +708,7 @@ soysauce.carousels = (function() {
 						if (zoomMultiplier !== undefined)
 							carousel.zoomMultiplier = parseInt(zoomMultiplier);
 							
-						carousel.panMax.x = carousel.itemWidth / carousel.zoomMultiplier;				
+						carousel.panMax.x = (carousel.itemWidth - carousel.peekWidth) / carousel.zoomMultiplier;				
 						carousel.panMax.y = $(self).find("[data-ss-component='item']").height() / carousel.zoomMultiplier;
 						if (carousel.panMax.y === 0) {
 							var imageToLoad = $(self).find("img")[0];
