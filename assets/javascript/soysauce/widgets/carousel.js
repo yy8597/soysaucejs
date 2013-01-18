@@ -295,9 +295,8 @@ soysauce.carousels = (function() {
 		var coords1x;
 		
 		if (this.infinite) {
-			var lastTime = this.lastSlideTime;
+			if (new Date().getTime() - this.lastSlideTime < 225) return;
 			this.lastSlideTime = new Date().getTime();
-			if (new Date().getTime() - lastTime < 225) return;
 		}
 		
 		coords1 = soysauce.getCoords(e1);
