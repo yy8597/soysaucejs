@@ -992,9 +992,11 @@ soysauce.carousels = (function() {
 		else {
 			// Panning
 			if (this.zoom && this.isZoomed) {
-				this.container.closest("[data-ss-widget='carousel']").on("touchend mouseup", function(e2) {
-					self.panCoordsStart.x = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[4])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[4]) : 0;
-					self.panCoordsStart.y = (Math.abs(parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[5])) > 0) ? parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[5]) : 0;
+				this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
+					var panX = parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[4]);
+					var panY = parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[5]);
+					self.panCoordsStart.x = (Math.abs(panX) > 0) ? panX : 0;
+					self.panCoordsStart.y = (Math.abs(panY) > 0) ? panY : 0;
 				});
 				this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
 					soysauce.stifle(e2);
