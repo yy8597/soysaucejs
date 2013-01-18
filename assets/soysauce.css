@@ -149,6 +149,9 @@
 [data-ss-widget="carousel"] [data-ss-component="item"] {
   float: left;
 }
+[data-ss-widget="carousel"] [data-ss-component="item"][data-ss-state="active"] {
+  z-index: 6;
+}
 [data-ss-widget="carousel"]:not([data-ss-state]) {
   opacity: 0;
 }

@@ -5,6 +5,9 @@
 	}
 	[data-ss-component="item"] {
 		float: left;
+		&[data-ss-state="active"] {
+			z-index: 6;
+		}
 	}
 	&:not([data-ss-state]) {
 		opacity: 0;
