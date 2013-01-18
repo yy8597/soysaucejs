@@ -34,6 +34,9 @@
 	&[data-ss-options*="zoom"] img[data-ss-state="ready"] {
 		@include transition(transform .5s);
 	}
+	&[data-ss-state="zoomed"] [data-ss-component="button"] {
+		display: none;
+	}
 	[data-ss-component="zoom_icon"], [data-ss-component="button"] {
 		z-index: 10;
 	}
