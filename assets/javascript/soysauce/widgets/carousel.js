@@ -69,7 +69,7 @@ soysauce.carousels = (function() {
 						self.container.attr("data-ss-state", "ready");
 						self.ready = true;
 					}, 0);
-				}, duration);
+				}, duration + 150);
 			}
 			// Slide Forward
 			else if (this.index === 1 && this.forward) {
@@ -81,7 +81,7 @@ soysauce.carousels = (function() {
 						self.container.attr("data-ss-state", "ready");
 						self.ready = true;
 					}, 0);
-				}, duration);
+				}, duration + 150);
 			}
 			else
 				this.infiniteID = undefined;
