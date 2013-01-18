@@ -754,7 +754,7 @@ soysauce.carousels = (function() {
 						self.container.attr("data-ss-state", "ready");
 						self.ready = true;
 					}, 0);
-				}, duration + 150);
+				}, duration);
 			}
 			// Slide Forward
 			else if (this.index === 1 && this.forward) {
@@ -766,7 +766,7 @@ soysauce.carousels = (function() {
 						self.container.attr("data-ss-state", "ready");
 						self.ready = true;
 					}, 0);
-				}, duration + 150);
+				}, duration);
 			}
 			else
 				this.infiniteID = undefined;
@@ -1422,10 +1422,6 @@ soysauce.carousels = (function() {
 		if (carousel.swipe || carousel.zoom) carousel.container.closest("[data-ss-widget='carousel']").on("touchstart mousedown", function(e) {
 			if ($(e.target).attr("data-ss-component") !== ("button" || "zoom_icon"))
 				carousel.handleSwipe(e);
-			else if ($(e.target).attr("data-ss-button-type") === "next" && carousel.ready)
-				carousel.slideForward();
-			else if ($(e.target).attr("data-ss-button-type") === "prev" && carousel.ready)
-				carousel.slideBackward();
 		});
 		
 		carousel.ready = true;
