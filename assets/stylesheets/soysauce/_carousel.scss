@@ -5,6 +5,9 @@
 	}
 	[data-ss-component="item"] {
 		float: left;
+		&[data-ss-state="active"] {
+			z-index: 6;
+		}
 	}
 	&:not([data-ss-state]) {
 		opacity: 0;
@@ -28,7 +31,13 @@
 		@include box-sizing(border-box);
 		width: 100%;
 	}
-	&[data-ss-options*="zoom"] img[ss-state="ready"] {
+	&[data-ss-options*="zoom"] img[data-ss-state="ready"] {
 		@include transition(transform .5s);
+	}
+	&[data-ss-state="zoomed"] [data-ss-component="button"] {
+		display: none;
+	}
+	[data-ss-component="zoom_icon"], [data-ss-component="button"] {
+		z-index: 10;
 	}
 }
