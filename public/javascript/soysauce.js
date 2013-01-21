@@ -1164,7 +1164,7 @@ soysauce.carousels = (function() {
 				self.panCoordsStart.y = self.panCoords.y;
 			}
 			
-			if (self.panCoords.x !== NaN && self.panCoords.y !== NaN) {
+			if (!isNaN(self.panCoords.x) && !isNaN(self.panCoords.y)) {
 				this.isZooming = true;
 				this.ready = false;
 				this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "zoomed");
