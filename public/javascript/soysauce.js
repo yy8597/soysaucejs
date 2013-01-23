@@ -358,12 +358,16 @@ soysauce = {
 	getCoords: function(e) {
 		if (e === undefined) return null;
 		if (e.originalEvent !== undefined) e = e.originalEvent;
-		if (e.touches && e.touches.length > 0)
+		if (e.touches && e.touches.length === 1)
 			return {x: e.touches[0].clientX, y: e.touches[0].clientY};
 		else if (e.clientX != undefined)
 			return {x: e.clientX, y: e.clientY};
-		else if (e.changedTouches && e.changedTouches.length > 0)
+		else if (e.changedTouches && e.changedTouches.length === 1)
 			return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY};
+		if (e.touches && e.touches.length === 2)
+			return {x: e.touches[0].clientX, y: e.touches[0].clientY, x2: e.touches[1].clientX, y2: e.touches[1].clientY};
+		else if (e.changedTouches && e.changedTouches.length === 2)
+			return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY, x2: e.changedTouches[1].clientX, y2: e.changedTouches[1].clientY};
 		return null;
 	},
 	getArrayFromMatrix: function(matrix) {
@@ -969,9 +973,7 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.handleSwipe = function(e1) {
 		var self = this;
-		var coords1, coords2, lastX;
-		
-		var coords1x;
+		var coords1, coords2, lastX, originalDist = 0;
 		
 		if (this.infinite) {
 			if (new Date().getTime() - this.lastSlideTime < 225) return;
@@ -982,6 +984,15 @@ soysauce.carousels = (function() {
 		
 		this.coords1x = coords1.x;
 		this.coords1y = coords1.y;
+		
+		if (coords1.y2 && coords1.x2) {
+			var xs = 0, ys = 0, dist = 0;
+			
+			ys = (coords1.y2 - coords1.y)*(coords1.y2 - coords1.y);
+			xs = (coords1.x2 - coords1.x)*(coords1.x2 - coords1.x);
+			
+			originalDist = Math.sqrt(ys + xs);
+		}
 		
 		if (e1.type.match(/mousedown/) !== null) soysauce.stifle(e1); // for desktop debugging
 
@@ -1004,6 +1015,19 @@ soysauce.carousels = (function() {
 					if ($(e2.target).attr("data-ss-button-type") !== undefined) return;
 					
 					coords2 = soysauce.getCoords(e2);
+					
+					if (coords2.y2 && coords2.x2) {
+						var xs = 0, ys = 0, dist = 0;
+						
+						ys = (coords2.y2 - coords2.y)*(coords2.y2 - coords2.y);
+						xs = (coords2.x2 - coords2.x)*(coords2.x2 - coords2.x);
+						
+						dist = Math.sqrt(ys + xs) - originalDist;
+						console.log("pinch dist: " + dist);
+						
+						return;
+					}
+					
 					$(e2.target).attr("data-ss-state", "panning");
 					
 					self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
