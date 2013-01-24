@@ -356,19 +356,18 @@ soysauce = {
 		}
 	},
 	getCoords: function(e) {
-		if (e === undefined) return null;
+		if (!e) return;
 		if (e.originalEvent !== undefined) e = e.originalEvent;
 		if (e.touches && e.touches.length === 1)
 			return {x: e.touches[0].clientX, y: e.touches[0].clientY};
-		else if (e.clientX != undefined)
-			return {x: e.clientX, y: e.clientY};
+		else if (e.touches && e.touches.length === 2)
+			return {x: e.touches[0].clientX, y: e.touches[0].clientY, x2: e.touches[1].clientX, y2: e.touches[1].clientY};
 		else if (e.changedTouches && e.changedTouches.length === 1)
 			return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY};
-		if (e.touches && e.touches.length === 2)
-			return {x: e.touches[0].clientX, y: e.touches[0].clientY, x2: e.touches[1].clientX, y2: e.touches[1].clientY};
 		else if (e.changedTouches && e.changedTouches.length === 2)
 			return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY, x2: e.changedTouches[1].clientX, y2: e.changedTouches[1].clientY};
-		return null;
+		else if (e.clientX !== undefined)
+			return {x: e.clientX, y: e.clientY};
 	},
 	getArrayFromMatrix: function(matrix) {
 		return matrix.substr(7, matrix.length - 8).split(', ');
@@ -717,6 +716,8 @@ soysauce.carousels = (function() {
 		this.cms = false;
 		this.zoom = false;
 		this.zoomMultiplier = 2;
+		this.zoomMin = 1.5;
+		this.zoomMax = 3;
 		this.isZooming = false;
 		this.isZoomed = false;
 		this.panMax = {x:0, y:0};
@@ -974,6 +975,9 @@ soysauce.carousels = (function() {
 	Carousel.prototype.handleSwipe = function(e1) {
 		var self = this;
 		var coords1, coords2, lastX, originalDist = 0;
+		var newX2 = 0, newY2 = 0;
+		var sensitivity = 1500; // lower to increase sensitivity (for zoom)
+		var panLock = true, zoomingIn = null;
 		
 		if (this.infinite) {
 			if (new Date().getTime() - this.lastSlideTime < 225) return;
@@ -1008,6 +1012,8 @@ soysauce.carousels = (function() {
 					var panY = parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[5]);
 					self.panCoordsStart.x = (Math.abs(panX) > 0) ? panX : 0;
 					self.panCoordsStart.y = (Math.abs(panY) > 0) ? panY : 0;
+					panLock = true;
+					zoomingIn = null;
 				});
 				this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
 					soysauce.stifle(e2);
@@ -1016,32 +1022,57 @@ soysauce.carousels = (function() {
 					
 					coords2 = soysauce.getCoords(e2);
 					
-					if (coords2.y2 && coords2.x2) {
-						var xs = 0, ys = 0, dist = 0;
-						
-						ys = (coords2.y2 - coords2.y)*(coords2.y2 - coords2.y);
-						xs = (coords2.x2 - coords2.x)*(coords2.x2 - coords2.x);
-						
-						dist = Math.sqrt(ys + xs) - originalDist;
-						console.log("pinch dist: " + dist);
-						
-						return;
-					}
-					
 					$(e2.target).attr("data-ss-state", "panning");
 					
-					self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
-					self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
-					
-					if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x > 0)
-						self.panCoords.x = self.panMax.x;
-					else if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x < 0)
-						self.panCoords.x = -self.panMax.x;
+					if (coords2.x2 && coords2.y2) {
+						panLock = false;
+						newX2 = coords2.x2;
+						newY2 = coords2.y2;
+					}
 						
-					if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y > 0)
-						self.panCoords.y = self.panMax.y;
-					else if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y < 0)
-						self.panCoords.y = -self.panMax.y;	
+					if (!panLock) {
+						var xs = 0, ys = 0, scale = 0, newDist = 0;
+						
+						ys = (newY2 - coords2.y)*(newY2 - coords2.y);
+						xs = (newX2 - coords2.x)*(newX2 - coords2.x);
+						
+						newDist = Math.sqrt(ys + xs);
+						if (originalDist === 0)
+							originalDist = newDist;
+						else if (zoomingIn === null || (zoomingIn === true && (newDist < originalDist)) || (zoomingIn === false && (newDist > originalDist))) {
+							originalDist = newDist;
+							if (zoomingIn)
+								zoomingIn = false;
+							else
+								zoomingIn = true;
+						}
+						
+						scale = (newDist - originalDist)/sensitivity;
+						
+						self.zoomMultiplier += scale;
+						
+						if (self.zoomMultiplier >= self.zoomMax)
+							self.zoomMultiplier = self.zoomMax;
+						else if (self.zoomMultiplier <= self.zoomMin)
+							self.zoomMultiplier = self.zoomMin;
+						
+						if (self.zoomMultiplier === self.zoomMax || self.zoomMultiplier === self.zoomMin) 
+							return;
+					}
+					else {
+						self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
+						self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
+
+						if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x > 0)
+							self.panCoords.x = self.panMax.x;
+						else if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x < 0)
+							self.panCoords.x = -self.panMax.x;
+
+						if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y > 0)
+							self.panCoords.y = self.panMax.y;
+						else if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y < 0)
+							self.panCoords.y = -self.panMax.y;	
+					}
 					
 					e2.target.style.webkitTransform = e2.target.style.msTransform = e2.target.style.OTransform = e2.target.style.MozTransform = e2.target.style.transform 
 					= "translate" + ((self.supports3d) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((self.supports3d) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
@@ -1498,9 +1529,6 @@ soysauce.overlay = function(cmd) {
 			div.setAttribute("data-ss-widget", "overlay");
 			div.setAttribute("data-ss-state", "inactive");
 			document.body.appendChild(div);
-			$("[data-ss-widget='overlay']").on("click", function() {
-				soysauce.overlay("off");
-			});
 			break;
 		case "on":
 			$("[data-ss-widget='overlay']").show();
