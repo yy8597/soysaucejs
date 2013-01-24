@@ -341,7 +341,8 @@ soysauce.carousels = (function() {
 						newX2 = coords2.x2;
 						newY2 = coords2.y2;
 					}
-						
+					
+					// Pinch Zooming
 					if (!panLock) {
 						var xs = 0, ys = 0, scale = 0, newDist = 0;
 						
@@ -371,6 +372,7 @@ soysauce.carousels = (function() {
 						if (self.zoomMultiplier === self.zoomMax || self.zoomMultiplier === self.zoomMin) 
 							return;
 					}
+					// Panning
 					else {
 						self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
 						self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
