@@ -147,6 +147,7 @@
   display: block;
 }
 [data-ss-widget="carousel"] [data-ss-component="item"] {
+  list-style-type: none;
   float: left;
 }
 [data-ss-widget="carousel"] [data-ss-component="item"][data-ss-state="active"] {

@@ -295,6 +295,132 @@ if (excludeFastClick) {
 	}, false);
 })();
 }
+/*!
+ * jQuery imagesLoaded plugin v2.1.1
+ * http://github.com/desandro/imagesloaded
+ *
+ * MIT License. by Paul Irish et al.
+ */
+
+/*jshint curly: true, eqeqeq: true, noempty: true, strict: true, undef: true, browser: true */
+/*global jQuery: false */
+
+;(function($, undefined) {
+'use strict';
+
+// blank image data-uri bypasses webkit log warning (thx doug jones)
+var BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+
+$.fn.imagesLoaded = function( callback ) {
+	var $this = this,
+		deferred = $.isFunction($.Deferred) ? $.Deferred() : 0,
+		hasNotify = $.isFunction(deferred.notify),
+		$images = $this.find('img').add( $this.filter('img') ),
+		loaded = [],
+		proper = [],
+		broken = [];
+
+	// Register deferred callbacks
+	if ($.isPlainObject(callback)) {
+		$.each(callback, function (key, value) {
+			if (key === 'callback') {
+				callback = value;
+			} else if (deferred) {
+				deferred[key](value);
+			}
+		});
+	}
+
+	function doneLoading() {
+		var $proper = $(proper),
+			$broken = $(broken);
+
+		if ( deferred ) {
+			if ( broken.length ) {
+				deferred.reject( $images, $proper, $broken );
+			} else {
+				deferred.resolve( $images );
+			}
+		}
+
+		if ( $.isFunction( callback ) ) {
+			callback.call( $this, $images, $proper, $broken );
+		}
+	}
+
+	function imgLoadedHandler( event ) {
+		imgLoaded( event.target, event.type === 'error' );
+	}
+
+	function imgLoaded( img, isBroken ) {
+		// don't proceed if BLANK image, or image is already loaded
+		if ( img.src === BLANK || $.inArray( img, loaded ) !== -1 ) {
+			return;
+		}
+
+		// store element in loaded images array
+		loaded.push( img );
+
+		// keep track of broken and properly loaded images
+		if ( isBroken ) {
+			broken.push( img );
+		} else {
+			proper.push( img );
+		}
+
+		// cache image and its state for future calls
+		$.data( img, 'imagesLoaded', { isBroken: isBroken, src: img.src } );
+
+		// trigger deferred progress method if present
+		if ( hasNotify ) {
+			deferred.notifyWith( $(img), [ isBroken, $images, $(proper), $(broken) ] );
+		}
+
+		// call doneLoading and clean listeners if all images are loaded
+		if ( $images.length === loaded.length ) {
+			setTimeout( doneLoading );
+			$images.unbind( '.imagesLoaded', imgLoadedHandler );
+		}
+	}
+
+	// if no images, trigger immediately
+	if ( !$images.length ) {
+		doneLoading();
+	} else {
+		$images.bind( 'load.imagesLoaded error.imagesLoaded', imgLoadedHandler )
+		.each( function( i, el ) {
+			var src = el.src;
+
+			// find out if this image has been already checked for status
+			// if it was, and src has not changed, call imgLoaded on it
+			var cached = $.data( el, 'imagesLoaded' );
+			if ( cached && cached.src === src ) {
+				imgLoaded( el, cached.isBroken );
+				return;
+			}
+
+			// if complete is true and browser supports natural sizes, try
+			// to check for image status manually
+			if ( el.complete && el.naturalWidth !== undefined ) {
+				imgLoaded( el, el.naturalWidth === 0 || el.naturalHeight === 0 );
+				return;
+			}
+
+			// cached images don't fire load sometimes, so we reset src, but only when
+			// dealing with IE, or image is complete (loaded) and failed manual check
+			// webkit hack from http://groups.google.com/group/jquery-dev/browse_thread/thread/eee6ab7b2da50e1f
+			if ( el.readyState || el.complete ) {
+				el.src = BLANK;
+				el.src = src;
+			}
+		});
+	}
+
+	return deferred ? deferred.promise( $this ) : $this;
+};
+
+})(jQuery);
+
 Array.prototype.remove = function(from, to) {
   var rest = this.slice((to || from) + 1 || this.length);
   this.length = from < 0 ? this.length + from : from;
@@ -391,27 +517,25 @@ soysauce.init();
 }
 
 soysauce.lateload = function(selector) {
-	if (selector) {
-		$("[ss-ll-src]").each(function() {
-			var curr = $(this);
-			var val = curr.attr("ss-ll-src");
-			if (val) 
-				curr.attr("src", val).attr("ss-ll-src", "");
-		});
+	
+	function loadItem(selector) {
+		var curr = $(selector);
+		var val = curr.attr("data-ss-ll-src");
+		if (val) 
+			curr.attr("src", val).attr("data-ss-ll-src", "");
 	}
+	
+	if (selector)
+		$("[data-ss-ll-src]:not([data-ss-options])").each(loadItem(selector));
 	else {
-		$("[ss-dcl-src]").each(function() {
-			var curr = $(this);
-			var val = curr.attr("ss-dcl-src");
-			if (val) 
-				curr.attr("src", val).removeAttr("ss-dcl-src");
+		$(document).on("DOMContentLoaded", function() {
+			$("[data-ss-ll-src][data-ss-options='dom']").each(function(i, e) {
+				loadItem(e);
+			});
 		});
-		window.addEventListener("load", function() {
-			$("[ss-ll-src]").each(function() {
-				var curr = $(this);
-				var val = curr.attr("ss-ll-src");
-				if (val)
-					curr.attr("src", val).removeAttr("ss-ll-src");
+		$(window).on("load", function() {
+			$("[data-ss-ll-src][data-ss-options='load']").each(function(i, e) {
+				loadItem(e);
 			});
 		});
 	}
@@ -461,6 +585,7 @@ soysauce.accordions = (function() {
 		this.overlay = false;
 		this.tab = false;
 		this.slide = false;
+		this.ajax = true;
 		this.doAjax = false;
 		this.height = 0;
 		this.isChildAccordion = false;
@@ -468,9 +593,16 @@ soysauce.accordions = (function() {
 		this.childTabOpen = false;
 		this.tabGroup = undefined;
 		this.parent = undefined;
+		this.ready = true;
+		this.adjustFlag = false;
 	}
 
 	Accordion.prototype.open = function() {
+		if (!this.ready) return;
+		
+		if (this.adjustFlag)
+			this.adjustHeight();
+		
 		var self = this;
 		var prevHeight = 0;
 		if (this.tab) {
@@ -483,7 +615,9 @@ soysauce.accordions = (function() {
 		if (this.overlay) 
 			soysauce.overlay("on");
 		if (this.slide) {
-			if (this.parent === undefined) this.parent = soysauce.fetch(this.parentID);
+			this.ready = false;
+			if (this.parent === undefined) 
+				this.parent = soysauce.fetch(this.parentID);
 			if (this.isChildAccordion && this.parent.slide) {
 				if (this.tab) {
 					if (!this.parent.childTabOpen) {
@@ -497,16 +631,30 @@ soysauce.accordions = (function() {
 				}
 				else this.parent.addHeight(this.height);
 			}
-			this.content.css("height", this.height + "px");
+			if (this.ajax && this.height === 0) {
+				$(this.content).imagesLoaded(function() {
+					self.content.css("height", "auto");
+					self.height = self.content.height();
+					self.content.css("height", self.height + "px");
+				});
+			}
+			else
+				this.content.css("height", this.height + "px");
+			this.content.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+				self.ready = true;
+			});
 		}
 		this.setState("open");
 	};
 
 	Accordion.prototype.close = function(closeOverlay) {
+		if (!this.ready) return;
+		
 		var self = this;
 		if (this.overlay && (closeOverlay === undefined) ? true : closeOverlay) 
 			soysauce.overlay("off");
 		if (this.slide) {
+			this.ready = false;
 			if (this.parent === undefined) this.parent = soysauce.fetch(this.parentID);
 			if (this.isChildAccordion && this.parent.slide) {
 				if (!this.tab) this.parent.addHeight(-this.height);
@@ -520,9 +668,16 @@ soysauce.accordions = (function() {
 		}
 		if (this.slide) this.content.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 			self.setState("closed");
+			self.ready = true;
 		});
 		else
 			this.setState("closed");
+	};
+
+	Accordion.prototype.adjustHeight = function() {
+		this.content.css("height", "auto");
+		this.height = this.content.height();
+		this.adjustFlag = false;
 	};
 
 	Accordion.prototype.addHeight = function(height) {
@@ -549,6 +704,7 @@ soysauce.accordions = (function() {
 		var url = "";
 		var callback;
 		var self = this;
+		var firstTime = false;
 
 		this.button.click(function(e) {
 			if (!self.doAjax) {
@@ -559,6 +715,7 @@ soysauce.accordions = (function() {
 
 			soysauce.stifle(e);
 			self.setState("ajaxing");
+			self.ready = false;
 
 			if(!obj.attr("data-ss-ajax-url")) {
 				console.warn("Soysauce: 'data-ss-ajax-url' tag required. Must be on the same domain.");
@@ -574,18 +731,23 @@ soysauce.accordions = (function() {
 			callback = obj.attr("data-ss-ajax-callback");
 			
 			if (soysauce.browserInfo.supportsSessionStorage) {
-				if (sessionStorage.getItem(url) === null)
+				if (sessionStorage.getItem(url) === null) {
+					firstTime = true;
 					$.get(url, function(data) {
 						sessionStorage.setItem(url, JSON.stringify(data));
 						eval(callback + "(" + JSON.stringify(data) + ")");
+						self.setAjaxComplete();
+						firstTime = false;
 					});
+				}
 				else
 					eval(callback + "(" + sessionStorage.getItem(url) + ")");
 			}
 			else
 				$.get(url, eval(callback));
 			
-			self.setAjaxComplete();
+			if (!firstTime)
+				self.setAjaxComplete();
 		});
 	};
 
@@ -598,6 +760,9 @@ soysauce.accordions = (function() {
 
 	Accordion.prototype.setAjaxComplete = function() {
 		this.doAjax = false;
+		this.ready = true;
+		if (this.state === "ajaxing")
+			this.open();
 	};
 
 	// Initialize
@@ -618,6 +783,7 @@ soysauce.accordions = (function() {
 			if(options) options.forEach(function(option) {
 				switch(option) {
 					case "ajax":
+						item.ajax = true;
 						item.doAjax = true;
 						item.handleAjax();
 						break;
@@ -672,6 +838,12 @@ soysauce.accordions = (function() {
 			
 			$(this).find("> [data-ss-component='button']").click(function() {
 				item.toggle();
+			});
+
+			$(window).on("resize orientationchange", function() {
+				item.adjustFlag = true;
+				if (item.state === "open")
+					item.adjustHeight();
 			});
 
 			accordions.push(item);
@@ -1297,7 +1469,7 @@ soysauce.carousels = (function() {
 		var self = this;
 		var options = soysauce.getOptions(this);
 		var loadCounter = 1;
-		var items = $(this).find("[data-ss-component='item']");
+		var items;
 		var first_item, last_item;
 		var wrapper;
 		var i = 0;
@@ -1340,7 +1512,7 @@ soysauce.carousels = (function() {
 				img = "<img src='" + img_src + "'>"
 				$(this).before(img);
 
-				$(this).parent().attr("data-ss-component", "item")
+				$(this).closest("li").attr("data-ss-component", "item")
 
 				$(this).find("+ div").remove();
 				$(this).remove();
@@ -1381,11 +1553,10 @@ soysauce.carousels = (function() {
 			last_item = carousel.container.find("[data-ss-component='item']").last().clone();
 			first_item.appendTo(carousel.container);
 			last_item.prependTo(carousel.container);
-			items = $(this).find("[data-ss-component='item']");
 			carousel.lastSlideTime = new Date().getTime();
 		}
 		
-		carousel.items = items;
+		carousel.items = items = $(this).find("[data-ss-component='item']");;
 		carousel.numChildren = items.length;
 		
 		if (!carousel.infinite)
@@ -1393,7 +1564,7 @@ soysauce.carousels = (function() {
 		else
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		
-		carousel.links = (items[0].tagName.match(/^a$/i) !== null) ? true : false;
+		carousel.links = ((items[0].tagName.match(/^a$/i) !== null) || items.find("a[href]").length > 0) ? true : false;
 		
 		var dotsHtml = "";
 		var numDots = (carousel.infinite) ? carousel.numChildren - 2 : carousel.numChildren;

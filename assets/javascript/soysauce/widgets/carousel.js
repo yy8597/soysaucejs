@@ -611,7 +611,7 @@ soysauce.carousels = (function() {
 		var self = this;
 		var options = soysauce.getOptions(this);
 		var loadCounter = 1;
-		var items = $(this).find("[data-ss-component='item']");
+		var items;
 		var first_item, last_item;
 		var wrapper;
 		var i = 0;
@@ -654,7 +654,7 @@ soysauce.carousels = (function() {
 				img = "<img src='" + img_src + "'>"
 				$(this).before(img);
 
-				$(this).parent().attr("data-ss-component", "item")
+				$(this).closest("li").attr("data-ss-component", "item")
 
 				$(this).find("+ div").remove();
 				$(this).remove();
@@ -695,11 +695,10 @@ soysauce.carousels = (function() {
 			last_item = carousel.container.find("[data-ss-component='item']").last().clone();
 			first_item.appendTo(carousel.container);
 			last_item.prependTo(carousel.container);
-			items = $(this).find("[data-ss-component='item']");
 			carousel.lastSlideTime = new Date().getTime();
 		}
 		
-		carousel.items = items;
+		carousel.items = items = $(this).find("[data-ss-component='item']");;
 		carousel.numChildren = items.length;
 		
 		if (!carousel.infinite)
@@ -707,7 +706,7 @@ soysauce.carousels = (function() {
 		else
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		
-		carousel.links = (items[0].tagName.match(/^a$/i) !== null) ? true : false;
+		carousel.links = ((items[0].tagName.match(/^a$/i) !== null) || items.find("a[href]").length > 0) ? true : false;
 		
 		var dotsHtml = "";
 		var numDots = (carousel.infinite) ? carousel.numChildren - 2 : carousel.numChildren;
