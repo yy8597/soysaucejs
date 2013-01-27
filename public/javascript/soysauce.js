@@ -1190,7 +1190,8 @@ soysauce.carousels = (function() {
 				this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
 					soysauce.stifle(e2);
 					
-					if ($(e2.target).attr("data-ss-button-type") !== undefined) return;
+					if (!/img/i.test(e2.target.tagName)) return;
+					else if ($(e2.target).attr("data-ss-button-type") !== undefined || $(e2.target).attr("data-ss-component") === "dots") return;
 					
 					coords2 = soysauce.getCoords(e2);
 					
@@ -1392,6 +1393,7 @@ soysauce.carousels = (function() {
 			}
 			
 			if (!isNaN(self.panCoords.x) && !isNaN(self.panCoords.y)) {
+				this.dots.first().parent().hide();
 				this.isZooming = true;
 				this.ready = false;
 				this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "zoomed");
@@ -1406,6 +1408,7 @@ soysauce.carousels = (function() {
 		}
 		// Zoom Out
 		else if (xDist < 3 && yDist < 3) {
+			this.dots.first().parent().show();
 			this.isZooming = true;
 			this.ready = false;
 			this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "ready");
