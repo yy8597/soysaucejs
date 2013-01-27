@@ -4,6 +4,7 @@
 		display: block;
 	}
 	[data-ss-component="item"] {
+		list-style-type: none;
 		float: left;
 		&[data-ss-state="active"] {
 			z-index: 6;
