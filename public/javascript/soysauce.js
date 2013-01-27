@@ -482,15 +482,18 @@ soysauce = {
 		}
 	},
 	getCoords: function(e) {
-		if (e === undefined) return null;
+		if (!e) return;
 		if (e.originalEvent !== undefined) e = e.originalEvent;
-		if (e.touches && e.touches.length > 0)
+		if (e.touches && e.touches.length === 1)
 			return {x: e.touches[0].clientX, y: e.touches[0].clientY};
-		else if (e.clientX != undefined)
-			return {x: e.clientX, y: e.clientY};
-		else if (e.changedTouches && e.changedTouches.length > 0)
+		else if (e.touches && e.touches.length === 2)
+			return {x: e.touches[0].clientX, y: e.touches[0].clientY, x2: e.touches[1].clientX, y2: e.touches[1].clientY};
+		else if (e.changedTouches && e.changedTouches.length === 1)
 			return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY};
-		return null;
+		else if (e.changedTouches && e.changedTouches.length === 2)
+			return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY, x2: e.changedTouches[1].clientX, y2: e.changedTouches[1].clientY};
+		else if (e.clientX !== undefined)
+			return {x: e.clientX, y: e.clientY};
 	},
 	getArrayFromMatrix: function(matrix) {
 		return matrix.substr(7, matrix.length - 8).split(', ');
