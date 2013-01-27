@@ -1512,7 +1512,7 @@ soysauce.carousels = (function() {
 		else
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		
-		carousel.links = ((items[0].tagName.match(/^a$/i) !== null) || items.find("a[href]")) ? true : false;
+		carousel.links = ((items[0].tagName.match(/^a$/i) !== null) || items.find("a[href]").length > 0) ? true : false;
 		
 		var dotsHtml = "";
 		var numDots = (carousel.infinite) ? carousel.numChildren - 2 : carousel.numChildren;
