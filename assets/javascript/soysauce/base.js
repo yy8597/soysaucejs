@@ -187,7 +187,7 @@ soysauce = {
 	getCoords: function(e) {
 		if (!e) return;
 		if (e.originalEvent !== undefined) e = e.originalEvent;
-		if (e.touches && e.touches.length > 0)
+		if (e.touches && e.touches.length === 1)
 			return {x: e.touches[0].clientX, y: e.touches[0].clientY};
 		else if (e.touches && e.touches.length === 2)
 			return {x: e.touches[0].clientX, y: e.touches[0].clientY, x2: e.touches[1].clientX, y2: e.touches[1].clientY};
