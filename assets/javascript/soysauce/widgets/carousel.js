@@ -628,7 +628,6 @@ soysauce.carousels = (function() {
 	};
 	
 	// Helper Functions
-	
 	function setTranslate(element, x, y) {
 		x = (!x) ? 0 : x;
 		y =  (!y) ? 0 : y;
@@ -641,11 +640,6 @@ soysauce.carousels = (function() {
 		element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform 
 		= currTransform + " scale" + ((SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
 	}
-	
-	// Init
-	(function() {
-		$("[data-ss-widget='carousel']").each(loadWidget);
-	})(); // end init
 	
 	function loadWidget() {
 		var carousel = new Carousel(this);
@@ -859,6 +853,11 @@ soysauce.carousels = (function() {
 		
 		carousels.push(carousel);
 	}
+	
+	// Init
+	(function() {
+		$("[data-ss-widget='carousel']").each(loadWidget);
+	})(); // end init
 	
 	return carousels;
 })();
