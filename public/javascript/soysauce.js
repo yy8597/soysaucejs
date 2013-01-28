@@ -867,6 +867,7 @@ soysauce.carousels = (function() {
 	var ZOOM_MULTIPLIER = 2;
 	var PEEK_WIDTH = 40;
 	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
+	var PINCH_SENSITIVITY = 1500; // lower to increase sensitivity for pinch zoom
 	
 	function Carousel(obj) {
 		// Base Variables
@@ -1168,7 +1169,6 @@ soysauce.carousels = (function() {
 		var self = this;
 		var coords1, coords2, lastX, originalDist = 0, prevDist = -1;
 		var newX2 = 0, newY2 = 0;
-		var sensitivity = 1500; // lower to increase sensitivity (for zoom)
 		var panLock = true, zoomingIn = null;
 		
 		if (this.infinite) {
@@ -1244,7 +1244,7 @@ soysauce.carousels = (function() {
 						}
 						prevDist = newDist;
 						
-						scale = (newDist - originalDist)/sensitivity;
+						scale = (newDist - originalDist)/PINCH_SENSITIVITY;
 						
 						self.zoomMultiplier += scale;
 						
