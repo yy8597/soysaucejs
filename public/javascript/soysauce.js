@@ -895,7 +895,7 @@ soysauce.carousels = (function() {
 		this.lastSlideTime;
 		
 		// Fullscreen & Peek Variables
-		this.fullscreen = false;
+		this.fullscreen = true;
 		this.peek = false;
 		this.peekWidth = 0;
 		
@@ -1532,8 +1532,8 @@ soysauce.carousels = (function() {
 				case "autoscroll":
 					carousel.autoscroll = true;
 					break;
-				case "fullscreen":
-					carousel.fullscreen = true;
+				case "nofullscreen":
+					carousel.fullscreen = false;
 					break;
 				case "noswipe":
 					carousel.swipe = false;
