@@ -888,12 +888,12 @@ soysauce.carousels = (function() {
 		this.cms = false;
 		this.zoom = false;
 		this.zoomMultiplier = 2;
-		this.zoomMultiplierRatio = {x: 0, y: 0};
-		this.zoomMin = 1.5;
-		this.zoomMax = 3;
+		this.zoomMin = 1;
+		this.zoomMax = 4;
 		this.isZooming = false;
 		this.isZoomed = false;
 		this.panMax = {x:0, y:0};
+		this.panMaxOriginal = {x:0, y:0};
 		this.panCoords = {x:0, y:0};
 		this.panCoordsStart = {x:0, y:0};
 		this.panning = false;
@@ -1233,12 +1233,12 @@ soysauce.carousels = (function() {
 							self.zoomMultiplier = self.zoomMax;
 						else if (self.zoomMultiplier <= self.zoomMin)
 							self.zoomMultiplier = self.zoomMin;
-
-						self.panMax.x = self.zoomMultiplierRatio.x * self.zoomMultiplier;				
-						self.panMax.y = self.zoomMultiplierRatio.y * self.zoomMultiplier;
 						
-						console.log("panMaxX: " + self.panMax.x);
-						console.log("panMaxY: " + self.panMax.y);
+						self.panMax.x = (self.zoomMultiplier - 1) * self.panMaxOriginal.x;				
+						self.panMax.y = (self.zoomMultiplier - 1) * self.panMaxOriginal.y;
+						
+						if (self.zoomMultiplier === self.zoomMax || self.zoomMultiplier === self.zoomMin) 
+							return;
 						
 						if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x > 0)
 							self.panCoords.x = self.panMax.x;
@@ -1252,9 +1252,6 @@ soysauce.carousels = (function() {
 
 						self.panCoordsStart.x = self.panCoords.x;
 						self.panCoordsStart.y = self.panCoords.y;
-						
-						if (self.zoomMultiplier === self.zoomMax || self.zoomMultiplier === self.zoomMin) 
-							return;
 					}
 					// Panning
 					else {
@@ -1649,13 +1646,13 @@ soysauce.carousels = (function() {
 							
 						carousel.panMax.x = (carousel.itemWidth - carousel.peekWidth) / carousel.zoomMultiplier;				
 						carousel.panMax.y = $(self).find("[data-ss-component='item']").height() / carousel.zoomMultiplier;
-						carousel.zoomMultiplierRatio.x = carousel.panMax.x / carousel.zoomMultiplier;
-						carousel.zoomMultiplierRatio.y = carousel.panMax.y / carousel.zoomMultiplier;
+						carousel.panMaxOriginal.x = carousel.panMax.x;
+						carousel.panMaxOriginal.y = carousel.panMax.y;
 						if (carousel.panMax.y === 0) {
 							var imageToLoad = $(self).find("img")[0];
 							$(imageToLoad).load(function() {
 								carousel.panMax.y = imageToLoad.height / carousel.zoomMultiplier;
-								carousel.zoomMultiplierRatio.y = carousel.panMax.y / carousel.zoomMultiplier;
+								carousel.panMaxOriginal.y = carousel.panMax.y;
 							});
 						}
 					}
