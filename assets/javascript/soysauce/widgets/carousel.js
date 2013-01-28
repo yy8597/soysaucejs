@@ -28,6 +28,7 @@ soysauce.carousels = (function() {
 		this.cms = false;
 		this.zoom = false;
 		this.zoomMultiplier = 2;
+		this.zoomMultiplierRatio = {x: 0, y: 0};
 		this.zoomMin = 1.5;
 		this.zoomMax = 3;
 		this.isZooming = false;
@@ -317,11 +318,12 @@ soysauce.carousels = (function() {
 		if (!this.ready) 
 			lastX = this.handleInterrupt(e1);
 		else {
-			// Panning
+			// Pan or Pinch Zooming
 			if (this.zoom && this.isZoomed) {
 				this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
-					var panX = parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[4]);
-					var panY = parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[5]);
+					var array = soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"));
+					var panX = parseInt(array[4]);
+					var panY = parseInt(array[5]);
 					self.panCoordsStart.x = (Math.abs(panX) > 0) ? panX : 0;
 					self.panCoordsStart.y = (Math.abs(panY) > 0) ? panY : 0;
 					panLock = true;
@@ -371,6 +373,25 @@ soysauce.carousels = (function() {
 							self.zoomMultiplier = self.zoomMax;
 						else if (self.zoomMultiplier <= self.zoomMin)
 							self.zoomMultiplier = self.zoomMin;
+
+						self.panMax.x = self.zoomMultiplierRatio.x * self.zoomMultiplier;				
+						self.panMax.y = self.zoomMultiplierRatio.y * self.zoomMultiplier;
+						
+						console.log("panMaxX: " + self.panMax.x);
+						console.log("panMaxY: " + self.panMax.y);
+						
+						if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x > 0)
+							self.panCoords.x = self.panMax.x;
+						else if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x < 0)
+							self.panCoords.x = -self.panMax.x;
+
+						if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y > 0)
+							self.panCoords.y = self.panMax.y;
+						else if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y < 0)
+							self.panCoords.y = -self.panMax.y;
+
+						self.panCoordsStart.x = self.panCoords.x;
+						self.panCoordsStart.y = self.panCoords.y;
 						
 						if (self.zoomMultiplier === self.zoomMax || self.zoomMultiplier === self.zoomMin) 
 							return;
@@ -768,10 +789,13 @@ soysauce.carousels = (function() {
 							
 						carousel.panMax.x = (carousel.itemWidth - carousel.peekWidth) / carousel.zoomMultiplier;				
 						carousel.panMax.y = $(self).find("[data-ss-component='item']").height() / carousel.zoomMultiplier;
+						carousel.zoomMultiplierRatio.x = carousel.panMax.x / carousel.zoomMultiplier;
+						carousel.zoomMultiplierRatio.y = carousel.panMax.y / carousel.zoomMultiplier;
 						if (carousel.panMax.y === 0) {
 							var imageToLoad = $(self).find("img")[0];
 							$(imageToLoad).load(function() {
 								carousel.panMax.y = imageToLoad.height / carousel.zoomMultiplier;
+								carousel.zoomMultiplierRatio.y = carousel.panMax.y / carousel.zoomMultiplier;
 							});
 						}
 					}
