@@ -931,7 +931,7 @@ soysauce.carousels = (function() {
 		var self = this;
 		
 		this.offset = x;
-		this.setStyle(x);
+		setTranslate(this.container[0], x);
 		
 		if (this.ready)
 			this.container.attr("data-ss-state", "ready");
@@ -948,7 +948,7 @@ soysauce.carousels = (function() {
 				this.infiniteID = window.setTimeout(function() {
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = -self.index*self.itemWidth + self.peekWidth/2;
-					self.setStyle(self.offset);
+					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "ready");
 						self.ready = true;
@@ -960,7 +960,7 @@ soysauce.carousels = (function() {
 				this.infiniteID = window.setTimeout(function() {
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = -self.itemWidth + self.peekWidth/2;
-					self.setStyle(self.offset);
+					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "ready");
 						self.ready = true;
@@ -1061,7 +1061,7 @@ soysauce.carousels = (function() {
 			this.itemWidth += diff;
 			this.offset = -this.index * this.itemWidth + this.peekWidth/2;
 			this.container.attr("data-ss-state", "notransition");
-			this.setStyle(this.offset);			
+			setTranslate(this.container[0], this.offset);			
 			this.container.find("[data-ss-component='item']").width(this.itemWidth);
 		}
 
@@ -1074,10 +1074,6 @@ soysauce.carousels = (function() {
 			this.panMax.x = this.itemWidth / this.zoomMultiplier;	
 			this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;				
 		}
-	};
-	
-	Carousel.prototype.setStyle = function(x) {
-		this.container[0].style.webkitTransform = this.container[0].style.msTransform = this.container[0].style.OTransform = this.container[0].style.MozTransform = this.container[0].style.transform = "translate" + ((SUPPORTS3D) ? "3d(" + x + "px,0,0)": "(" + x + "px,0)");
 	};
 	
 	Carousel.prototype.handleInterrupt = function(e) {
@@ -1106,16 +1102,16 @@ soysauce.carousels = (function() {
 		if (this.infinite && this.index === 1 && this.forward) {
 			window.clearInterval(self.infiniteID);
 			self.offset = self.itemWidth*(self.numChildren - 2) + xcoord;
-			self.setStyle(self.offset);
+			setTranslate(self.container[0], self.offset);
 		}
 		// Backward Loop Interrupt
 		else if (this.infinite && (this.index === this.numChildren - 2) && !this.forward) {
 			window.clearInterval(self.infiniteID);
 			self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
-			self.setStyle(self.offset);
+			setTranslate(self.container[0], self.offset);
 		}
 		else
-			this.setStyle(xcoord);
+			setTranslate(this.container[0], xcoord);
 		
 		coords1 = soysauce.getCoords(e);
 		
@@ -1143,9 +1139,9 @@ soysauce.carousels = (function() {
 			dragOffset = coords1.x - coords2.x;
 			
 			if (self.infiniteID !== undefined)
-				self.setStyle(self.offset - dragOffset);
+				setTranslate(self.container[0], self.offset - dragOffset);
 			else
-				self.setStyle(xcoord - dragOffset);
+				setTranslate(self.container[0], xcoord - dragOffset);
 		});
 		
 		if (this.infiniteID !== undefined) this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
@@ -1158,7 +1154,7 @@ soysauce.carousels = (function() {
 				self.offset = -self.itemWidth + self.peekWidth/2;
 			
 			window.setTimeout(function() {
-				self.setStyle(self.offset);
+				setTranslate(self.container[0], self.offset);
 			}, 0);
 		});
 		
@@ -1288,8 +1284,8 @@ soysauce.carousels = (function() {
 							self.panCoords.y = -self.panMax.y;	
 					}
 					
-					e2.target.style.webkitTransform = e2.target.style.msTransform = e2.target.style.OTransform = e2.target.style.MozTransform = e2.target.style.transform 
-					= "translate" + ((SUPPORTS3D) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((SUPPORTS3D) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
+					setTranslate(e2.target, self.panCoords.x, self.panCoords.y);
+					setScale(e2.target, self.zoomMultiplier);
 				});
 			}
 			// Swipe Forward/Backward
@@ -1313,7 +1309,7 @@ soysauce.carousels = (function() {
 				lastX = coords2.x;
 				dragOffset = coords1.x - coords2.x;
 				self.container.attr("data-ss-state", "notransition");
-				self.setStyle(self.offset - dragOffset);
+				setTranslate(self.container[0], self.offset - dragOffset);
 			});
 		}
 
@@ -1439,8 +1435,8 @@ soysauce.carousels = (function() {
 				this.ready = false;
 				this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "zoomed");
 				this.zoomIcon.attr("data-ss-state", "in");
-				zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
-				= "translate" + ((SUPPORTS3D) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((SUPPORTS3D) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
+				setTranslate(zoomImg, self.panCoords.x, self.panCoords.y);
+				setScale(zoomImg, self.zoomMultiplier);
 				$(zoomImg).on(TRANSITION_END, function() {
 					self.isZoomed = true;
 					self.isZooming = false;
@@ -1454,8 +1450,8 @@ soysauce.carousels = (function() {
 			this.ready = false;
 			this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "ready");
 			this.zoomIcon.attr("data-ss-state", "out");
-			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
-			= "translate" + ((SUPPORTS3D) ? "3d(0,0,0)" : "(0,0)") + " scale" + ((SUPPORTS3D) ? "3d(1,1,1)" : "(1,1)") ;
+			setTranslate(zoomImg, 0, 0);
+			setScale(zoomImg, 1);
 			$(zoomImg).on(TRANSITION_END, function() {
 				self.isZoomed = false;
 				self.isZooming = false;
@@ -1502,6 +1498,21 @@ soysauce.carousels = (function() {
 		newCarousel.each(loadWidget);
 		return true;
 	};
+	
+	// Helper Functions
+	
+	function setTranslate(element, x, y) {
+		x = (!x) ? 0 : x;
+		y =  (!y) ? 0 : y;
+		element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform = "translate" + ((SUPPORTS3D) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
+	}
+	
+	function setScale(element, multiplier) {
+		var currTransform = element.style.webkitTransform;
+		multiplier = (!multiplier) ? ZOOM_MULTIPLIER : multiplier;
+		element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform 
+		= currTransform + " scale" + ((SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
+	}
 	
 	// Init
 	(function() {
