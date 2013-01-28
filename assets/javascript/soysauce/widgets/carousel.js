@@ -286,7 +286,7 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.handleSwipe = function(e1) {
 		var self = this;
-		var coords1, coords2, lastX, originalDist = 0;
+		var coords1, coords2, lastX, originalDist = 0, prevDist = -1;
 		var newX2 = 0, newY2 = 0;
 		var sensitivity = 1500; // lower to increase sensitivity (for zoom)
 		var panLock = true, zoomingIn = null;
@@ -351,15 +351,17 @@ soysauce.carousels = (function() {
 						xs = (newX2 - coords2.x)*(newX2 - coords2.x);
 						
 						newDist = Math.sqrt(ys + xs);
+						
 						if (originalDist === 0)
 							originalDist = newDist;
-						else if (zoomingIn === null || (zoomingIn === true && (newDist < originalDist)) || (zoomingIn === false && (newDist > originalDist))) {
+						else if (zoomingIn === null || (zoomingIn === true && (newDist < prevDist) && prevDist !== -1) || (zoomingIn === false && (newDist > prevDist) && prevDist !== -1)) {
 							originalDist = newDist;
 							if (zoomingIn)
 								zoomingIn = false;
 							else
 								zoomingIn = true;
 						}
+						prevDist = newDist;
 						
 						scale = (newDist - originalDist)/sensitivity;
 						

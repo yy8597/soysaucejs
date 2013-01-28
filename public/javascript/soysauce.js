@@ -1146,7 +1146,7 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.handleSwipe = function(e1) {
 		var self = this;
-		var coords1, coords2, lastX, originalDist = 0;
+		var coords1, coords2, lastX, originalDist = 0, prevDist = -1;
 		var newX2 = 0, newY2 = 0;
 		var sensitivity = 1500; // lower to increase sensitivity (for zoom)
 		var panLock = true, zoomingIn = null;
@@ -1202,7 +1202,8 @@ soysauce.carousels = (function() {
 						newX2 = coords2.x2;
 						newY2 = coords2.y2;
 					}
-						
+					
+					// Pinch Zooming
 					if (!panLock) {
 						var xs = 0, ys = 0, scale = 0, newDist = 0;
 						
@@ -1210,15 +1211,17 @@ soysauce.carousels = (function() {
 						xs = (newX2 - coords2.x)*(newX2 - coords2.x);
 						
 						newDist = Math.sqrt(ys + xs);
+						
 						if (originalDist === 0)
 							originalDist = newDist;
-						else if (zoomingIn === null || (zoomingIn === true && (newDist < originalDist)) || (zoomingIn === false && (newDist > originalDist))) {
+						else if (zoomingIn === null || (zoomingIn === true && (newDist < prevDist) && prevDist !== -1) || (zoomingIn === false && (newDist > prevDist) && prevDist !== -1)) {
 							originalDist = newDist;
 							if (zoomingIn)
 								zoomingIn = false;
 							else
 								zoomingIn = true;
 						}
+						prevDist = newDist;
 						
 						scale = (newDist - originalDist)/sensitivity;
 						
@@ -1232,6 +1235,7 @@ soysauce.carousels = (function() {
 						if (self.zoomMultiplier === self.zoomMax || self.zoomMultiplier === self.zoomMin) 
 							return;
 					}
+					// Panning
 					else {
 						self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
 						self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
