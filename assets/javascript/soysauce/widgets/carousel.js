@@ -1,31 +1,53 @@
 soysauce.carousels = (function() {
 	var carousels = new Array();
 	
+	// Shared Default Globals
+	var SUPPORTS3D = (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true;
+	var AUTOSCROLL_INTERVAL = 5000;
+	
 	function Carousel(obj) {
-		this.id = $(obj).attr("data-ss-id");
+		// Base Variables
+		this.id = parseInt($(obj).attr("data-ss-id"));
+		this.index = 0;
 		this.container;
 		this.items;
 		this.dots;
-		this.infinite = true;
-		this.autoscroll = false;
-		this.autoscrollID;
-		this.autoscrollInterval = 5000;
-		this.autoscrollRestartID;
-		this.fullscreen = false;
-		this.peek = false;
-		this.peekWidth = 0;
-		this.swipe = true;
 		this.numChildren = 0;
-		this.index = 0;
-		this.supports3d = (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true;
 		this.itemWidth = 0;
 		this.offset = 0;
 		this.ready = false;
 		this.interrupted = false;
+		this.links = false;
+		this.lockScroll = undefined;
+		this.nextBtn;
+		this.prevBtn;
+		
+		// Infinite Variables
+		this.infinite = true;
+		this.autoscroll = false;
+		this.autoscrollID;
+		this.autoscrollInterval;
+		this.autoscrollRestartID;
+		this.infiniteID;
+		this.forward;
+		this.lastSlideTime;
+		
+		// Fullscreen & Peek Variables
+		this.fullscreen = false;
+		this.peek = false;
+		this.peekWidth = 0;
+		
+		// Swipe Variables
+		this.swipe = true;
+		
+		// Misc Variables
 		this.coords1x = 0;
 		this.coords1y = 0;
-		this.links = false;
+		
+		// CMS Variables
 		this.cms = false;
+		
+		// Zoom Variables
 		this.zoom = false;
 		this.zoomMultiplier = 2;
 		this.zoomMin;
@@ -37,13 +59,7 @@ soysauce.carousels = (function() {
 		this.panCoords = {x:0, y:0};
 		this.panCoordsStart = {x:0, y:0};
 		this.panning = false;
-		this.lockScroll = undefined;
 		this.zoomIcon;
-		this.nextBtn;
-		this.prevBtn;
-		this.infiniteID;
-		this.forward;
-		this.lastSlideTime;
 	}
 	
 	Carousel.prototype.gotoPos = function(x, fast) {
@@ -197,7 +213,7 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.setStyle = function(x) {
-		this.container[0].style.webkitTransform = this.container[0].style.msTransform = this.container[0].style.OTransform = this.container[0].style.MozTransform = this.container[0].style.transform = "translate" + ((this.supports3d) ? "3d(" + x + "px,0,0)": "(" + x + "px,0)");
+		this.container[0].style.webkitTransform = this.container[0].style.msTransform = this.container[0].style.OTransform = this.container[0].style.MozTransform = this.container[0].style.transform = "translate" + ((SUPPORTS3D) ? "3d(" + x + "px,0,0)": "(" + x + "px,0)");
 	};
 	
 	Carousel.prototype.handleInterrupt = function(e) {
@@ -410,7 +426,7 @@ soysauce.carousels = (function() {
 					}
 					
 					e2.target.style.webkitTransform = e2.target.style.msTransform = e2.target.style.OTransform = e2.target.style.MozTransform = e2.target.style.transform 
-					= "translate" + ((self.supports3d) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((self.supports3d) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
+					= "translate" + ((SUPPORTS3D) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((SUPPORTS3D) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
 				});
 			}
 			// Swipe Forward/Backward
@@ -561,7 +577,7 @@ soysauce.carousels = (function() {
 				this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "zoomed");
 				this.zoomIcon.attr("data-ss-state", "in");
 				zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
-				= "translate" + ((self.supports3d) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((self.supports3d) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
+				= "translate" + ((SUPPORTS3D) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((SUPPORTS3D) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
 				$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 					self.isZoomed = true;
 					self.isZooming = false;
@@ -576,7 +592,7 @@ soysauce.carousels = (function() {
 			this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "ready");
 			this.zoomIcon.attr("data-ss-state", "out");
 			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
-			= "translate" + ((self.supports3d) ? "3d(0,0,0)" : "(0,0)") + " scale" + ((self.supports3d) ? "3d(1,1,1)" : "(1,1)") ;
+			= "translate" + ((SUPPORTS3D) ? "3d(0,0,0)" : "(0,0)") + " scale" + ((SUPPORTS3D) ? "3d(1,1,1)" : "(1,1)") ;
 			$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 				self.isZoomed = false;
 				self.isZooming = false;
@@ -834,8 +850,7 @@ soysauce.carousels = (function() {
 		
 		if (carousel.autoscroll) {
 			var interval = $(this).attr("data-ss-autoscroll-interval");
-			if (interval !== undefined)
-				carousel.autoscrollInterval = parseInt(interval);
+			carousel.autoscrollInterval = (!interval) ? AUTOSCROLL_INTERVAL : parseInt(interval);
 			carousel.autoscrollOn();
 		}
 		
