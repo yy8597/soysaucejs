@@ -395,15 +395,7 @@ soysauce.carousels = (function() {
 						if (self.zoomMultiplier === self.zoomMax || self.zoomMultiplier === self.zoomMin) 
 							return;
 						
-						if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x > 0)
-							self.panCoords.x = self.panMax.x;
-						else if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x < 0)
-							self.panCoords.x = -self.panMax.x;
-
-						if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y > 0)
-							self.panCoords.y = self.panMax.y;
-						else if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y < 0)
-							self.panCoords.y = -self.panMax.y;
+						self.checkPanLimits();
 
 						self.panCoordsStart.x = self.panCoords.x;
 						self.panCoordsStart.y = self.panCoords.y;
@@ -413,15 +405,7 @@ soysauce.carousels = (function() {
 						self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
 						self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
 
-						if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x > 0)
-							self.panCoords.x = self.panMax.x;
-						else if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x < 0)
-							self.panCoords.x = -self.panMax.x;
-
-						if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y > 0)
-							self.panCoords.y = self.panMax.y;
-						else if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y < 0)
-							self.panCoords.y = -self.panMax.y;	
+						self.checkPanLimits();
 					}
 					
 					setTranslate(e2.target, self.panCoords.x, self.panCoords.y);
@@ -514,7 +498,15 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.checkPanLimits = function() {
-		
+		if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x > 0)
+			this.panCoords.x = this.panMax.x;
+		else if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x < 0)
+			this.panCoords.x = -this.panMax.x;
+
+		if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y > 0)
+			this.panCoords.y = this.panMax.y;
+		else if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y < 0)
+			this.panCoords.y = -this.panMax.y;
 	};
 	
 	Carousel.prototype.handleZoom = function(e1, e2, xDist, yDist) {
@@ -559,15 +551,7 @@ soysauce.carousels = (function() {
 				self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.zoomMultiplier) - offset;
 				self.panCoords.y *= self.zoomMultiplier;
 
-				if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x > 0)
-					self.panCoords.x = self.panMax.x;
-				else if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x < 0)
-					self.panCoords.x = -self.panMax.x;
-
-				if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y > 0)
-					self.panCoords.y = self.panMax.y;
-				else if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y < 0)
-					self.panCoords.y = -self.panMax.y;
+				self.checkPanLimits();
 
 				self.panCoordsStart.x = self.panCoords.x;
 				self.panCoordsStart.y = self.panCoords.y;
