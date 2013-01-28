@@ -81,7 +81,7 @@ soysauce.carousels = (function() {
 		if (this.infinite) {
 			var duration = parseFloat(this.container.css("-webkit-transition-duration").replace(/s$/,"")) * 1000;
 			
-			if (duration === (undefined || null)) duration = 850;
+			duration = (!duration) ? 850 : duration;
 			
 			// Slide Backward
 			if (this.index === this.numChildren - 2 && !this.forward) {
