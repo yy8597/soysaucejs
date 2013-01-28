@@ -1419,6 +1419,8 @@ soysauce.carousels = (function() {
 			
 			if (!isNaN(self.panCoords.x) && !isNaN(self.panCoords.y)) {
 				this.dots.first().parent().hide();
+				this.nextBtn.hide();
+				this.prevBtn.hide();
 				this.isZooming = true;
 				this.ready = false;
 				this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "zoomed");
@@ -1434,6 +1436,8 @@ soysauce.carousels = (function() {
 		// Zoom Out
 		else if (xDist < 3 && yDist < 3) {
 			this.dots.first().parent().show();
+			this.nextBtn.show();
+			this.prevBtn.show();
 			this.isZooming = true;
 			this.ready = false;
 			this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "ready");
