@@ -922,6 +922,7 @@ soysauce.carousels = (function() {
 		this.panCoordsStart = {x:0, y:0};
 		this.panning = false;
 		this.zoomIcon;
+		this.pinch;
 	}
 	
 	Carousel.prototype.gotoPos = function(x, fast) {
@@ -1216,14 +1217,14 @@ soysauce.carousels = (function() {
 					
 					$(e2.target).attr("data-ss-state", "panning");
 					
-					if (coords2.x2 && coords2.y2) {
+					if (self.pinch && coords2.x2 && coords2.y2) {
 						panLock = false;
 						newX2 = coords2.x2;
 						newY2 = coords2.y2;
 					}
 					
 					// Pinch Zooming
-					if (!panLock) {
+					if (!panLock && self.pinch) {
 						var xs = 0, ys = 0, scale = 0, newDist = 0;
 						
 						ys = (newY2 - coords2.y)*(newY2 - coords2.y);
@@ -1540,6 +1541,9 @@ soysauce.carousels = (function() {
 				case "zoom":
 					carousel.zoom = true;
 					break;
+				case "pinch":
+					carousel.pinch = true;
+					break
 				case "3d":
 					carousel.supports3d = true;
 					break;
