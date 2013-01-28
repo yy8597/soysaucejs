@@ -4,6 +4,8 @@ soysauce.carousels = (function() {
 	// Shared Default Globals
 	var SUPPORTS3D = (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true;
 	var AUTOSCROLL_INTERVAL = 5000;
+	var ZOOM_MULTIPLIER = 2;
+	var PEEK_WIDTH = 40;
 	
 	function Carousel(obj) {
 		// Base Variables
@@ -49,7 +51,7 @@ soysauce.carousels = (function() {
 		
 		// Zoom Variables
 		this.zoom = false;
-		this.zoomMultiplier = 2;
+		this.zoomMultiplier = ZOOM_MULTIPLIER;
 		this.zoomMin;
 		this.zoomMax;
 		this.isZooming = false;
@@ -117,7 +119,6 @@ soysauce.carousels = (function() {
 						self.autoscrollOn();
 					}, 1000);
 			});
-			
 	};
 	
 	Carousel.prototype.slideForward = function(fast) {
@@ -539,7 +540,7 @@ soysauce.carousels = (function() {
 				self.panCoords = soysauce.getCoords(e2);
 				self.panCoords.x -= self.itemWidth/2;
 				self.panCoords.x *= -self.zoomMultiplier;
-
+				
 				if (e1.type.match(/mousedown/i) !== null) {
 					if (e1.originalEvent !== undefined) 
 						offset = e1.originalEvent.offsetY;
@@ -764,7 +765,7 @@ soysauce.carousels = (function() {
 		carousel.dots.first().attr("data-ss-state", "active");
 		
 		if (carousel.peek) {
-			carousel.peekWidth = ($(this).attr("data-ss-peek-width") !== undefined) ? parseInt($(this).attr("data-ss-peek-width")) : 40;
+			carousel.peekWidth = (!$(this).attr("data-ss-peek-width")) ? PEEK_WIDTH : parseInt($(this).attr("data-ss-peek-width"));
 			if (carousel.peekWidth % 2) $(this).attr("data-ss-peek-width", ++carousel.peekWidth);
 		}
 		
@@ -803,9 +804,7 @@ soysauce.carousels = (function() {
 						carousel.gotoPos(carousel.offset);
 					if (carousel.zoom) {
 						var zoomMultiplier = $(this).attr("data-ss-zoom-multiplier");
-						if (zoomMultiplier !== undefined)
-							carousel.zoomMultiplier = parseInt(zoomMultiplier);
-							
+						carousel.zoomMultiplier = (!zoomMultiplier) ? ZOOM_MULTIPLIER : parseInt(zoomMultiplier);
 						carousel.panMax.x = (carousel.itemWidth - carousel.peekWidth) / carousel.zoomMultiplier;				
 						carousel.panMax.y = $(self).find("[data-ss-component='item']").height() / carousel.zoomMultiplier;
 						carousel.panMaxOriginal.x = carousel.panMax.x;
