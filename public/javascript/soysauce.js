@@ -866,6 +866,7 @@ soysauce.carousels = (function() {
 	var AUTOSCROLL_INTERVAL = 5000;
 	var ZOOM_MULTIPLIER = 2;
 	var PEEK_WIDTH = 40;
+	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
 	
 	function Carousel(obj) {
 		// Base Variables
@@ -970,12 +971,12 @@ soysauce.carousels = (function() {
 		}
 		
 		if (self.interrupted)
-			this.container.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+			this.container.on(TRANSITION_END, function() {
 				self.interrupted = false;
 			});
 		
 		if (self.autoscroll && self.autoscrollRestartID === undefined)
-			this.container.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+			this.container.on(TRANSITION_END, function() {
 					self.autoscrollRestartID = window.setTimeout(function() {
 						self.autoscrollOn();
 					}, 1000);
@@ -1440,7 +1441,7 @@ soysauce.carousels = (function() {
 				this.zoomIcon.attr("data-ss-state", "in");
 				zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
 				= "translate" + ((SUPPORTS3D) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((SUPPORTS3D) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
-				$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+				$(zoomImg).on(TRANSITION_END, function() {
 					self.isZoomed = true;
 					self.isZooming = false;
 				});
@@ -1455,13 +1456,13 @@ soysauce.carousels = (function() {
 			this.zoomIcon.attr("data-ss-state", "out");
 			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
 			= "translate" + ((SUPPORTS3D) ? "3d(0,0,0)" : "(0,0)") + " scale" + ((SUPPORTS3D) ? "3d(1,1,1)" : "(1,1)") ;
-			$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+			$(zoomImg).on(TRANSITION_END, function() {
 				self.isZoomed = false;
 				self.isZooming = false;
 			});
 		}
 		
-		$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+		$(zoomImg).on(TRANSITION_END, function() {
 			self.ready = true;
 			self.interrupted = false;
 			self.isZooming = false;
@@ -1706,7 +1707,7 @@ soysauce.carousels = (function() {
 		});
 		
 		carousel.ready = true;
-		carousel.container.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+		carousel.container.on(TRANSITION_END, function() {
 			carousel.ready = true;
 			carousel.container.attr("data-ss-state", "ready");
 		});
