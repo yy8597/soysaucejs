@@ -888,8 +888,8 @@ soysauce.carousels = (function() {
 		this.cms = false;
 		this.zoom = false;
 		this.zoomMultiplier = 2;
-		this.zoomMin = 1;
-		this.zoomMax = 4;
+		this.zoomMin;
+		this.zoomMax;
 		this.isZooming = false;
 		this.isZoomed = false;
 		this.panMax = {x:0, y:0};
@@ -1554,6 +1554,12 @@ soysauce.carousels = (function() {
 		if (carousel.zoom) {
 			wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
 			carousel.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
+			carousel.zoomMin = (!$(this).attr("data-ss-zoom-min")) ? 1.2 : parseFloat($(this).attr("data-ss-zoom-min"));
+			carousel.zoomMax = (!$(this).attr("data-ss-zoom-max")) ? 4 : parseFloat($(this).attr("data-ss-zoom-max"));
+			if (carousel.zoomMin < 1.2)
+				carousel.zoomMin = 1.2;
+			if (carousel.zoomMin > carousel.zoomMax)
+				console.warn("Soysauce: zoomMin is greater than zoomMax, errors may occur.");
 		}
 		wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='disabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
 		wrapper.after("<div data-ss-component='dots'></div>")
