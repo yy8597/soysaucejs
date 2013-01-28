@@ -53,7 +53,7 @@ soysauce.carousels = (function() {
 		
 		// Zoom Variables
 		this.zoom = false;
-		this.zoomMultiplier = ZOOM_MULTIPLIER;
+		this.zoomMultiplier;
 		this.zoomMin;
 		this.zoomMax;
 		this.isZooming = false;
