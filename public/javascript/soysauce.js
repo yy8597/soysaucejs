@@ -1304,7 +1304,8 @@ soysauce.carousels = (function() {
 		this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
 			soysauce.stifle(e2);
 			
-			if ($(e2.target).attr("data-ss-button-type") !== undefined) return;
+			if ($(e2.target).attr("data-ss-component") === "button")
+				return;
 			
 			coords2 = soysauce.getCoords(e2);
 			if (coords2 !== null) lastX = coords2.x;
@@ -1324,14 +1325,11 @@ soysauce.carousels = (function() {
 				self.container.attr("data-ss-state", "ready");
 				if (e2.target.tagName.match(/^a$/i) !== null)
 					window.location.href = $(e2).attr("href");
-				else
+				else if ($(e2.target).closest("a").length > 0)
 					window.location.href = $(e2.target).closest("a").attr("href");
 			}
 			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed)) {
 				soysauce.stifle(e1);
-				console.log("xDist: " + Math.abs(xDist));
-				console.log("yDist: " + Math.abs(yDist));
-				console.log(e2);
 				self.toggleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
 			}
 			else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25)) {
@@ -1452,7 +1450,6 @@ soysauce.carousels = (function() {
 		}
 		// Zoom Out
 		else if (xDist < 2 && yDist < 2) {
-			console.log("zoom out!");
 			this.dots.first().parent().show();
 			this.nextBtn.show();
 			this.prevBtn.show();
@@ -1717,8 +1714,10 @@ soysauce.carousels = (function() {
 		});
 		
 		if (carousel.swipe || carousel.zoom) carousel.container.closest("[data-ss-widget='carousel']").on("touchstart mousedown", function(e) {
-			if ($(e.target).attr("data-ss-component") !== ("button" || "zoom_icon"))
-				carousel.handleSwipe(e);
+			if ($(e.target).attr("data-ss-component") === ("button" || "zoom_icon"))
+				return;
+				
+			carousel.handleSwipe(e);
 		});
 		
 		carousel.ready = true;
