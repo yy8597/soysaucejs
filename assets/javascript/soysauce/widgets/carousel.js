@@ -212,7 +212,8 @@ soysauce.carousels = (function() {
 			
 		if (this.zoom) {
 			this.panMax.x = this.itemWidth / this.zoomMultiplier;	
-			this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;				
+			this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
+			this.checkPanLimits();
 		}
 	};
 	
@@ -343,6 +344,8 @@ soysauce.carousels = (function() {
 					self.panCoordsStart.y = (Math.abs(panY) > 0) ? panY : 0;
 					panLock = true;
 					zoomingIn = null;
+					if ($(e2.target).attr("data-ss-state") === "panning")
+						$(e2.target).attr("data-ss-state", "ready");
 				});
 				this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
 					soysauce.stifle(e2);
@@ -464,9 +467,9 @@ soysauce.carousels = (function() {
 				else
 					window.location.href = $(e2.target).closest("a").attr("href");
 			}
-			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 3 && Math.abs(yDist) < 3) || self.isZoomed)) {
+			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed)) {
 				soysauce.stifle(e1);
-				self.handleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
+				self.toggleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
 			}
 			else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25)) {
 				soysauce.stifle(e1);
@@ -507,17 +510,28 @@ soysauce.carousels = (function() {
 			this.panCoords.y = this.panMax.y;
 		else if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y < 0)
 			this.panCoords.y = -this.panMax.y;
+			
+		if (this.isZoomed) {
+			var img = this.items[this.index];
+			
+			if (!/img/i.test(img.tagName))
+				img = $(img).find("img")[0];
+			
+			$(img).attr("data-ss-state", "panning");
+			setTranslate(img, this.panCoords.x, this.panCoords.y);
+			setScale(img, this.zoomMultiplier);
+		}
 	};
 	
-	Carousel.prototype.handleZoom = function(e1, e2, xDist, yDist) {
-		if (!this.ready && !(this.isZoomed && xDist < 3 && yDist < 3) || (e1.type.match(/touch/) !== null && e2.type.match(/mouse/) !== null)) {
+	Carousel.prototype.toggleZoom = function(e1, e2, xDist, yDist) {
+		if (!this.ready && !(this.isZoomed && xDist < 2 && yDist < 2) || (e1.type.match(/touch/) !== null && e2.type.match(/mouse/) !== null)) {
 			soysauce.stifle(e1);
 			soysauce.stifle(e2);
 			return;
 		}
 		
-		var zoomImg = this.container.find("[data-ss-component='item'][data-ss-state='active'] img")[0];
-		zoomImg = (zoomImg === undefined) ? this.container.find("[data-ss-component='item'][data-ss-state='active']")[0] : zoomImg;
+		var zoomImg = this.items[this.index];
+		zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
 		
 		var self = this;
 		$(zoomImg).attr("data-ss-state", "ready");
@@ -574,7 +588,7 @@ soysauce.carousels = (function() {
 			}
 		}
 		// Zoom Out
-		else if (xDist < 3 && yDist < 3) {
+		else if (xDist < 2 && yDist < 2) {
 			this.dots.first().parent().show();
 			this.nextBtn.show();
 			this.prevBtn.show();
