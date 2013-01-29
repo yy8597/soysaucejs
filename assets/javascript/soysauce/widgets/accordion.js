@@ -61,7 +61,7 @@ soysauce.accordions = (function() {
 		var self = this;
 		var prevHeight = 0;
 		if (this.tab) {
-			if(this.tabGroup.getCurrOpen() !== undefined) {
+			if (this.tabGroup.getCurrOpen() !== undefined) {
 				prevHeight = this.tabGroup.getCurrOpen().height;
 				this.tabGroup.getCurrOpen().close();
 			}
@@ -71,8 +71,6 @@ soysauce.accordions = (function() {
 			soysauce.overlay("on");
 		if (this.slide) {
 			this.ready = false;
-			if (this.parent === undefined) 
-				this.parent = soysauce.fetch(this.parentID);
 			if (this.isChildAccordion && this.parent.slide) {
 				if (this.tab) {
 					if (!this.parent.childTabOpen) {
@@ -110,16 +108,15 @@ soysauce.accordions = (function() {
 			soysauce.overlay("off");
 		if (this.slide) {
 			this.ready = false;
-			if (this.parent === undefined) this.parent = soysauce.fetch(this.parentID);
-			if (this.isChildAccordion && this.parent.slide) {
-				if (!this.tab) this.parent.addHeight(-this.height);
-			}
+			if (this.isChildAccordion && this.parent.slide && !this.tab)
+				this.parent.addHeight(-this.height);
 			this.content.css("height", "0px");
 		}
 		if (this.tab) {
 			var currTabOpen;
 			currTabOpen = this.tabGroup.getCurrOpen();
-			if (currTabOpen !== undefined && currTabOpen.id == self.id) this.tabGroup.setCurrOpen(undefined);	
+			if (currTabOpen !== undefined && currTabOpen.id == self.id) 
+				this.tabGroup.setCurrOpen(undefined);	
 		}
 		if (this.slide) this.content.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 			self.setState("closed");
@@ -233,7 +230,12 @@ soysauce.accordions = (function() {
 
 			item.hasAccordions = ($(this).has("[data-ss-widget='accordion']").length > 0) ? true : false; 
 			item.isChildAccordion = ($(this).parents("[data-ss-widget='accordion']").length > 0) ? true : false;
-			item.parentID = $(this).parents("[data-ss-widget='accordion']").attr("data-ss-id");
+			
+			if (item.isChildAccordion) {
+				var parent = $(this).parents("[data-ss-widget='accordion']");
+				item.parentID = parseInt(parent.attr("data-ss-id"));
+				item.parent = parent;
+			}
 
 			if(options) options.forEach(function(option) {
 				switch(option) {
