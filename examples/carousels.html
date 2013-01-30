@@ -7,7 +7,6 @@
 	</head>
 	<body class="ss_carousels">
 		<h1>Carousels</h1>
-		
 		<div class="options">
 			<h3>Full list of options</h3>
 			<ul>
@@ -19,36 +18,36 @@
 				<li>zoom - allows the user to zoom in on an item</li>
 			</ul>
 		</div>
-		<h2>Basic Carousel - infinite, swipe, dots, and buttons are standard for all carousels</h2>
+		<h2>Basic Carousel - fullscreen, infinite, swipe, dots, and buttons are standard for all carousels</h2>
 		<div data-ss-widget="carousel">
 			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
 			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
 			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
 			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
 		</div>
-		<h2>Carousel w/ fullscreen and autoscroll. Added css to dots.</h2>
-		<div data-ss-widget="carousel" class="carousel2" data-ss-options="fullscreen autoscroll">
-			<img data-ss-component="item" 1 src="http://placehold.it/600x400/cdcdcd">
-			<img data-ss-component="item" 2 src="http://placehold.it/300x200/cdcdcd">
-			<img data-ss-component="item" 3 src="http://placehold.it/600x400/cdcdcd">
-			<img data-ss-component="item" 4 src="http://placehold.it/300x200/cdcdcd">
+		<h2>Carousel and autoscroll. Added css to dots.</h2>
+		<div data-ss-widget="carousel" class="carousel2" data-ss-options="autoscroll">
+			<a data-ss-component="item" href="#"><img src="http://placehold.it/600x400/cdcdcd"></a>
+			<a data-ss-component="item" href="#"><img src="http://placehold.it/300x200/cdcdcd"></a>
+			<a data-ss-component="item" href="#"><img src="http://placehold.it/600x400/cdcdcd"></a>
+			<a data-ss-component="item" href="#"><img src="http://placehold.it/300x200/cdcdcd"></a>
 		</div>
-		<h2>Carousel w/ fullscreen and peek. [data-ss-peek-width] attribute required. In this example, it has a peek width of 40px, 20 on each side.</h2>
-		<div data-ss-widget="carousel" class="carousel3" data-ss-peek-width="40" data-ss-options="fullscreen peek">
-			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
-			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
-		</div>
-		<h2>Finite Carousel /w noswipe and fullscreen. Added css to buttons.</h2>
-		<div data-ss-widget="carousel" class="carousel4" data-ss-peek-width="40" data-ss-options="finite fullscreen noswipe">
+		<h2>Carousel and peek. [data-ss-peek-width] attribute optional. In this example, it has a peek width of 40px, 20 on each side.</h2>
+		<div data-ss-widget="carousel" class="carousel3" data-ss-options="peek">
 			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
 			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
 			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
 			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
 		</div>
-		<h2>Carousel w/ fullscreen and double items</h2>
-		<div data-ss-widget="carousel" class="carousel5" data-ss-options="fullscreen">
+		<h2>Finite Carousel /w noswipe. Added css to buttons.</h2>
+		<div data-ss-widget="carousel" class="carousel4" data-ss-options="finite noswipe">
+			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
+			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
+			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
+		</div>
+		<h2>Carousel and double items</h2>
+		<div data-ss-widget="carousel" class="carousel5">
 			<div data-ss-component="item">
 				<img src="http://placehold.it/600x400/cdcdcd">
 				<img src="http://placehold.it/300x200/cdcdcd">
@@ -62,8 +61,8 @@
 				<img src="http://placehold.it/300x200/cdcdcd">
 			</div>
 		</div>
-		<h2>Carousel w/ fullscreen and zoom. Added css to dots.</h2>
-		<div data-ss-widget="carousel" class="carousel6" data-ss-options="fullscreen zoom">
+		<h2>Carousel w/ fullscreen and zoom and pinch. Added css to dots.</h2>
+		<div data-ss-widget="carousel" class="carousel6" data-ss-options="zoom pinch" data-ss-zoom-min="1.5" data-ss-zoom-max="3">
 			<div data-ss-component="item">
 				<img src="http://m.truerunner.com/images/shadyside-2-miles.png">
 			</div>
@@ -73,9 +72,6 @@
 			<div href="/" data-ss-component="item">
 				<img src="http://www.truerunner.com/images/northshore-2.5-miles.png">
 			</div>
-		</div>
-		<div data-ss-widget="carousel" data-ss-options="finite fullscreen zoom noswipe">
-			<img data-ss-component="item" src="http://m.truerunner.com/images/shadyside-2-miles.png">
 		</div>
 		<script src="../assets/javascript/jquery.js"></script>
 		<script src="../public/javascript/soysauce.js"></script>

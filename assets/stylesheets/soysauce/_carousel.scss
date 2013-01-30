@@ -1,9 +1,15 @@
 [data-ss-widget="carousel"] {
 	@include transition(opacity 0.5s ease-in-out);
 	a, img {
+		@include box-sizing(border-box);
 		display: block;
+		max-width: 100%;
+	}
+	&:not([data-ss-options*="nofullscreen"]) img {
+		width: 100%;
 	}
 	[data-ss-component="item"] {
+		list-style-type: none;
 		float: left;
 		&[data-ss-state="active"] {
 			z-index: 6;
@@ -26,10 +32,6 @@
 	}
 	&[data-ss-options*="noswipe"] img {
 		-webkit-user-drag: none;
-	}
-	&[data-ss-options*="fullscreen"] img {
-		@include box-sizing(border-box);
-		width: 100%;
 	}
 	&[data-ss-options*="zoom"] img[data-ss-state="ready"] {
 		@include transition(transform .5s);

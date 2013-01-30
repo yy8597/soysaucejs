@@ -6,9 +6,6 @@ soysauce.overlay = function(cmd) {
 			div.setAttribute("data-ss-widget", "overlay");
 			div.setAttribute("data-ss-state", "inactive");
 			document.body.appendChild(div);
-			$("[data-ss-widget='overlay']").on("click", function() {
-				soysauce.overlay("off");
-			});
 			break;
 		case "on":
 			$("[data-ss-widget='overlay']").show();

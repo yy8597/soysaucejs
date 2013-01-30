@@ -112,14 +112,14 @@ h2 {
 	}
 }
 
-.ss_accordions {
+body.togglers {
 	h2 {
 		font-weight: bold;
 		font-size: 14px;
 		border-bottom: 1px solid #AAA;
 		padding-bottom: 10px;
 	}
-	[data-ss-widget="accordion"] {
+	[data-ss-widget="toggler"] {
 		margin: 10px 5px;
 	}
 	[data-ss-component="content"][data-ss-state="open"] {
@@ -133,5 +133,11 @@ h2 {
 	.bar2 {
 		border-color: black;
 		color: #cd0000;
+	}
+	[data-ss-component="button_group"] {
+		@include display-box;
+		[data-ss-component="button"] {
+			@include box-flex(1);
+		}
 	}
 }

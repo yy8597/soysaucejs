@@ -295,6 +295,132 @@ if (excludeFastClick) {
 	}, false);
 })();
 }
+/*!
+ * jQuery imagesLoaded plugin v2.1.1
+ * http://github.com/desandro/imagesloaded
+ *
+ * MIT License. by Paul Irish et al.
+ */
+
+/*jshint curly: true, eqeqeq: true, noempty: true, strict: true, undef: true, browser: true */
+/*global jQuery: false */
+
+;(function($, undefined) {
+'use strict';
+
+// blank image data-uri bypasses webkit log warning (thx doug jones)
+var BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+
+$.fn.imagesLoaded = function( callback ) {
+	var $this = this,
+		deferred = $.isFunction($.Deferred) ? $.Deferred() : 0,
+		hasNotify = $.isFunction(deferred.notify),
+		$images = $this.find('img').add( $this.filter('img') ),
+		loaded = [],
+		proper = [],
+		broken = [];
+
+	// Register deferred callbacks
+	if ($.isPlainObject(callback)) {
+		$.each(callback, function (key, value) {
+			if (key === 'callback') {
+				callback = value;
+			} else if (deferred) {
+				deferred[key](value);
+			}
+		});
+	}
+
+	function doneLoading() {
+		var $proper = $(proper),
+			$broken = $(broken);
+
+		if ( deferred ) {
+			if ( broken.length ) {
+				deferred.reject( $images, $proper, $broken );
+			} else {
+				deferred.resolve( $images );
+			}
+		}
+
+		if ( $.isFunction( callback ) ) {
+			callback.call( $this, $images, $proper, $broken );
+		}
+	}
+
+	function imgLoadedHandler( event ) {
+		imgLoaded( event.target, event.type === 'error' );
+	}
+
+	function imgLoaded( img, isBroken ) {
+		// don't proceed if BLANK image, or image is already loaded
+		if ( img.src === BLANK || $.inArray( img, loaded ) !== -1 ) {
+			return;
+		}
+
+		// store element in loaded images array
+		loaded.push( img );
+
+		// keep track of broken and properly loaded images
+		if ( isBroken ) {
+			broken.push( img );
+		} else {
+			proper.push( img );
+		}
+
+		// cache image and its state for future calls
+		$.data( img, 'imagesLoaded', { isBroken: isBroken, src: img.src } );
+
+		// trigger deferred progress method if present
+		if ( hasNotify ) {
+			deferred.notifyWith( $(img), [ isBroken, $images, $(proper), $(broken) ] );
+		}
+
+		// call doneLoading and clean listeners if all images are loaded
+		if ( $images.length === loaded.length ) {
+			setTimeout( doneLoading );
+			$images.unbind( '.imagesLoaded', imgLoadedHandler );
+		}
+	}
+
+	// if no images, trigger immediately
+	if ( !$images.length ) {
+		doneLoading();
+	} else {
+		$images.bind( 'load.imagesLoaded error.imagesLoaded', imgLoadedHandler )
+		.each( function( i, el ) {
+			var src = el.src;
+
+			// find out if this image has been already checked for status
+			// if it was, and src has not changed, call imgLoaded on it
+			var cached = $.data( el, 'imagesLoaded' );
+			if ( cached && cached.src === src ) {
+				imgLoaded( el, cached.isBroken );
+				return;
+			}
+
+			// if complete is true and browser supports natural sizes, try
+			// to check for image status manually
+			if ( el.complete && el.naturalWidth !== undefined ) {
+				imgLoaded( el, el.naturalWidth === 0 || el.naturalHeight === 0 );
+				return;
+			}
+
+			// cached images don't fire load sometimes, so we reset src, but only when
+			// dealing with IE, or image is complete (loaded) and failed manual check
+			// webkit hack from http://groups.google.com/group/jquery-dev/browse_thread/thread/eee6ab7b2da50e1f
+			if ( el.readyState || el.complete ) {
+				el.src = BLANK;
+				el.src = src;
+			}
+		});
+	}
+
+	return deferred ? deferred.promise( $this ) : $this;
+};
+
+})(jQuery);
+
 Array.prototype.remove = function(from, to) {
   var rest = this.slice((to || from) + 1 || this.length);
   this.length = from < 0 ? this.length + from : from;
@@ -340,8 +466,8 @@ soysauce = {
 			var ret;
 			selector = parseInt(selector);
 			switch(type) {
-				case "accordion":
-					soysauce.accordions.forEach(function(e) {
+				case "toggler":
+					soysauce.togglers.forEach(function(e) {
 						if (e.id == selector) ret = e;
 					});
 					return ret;
@@ -356,15 +482,18 @@ soysauce = {
 		}
 	},
 	getCoords: function(e) {
-		if (e === undefined) return null;
+		if (!e) return;
 		if (e.originalEvent !== undefined) e = e.originalEvent;
-		if (e.touches && e.touches.length > 0)
+		if (e.touches && e.touches.length === 1)
 			return {x: e.touches[0].clientX, y: e.touches[0].clientY};
-		else if (e.clientX != undefined)
-			return {x: e.clientX, y: e.clientY};
-		else if (e.changedTouches && e.changedTouches.length > 0)
+		else if (e.touches && e.touches.length === 2)
+			return {x: e.touches[0].clientX, y: e.touches[0].clientY, x2: e.touches[1].clientX, y2: e.touches[1].clientY};
+		else if (e.changedTouches && e.changedTouches.length === 1)
 			return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY};
-		return null;
+		else if (e.changedTouches && e.changedTouches.length === 2)
+			return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY, x2: e.changedTouches[1].clientX, y2: e.changedTouches[1].clientY};
+		else if (e.clientX !== undefined)
+			return {x: e.clientX, y: e.clientY};
 	},
 	getArrayFromMatrix: function(matrix) {
 		return matrix.substr(7, matrix.length - 8).split(', ');
@@ -375,7 +504,7 @@ soysauce = {
 		supportsLocalStorage: (typeof(window.localStorage) !== "undefined") ? true : false,
 		supportsSessionStorage: (typeof(window.sessionStorage) !== "undefined") ? true : false
 	},
-	accordions: {},
+	togglers: {},
 	buttons: {},
 	lateload: {},
 	overlay: {},
@@ -388,27 +517,25 @@ soysauce.init();
 }
 
 soysauce.lateload = function(selector) {
-	if (selector) {
-		$("[ss-ll-src]").each(function() {
-			var curr = $(this);
-			var val = curr.attr("ss-ll-src");
-			if (val) 
-				curr.attr("src", val).attr("ss-ll-src", "");
-		});
+	
+	function loadItem(selector) {
+		var curr = $(selector);
+		var val = curr.attr("data-ss-ll-src");
+		if (val) 
+			curr.attr("src", val).attr("data-ss-ll-src", "");
 	}
+	
+	if (selector)
+		$("[data-ss-ll-src]:not([data-ss-options])").each(loadItem(selector));
 	else {
-		$("[ss-dcl-src]").each(function() {
-			var curr = $(this);
-			var val = curr.attr("ss-dcl-src");
-			if (val) 
-				curr.attr("src", val).removeAttr("ss-dcl-src");
+		$(document).on("DOMContentLoaded", function() {
+			$("[data-ss-ll-src][data-ss-options='dom']").each(function(i, e) {
+				loadItem(e);
+			});
 		});
-		window.addEventListener("load", function() {
-			$("[ss-ll-src]").each(function() {
-				var curr = $(this);
-				var val = curr.attr("ss-ll-src");
-				if (val)
-					curr.attr("src", val).removeAttr("ss-ll-src");
+		$(window).on("load", function() {
+			$("[data-ss-ll-src][data-ss-options='load']").each(function(i, e) {
+				loadItem(e);
 			});
 		});
 	}
@@ -416,41 +543,56 @@ soysauce.lateload = function(selector) {
 
 soysauce.lateload();
 
-soysauce.accordions = (function() {
-	var accordions = new Array();
-	var accordionTabGroups = new Array();
+soysauce.togglers = (function() {
+	var togglers = new Array();
+	var togglerTabGroups = new Array();
 
-	function AccordionTabGroup(id) {
-		this.accordions = new Array();
+	// Toggler Tab Group
+	function TogglerTabGroup(id) {
+		this.togglers = new Array();
 		this.groupid = id;
 		this.currOpen;
+		this.horizontal = false;
+		this.buttonGroup;
 	}
 	
-	AccordionTabGroup.prototype.setCurrOpen = function(selector) {
+	TogglerTabGroup.prototype.setCurrOpen = function(selector) {
 		this.currOpen = selector;
 	};
 	
-	AccordionTabGroup.prototype.addAccordion = function(selector) {
-		if (selector === undefined || !typeof(Accordion)) return false;
-		this.accordions.push(selector);
+	TogglerTabGroup.prototype.addToggler = function(selector) {
+		if (selector === undefined || !typeof(Toggler)) return false;
+		this.togglers.push(selector);
 	};
 	
-	AccordionTabGroup.prototype.getCurrOpen = function() {
+	TogglerTabGroup.prototype.getCurrOpen = function() {
 		return this.currOpen;
 	};
 	
-	AccordionTabGroup.prototype.getAccordions = function() {
-		return this.accordions;
+	TogglerTabGroup.prototype.getAccordions = function() {
+		return this.togglers;
 	};
 	
-	AccordionTabGroup.prototype.getID = function() {
+	TogglerTabGroup.prototype.getID = function() {
 		return this.groupid;
 	};
+	
+	TogglerTabGroup.prototype.setHorizontal = function() {
+		var self = this;
+		this.togglers.forEach(function(toggler, i) {
+			if (i === 0) {
+				toggler.obj.before("<div data-ss-component='button_group' data-ss-tab-id='" + self.groupid + "'></div>");
+				self.buttonGroup = $(toggler.obj[0].previousElementSibling);
+			}
+			self.buttonGroup.append(toggler.button);
+		});
+	};
 
-	function Accordion(obj) {
+	// Togglers
+	function Toggler(obj) {
 		this.id = $(obj).attr("data-ss-id");
 		this.parentID = 0;
-		this.tabID = 0;
+		this.tabID;
 		this.state = "closed";
 		this.obj = $(obj);
 		this.button = $(obj).find("> [data-ss-component='button']");
@@ -458,20 +600,29 @@ soysauce.accordions = (function() {
 		this.overlay = false;
 		this.tab = false;
 		this.slide = false;
+		this.ajax = true;
 		this.doAjax = false;
 		this.height = 0;
-		this.isChildAccordion = false;
-		this.hasAccordions = false;
+		this.isChildToggler = false;
+		this.hasTogglers = false;
 		this.childTabOpen = false;
 		this.tabGroup = undefined;
 		this.parent = undefined;
+		this.ready = true;
+		this.adjustFlag = false;
+		this.horizontal = false;
 	}
 
-	Accordion.prototype.open = function() {
+	Toggler.prototype.open = function() {
+		if (!this.ready) return;
+		
+		if (this.adjustFlag)
+			this.adjustHeight();
+		
 		var self = this;
 		var prevHeight = 0;
 		if (this.tab) {
-			if(this.tabGroup.getCurrOpen() !== undefined) {
+			if (this.tabGroup.getCurrOpen() !== undefined) {
 				prevHeight = this.tabGroup.getCurrOpen().height;
 				this.tabGroup.getCurrOpen().close();
 			}
@@ -480,8 +631,8 @@ soysauce.accordions = (function() {
 		if (this.overlay) 
 			soysauce.overlay("on");
 		if (this.slide) {
-			if (this.parent === undefined) this.parent = soysauce.fetch(this.parentID);
-			if (this.isChildAccordion && this.parent.slide) {
+			this.ready = false;
+			if (this.isChildToggler && this.parent.slide) {
 				if (this.tab) {
 					if (!this.parent.childTabOpen) {
 						this.parent.addHeight(this.height);
@@ -494,58 +645,79 @@ soysauce.accordions = (function() {
 				}
 				else this.parent.addHeight(this.height);
 			}
-			this.content.css("height", this.height + "px");
+			if (this.ajax && this.height === 0) {
+				$(this.content).imagesLoaded(function() {
+					self.content.css("height", "auto");
+					self.height = self.content.height();
+					self.content.css("height", self.height + "px");
+				});
+			}
+			else
+				this.content.css("height", this.height + "px");
+			this.content.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+				self.ready = true;
+			});
 		}
 		this.setState("open");
 	};
 
-	Accordion.prototype.close = function(closeOverlay) {
+	Toggler.prototype.close = function(closeOverlay) {
+		if (!this.ready) return;
+		
 		var self = this;
 		if (this.overlay && (closeOverlay === undefined) ? true : closeOverlay) 
 			soysauce.overlay("off");
 		if (this.slide) {
-			if (this.parent === undefined) this.parent = soysauce.fetch(this.parentID);
-			if (this.isChildAccordion && this.parent.slide) {
-				if (!this.tab) this.parent.addHeight(-this.height);
-			}
+			this.ready = false;
+			if (this.isChildToggler && this.parent.slide && !this.tab)
+				this.parent.addHeight(-this.height);
 			this.content.css("height", "0px");
 		}
 		if (this.tab) {
 			var currTabOpen;
 			currTabOpen = this.tabGroup.getCurrOpen();
-			if (currTabOpen !== undefined && currTabOpen.id == self.id) this.tabGroup.setCurrOpen(undefined);	
+			if (currTabOpen !== undefined && currTabOpen.id == self.id) 
+				this.tabGroup.setCurrOpen(undefined);	
 		}
 		if (this.slide) this.content.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 			self.setState("closed");
+			self.ready = true;
 		});
 		else
 			this.setState("closed");
 	};
 
-	Accordion.prototype.addHeight = function(height) {
+	Toggler.prototype.adjustHeight = function() {
+		this.content.css("height", "auto");
+		this.height = this.content.height();
+		this.adjustFlag = false;
+	};
+
+	Toggler.prototype.addHeight = function(height) {
 		if (!height===+height || !height===(height|0)) return;
 		this.height += height;
 		this.height = (this.height < 0) ? 0 : this.height;
 		this.content.css("height", this.height + "px");
 	};
 
-	Accordion.prototype.setHeight = function(height) {
+	Toggler.prototype.setHeight = function(height) {
 		if (!height===+height || !height===(height|0)) return;
 		this.height = height;
 		this.height = (this.height < 0) ? 0 : this.height;
 		this.content.css("height", height + "px");
 	};
 
-	Accordion.prototype.toggle = function() {
+	Toggler.prototype.toggle = function() {
 		(this.state != "open") ? this.open() : this.close();
 	};
 
-	Accordion.prototype.handleAjax = function() {
+	Toggler.prototype.handleAjax = function() {
 		var obj = this.obj;
 		var content = this.content;
 		var url = "";
 		var callback;
 		var self = this;
+		var firstTime = false;
 
 		this.button.click(function(e) {
 			if (!self.doAjax) {
@@ -556,6 +728,7 @@ soysauce.accordions = (function() {
 
 			soysauce.stifle(e);
 			self.setState("ajaxing");
+			self.ready = false;
 
 			if(!obj.attr("data-ss-ajax-url")) {
 				console.warn("Soysauce: 'data-ss-ajax-url' tag required. Must be on the same domain.");
@@ -571,50 +744,64 @@ soysauce.accordions = (function() {
 			callback = obj.attr("data-ss-ajax-callback");
 			
 			if (soysauce.browserInfo.supportsSessionStorage) {
-				if (sessionStorage.getItem(url) === null)
+				if (sessionStorage.getItem(url) === null) {
+					firstTime = true;
 					$.get(url, function(data) {
 						sessionStorage.setItem(url, JSON.stringify(data));
 						eval(callback + "(" + JSON.stringify(data) + ")");
+						self.setAjaxComplete();
+						firstTime = false;
 					});
+				}
 				else
 					eval(callback + "(" + sessionStorage.getItem(url) + ")");
 			}
 			else
 				$.get(url, eval(callback));
 			
-			self.setAjaxComplete();
+			if (!firstTime)
+				self.setAjaxComplete();
 		});
 	};
 
-	Accordion.prototype.setState = function(state) {
+	Toggler.prototype.setState = function(state) {
 		this.state = state;
 		this.obj.attr("data-ss-state", state);
 		this.button.attr("data-ss-state", state);
 		this.content.attr("data-ss-state", state);
 	};
 
-	Accordion.prototype.setAjaxComplete = function() {
+	Toggler.prototype.setAjaxComplete = function() {
 		this.doAjax = false;
+		this.ready = true;
+		if (this.state === "ajaxing")
+			this.open();
 	};
 
 	// Initialize
 	(function() {
 		var tabID = 1;
 		var group;
-		$("[data-ss-widget='accordion']").each(function() {
-			var item = new Accordion(this);
+		$("[data-ss-widget='toggler']").each(function() {
+			var item = new Toggler(this);
 			var self = this;
 			var options = soysauce.getOptions(this);
 
 			$(this).find("> [data-ss-component='button']").append("<span class='icon'></span>");
 
-			item.hasAccordions = ($(this).has("[data-ss-widget='accordion']").length > 0) ? true : false; 
-			item.isChildAccordion = ($(this).parents("[data-ss-widget='accordion']").length > 0) ? true : false;
-			item.parentID = $(this).parents("[data-ss-widget='accordion']").attr("data-ss-id");
+			item.hasTogglers = ($(this).has("[data-ss-widget='toggler']").length > 0) ? true : false; 
+			item.isChildToggler = ($(this).parents("[data-ss-widget='toggler']").length > 0) ? true : false;
+			
+			if (item.isChildToggler) {
+				var parent = $(this).parents("[data-ss-widget='toggler']");
+				item.parentID = parseInt(parent.attr("data-ss-id"));
+				item.parent = parent;
+			}
 
 			if(options) options.forEach(function(option) {
 				switch(option) {
 					case "ajax":
+						item.ajax = true;
 						item.doAjax = true;
 						item.handleAjax();
 						break;
@@ -627,6 +814,9 @@ soysauce.accordions = (function() {
 					case "slide":
 						item.slide = true;
 						break;
+					case "horizontal":
+						item.horizontal = true;
+						break;
 				}
 			});
 			
@@ -634,36 +824,28 @@ soysauce.accordions = (function() {
 				if (!$(self).attr("data-ss-tab-id")) {
 					var siblings = $(self).find("~ [data-ss-options*='tab']");
 					var group_name = "group"
-					group = new AccordionTabGroup(tabID);
+					group = new TogglerTabGroup(tabID);
 					item.tabID = tabID;
 					$(self).attr("data-ss-tab-id", tabID);
 					siblings.attr("data-ss-tab-id", tabID);
-					item.tabGroup = group;
-					group.addAccordion(item);
-					accordionTabGroups.push(group);
+					togglerTabGroups.push(group);
 					tabID++;
 				} else {
 					item.tabID = $(self).attr("data-ss-tab-id");
-					accordionTabGroups.forEach(function(e) {
-						if (e.groupid == item.tabID) {
-							item.tabGroup = e;
-							e.addAccordion(item);
-						}
-					});
 				}
 			}
 			
 			if (item.slide) {
-				if (item.hasAccordions) {
+				if (item.hasTogglers) {
 					var height = 0;
 					item.content.find("[data-ss-component='button']").each(function() {
 						height += $(this).height();
 					});
 					item.height = height;
 				}
-				else
+				else {
 					item.height = item.content.height();
-				
+				}
 				item.content.css("height", "0px");
 			}
 			
@@ -671,68 +853,117 @@ soysauce.accordions = (function() {
 				item.toggle();
 			});
 
-			accordions.push(item);
+			$(window).on("resize orientationchange", function() {
+				item.adjustFlag = true;
+				if (item.state === "open") {
+					item.adjustHeight();
+				}
+			});
+			togglers.push(item);
+		});
+		togglers.forEach(function(toggler) {
+			if (toggler.tabID !== undefined) {
+				var group = togglerTabGroups[toggler.tabID - 1];
+				group.addToggler(toggler);
+				toggler.tabGroup = group;
+				if (toggler.horizontal) {
+					group.horizontal = true;
+				}
+			}
+		});
+		togglerTabGroups.forEach(function(group) {
+			if (group.horizontal) {
+				group.setHorizontal();
+			}
 		});
 	})(); // end init
 
-	return accordions;
+	return togglers;
 })();
 
-soysauce.accordions.forEach(function(e) {
-	if (e.state == "closed") e.setState("closed");
-	if (e.state == "closed" && e.slide) e.content.css("height", "0px");
+soysauce.togglers.forEach(function(toggler) {
+	if (toggler.state === "closed") {
+		toggler.setState("closed");
+	}
+	if (toggler.state === "closed" && toggler.slide) {
+		toggler.content.css("height", "0px");
+	}
 });
 
 soysauce.carousels = (function() {
 	var carousels = new Array();
 	
+	// Shared Default Globals
+	var SUPPORTS3D = (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true;
+	var AUTOSCROLL_INTERVAL = 5000;
+	var ZOOM_MULTIPLIER = 2;
+	var PEEK_WIDTH = 40;
+	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
+	var PINCH_SENSITIVITY = 1500; // lower to increase sensitivity for pinch zoom
+	
 	function Carousel(obj) {
-		this.id = $(obj).attr("data-ss-id");
+		// Base Variables
+		this.id = parseInt($(obj).attr("data-ss-id"));
+		this.index = 0;
 		this.container;
 		this.items;
 		this.dots;
-		this.infinite = true;
-		this.autoscroll = false;
-		this.autoscrollID;
-		this.autoscrollInterval = 5000;
-		this.autoscrollRestartID;
-		this.fullscreen = false;
-		this.peek = false;
-		this.peekWidth = 0;
-		this.swipe = true;
 		this.numChildren = 0;
-		this.index = 0;
-		this.supports3d = (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true;
 		this.itemWidth = 0;
 		this.offset = 0;
 		this.ready = false;
 		this.interrupted = false;
-		this.coords1x = 0;
-		this.coords1y = 0;
 		this.links = false;
-		this.cms = false;
-		this.zoom = false;
-		this.zoomMultiplier = 2;
-		this.isZooming = false;
-		this.isZoomed = false;
-		this.panMax = {x:0, y:0};
-		this.panCoords = {x:0, y:0};
-		this.panCoordsStart = {x:0, y:0};
-		this.panning = false;
 		this.lockScroll = undefined;
-		this.zoomIcon;
 		this.nextBtn;
 		this.prevBtn;
+		
+		// Infinite Variables
+		this.infinite = true;
+		this.autoscroll = false;
+		this.autoscrollID;
+		this.autoscrollInterval;
+		this.autoscrollRestartID;
 		this.infiniteID;
 		this.forward;
 		this.lastSlideTime;
+		
+		// Fullscreen & Peek Variables
+		this.fullscreen = true;
+		this.peek = false;
+		this.peekWidth = 0;
+		
+		// Swipe Variables
+		this.swipe = true;
+		
+		// Misc Variables
+		this.coords1x = 0;
+		this.coords1y = 0;
+		
+		// CMS Variables
+		this.cms = false;
+		
+		// Zoom Variables
+		this.zoom = false;
+		this.zoomMultiplier;
+		this.zoomMin;
+		this.zoomMax;
+		this.isZooming = false;
+		this.isZoomed = false;
+		this.panMax = {x:0, y:0};
+		this.panMaxOriginal = {x:0, y:0};
+		this.panCoords = {x:0, y:0};
+		this.panCoordsStart = {x:0, y:0};
+		this.panning = false;
+		this.zoomIcon;
+		this.pinch;
 	}
 	
 	Carousel.prototype.gotoPos = function(x, fast) {
 		var self = this;
 		
 		this.offset = x;
-		this.setStyle(x);
+		setTranslate(this.container[0], x);
 		
 		if (this.ready)
 			this.container.attr("data-ss-state", "ready");
@@ -740,16 +971,16 @@ soysauce.carousels = (function() {
 			this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
 	
 		if (this.infinite) {
-			var duration = parseFloat(this.container.css("-webkit-transition-duration").replace(/s$/,"")) * 1000;
+			var duration = parseFloat(this.container.css("transition-duration").replace(/s$/,"")) * 1000;
 			
-			if (duration === (undefined || null)) duration = 850;
+			duration = (!duration) ? 850 : duration;
 			
 			// Slide Backward
 			if (this.index === this.numChildren - 2 && !this.forward) {
 				this.infiniteID = window.setTimeout(function() {
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = -self.index*self.itemWidth + self.peekWidth/2;
-					self.setStyle(self.offset);
+					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "ready");
 						self.ready = true;
@@ -761,7 +992,7 @@ soysauce.carousels = (function() {
 				this.infiniteID = window.setTimeout(function() {
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = -self.itemWidth + self.peekWidth/2;
-					self.setStyle(self.offset);
+					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "ready");
 						self.ready = true;
@@ -773,17 +1004,16 @@ soysauce.carousels = (function() {
 		}
 		
 		if (self.interrupted)
-			this.container.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+			this.container.on(TRANSITION_END, function() {
 				self.interrupted = false;
 			});
 		
 		if (self.autoscroll && self.autoscrollRestartID === undefined)
-			this.container.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+			this.container.on(TRANSITION_END, function() {
 					self.autoscrollRestartID = window.setTimeout(function() {
 						self.autoscrollOn();
 					}, 1000);
 			});
-			
 	};
 	
 	Carousel.prototype.slideForward = function(fast) {
@@ -863,7 +1093,7 @@ soysauce.carousels = (function() {
 			this.itemWidth += diff;
 			this.offset = -this.index * this.itemWidth + this.peekWidth/2;
 			this.container.attr("data-ss-state", "notransition");
-			this.setStyle(this.offset);			
+			setTranslate(this.container[0], this.offset);			
 			this.container.find("[data-ss-component='item']").width(this.itemWidth);
 		}
 
@@ -874,12 +1104,9 @@ soysauce.carousels = (function() {
 			
 		if (this.zoom) {
 			this.panMax.x = this.itemWidth / this.zoomMultiplier;	
-			this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;				
+			this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
+			this.checkPanLimits();
 		}
-	};
-	
-	Carousel.prototype.setStyle = function(x) {
-		this.container[0].style.webkitTransform = this.container[0].style.msTransform = this.container[0].style.OTransform = this.container[0].style.MozTransform = this.container[0].style.transform = "translate" + ((this.supports3d) ? "3d(" + x + "px,0,0)": "(" + x + "px,0)");
 	};
 	
 	Carousel.prototype.handleInterrupt = function(e) {
@@ -908,16 +1135,16 @@ soysauce.carousels = (function() {
 		if (this.infinite && this.index === 1 && this.forward) {
 			window.clearInterval(self.infiniteID);
 			self.offset = self.itemWidth*(self.numChildren - 2) + xcoord;
-			self.setStyle(self.offset);
+			setTranslate(self.container[0], self.offset);
 		}
 		// Backward Loop Interrupt
 		else if (this.infinite && (this.index === this.numChildren - 2) && !this.forward) {
 			window.clearInterval(self.infiniteID);
 			self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
-			self.setStyle(self.offset);
+			setTranslate(self.container[0], self.offset);
 		}
 		else
-			this.setStyle(xcoord);
+			setTranslate(this.container[0], xcoord);
 		
 		coords1 = soysauce.getCoords(e);
 		
@@ -945,9 +1172,9 @@ soysauce.carousels = (function() {
 			dragOffset = coords1.x - coords2.x;
 			
 			if (self.infiniteID !== undefined)
-				self.setStyle(self.offset - dragOffset);
+				setTranslate(self.container[0], self.offset - dragOffset);
 			else
-				self.setStyle(xcoord - dragOffset);
+				setTranslate(self.container[0], xcoord - dragOffset);
 		});
 		
 		if (this.infiniteID !== undefined) this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
@@ -960,7 +1187,7 @@ soysauce.carousels = (function() {
 				self.offset = -self.itemWidth + self.peekWidth/2;
 			
 			window.setTimeout(function() {
-				self.setStyle(self.offset);
+				setTranslate(self.container[0], self.offset);
 			}, 0);
 		});
 		
@@ -969,9 +1196,9 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.handleSwipe = function(e1) {
 		var self = this;
-		var coords1, coords2, lastX;
-		
-		var coords1x;
+		var coords1, coords2, lastX, originalDist = 0, prevDist = -1;
+		var newX2 = 0, newY2 = 0;
+		var panLock = true, zoomingIn = null;
 		
 		if (this.infinite) {
 			if (new Date().getTime() - this.lastSlideTime < 225) return;
@@ -983,6 +1210,15 @@ soysauce.carousels = (function() {
 		this.coords1x = coords1.x;
 		this.coords1y = coords1.y;
 		
+		if (coords1.y2 && coords1.x2) {
+			var xs = 0, ys = 0, dist = 0;
+			
+			ys = (coords1.y2 - coords1.y)*(coords1.y2 - coords1.y);
+			xs = (coords1.x2 - coords1.x)*(coords1.x2 - coords1.x);
+			
+			originalDist = Math.sqrt(ys + xs);
+		}
+		
 		if (e1.type.match(/mousedown/) !== null) soysauce.stifle(e1); // for desktop debugging
 
 		this.lockScroll = undefined;
@@ -990,37 +1226,85 @@ soysauce.carousels = (function() {
 		if (!this.ready) 
 			lastX = this.handleInterrupt(e1);
 		else {
-			// Panning
+			// Pan or Pinch Zooming
 			if (this.zoom && this.isZoomed) {
 				this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
-					var panX = parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[4]);
-					var panY = parseInt(soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"))[5]);
+					var array = soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"));
+					var panX = parseInt(array[4]);
+					var panY = parseInt(array[5]);
 					self.panCoordsStart.x = (Math.abs(panX) > 0) ? panX : 0;
 					self.panCoordsStart.y = (Math.abs(panY) > 0) ? panY : 0;
+					panLock = true;
+					zoomingIn = null;
+					if ($(e2.target).attr("data-ss-state") === "panning")
+						$(e2.target).attr("data-ss-state", "ready");
 				});
 				this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
 					soysauce.stifle(e2);
 					
-					if ($(e2.target).attr("data-ss-button-type") !== undefined) return;
+					if (!/img/i.test(e2.target.tagName)) return;
+					else if ($(e2.target).attr("data-ss-button-type") !== undefined || $(e2.target).attr("data-ss-component") === "dots") return;
 					
 					coords2 = soysauce.getCoords(e2);
+					
 					$(e2.target).attr("data-ss-state", "panning");
 					
-					self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
-					self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
+					if (self.pinch && coords2.x2 && coords2.y2) {
+						panLock = false;
+						newX2 = coords2.x2;
+						newY2 = coords2.y2;
+					}
 					
-					if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x > 0)
-						self.panCoords.x = self.panMax.x;
-					else if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x < 0)
-						self.panCoords.x = -self.panMax.x;
+					// Pinch Zooming
+					if (!panLock && self.pinch) {
+						var xs = 0, ys = 0, scale = 0, newDist = 0;
 						
-					if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y > 0)
-						self.panCoords.y = self.panMax.y;
-					else if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y < 0)
-						self.panCoords.y = -self.panMax.y;	
+						ys = (newY2 - coords2.y)*(newY2 - coords2.y);
+						xs = (newX2 - coords2.x)*(newX2 - coords2.x);
+						
+						newDist = Math.sqrt(ys + xs);
+						
+						if (originalDist === 0)
+							originalDist = newDist;
+						else if (zoomingIn === null || (zoomingIn === true && (newDist < prevDist) && prevDist !== -1) || (zoomingIn === false && (newDist > prevDist) && prevDist !== -1)) {
+							originalDist = newDist;
+							if (zoomingIn)
+								zoomingIn = false;
+							else
+								zoomingIn = true;
+						}
+						prevDist = newDist;
+						
+						scale = (newDist - originalDist)/PINCH_SENSITIVITY;
+						
+						self.zoomMultiplier += scale;
+						
+						if (self.zoomMultiplier >= self.zoomMax)
+							self.zoomMultiplier = self.zoomMax;
+						else if (self.zoomMultiplier <= self.zoomMin)
+							self.zoomMultiplier = self.zoomMin;
+						
+						self.panMax.x = (self.zoomMultiplier - 1) * self.panMaxOriginal.x;				
+						self.panMax.y = (self.zoomMultiplier - 1) * self.panMaxOriginal.y;
+						
+						if (self.zoomMultiplier === self.zoomMax || self.zoomMultiplier === self.zoomMin) 
+							return;
+						
+						self.checkPanLimits();
+
+						self.panCoordsStart.x = self.panCoords.x;
+						self.panCoordsStart.y = self.panCoords.y;
+					}
+					// Panning
+					else {
+						self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
+						self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
+
+						self.checkPanLimits();
+					}
 					
-					e2.target.style.webkitTransform = e2.target.style.msTransform = e2.target.style.OTransform = e2.target.style.MozTransform = e2.target.style.transform 
-					= "translate" + ((self.supports3d) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((self.supports3d) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
+					setTranslate(e2.target, self.panCoords.x, self.panCoords.y);
+					setScale(e2.target, self.zoomMultiplier);
 				});
 			}
 			// Swipe Forward/Backward
@@ -1044,7 +1328,7 @@ soysauce.carousels = (function() {
 				lastX = coords2.x;
 				dragOffset = coords1.x - coords2.x;
 				self.container.attr("data-ss-state", "notransition");
-				self.setStyle(self.offset - dragOffset);
+				setTranslate(self.container[0], self.offset - dragOffset);
 			});
 		}
 
@@ -1052,7 +1336,8 @@ soysauce.carousels = (function() {
 		this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
 			soysauce.stifle(e2);
 			
-			if ($(e2.target).attr("data-ss-button-type") !== undefined) return;
+			if ($(e2.target).attr("data-ss-component") === "button")
+				return;
 			
 			coords2 = soysauce.getCoords(e2);
 			if (coords2 !== null) lastX = coords2.x;
@@ -1072,12 +1357,12 @@ soysauce.carousels = (function() {
 				self.container.attr("data-ss-state", "ready");
 				if (e2.target.tagName.match(/^a$/i) !== null)
 					window.location.href = $(e2).attr("href");
-				else
+				else if ($(e2.target).closest("a").length > 0)
 					window.location.href = $(e2.target).closest("a").attr("href");
 			}
-			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 3 && Math.abs(yDist) < 3) || self.isZoomed)) {
+			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed)) {
 				soysauce.stifle(e1);
-				self.handleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
+				self.toggleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
 			}
 			else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25)) {
 				soysauce.stifle(e1);
@@ -1108,15 +1393,38 @@ soysauce.carousels = (function() {
 		});
 	};
 	
-	Carousel.prototype.handleZoom = function(e1, e2, xDist, yDist) {
-		if (!this.ready && !(this.isZoomed && xDist < 3 && yDist < 3) || (e1.type.match(/touch/) !== null && e2.type.match(/mouse/) !== null)) {
+	Carousel.prototype.checkPanLimits = function() {
+		if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x > 0)
+			this.panCoords.x = this.panMax.x;
+		else if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x < 0)
+			this.panCoords.x = -this.panMax.x;
+
+		if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y > 0)
+			this.panCoords.y = this.panMax.y;
+		else if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y < 0)
+			this.panCoords.y = -this.panMax.y;
+			
+		if (this.isZoomed) {
+			var img = this.items[this.index];
+			
+			if (!/img/i.test(img.tagName))
+				img = $(img).find("img")[0];
+			
+			$(img).attr("data-ss-state", "panning");
+			setTranslate(img, this.panCoords.x, this.panCoords.y);
+			setScale(img, this.zoomMultiplier);
+		}
+	};
+	
+	Carousel.prototype.toggleZoom = function(e1, e2, xDist, yDist) {
+		if (!this.ready && !(this.isZoomed && xDist < 2 && yDist < 2) || (e1.type.match(/touch/) !== null && e2.type.match(/mouse/) !== null)) {
 			soysauce.stifle(e1);
 			soysauce.stifle(e2);
 			return;
 		}
 		
-		var zoomImg = this.container.find("[data-ss-component='item'][data-ss-state='active'] img")[0];
-		zoomImg = (zoomImg === undefined) ? this.container.find("[data-ss-component='item'][data-ss-state='active']")[0] : zoomImg;
+		var zoomImg = this.items[this.index];
+		zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
 		
 		var self = this;
 		$(zoomImg).attr("data-ss-state", "ready");
@@ -1133,7 +1441,7 @@ soysauce.carousels = (function() {
 				self.panCoords = soysauce.getCoords(e2);
 				self.panCoords.x -= self.itemWidth/2;
 				self.panCoords.x *= -self.zoomMultiplier;
-
+				
 				if (e1.type.match(/mousedown/i) !== null) {
 					if (e1.originalEvent !== undefined) 
 						offset = e1.originalEvent.offsetY;
@@ -1150,48 +1458,46 @@ soysauce.carousels = (function() {
 				self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.zoomMultiplier) - offset;
 				self.panCoords.y *= self.zoomMultiplier;
 
-				if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x > 0)
-					self.panCoords.x = self.panMax.x;
-				else if (Math.abs(self.panCoords.x) > self.panMax.x && self.panCoords.x < 0)
-					self.panCoords.x = -self.panMax.x;
-
-				if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y > 0)
-					self.panCoords.y = self.panMax.y;
-				else if (Math.abs(self.panCoords.y) > self.panMax.y && self.panCoords.y < 0)
-					self.panCoords.y = -self.panMax.y;
+				self.checkPanLimits();
 
 				self.panCoordsStart.x = self.panCoords.x;
 				self.panCoordsStart.y = self.panCoords.y;
 			}
 			
-			if (self.panCoords.x !== NaN && self.panCoords.y !== NaN) {
+			if (!isNaN(self.panCoords.x) && !isNaN(self.panCoords.y)) {
+				this.dots.first().parent().hide();
+				this.nextBtn.hide();
+				this.prevBtn.hide();
 				this.isZooming = true;
 				this.ready = false;
 				this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "zoomed");
 				this.zoomIcon.attr("data-ss-state", "in");
-				zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
-				= "translate" + ((self.supports3d) ? "3d(" + self.panCoords.x + "px," + self.panCoords.y + "px,0)" : "(" + self.panCoords.x + "px," + self.panCoords.y + "px)") + " scale" + ((self.supports3d) ? "3d(" + self.zoomMultiplier + "," + self.zoomMultiplier + ",1)" : "(" + self.zoomMultiplier + "," + self.zoomMultiplier + ")"); 
-				$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+				setTranslate(zoomImg, self.panCoords.x, self.panCoords.y);
+				setScale(zoomImg, self.zoomMultiplier);
+				$(zoomImg).on(TRANSITION_END, function() {
 					self.isZoomed = true;
 					self.isZooming = false;
 				});
 			}
 		}
 		// Zoom Out
-		else if (xDist < 3 && yDist < 3) {
+		else if (xDist < 2 && yDist < 2) {
+			this.dots.first().parent().show();
+			this.nextBtn.show();
+			this.prevBtn.show();
 			this.isZooming = true;
 			this.ready = false;
 			this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "ready");
 			this.zoomIcon.attr("data-ss-state", "out");
-			zoomImg.style.webkitTransform = zoomImg.style.msTransform = zoomImg.style.OTransform = zoomImg.style.MozTransform = zoomImg.style.transform 
-			= "translate" + ((self.supports3d) ? "3d(0,0,0)" : "(0,0)") + " scale" + ((self.supports3d) ? "3d(1,1,1)" : "(1,1)") ;
-			$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+			setTranslate(zoomImg, 0, 0);
+			setScale(zoomImg, 1);
+			$(zoomImg).on(TRANSITION_END, function() {
 				self.isZoomed = false;
 				self.isZooming = false;
 			});
 		}
 		
-		$(zoomImg).on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+		$(zoomImg).on(TRANSITION_END, function() {
 			self.ready = true;
 			self.interrupted = false;
 			self.isZooming = false;
@@ -1232,17 +1538,26 @@ soysauce.carousels = (function() {
 		return true;
 	};
 	
-	// Init
-	(function() {
-		$("[data-ss-widget='carousel']").each(loadWidget);
-	})(); // end init
+	// Helper Functions
+	function setTranslate(element, x, y) {
+		x = (!x) ? 0 : x;
+		y =  (!y) ? 0 : y;
+		element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform = "translate" + ((SUPPORTS3D) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
+	}
+	
+	function setScale(element, multiplier) {
+		var currTransform = element.style.webkitTransform;
+		multiplier = (!multiplier) ? ZOOM_MULTIPLIER : multiplier;
+		element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform 
+		= currTransform + " scale" + ((SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
+	}
 	
 	function loadWidget() {
 		var carousel = new Carousel(this);
 		var self = this;
 		var options = soysauce.getOptions(this);
 		var loadCounter = 1;
-		var items = $(this).find("[data-ss-component='item']");
+		var items;
 		var first_item, last_item;
 		var wrapper;
 		var i = 0;
@@ -1262,8 +1577,8 @@ soysauce.carousels = (function() {
 				case "autoscroll":
 					carousel.autoscroll = true;
 					break;
-				case "fullscreen":
-					carousel.fullscreen = true;
+				case "nofullscreen":
+					carousel.fullscreen = false;
 					break;
 				case "noswipe":
 					carousel.swipe = false;
@@ -1271,6 +1586,9 @@ soysauce.carousels = (function() {
 				case "zoom":
 					carousel.zoom = true;
 					break;
+				case "pinch":
+					carousel.pinch = true;
+					break
 				case "3d":
 					carousel.supports3d = true;
 					break;
@@ -1285,7 +1603,7 @@ soysauce.carousels = (function() {
 				img = "<img src='" + img_src + "'>"
 				$(this).before(img);
 
-				$(this).parent().attr("data-ss-component", "item")
+				$(this).closest("li").attr("data-ss-component", "item")
 
 				$(this).find("+ div").remove();
 				$(this).remove();
@@ -1302,6 +1620,12 @@ soysauce.carousels = (function() {
 		if (carousel.zoom) {
 			wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
 			carousel.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
+			carousel.zoomMin = (!$(this).attr("data-ss-zoom-min")) ? 1.2 : parseFloat($(this).attr("data-ss-zoom-min"));
+			carousel.zoomMax = (!$(this).attr("data-ss-zoom-max")) ? 4 : parseFloat($(this).attr("data-ss-zoom-max"));
+			if (carousel.zoomMin < 1.2)
+				carousel.zoomMin = 1.2;
+			if (carousel.zoomMin > carousel.zoomMax)
+				console.warn("Soysauce: zoomMin is greater than zoomMax, errors may occur.");
 		}
 		wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='disabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
 		wrapper.after("<div data-ss-component='dots'></div>")
@@ -1326,11 +1650,10 @@ soysauce.carousels = (function() {
 			last_item = carousel.container.find("[data-ss-component='item']").last().clone();
 			first_item.appendTo(carousel.container);
 			last_item.prependTo(carousel.container);
-			items = $(this).find("[data-ss-component='item']");
 			carousel.lastSlideTime = new Date().getTime();
 		}
 		
-		carousel.items = items;
+		carousel.items = items = $(this).find("[data-ss-component='item']");;
 		carousel.numChildren = items.length;
 		
 		if (!carousel.infinite)
@@ -1338,7 +1661,7 @@ soysauce.carousels = (function() {
 		else
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		
-		carousel.links = (items[0].tagName.match(/^a$/i) !== null) ? true : false;
+		carousel.links = ((items[0].tagName.match(/^a$/i) !== null) || items.find("a[href]").length > 0) ? true : false;
 		
 		var dotsHtml = "";
 		var numDots = (carousel.infinite) ? carousel.numChildren - 2 : carousel.numChildren;
@@ -1351,7 +1674,7 @@ soysauce.carousels = (function() {
 		carousel.dots.first().attr("data-ss-state", "active");
 		
 		if (carousel.peek) {
-			carousel.peekWidth = ($(this).attr("data-ss-peek-width") !== undefined) ? parseInt($(this).attr("data-ss-peek-width")) : 40;
+			carousel.peekWidth = (!$(this).attr("data-ss-peek-width")) ? PEEK_WIDTH : parseInt($(this).attr("data-ss-peek-width"));
 			if (carousel.peekWidth % 2) $(this).attr("data-ss-peek-width", ++carousel.peekWidth);
 		}
 		
@@ -1390,15 +1713,16 @@ soysauce.carousels = (function() {
 						carousel.gotoPos(carousel.offset);
 					if (carousel.zoom) {
 						var zoomMultiplier = $(this).attr("data-ss-zoom-multiplier");
-						if (zoomMultiplier !== undefined)
-							carousel.zoomMultiplier = parseInt(zoomMultiplier);
-							
+						carousel.zoomMultiplier = (!zoomMultiplier) ? ZOOM_MULTIPLIER : parseInt(zoomMultiplier);
 						carousel.panMax.x = (carousel.itemWidth - carousel.peekWidth) / carousel.zoomMultiplier;				
 						carousel.panMax.y = $(self).find("[data-ss-component='item']").height() / carousel.zoomMultiplier;
+						carousel.panMaxOriginal.x = carousel.panMax.x;
+						carousel.panMaxOriginal.y = carousel.panMax.y;
 						if (carousel.panMax.y === 0) {
 							var imageToLoad = $(self).find("img")[0];
 							$(imageToLoad).load(function() {
 								carousel.panMax.y = imageToLoad.height / carousel.zoomMultiplier;
+								carousel.panMaxOriginal.y = carousel.panMax.y;
 							});
 						}
 					}
@@ -1422,25 +1746,31 @@ soysauce.carousels = (function() {
 		});
 		
 		if (carousel.swipe || carousel.zoom) carousel.container.closest("[data-ss-widget='carousel']").on("touchstart mousedown", function(e) {
-			if ($(e.target).attr("data-ss-component") !== ("button" || "zoom_icon"))
-				carousel.handleSwipe(e);
+			if ($(e.target).attr("data-ss-component") === ("button" || "zoom_icon"))
+				return;
+				
+			carousel.handleSwipe(e);
 		});
 		
 		carousel.ready = true;
-		carousel.container.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+		carousel.container.on(TRANSITION_END, function() {
 			carousel.ready = true;
 			carousel.container.attr("data-ss-state", "ready");
 		});
 		
 		if (carousel.autoscroll) {
 			var interval = $(this).attr("data-ss-autoscroll-interval");
-			if (interval !== undefined)
-				carousel.autoscrollInterval = parseInt(interval);
+			carousel.autoscrollInterval = (!interval) ? AUTOSCROLL_INTERVAL : parseInt(interval);
 			carousel.autoscrollOn();
 		}
 		
 		carousels.push(carousel);
 	}
+	
+	// Init
+	(function() {
+		$("[data-ss-widget='carousel']").each(loadWidget);
+	})(); // end init
 	
 	return carousels;
 })();
@@ -1474,9 +1804,6 @@ soysauce.overlay = function(cmd) {
 			div.setAttribute("data-ss-widget", "overlay");
 			div.setAttribute("data-ss-state", "inactive");
 			document.body.appendChild(div);
-			$("[data-ss-widget='overlay']").on("click", function() {
-				soysauce.overlay("off");
-			});
 			break;
 		case "on":
 			$("[data-ss-widget='overlay']").show();
