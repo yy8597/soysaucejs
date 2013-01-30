@@ -466,8 +466,8 @@ soysauce = {
 			var ret;
 			selector = parseInt(selector);
 			switch(type) {
-				case "accordion":
-					soysauce.accordions.forEach(function(e) {
+				case "toggler":
+					soysauce.togglers.forEach(function(e) {
 						if (e.id == selector) ret = e;
 					});
 					return ret;
@@ -504,7 +504,7 @@ soysauce = {
 		supportsLocalStorage: (typeof(window.localStorage) !== "undefined") ? true : false,
 		supportsSessionStorage: (typeof(window.sessionStorage) !== "undefined") ? true : false
 	},
-	accordions: {},
+	togglers: {},
 	buttons: {},
 	lateload: {},
 	overlay: {},
@@ -543,53 +543,53 @@ soysauce.lateload = function(selector) {
 
 soysauce.lateload();
 
-soysauce.accordions = (function() {
-	var accordions = new Array();
-	var accordionTabGroups = new Array();
+soysauce.togglers = (function() {
+	var togglers = new Array();
+	var togglerTabGroups = new Array();
 
-	// Accordion Tab Group
-	function AccordionTabGroup(id) {
-		this.accordions = new Array();
+	// Toggler Tab Group
+	function TogglerTabGroup(id) {
+		this.togglers = new Array();
 		this.groupid = id;
 		this.currOpen;
 		this.horizontal = false;
 		this.buttonGroup;
 	}
 	
-	AccordionTabGroup.prototype.setCurrOpen = function(selector) {
+	TogglerTabGroup.prototype.setCurrOpen = function(selector) {
 		this.currOpen = selector;
 	};
 	
-	AccordionTabGroup.prototype.addAccordion = function(selector) {
-		if (selector === undefined || !typeof(Accordion)) return false;
-		this.accordions.push(selector);
+	TogglerTabGroup.prototype.addToggler = function(selector) {
+		if (selector === undefined || !typeof(Toggler)) return false;
+		this.togglers.push(selector);
 	};
 	
-	AccordionTabGroup.prototype.getCurrOpen = function() {
+	TogglerTabGroup.prototype.getCurrOpen = function() {
 		return this.currOpen;
 	};
 	
-	AccordionTabGroup.prototype.getAccordions = function() {
-		return this.accordions;
+	TogglerTabGroup.prototype.getAccordions = function() {
+		return this.togglers;
 	};
 	
-	AccordionTabGroup.prototype.getID = function() {
+	TogglerTabGroup.prototype.getID = function() {
 		return this.groupid;
 	};
 	
-	AccordionTabGroup.prototype.setHorizontal = function() {
+	TogglerTabGroup.prototype.setHorizontal = function() {
 		var self = this;
-		this.accordions.forEach(function(accordion, i) {
+		this.togglers.forEach(function(toggler, i) {
 			if (i === 0) {
-				accordion.obj.before("<div data-ss-component='button_group' data-ss-tab-id='" + self.groupid + "'></div>");
-				self.buttonGroup = $(accordion.obj[0].previousElementSibling);
+				toggler.obj.before("<div data-ss-component='button_group' data-ss-tab-id='" + self.groupid + "'></div>");
+				self.buttonGroup = $(toggler.obj[0].previousElementSibling);
 			}
-			self.buttonGroup.append(accordion.button);
+			self.buttonGroup.append(toggler.button);
 		});
 	};
 
-	// Accordions
-	function Accordion(obj) {
+	// Togglers
+	function Toggler(obj) {
 		this.id = $(obj).attr("data-ss-id");
 		this.parentID = 0;
 		this.tabID;
@@ -603,8 +603,8 @@ soysauce.accordions = (function() {
 		this.ajax = true;
 		this.doAjax = false;
 		this.height = 0;
-		this.isChildAccordion = false;
-		this.hasAccordions = false;
+		this.isChildToggler = false;
+		this.hasTogglers = false;
 		this.childTabOpen = false;
 		this.tabGroup = undefined;
 		this.parent = undefined;
@@ -613,7 +613,7 @@ soysauce.accordions = (function() {
 		this.horizontal = false;
 	}
 
-	Accordion.prototype.open = function() {
+	Toggler.prototype.open = function() {
 		if (!this.ready) return;
 		
 		if (this.adjustFlag)
@@ -632,7 +632,7 @@ soysauce.accordions = (function() {
 			soysauce.overlay("on");
 		if (this.slide) {
 			this.ready = false;
-			if (this.isChildAccordion && this.parent.slide) {
+			if (this.isChildToggler && this.parent.slide) {
 				if (this.tab) {
 					if (!this.parent.childTabOpen) {
 						this.parent.addHeight(this.height);
@@ -661,7 +661,7 @@ soysauce.accordions = (function() {
 		this.setState("open");
 	};
 
-	Accordion.prototype.close = function(closeOverlay) {
+	Toggler.prototype.close = function(closeOverlay) {
 		if (!this.ready) return;
 		
 		var self = this;
@@ -669,7 +669,7 @@ soysauce.accordions = (function() {
 			soysauce.overlay("off");
 		if (this.slide) {
 			this.ready = false;
-			if (this.isChildAccordion && this.parent.slide && !this.tab)
+			if (this.isChildToggler && this.parent.slide && !this.tab)
 				this.parent.addHeight(-this.height);
 			this.content.css("height", "0px");
 		}
@@ -687,31 +687,31 @@ soysauce.accordions = (function() {
 			this.setState("closed");
 	};
 
-	Accordion.prototype.adjustHeight = function() {
+	Toggler.prototype.adjustHeight = function() {
 		this.content.css("height", "auto");
 		this.height = this.content.height();
 		this.adjustFlag = false;
 	};
 
-	Accordion.prototype.addHeight = function(height) {
+	Toggler.prototype.addHeight = function(height) {
 		if (!height===+height || !height===(height|0)) return;
 		this.height += height;
 		this.height = (this.height < 0) ? 0 : this.height;
 		this.content.css("height", this.height + "px");
 	};
 
-	Accordion.prototype.setHeight = function(height) {
+	Toggler.prototype.setHeight = function(height) {
 		if (!height===+height || !height===(height|0)) return;
 		this.height = height;
 		this.height = (this.height < 0) ? 0 : this.height;
 		this.content.css("height", height + "px");
 	};
 
-	Accordion.prototype.toggle = function() {
+	Toggler.prototype.toggle = function() {
 		(this.state != "open") ? this.open() : this.close();
 	};
 
-	Accordion.prototype.handleAjax = function() {
+	Toggler.prototype.handleAjax = function() {
 		var obj = this.obj;
 		var content = this.content;
 		var url = "";
@@ -764,14 +764,14 @@ soysauce.accordions = (function() {
 		});
 	};
 
-	Accordion.prototype.setState = function(state) {
+	Toggler.prototype.setState = function(state) {
 		this.state = state;
 		this.obj.attr("data-ss-state", state);
 		this.button.attr("data-ss-state", state);
 		this.content.attr("data-ss-state", state);
 	};
 
-	Accordion.prototype.setAjaxComplete = function() {
+	Toggler.prototype.setAjaxComplete = function() {
 		this.doAjax = false;
 		this.ready = true;
 		if (this.state === "ajaxing")
@@ -782,18 +782,18 @@ soysauce.accordions = (function() {
 	(function() {
 		var tabID = 1;
 		var group;
-		$("[data-ss-widget='accordion']").each(function() {
-			var item = new Accordion(this);
+		$("[data-ss-widget='toggler']").each(function() {
+			var item = new Toggler(this);
 			var self = this;
 			var options = soysauce.getOptions(this);
 
 			$(this).find("> [data-ss-component='button']").append("<span class='icon'></span>");
 
-			item.hasAccordions = ($(this).has("[data-ss-widget='accordion']").length > 0) ? true : false; 
-			item.isChildAccordion = ($(this).parents("[data-ss-widget='accordion']").length > 0) ? true : false;
+			item.hasTogglers = ($(this).has("[data-ss-widget='toggler']").length > 0) ? true : false; 
+			item.isChildToggler = ($(this).parents("[data-ss-widget='toggler']").length > 0) ? true : false;
 			
-			if (item.isChildAccordion) {
-				var parent = $(this).parents("[data-ss-widget='accordion']");
+			if (item.isChildToggler) {
+				var parent = $(this).parents("[data-ss-widget='toggler']");
 				item.parentID = parseInt(parent.attr("data-ss-id"));
 				item.parent = parent;
 			}
@@ -824,11 +824,11 @@ soysauce.accordions = (function() {
 				if (!$(self).attr("data-ss-tab-id")) {
 					var siblings = $(self).find("~ [data-ss-options*='tab']");
 					var group_name = "group"
-					group = new AccordionTabGroup(tabID);
+					group = new TogglerTabGroup(tabID);
 					item.tabID = tabID;
 					$(self).attr("data-ss-tab-id", tabID);
 					siblings.attr("data-ss-tab-id", tabID);
-					accordionTabGroups.push(group);
+					togglerTabGroups.push(group);
 					tabID++;
 				} else {
 					item.tabID = $(self).attr("data-ss-tab-id");
@@ -836,7 +836,7 @@ soysauce.accordions = (function() {
 			}
 			
 			if (item.slide) {
-				if (item.hasAccordions) {
+				if (item.hasTogglers) {
 					var height = 0;
 					item.content.find("[data-ss-component='button']").each(function() {
 						height += $(this).height();
@@ -859,34 +859,34 @@ soysauce.accordions = (function() {
 					item.adjustHeight();
 				}
 			});
-			accordions.push(item);
+			togglers.push(item);
 		});
-		accordions.forEach(function(accordion) {
-			if (accordion.tabID !== undefined) {
-				var group = accordionTabGroups[accordion.tabID - 1];
-				group.addAccordion(accordion);
-				accordion.tabGroup = group;
-				if (accordion.horizontal) {
+		togglers.forEach(function(toggler) {
+			if (toggler.tabID !== undefined) {
+				var group = togglerTabGroups[toggler.tabID - 1];
+				group.addToggler(toggler);
+				toggler.tabGroup = group;
+				if (toggler.horizontal) {
 					group.horizontal = true;
 				}
 			}
 		});
-		accordionTabGroups.forEach(function(group) {
+		togglerTabGroups.forEach(function(group) {
 			if (group.horizontal) {
 				group.setHorizontal();
 			}
 		});
 	})(); // end init
 
-	return accordions;
+	return togglers;
 })();
 
-soysauce.accordions.forEach(function(accordion) {
-	if (accordion.state === "closed") {
-		accordion.setState("closed");
+soysauce.togglers.forEach(function(toggler) {
+	if (toggler.state === "closed") {
+		toggler.setState("closed");
 	}
-	if (accordion.state === "closed" && accordion.slide) {
-		accordion.content.css("height", "0px");
+	if (toggler.state === "closed" && toggler.slide) {
+		toggler.content.css("height", "0px");
 	}
 });
 

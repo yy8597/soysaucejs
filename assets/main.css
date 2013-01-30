@@ -176,34 +176,34 @@ h2 {
   min-height: 200px;
 }
 
-.ss_accordions h2 {
+body.togglers h2 {
   font-weight: bold;
   font-size: 14px;
   border-bottom: 1px solid #AAA;
   padding-bottom: 10px;
 }
-.ss_accordions [data-ss-widget="accordion"] {
+body.togglers [data-ss-widget="toggler"] {
   margin: 10px 5px;
 }
-.ss_accordions [data-ss-component="content"][data-ss-state="open"] {
+body.togglers [data-ss-component="content"][data-ss-state="open"] {
   margin: 10px 5px;
 }
-.ss_accordions .bar1 {
+body.togglers .bar1 {
   border: 1px solid #333;
   padding: 7px 5px;
   border-radius: 3px;
 }
-.ss_accordions .bar2 {
+body.togglers .bar2 {
   border-color: black;
   color: #cd0000;
 }
-.ss_accordions [data-ss-component="button_group"] {
+body.togglers [data-ss-component="button_group"] {
   display: -webkit-box;
   display: -moz-box;
   display: -ms-box;
   display: box;
 }
-.ss_accordions [data-ss-component="button_group"] [data-ss-component="button"] {
+body.togglers [data-ss-component="button_group"] [data-ss-component="button"] {
   -webkit-box-flex: 1;
   -moz-box-flex: 1;
   -ms-box-flex: 1;

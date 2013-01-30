@@ -169,8 +169,8 @@ soysauce = {
 			var ret;
 			selector = parseInt(selector);
 			switch(type) {
-				case "accordion":
-					soysauce.accordions.forEach(function(e) {
+				case "toggler":
+					soysauce.togglers.forEach(function(e) {
 						if (e.id == selector) ret = e;
 					});
 					return ret;
@@ -207,7 +207,7 @@ soysauce = {
 		supportsLocalStorage: (typeof(window.localStorage) !== "undefined") ? true : false,
 		supportsSessionStorage: (typeof(window.sessionStorage) !== "undefined") ? true : false
 	},
-	accordions: {},
+	togglers: {},
 	buttons: {},
 	lateload: {},
 	overlay: {},
