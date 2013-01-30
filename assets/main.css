@@ -197,3 +197,15 @@ h2 {
   border-color: black;
   color: #cd0000;
 }
+.ss_accordions [data-ss-component="button_group"] {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-box;
+  display: box;
+}
+.ss_accordions [data-ss-component="button_group"] [data-ss-component="button"] {
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -ms-box-flex: 1;
+  box-flex: 1;
+}

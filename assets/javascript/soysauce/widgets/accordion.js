@@ -2,10 +2,13 @@ soysauce.accordions = (function() {
 	var accordions = new Array();
 	var accordionTabGroups = new Array();
 
+	// Accordion Tab Group
 	function AccordionTabGroup(id) {
 		this.accordions = new Array();
 		this.groupid = id;
 		this.currOpen;
+		this.horizontal = false;
+		this.buttonGroup;
 	}
 	
 	AccordionTabGroup.prototype.setCurrOpen = function(selector) {
@@ -28,11 +31,23 @@ soysauce.accordions = (function() {
 	AccordionTabGroup.prototype.getID = function() {
 		return this.groupid;
 	};
+	
+	AccordionTabGroup.prototype.setHorizontal = function() {
+		var self = this;
+		this.accordions.forEach(function(accordion, i) {
+			if (i === 0) {
+				accordion.obj.before("<div data-ss-component='button_group' data-ss-tab-id='" + self.groupid + "'></div>");
+				self.buttonGroup = $(accordion.obj[0].previousElementSibling);
+			}
+			self.buttonGroup.append(accordion.button);
+		});
+	};
 
+	// Accordions
 	function Accordion(obj) {
 		this.id = $(obj).attr("data-ss-id");
 		this.parentID = 0;
-		this.tabID = 0;
+		this.tabID;
 		this.state = "closed";
 		this.obj = $(obj);
 		this.button = $(obj).find("> [data-ss-component='button']");
@@ -50,6 +65,7 @@ soysauce.accordions = (function() {
 		this.parent = undefined;
 		this.ready = true;
 		this.adjustFlag = false;
+		this.horizontal = false;
 	}
 
 	Accordion.prototype.open = function() {
@@ -253,6 +269,9 @@ soysauce.accordions = (function() {
 					case "slide":
 						item.slide = true;
 						break;
+					case "horizontal":
+						item.horizontal = true;
+						break;
 				}
 			});
 			
@@ -264,18 +283,10 @@ soysauce.accordions = (function() {
 					item.tabID = tabID;
 					$(self).attr("data-ss-tab-id", tabID);
 					siblings.attr("data-ss-tab-id", tabID);
-					item.tabGroup = group;
-					group.addAccordion(item);
 					accordionTabGroups.push(group);
 					tabID++;
 				} else {
 					item.tabID = $(self).attr("data-ss-tab-id");
-					accordionTabGroups.forEach(function(e) {
-						if (e.groupid == item.tabID) {
-							item.tabGroup = e;
-							e.addAccordion(item);
-						}
-					});
 				}
 			}
 			
@@ -287,9 +298,9 @@ soysauce.accordions = (function() {
 					});
 					item.height = height;
 				}
-				else
+				else {
 					item.height = item.content.height();
-				
+				}
 				item.content.css("height", "0px");
 			}
 			
@@ -299,18 +310,37 @@ soysauce.accordions = (function() {
 
 			$(window).on("resize orientationchange", function() {
 				item.adjustFlag = true;
-				if (item.state === "open")
+				if (item.state === "open") {
 					item.adjustHeight();
+				}
 			});
-
 			accordions.push(item);
+		});
+		accordions.forEach(function(accordion) {
+			if (accordion.tabID !== undefined) {
+				var group = accordionTabGroups[accordion.tabID - 1];
+				group.addAccordion(accordion);
+				accordion.tabGroup = group;
+				if (accordion.horizontal) {
+					group.horizontal = true;
+				}
+			}
+		});
+		accordionTabGroups.forEach(function(group) {
+			if (group.horizontal) {
+				group.setHorizontal();
+			}
 		});
 	})(); // end init
 
 	return accordions;
 })();
 
-soysauce.accordions.forEach(function(e) {
-	if (e.state == "closed") e.setState("closed");
-	if (e.state == "closed" && e.slide) e.content.css("height", "0px");
+soysauce.accordions.forEach(function(accordion) {
+	if (accordion.state === "closed") {
+		accordion.setState("closed");
+	}
+	if (accordion.state === "closed" && accordion.slide) {
+		accordion.content.css("height", "0px");
+	}
 });
