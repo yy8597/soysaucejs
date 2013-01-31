@@ -305,6 +305,10 @@ if (excludeFastClick) {
 
   'use strict';
 
+	if (requirejs) {
+		var $ = require("jquery");
+	}
+
   /**
   * Validator class stores all constraints functions and associated messages.
   * Provides public interface to add, remove or modify them
@@ -1348,6 +1352,10 @@ if (excludeFastClick) {
 ;(function($, undefined) {
 'use strict';
 
+if (requirejs) {
+	var $ = require("jquery");
+}
+
 // blank image data-uri bypasses webkit log warning (thx doug jones)
 var BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 
@@ -1699,9 +1707,6 @@ soysauce.togglers = (function() {
 			}
 			else
 				this.content.css("height", this.height + "px");
-			this.content.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
-				self.ready = true;
-			});
 		}
 		this.setState("open");
 	};
@@ -1832,7 +1837,7 @@ soysauce.togglers = (function() {
 			var self = this;
 			var options = soysauce.getOptions(this);
 
-			$(this).find("> [data-ss-component='button']").append("<span class='icon'></span>");
+			item.button.append("<span class='icon'></span>");
 
 			item.hasTogglers = ($(this).has("[data-ss-widget='toggler']").length > 0) ? true : false; 
 			item.isChildToggler = ($(this).parents("[data-ss-widget='toggler']").length > 0) ? true : false;
@@ -1881,6 +1886,7 @@ soysauce.togglers = (function() {
 			}
 			
 			if (item.slide) {
+				$(this).attr("data-ss-state", "open");
 				if (item.hasTogglers) {
 					var height = 0;
 					item.content.find("[data-ss-component='button']").each(function() {
@@ -1892,9 +1898,12 @@ soysauce.togglers = (function() {
 					item.height = item.content.height();
 				}
 				item.content.css("height", "0px");
+				item.content.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+					item.ready = true;
+				});
 			}
 			
-			$(this).find("> [data-ss-component='button']").click(function() {
+			item.button.click(function() {
 				item.toggle();
 			});
 
@@ -1929,9 +1938,6 @@ soysauce.togglers = (function() {
 soysauce.togglers.forEach(function(toggler) {
 	if (toggler.state === "closed") {
 		toggler.setState("closed");
-	}
-	if (toggler.state === "closed" && toggler.slide) {
-		toggler.content.css("height", "0px");
 	}
 });
 
