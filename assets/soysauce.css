@@ -1,3 +1,4 @@
+@charset "UTF-8";
 [data-ss-widget], [data-ss-component] {
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
   -webkit-backface-visibility: hidden;
@@ -116,6 +117,35 @@
   -ms-animation: spin 1s linear infinite;
   -o-animation: spin 1s linear infinite;
   animation: spin 1s linear infinite;
+}
+
+[data-ss-widget="toggler"] > [data-ss-component="button"] {
+  font-size: 16px;
+  padding: 14px 10px;
+  border: solid black;
+  border-width: 1px 0;
+}
+[data-ss-widget="toggler"] > [data-ss-component="button"] .icon {
+  position: absolute;
+  top: 50%;
+  margin-top: -13px;
+  right: 5px;
+}
+[data-ss-widget="toggler"] > [data-ss-component="button"] .icon:after {
+  position: relative;
+  font-size: 26px;
+}
+[data-ss-widget="toggler"] > [data-ss-component="button"][data-ss-state="closed"] .icon:after {
+  content: "+";
+  top: 1px;
+}
+[data-ss-widget="toggler"] > [data-ss-component="button"][data-ss-state="open"] .icon:after {
+  content: "–";
+  bottom: 2px;
+  right: 1px;
+}
+[data-ss-widget="toggler"][data-ss-state="open"] > [data-ss-component="content"] {
+  padding: 5px 10px;
 }
 
 [data-ss-widget="overlay"] {

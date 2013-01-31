@@ -69,3 +69,35 @@
 		}
 	}
 }
+
+// Generic Styles
+[data-ss-widget="toggler"] {
+	> [data-ss-component="button"] {
+		font-size: 16px;
+		padding: 14px 10px;
+		border: solid black;
+		border-width: 1px 0;
+		.icon {
+			position: absolute;
+			top: 50%;
+			margin-top: -13px;
+			right: 5px;
+			&:after {
+				position: relative;
+				font-size: 26px;
+			}
+		}
+		&[data-ss-state="closed"] .icon:after {
+			content: "+";
+			top: 1px;
+		}
+		&[data-ss-state="open"] .icon:after {
+			content: "–";
+			bottom: 2px;
+			right: 1px;
+		}
+	}
+	&[data-ss-state="open"] > [data-ss-component="content"] {
+		padding: 5px 10px;
+	}
+}
