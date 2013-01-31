@@ -1341,7 +1341,9 @@ soysauce.carousels = (function() {
 		this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
 			soysauce.stifle(e2);
 			
-			if ($(e2.target).attr("data-ss-component") === "button")
+			var targetComponent = $(e2.target).attr("data-ss-component");
+			
+			if (targetComponent === "button")
 				return;
 			
 			coords2 = soysauce.getCoords(e2);
@@ -1356,6 +1358,13 @@ soysauce.carousels = (function() {
 			var fast = (velocity > 0.9) ? true : false;
 			
 			self.container.closest("[data-ss-widget='carousel']").off("touchmove mousemove");
+			
+			if (targetComponent === "zoom_icon" && self.interrupted) {
+				var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css("-webkit-transform"))[4]);
+				if (currXPos === self.offset) {
+					self.interrupted = false;
+				}
+			}
 			
 			if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
 				self.ready = true;
