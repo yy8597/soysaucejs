@@ -4,7 +4,7 @@
   position: relative;
   z-index: 5;
 }
-[data-ss-widget]:not([data-ss-widget="ccValidation"]), [data-ss-component]:not([data-ss-widget="ccValidation"]) {
+[data-ss-widget]:not([data-ss-widget="cc_validator"]), [data-ss-component]:not([data-ss-widget="cc_validator"]) {
   -webkit-user-select: none;
 }
 

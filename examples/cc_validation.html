@@ -7,9 +7,18 @@
 	</head>
 	<body class="ccValidation">
 		<h1>Credit Card Validation</h1>
-		
-		
+		<input id="validator" data-ss-widget="cc_validator" type="tel" maxlength="16"/>
 		<script src="../assets/javascript/jquery.js"></script>
 		<script src="../public/javascript/soysauce.js"></script>
+		<script>
+			$(document).ready(function() {
+				$("#validator").on("state1", function() {
+					console.log("state1!");
+				});
+				$("#validator").on("state2", function() {
+					console.log("state2!");
+				});
+			});
+		</script>
 	</body>
 </html>
