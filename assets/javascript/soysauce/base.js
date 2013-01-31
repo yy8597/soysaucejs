@@ -170,13 +170,24 @@ soysauce = {
 			selector = parseInt(selector);
 			switch(type) {
 				case "toggler":
-					soysauce.togglers.forEach(function(e) {
-						if (e.id == selector) ret = e;
+					soysauce.togglers.forEach(function(widget) {
+						if (widget.id == selector) {
+							ret = widget;
+						}
 					});
 					return ret;
 				case "carousel":
-					soysauce.carousels.forEach(function(e) {
-						if (e.id == selector) ret = e;
+					soysauce.carousels.forEach(function(widget) {
+						if (widget.id == selector) {
+							ret = widget;
+						}
+					});
+					return ret;
+				case "cc_validator":
+					soysauce.ccValidators.forEach(function(widget) {
+						if (widget.id == selector) {
+							ret = widget;
+						}
 					});
 					return ret;
 				default:
@@ -207,12 +218,6 @@ soysauce = {
 		supportsLocalStorage: (typeof(window.localStorage) !== "undefined") ? true : false,
 		supportsSessionStorage: (typeof(window.sessionStorage) !== "undefined") ? true : false
 	},
-	togglers: {},
-	buttons: {},
-	lateload: {},
-	overlay: {},
-	ccValidation: {},
-	carousels: {}
 }
 
 soysauce.init();
