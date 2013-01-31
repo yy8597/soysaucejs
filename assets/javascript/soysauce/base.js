@@ -11,6 +11,10 @@
 ;(function($, undefined) {
 'use strict';
 
+if (requirejs) {
+	var $ = require("jquery");
+}
+
 // blank image data-uri bypasses webkit log warning (thx doug jones)
 var BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 

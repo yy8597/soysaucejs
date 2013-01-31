@@ -8,6 +8,10 @@
 
   'use strict';
 
+	if (requirejs) {
+		var $ = require("jquery");
+	}
+
   /**
   * Validator class stores all constraints functions and associated messages.
   * Provides public interface to add, remove or modify them
