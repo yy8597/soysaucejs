@@ -175,26 +175,6 @@ h2 {
   width: 100%;
   min-height: 200px;
 }
-.ss_carousels [data-ss-component="zoom_icon"] {
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
-  -ms-border-radius: 20px;
-  -o-border-radius: 20px;
-  border-radius: 20px;
-  position: absolute;
-  bottom: 25px;
-  right: 5px;
-  height: 36px;
-  width: 36px;
-  background: #cd0000;
-  border: 2px solid black;
-}
-.ss_carousels [data-ss-component="zoom_icon"][data-ss-state="in"] {
-  background: #333;
-}
-.ss_carousels [data-ss-component="zoom_icon"][data-ss-state="in"] {
-  background: #333;
-}
 
 body.togglers h2 {
   font-weight: bold;

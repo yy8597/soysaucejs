@@ -110,22 +110,6 @@ h2 {
 			min-height: 200px;
 		}
 	}
-	[data-ss-component="zoom_icon"] {
-		@include border-radius(20px);
-		position: absolute;
-		bottom: 25px;
-		right: 5px;
-		height: 36px;
-		width: 36px;
-		background: #cd0000;
-		border: 2px solid black;
-		&[data-ss-state="in"] {
-			background: #333;
-		}
-	}
-	[data-ss-component="zoom_icon"][data-ss-state="in"] {
-		background: #333;
-	}
 }
 
 body.togglers {
