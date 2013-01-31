@@ -444,7 +444,9 @@ soysauce.carousels = (function() {
 		this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
 			soysauce.stifle(e2);
 			
-			if ($(e2.target).attr("data-ss-component") === "button")
+			var target = $(e2.target).attr("data-ss-component");
+			
+			if (target === "button")
 				return;
 			
 			coords2 = soysauce.getCoords(e2);
@@ -460,6 +462,11 @@ soysauce.carousels = (function() {
 			
 			self.container.closest("[data-ss-widget='carousel']").off("touchmove mousemove");
 			
+			var forceZoom = false;
+			if (target === "zoom_icon") {
+				forceZoom = true;
+			}
+			
 			if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
@@ -468,8 +475,12 @@ soysauce.carousels = (function() {
 				else if ($(e2.target).closest("a").length > 0)
 					window.location.href = $(e2.target).closest("a").attr("href");
 			}
-			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed)) {
+			else if (forceZoom || !self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed)) {
 				soysauce.stifle(e1);
+				if (forceZoom) {
+					self.gotoPos(self.offset, true);
+					self.ready = true;
+				}
 				self.toggleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
 			}
 			else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25)) {
@@ -573,7 +584,7 @@ soysauce.carousels = (function() {
 			}
 			
 			if (!isNaN(self.panCoords.x) && !isNaN(self.panCoords.y)) {
-				this.dots.first().parent().hide();
+				this.dots.first().parent().css("visibility", "hidden");
 				this.nextBtn.hide();
 				this.prevBtn.hide();
 				this.isZooming = true;
@@ -590,7 +601,7 @@ soysauce.carousels = (function() {
 		}
 		// Zoom Out
 		else if (xDist < 2 && yDist < 2) {
-			this.dots.first().parent().show();
+			this.dots.first().parent().css("visibility", "visible");
 			this.nextBtn.show();
 			this.prevBtn.show();
 			this.isZooming = true;
