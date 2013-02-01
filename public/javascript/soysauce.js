@@ -597,7 +597,7 @@ soysauce.togglers = (function() {
 		this.tabGroup = undefined;
 		this.parent = undefined;
 		this.ready = true;
-		this.adjustFlag = false;
+		this.adjustFlag = true;
 		this.horizontal = false;
 	}
 
@@ -822,7 +822,7 @@ soysauce.togglers = (function() {
 			}
 			
 			if (item.slide) {
-				$(this).attr("data-ss-state", "open");
+				item.setState("open");
 				if (item.hasTogglers) {
 					var height = 0;
 					item.content.find("[data-ss-component='button']").each(function() {
@@ -834,6 +834,7 @@ soysauce.togglers = (function() {
 					item.height = item.content.height();
 				}
 				item.content.css("height", "0px");
+				item.setState("closed");
 				item.content.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 					item.ready = true;
 				});

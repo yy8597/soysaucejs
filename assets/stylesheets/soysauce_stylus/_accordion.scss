@@ -43,7 +43,10 @@
 			right: 1px;
 		}
 	}
-	&[data-ss-state="open"] > [data-ss-component="content"] > [data-ss-component="wrapper"] {
+	[data-ss-component="content"][data-ss-state="open"] > [data-ss-component="wrapper"] {
 		padding: 5px 10px;
+		* {
+			max-width: 100%;
+		}
 	}
 }
