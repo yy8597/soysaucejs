@@ -651,7 +651,7 @@ soysauce.carousels = (function() {
 		});
 		newCarousel.removeAttr("data-ss-state");
 		callback();
-		newCarousel.each(loadWidget);
+		newCarousel.each(init);
 		return true;
 	};
 	
@@ -669,7 +669,7 @@ soysauce.carousels = (function() {
 		= currTransform + " scale" + ((SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
 	}
 	
-	function loadWidget() {
+	function init() {
 		var carousel = new Carousel(this);
 		var self = this;
 		var options = soysauce.getOptions(this);
@@ -885,9 +885,7 @@ soysauce.carousels = (function() {
 	}
 	
 	// Init
-	(function() {
-		$("[data-ss-widget='carousel']").each(loadWidget);
-	})(); // end init
+	$("[data-ss-widget='carousel']").each(init);
 	
 	return carousels;
 })();
