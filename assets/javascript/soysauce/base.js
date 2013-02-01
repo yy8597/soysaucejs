@@ -130,7 +130,7 @@ Array.prototype.remove = function(from, to) {
   return this.push.apply(this, rest);
 };
 
-if(typeof(soysauce) == "undefined") {
+if(typeof(soysauce) === "undefined") {
 "use strict";	
 soysauce = {
 	init: function() {
