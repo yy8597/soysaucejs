@@ -144,7 +144,7 @@
   bottom: 2px;
   right: 1px;
 }
-[data-ss-widget="toggler"][data-ss-state="open"] > [data-ss-component="content"] {
+[data-ss-widget="toggler"][data-ss-state="open"] > [data-ss-component="content"] > [data-ss-component="wrapper"] {
   padding: 5px 10px;
 }
 

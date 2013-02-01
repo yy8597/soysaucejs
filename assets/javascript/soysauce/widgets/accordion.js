@@ -240,6 +240,7 @@ soysauce.togglers = (function() {
 			var options = soysauce.getOptions(this);
 
 			item.button.append("<span class='icon'></span>");
+			item.content.wrapInner("<div data-ss-component='wrapper'/>");
 
 			item.hasTogglers = ($(this).has("[data-ss-widget='toggler']").length > 0) ? true : false; 
 			item.isChildToggler = ($(this).parents("[data-ss-widget='toggler']").length > 0) ? true : false;

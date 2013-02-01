@@ -305,10 +305,6 @@ if (excludeFastClick) {
 
   'use strict';
 
-	if (requirejs) {
-		var $ = require("jquery");
-	}
-
   /**
   * Validator class stores all constraints functions and associated messages.
   * Provides public interface to add, remove or modify them
@@ -1352,10 +1348,6 @@ if (excludeFastClick) {
 ;(function($, undefined) {
 'use strict';
 
-if (requirejs) {
-	var $ = require("jquery");
-}
-
 // blank image data-uri bypasses webkit log warning (thx doug jones)
 var BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 
@@ -1838,6 +1830,7 @@ soysauce.togglers = (function() {
 			var options = soysauce.getOptions(this);
 
 			item.button.append("<span class='icon'></span>");
+			item.content.wrapInner("<div data-ss-component='wrapper'/>");
 
 			item.hasTogglers = ($(this).has("[data-ss-widget='toggler']").length > 0) ? true : false; 
 			item.isChildToggler = ($(this).parents("[data-ss-widget='toggler']").length > 0) ? true : false;
