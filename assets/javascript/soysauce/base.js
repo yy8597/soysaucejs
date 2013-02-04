@@ -180,21 +180,21 @@ soysauce = {
 			switch(type) {
 				case "toggler":
 					soysauce.togglers.forEach(function(widget) {
-						if (widget.id === selector) {
+						if (widget.id == selector) {
 							ret = widget;
 						}
 					});
 					return ret;
 				case "carousel":
 					soysauce.carousels.forEach(function(widget) {
-						if (widget.id === selector) {
+						if (widget.id == selector) {
 							ret = widget;
 						}
 					});
 					return ret;
 				case "cc_validator":
 					soysauce.ccValidators.forEach(function(widget) {
-						if (widget.id === selector) {
+						if (widget.id == selector) {
 							ret = widget;
 						}
 					});
