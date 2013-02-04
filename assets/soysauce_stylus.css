@@ -21,37 +21,37 @@
   overflow: hidden;
 }
 
-.accordion1 > [data-ss-component="button"] {
+.accordion > [data-ss-component="button"] {
   font-size: 16px;
   padding: 14px 10px;
   border-top: 1px solid black;
 }
-.accordion1 > [data-ss-component="button"] .icon {
+.accordion > [data-ss-component="button"] .icon {
   position: absolute;
   top: 50%;
   margin-top: -13px;
   right: 5px;
 }
-.accordion1 > [data-ss-component="button"] .icon:after {
+.accordion > [data-ss-component="button"] .icon:after {
   position: relative;
   font-size: 26px;
 }
-.accordion1 > [data-ss-component="button"][data-ss-state="closed"] .icon:after {
+.accordion > [data-ss-component="button"][data-ss-state="closed"] .icon:after {
   content: "+";
   top: 1px;
 }
-.accordion1 > [data-ss-component="button"][data-ss-state="open"] .icon:after {
+.accordion > [data-ss-component="button"][data-ss-state="open"] .icon:after {
   content: "–";
   bottom: 2px;
   right: 1px;
 }
-.accordion1 [data-ss-component="content"][data-ss-state="open"] {
+.accordion [data-ss-component="content"][data-ss-state="open"] {
   border-top: 1px solid black;
 }
-.accordion1 [data-ss-component="content"][data-ss-state="open"] > [data-ss-component="wrapper"] {
+.accordion [data-ss-component="content"][data-ss-state="open"] > [data-ss-component="wrapper"] {
   padding: 5px 10px;
 }
-.accordion1 [data-ss-component="content"][data-ss-state="open"] > [data-ss-component="wrapper"] * {
+.accordion [data-ss-component="content"][data-ss-state="open"] > [data-ss-component="wrapper"] * {
   max-width: 100%;
 }
 
