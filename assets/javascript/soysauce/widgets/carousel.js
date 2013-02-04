@@ -13,6 +13,7 @@ soysauce.carousels = (function() {
 		// Base Variables
 		this.id = parseInt($(obj).attr("data-ss-id"));
 		this.index = 0;
+		this.maxIndex;
 		this.container;
 		this.items;
 		this.dots;
@@ -25,6 +26,7 @@ soysauce.carousels = (function() {
 		this.lockScroll = undefined;
 		this.nextBtn;
 		this.prevBtn;
+		this.freeze = false;
 		
 		// Infinite Variables
 		this.infinite = true;
@@ -462,13 +464,6 @@ soysauce.carousels = (function() {
 			
 			self.container.closest("[data-ss-widget='carousel']").off("touchmove mousemove");
 			
-			if (targetComponent === "zoom_icon" && self.interrupted) {
-				var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css("-webkit-transform"))[4]);
-				if (currXPos === self.offset) {
-					self.interrupted = false;
-				}
-			}
-			
 			if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
@@ -663,6 +658,41 @@ soysauce.carousels = (function() {
 		this.freeze = false;
 	};
 	
+	Carousel.prototype.jumpTo = function(index) {
+		var self = this;
+		
+		if (index === this.index) return false;
+		
+		if (this.infinite) {
+			if (index < 1 || index > this.maxIndex )
+				return false;
+		}
+		else {
+			if (index < 0 || index > this.maxIndex - 1)
+				return false;
+		}
+		
+		var newOffset = index * -this.itemWidth;
+		
+		if (this.infinite) {
+			$(this.items[this.index]).attr("data-ss-state", "inactive");
+			$(this.items[index]).attr("data-ss-state", "active");
+			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
+			$(this.dots[index - 1]).attr("data-ss-state", "active");
+		}
+		else {
+			$(this.items[this.index]).attr("data-ss-state", "inactive");
+			$(this.items[index]).attr("data-ss-state", "active");
+			$(this.dots[this.index]).attr("data-ss-state", "inactive");
+			$(this.dots[index]).attr("data-ss-state", "active");
+		}
+
+		this.gotoPos(newOffset);
+		this.index = index;
+		
+		return true;
+	};
+	
 	// Helper Functions
 	function setTranslate(element, x, y) {
 		x = (!x) ? 0 : x;
@@ -764,11 +794,14 @@ soysauce.carousels = (function() {
 			if (carousel.ready && !carousel.interrupted && !carousel.freeze)
 				carousel.slideBackward();
 		});
+		
 		wrapper.find("~ [data-ss-button-type='next']").click(function(e) {
 			soysauce.stifle(e);
 			if (carousel.ready && !carousel.interrupted && !carousel.freeze)
 				carousel.slideForward();
 		});
+		
+		carousel.maxIndex = $(this).find("[data-ss-component='item']").length;
 		
 		if (carousel.infinite) {
 			first_item = carousel.container.find("[data-ss-component='item']").first().clone();
@@ -778,7 +811,7 @@ soysauce.carousels = (function() {
 			carousel.lastSlideTime = new Date().getTime();
 		}
 		
-		carousel.items = items = $(this).find("[data-ss-component='item']");;
+		carousel.items = items = $(this).find("[data-ss-component='item']");
 		carousel.numChildren = items.length;
 		
 		if (!carousel.infinite)
@@ -797,6 +830,20 @@ soysauce.carousels = (function() {
 		carousel.dots = carousel.dots.find("div");
 		carousel.dots.attr("data-ss-state", "inactive")
 		carousel.dots.first().attr("data-ss-state", "active");
+		carousel.dots.on("click", function(e) {
+			if (!carousel.ready || carousel.interrupted || carousel.freeze) return;
+			
+			soysauce.stifle(e);
+			
+			var index = carousel.dots.index(this);
+			
+			if (carousel.infinite) {
+				index += 1;
+			}
+			
+			carousel.ready = false;
+			carousel.jumpTo(index);
+		});
 		
 		if (carousel.peek) {
 			carousel.peekWidth = (!$(this).attr("data-ss-peek-width")) ? PEEK_WIDTH : parseInt($(this).attr("data-ss-peek-width"));
@@ -871,9 +918,18 @@ soysauce.carousels = (function() {
 		});
 		
 		if (carousel.swipe || carousel.zoom) carousel.container.closest("[data-ss-widget='carousel']").on("touchstart mousedown", function(e) {
-			if (carousel.freeze || $(e.target).attr("data-ss-component") === ("button" || "zoom_icon"))
+			var targetComponent = $(e.target).attr("data-ss-component");
+			
+			if ((targetComponent === "zoom_icon" || targetComponent === "dot") && self.interrupted) {
+				var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css("-webkit-transform"))[4]);
+				if (currXPos === carousel.offset) {
+					carousel.interrupted = false;
+				}
+			}
+			
+			if (carousel.freeze || targetComponent === "button" || targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "dots")
 				return;
-				
+			
 			carousel.handleSwipe(e);
 		});
 		
