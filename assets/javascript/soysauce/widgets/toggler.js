@@ -66,6 +66,7 @@ soysauce.togglers = (function() {
 		this.ready = true;
 		this.adjustFlag = false;
 		this.horizontal = false;
+		this.freeze = false;
 	}
 
 	Toggler.prototype.open = function() {
@@ -160,6 +161,7 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.toggle = function() {
+		if (this.freeze) return;
 		(this.state != "open") ? this.open() : this.close();
 	};
 
@@ -230,6 +232,14 @@ soysauce.togglers = (function() {
 			this.open();
 	};
 
+	Toggler.prototype.handleFreeze = function() {
+		this.freeze = true;
+	};
+
+	Toggler.prototype.handleUnfreeze = function() {
+		this.freeze = false;
+	};
+	
 	// Initialize
 	(function() {
 		var tabID = 1;
