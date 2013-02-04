@@ -655,6 +655,14 @@ soysauce.carousels = (function() {
 		return true;
 	};
 	
+	Carousel.prototype.handleFreeze = function() {
+		this.freeze = true;
+	};
+	
+	Carousel.prototype.handleUnfreeze = function() {
+		this.freeze = false;
+	};
+	
 	// Helper Functions
 	function setTranslate(element, x, y) {
 		x = (!x) ? 0 : x;
@@ -753,12 +761,12 @@ soysauce.carousels = (function() {
 		
 		wrapper.find("~ [data-ss-button-type='prev']").click(function(e) {
 			soysauce.stifle(e);
-			if (carousel.ready && !carousel.interrupted)
+			if (carousel.ready && !carousel.interrupted && !carousel.freeze)
 				carousel.slideBackward();
 		});
 		wrapper.find("~ [data-ss-button-type='next']").click(function(e) {
 			soysauce.stifle(e);
-			if (carousel.ready && !carousel.interrupted)
+			if (carousel.ready && !carousel.interrupted && !carousel.freeze)
 				carousel.slideForward();
 		});
 		
@@ -863,7 +871,7 @@ soysauce.carousels = (function() {
 		});
 		
 		if (carousel.swipe || carousel.zoom) carousel.container.closest("[data-ss-widget='carousel']").on("touchstart mousedown", function(e) {
-			if ($(e.target).attr("data-ss-component") === ("button" || "zoom_icon"))
+			if (carousel.freeze || $(e.target).attr("data-ss-component") === ("button" || "zoom_icon"))
 				return;
 				
 			carousel.handleSwipe(e);
