@@ -164,29 +164,37 @@ soysauce = {
 	fetch: function(selector) { // Fetch by ID
 		if (selector === undefined) return false;
 		if (typeof(selector) === "object") selector = $(selector).attr("data-ss-id");
-		if (selector===+selector && selector===(selector|0) || selector.match(/^\d+$/).length > 0) {
-			var query = "[data-ss-id='" + selector + "']";
-			var type = $(query).attr("data-ss-widget");
-			var ret;
+		if (/(^#?\.?\w+$)/.test(selector)) {
+			var query, ret, type;
+			
+			if (selector===+selector && selector === (selector|0)) {
+				query = "[data-ss-id='" + selector + "']";
+			}
+			else {
+				query = selector;
+			}
+			
+			type = $(query).attr("data-ss-widget");
+			
 			selector = parseInt(selector);
 			switch(type) {
 				case "toggler":
 					soysauce.togglers.forEach(function(widget) {
-						if (widget.id == selector) {
+						if (widget.id === selector) {
 							ret = widget;
 						}
 					});
 					return ret;
 				case "carousel":
 					soysauce.carousels.forEach(function(widget) {
-						if (widget.id == selector) {
+						if (widget.id === selector) {
 							ret = widget;
 						}
 					});
 					return ret;
 				case "cc_validator":
 					soysauce.ccValidators.forEach(function(widget) {
-						if (widget.id == selector) {
+						if (widget.id === selector) {
 							ret = widget;
 						}
 					});
