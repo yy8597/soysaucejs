@@ -70,7 +70,7 @@ soysauce.carousels = (function() {
 		this.pinch;
 	}
 	
-	Carousel.prototype.gotoPos = function(x, fast) {
+	Carousel.prototype.gotoPos = function(x, fast, jumping) {
 		var self = this;
 		
 		this.offset = x;
@@ -87,7 +87,7 @@ soysauce.carousels = (function() {
 			duration = (!duration) ? 850 : duration;
 			
 			// Slide Backward
-			if (this.index === this.numChildren - 2 && !this.forward) {
+			if (!jumping && this.index === this.numChildren - 2 && !this.forward) {
 				this.infiniteID = window.setTimeout(function() {
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = -self.index*self.itemWidth + self.peekWidth/2;
@@ -99,7 +99,7 @@ soysauce.carousels = (function() {
 				}, duration);
 			}
 			// Slide Forward
-			else if (this.index === 1 && this.forward) {
+			else if (!jumping && this.index === 1 && this.forward) {
 				this.infiniteID = window.setTimeout(function() {
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = -self.itemWidth + self.peekWidth/2;
@@ -685,7 +685,7 @@ soysauce.carousels = (function() {
 			$(this.dots[index]).attr("data-ss-state", "active");
 		}
 
-		this.gotoPos(newOffset);
+		this.gotoPos(newOffset, false, true);
 		this.index = index;
 		
 		return true;
