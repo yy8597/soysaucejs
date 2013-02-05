@@ -10,6 +10,7 @@ body {
 	position: relative;
 	font-size: 13px;
 	font-family: 'Open Sans', sans-serif;
+	padding: 0 10px;
 }
 
 img {
@@ -54,7 +55,7 @@ h2 {
 }
 
 .ss_carousels {
-	.carousel2, .carousel6, .carousel1 {
+	.dots {
 		[data-ss-component="dots"] {
 			width: 100%;
 			background: #ddd;
@@ -78,7 +79,7 @@ h2 {
 			}
 		}
 	}
-	.carousel3 {
+	.itemFade {
 		[data-ss-component="item"] {
 			@include transition(opacity .7s);
 		}
@@ -86,7 +87,7 @@ h2 {
 			opacity: 0.4;
 		}
 	}
-	.carousel4 {
+	.buttons {
 		[data-ss-component="button"] {
 			position: absolute;
 			right: 10px;
@@ -100,7 +101,7 @@ h2 {
 			}
 		}
 	}
-	.carousel5 {
+	.double {
 		[data-ss-component="item"] {
 			@include display-box;
 		}
