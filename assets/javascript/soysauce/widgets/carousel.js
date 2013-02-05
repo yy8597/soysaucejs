@@ -12,6 +12,7 @@ soysauce.carousels = (function() {
 	function Carousel(obj) {
 		// Base Variables
 		this.id = parseInt($(obj).attr("data-ss-id"));
+		this.widget = $(obj);
 		this.index = 0;
 		this.maxIndex;
 		this.container;
@@ -196,7 +197,7 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.adjustSize = function() {
 		if (this.fullscreen) {
-			var diff = $(window).width() - this.itemWidth;
+			var diff = this.widget.width() - this.itemWidth;
 			var prevState = this.container.attr("data-ss-state");
 			var self = this;
 			this.itemWidth -= this.peekWidth;
@@ -258,7 +259,7 @@ soysauce.carousels = (function() {
 		
 		coords1 = soysauce.getCoords(e);
 		
-		this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
+		this.widget.on("touchmove mousemove", function(e2) {
 			if (self.isZoomed) {
 				soysauce.stifle(e);
 				soysauce.stifle(e2);
@@ -287,7 +288,7 @@ soysauce.carousels = (function() {
 				setTranslate(self.container[0], xcoord - dragOffset);
 		});
 		
-		if (this.infiniteID !== undefined) this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
+		if (this.infiniteID !== undefined) this.widget.one("touchend mouseup", function(e2) {
 			self.infiniteID = undefined;
 			self.container.attr("data-ss-state", "intransit");
 			
@@ -338,7 +339,7 @@ soysauce.carousels = (function() {
 		else {
 			// Pan or Pinch Zooming
 			if (this.zoom && this.isZoomed) {
-				this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
+				this.widget.one("touchend mouseup", function(e2) {
 					var array = soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"));
 					var panX = parseInt(array[4]);
 					var panY = parseInt(array[5]);
@@ -349,7 +350,7 @@ soysauce.carousels = (function() {
 					if ($(e2.target).attr("data-ss-state") === "panning")
 						$(e2.target).attr("data-ss-state", "ready");
 				});
-				this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
+				this.widget.on("touchmove mousemove", function(e2) {
 					soysauce.stifle(e2);
 					
 					if (!/img/i.test(e2.target.tagName)) return;
@@ -418,7 +419,7 @@ soysauce.carousels = (function() {
 				});
 			}
 			// Swipe Forward/Backward
-			else if (this.swipe) this.container.closest("[data-ss-widget='carousel']").on("touchmove mousemove", function(e2) {
+			else if (this.swipe) this.widget.on("touchmove mousemove", function(e2) {
 				var dragOffset;
 				
 				coords2 = soysauce.getCoords(e2);
@@ -443,7 +444,7 @@ soysauce.carousels = (function() {
 		}
 
 		// Decides whether to zoom or move to next/prev item
-		this.container.closest("[data-ss-widget='carousel']").one("touchend mouseup", function(e2) {
+		this.widget.one("touchend mouseup", function(e2) {
 			soysauce.stifle(e2);
 			
 			var targetComponent = $(e2.target).attr("data-ss-component");
@@ -462,7 +463,7 @@ soysauce.carousels = (function() {
 			var velocity = xDist / time;
 			var fast = (velocity > 0.9) ? true : false;
 			
-			self.container.closest("[data-ss-widget='carousel']").off("touchmove mousemove");
+			self.widget.off("touchmove mousemove");
 			
 			if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
 				self.ready = true;
@@ -582,7 +583,7 @@ soysauce.carousels = (function() {
 				this.prevBtn.hide();
 				this.isZooming = true;
 				this.ready = false;
-				this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "zoomed");
+				this.widget.attr("data-ss-state", "zoomed");
 				this.zoomIcon.attr("data-ss-state", "in");
 				setTranslate(zoomImg, self.panCoords.x, self.panCoords.y);
 				setScale(zoomImg, self.zoomMultiplier);
@@ -599,7 +600,7 @@ soysauce.carousels = (function() {
 			this.prevBtn.show();
 			this.isZooming = true;
 			this.ready = false;
-			this.container.closest("[data-ss-widget='carousel']").attr("data-ss-state", "ready");
+			this.widget.attr("data-ss-state", "ready");
 			this.zoomIcon.attr("data-ss-state", "out");
 			setTranslate(zoomImg, 0, 0);
 			setScale(zoomImg, 1);
@@ -639,7 +640,7 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.reload = function(callback) {
 		var self = this;
-		var newCarousel = this.container.closest("[data-ss-widget='carousel']");
+		var newCarousel = this.widget;
 		carousels.forEach(function(e,i) {
 			if (self.id === e.id)
 				carousels.remove(i);
@@ -856,68 +857,46 @@ soysauce.carousels = (function() {
 			carousel.index++;
 		}
 		
-		items.each(function(i, e) {
-			function handleChildren() {
-				var loadCount = 0;
-				var numImgs = $(e).find("img").length;
-				$(e).find("img").ready(function() {
-					loadCount++;
-					if (++loadCount === numImgs || numImgs === 1)
-						handleItem();
-				});
+		carousel.container.imagesLoaded(function(items) {
+			carousel.itemWidth = $(self).width();
+
+			carousel.container.width(carousel.itemWidth * (carousel.numChildren));
+			
+			if (carousel.peek) {
+				carousel.itemWidth -= carousel.peekWidth;
+				carousel.offset += carousel.peekWidth/2;
 			}
-			function handleItem() {	
-				if (carousel.fullscreen)
-					carousel.itemWidth = $(window).width();
-				else
-					carousel.itemWidth = (carousel.itemWidth != 0 && carousel.itemWidth < $(this).width()) ? carousel.itemWidth : $(this).width();
-				
-				if (loadCounter++ === carousel.numChildren) {
-					$(self).find("[data-ss-component='item']").width(carousel.itemWidth - carousel.peekWidth);
-					carousel.container.width(carousel.itemWidth * (carousel.numChildren));
-					if (carousel.peek) {
-						carousel.itemWidth -= carousel.peekWidth;
-						carousel.offset += carousel.peekWidth/2;
-					}
-					if (carousel.infinite) 
-						carousel.gotoPos(-carousel.itemWidth + carousel.offset);							
-					else
-						carousel.gotoPos(carousel.offset);
-					if (carousel.zoom) {
-						var zoomMultiplier = $(this).attr("data-ss-zoom-multiplier");
-						carousel.zoomMultiplier = (!zoomMultiplier) ? ZOOM_MULTIPLIER : parseInt(zoomMultiplier);
-						carousel.panMax.x = (carousel.itemWidth - carousel.peekWidth) / carousel.zoomMultiplier;				
-						carousel.panMax.y = $(self).find("[data-ss-component='item']").height() / carousel.zoomMultiplier;
-						carousel.panMaxOriginal.x = carousel.panMax.x;
+			
+			carousel.items.width(carousel.itemWidth);
+			
+			if (carousel.infinite) 
+				carousel.gotoPos(-carousel.itemWidth + carousel.offset);							
+			else
+				carousel.gotoPos(carousel.offset);
+
+			if (carousel.zoom) {
+				var zoomMultiplier = $(this).attr("data-ss-zoom-multiplier");
+				carousel.zoomMultiplier = (!zoomMultiplier) ? ZOOM_MULTIPLIER : parseInt(zoomMultiplier);
+				carousel.panMax.x = (carousel.itemWidth - carousel.peekWidth) / carousel.zoomMultiplier;				
+				carousel.panMax.y = $(self).find("[data-ss-component='item']").height() / carousel.zoomMultiplier;
+				carousel.panMaxOriginal.x = carousel.panMax.x;
+				carousel.panMaxOriginal.y = carousel.panMax.y;
+				if (carousel.panMax.y === 0) {
+					var imageToLoad = $(self).find("img")[0];
+					$(imageToLoad).load(function() {
+						carousel.panMax.y = imageToLoad.height / carousel.zoomMultiplier;
 						carousel.panMaxOriginal.y = carousel.panMax.y;
-						if (carousel.panMax.y === 0) {
-							var imageToLoad = $(self).find("img")[0];
-							$(imageToLoad).load(function() {
-								carousel.panMax.y = imageToLoad.height / carousel.zoomMultiplier;
-								carousel.panMaxOriginal.y = carousel.panMax.y;
-							});
-						}
-					}
-					window.setTimeout(function() {
-						$(self).trigger("SSWidgetReady").attr("data-ss-state", "ready");
-					}, 0);
+					});
 				}
 			}
-			if (e.tagName.match(/img/i) !== null)
-				$(e).ready(handleItem());
-			else if ($(e).find("img").length > 0)
-				handleChildren();
-			else
-				handleItem();
-				
-			if (i === 0 && !carousel.infinite) $(this).attr("data-ss-state", "active");
+			$(self).trigger("SSWidgetReady").attr("data-ss-state", "ready");
 		});
 		
 		if (carousel.fullscreen) $(window).on("resize orientationchange", function() {
 			carousel.adjustSize();
 		});
 		
-		if (carousel.swipe || carousel.zoom) carousel.container.closest("[data-ss-widget='carousel']").on("touchstart mousedown", function(e) {
+		if (carousel.swipe || carousel.zoom) carousel.widget.on("touchstart mousedown", function(e) {
 			var targetComponent = $(e.target).attr("data-ss-component");
 			
 			if ((targetComponent === "zoom_icon" || targetComponent === "dot") && self.interrupted) {
