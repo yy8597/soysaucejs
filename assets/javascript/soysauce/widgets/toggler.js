@@ -24,10 +24,6 @@ soysauce.togglers = (function() {
 		return this.currOpen;
 	};
 	
-	TogglerTabGroup.prototype.getAccordions = function() {
-		return this.togglers;
-	};
-	
 	TogglerTabGroup.prototype.getID = function() {
 		return this.groupid;
 	};
@@ -38,6 +34,8 @@ soysauce.togglers = (function() {
 			if (i === 0) {
 				toggler.obj.before("<div data-ss-component='button_group' data-ss-tab-id='" + self.groupid + "'></div>");
 				self.buttonGroup = $(toggler.obj[0].previousElementSibling);
+				toggler.setState("open");
+				self.currOpen = toggler;
 			}
 			self.buttonGroup.append(toggler.button);
 		});
@@ -161,7 +159,7 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.toggle = function() {
-		if (this.freeze) return;
+		if (this.freeze || this.state === "open" && this.horizontal) return;
 		(this.state != "open") ? this.open() : this.close();
 	};
 
