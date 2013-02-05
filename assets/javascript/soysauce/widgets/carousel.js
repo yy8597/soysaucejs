@@ -431,6 +431,8 @@ soysauce.carousels = (function() {
 
 		// Decides whether to zoom or move to next/prev item
 		this.widget.one("touchend mouseup", function(e2) {
+			if (self.jumping) return;
+			
 			soysauce.stifle(e2);
 			
 			var targetComponent = $(e2.target).attr("data-ss-component");
@@ -659,6 +661,9 @@ soysauce.carousels = (function() {
 				return false;
 		}
 		
+		this.jumping = true;
+		this.ready = false;
+		
 		var newOffset = index * -this.itemWidth;
 		
 		if (this.infinite) {
@@ -839,8 +844,6 @@ soysauce.carousels = (function() {
 				index += 1;
 			}
 			
-			carousel.jumping = true;
-			carousel.ready = false;
 			carousel.jumpTo(index);
 		});
 		

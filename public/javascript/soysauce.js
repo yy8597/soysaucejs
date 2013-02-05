@@ -1001,6 +1001,8 @@ soysauce.carousels = (function() {
 
 		// Decides whether to zoom or move to next/prev item
 		this.widget.one("touchend mouseup", function(e2) {
+			if (self.jumping) return;
+			
 			soysauce.stifle(e2);
 			
 			var targetComponent = $(e2.target).attr("data-ss-component");
@@ -1229,6 +1231,9 @@ soysauce.carousels = (function() {
 				return false;
 		}
 		
+		this.jumping = true;
+		this.ready = false;
+		
 		var newOffset = index * -this.itemWidth;
 		
 		if (this.infinite) {
@@ -1409,8 +1414,6 @@ soysauce.carousels = (function() {
 				index += 1;
 			}
 			
-			carousel.jumping = true;
-			carousel.ready = false;
 			carousel.jumpTo(index);
 		});
 		
@@ -1467,8 +1470,8 @@ soysauce.carousels = (function() {
 		if (carousel.swipe || carousel.zoom) carousel.widget.on("touchstart mousedown", function(e) {
 			var targetComponent = $(e.target).attr("data-ss-component");
 			
-			if ((targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "thumbnail") && self.interrupted) {
-				var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css("-webkit-transform"))[4]);
+			if ((targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "thumbnail") && carousel.interrupted) {
+				var currXPos = parseInt(soysauce.getArrayFromMatrix(carousel.container.css("-webkit-transform"))[4]);
 				if (currXPos === carousel.offset) {
 					carousel.interrupted = false;
 				}
