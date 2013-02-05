@@ -28,6 +28,7 @@ soysauce.carousels = (function() {
 		this.nextBtn;
 		this.prevBtn;
 		this.freeze = false;
+		this.jumping = false;
 		
 		// Infinite Variables
 		this.infinite = true;
@@ -113,18 +114,6 @@ soysauce.carousels = (function() {
 			else
 				this.infiniteID = undefined;
 		}
-		
-		if (self.interrupted)
-			this.container.on(TRANSITION_END, function() {
-				self.interrupted = false;
-			});
-		
-		if (self.autoscroll && self.autoscrollRestartID === undefined)
-			this.container.on(TRANSITION_END, function() {
-					self.autoscrollRestartID = window.setTimeout(function() {
-						self.autoscrollOn();
-					}, 1000);
-			});
 	};
 	
 	Carousel.prototype.slideForward = function(fast) {
@@ -850,6 +839,7 @@ soysauce.carousels = (function() {
 				index += 1;
 			}
 			
+			carousel.jumping = true;
 			carousel.ready = false;
 			carousel.jumpTo(index);
 		});
@@ -907,14 +897,14 @@ soysauce.carousels = (function() {
 		if (carousel.swipe || carousel.zoom) carousel.widget.on("touchstart mousedown", function(e) {
 			var targetComponent = $(e.target).attr("data-ss-component");
 			
-			if ((targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "thumbnail") && self.interrupted) {
-				var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css("-webkit-transform"))[4]);
+			if ((targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "thumbnail") && carousel.interrupted) {
+				var currXPos = parseInt(soysauce.getArrayFromMatrix(carousel.container.css("-webkit-transform"))[4]);
 				if (currXPos === carousel.offset) {
 					carousel.interrupted = false;
 				}
 			}
 			
-			if (carousel.freeze || targetComponent === "button" || targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "dots" || targetComponent === "thumbnail")
+			if (carousel.jumping || carousel.freeze || targetComponent === "button" || targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "dots" || targetComponent === "thumbnail")
 				return;
 			
 			carousel.handleSwipe(e);
@@ -923,7 +913,17 @@ soysauce.carousels = (function() {
 		carousel.ready = true;
 		carousel.container.on(TRANSITION_END, function() {
 			carousel.ready = true;
+			carousel.jumping = false;
+			carousel.interrupted = false;
+			
 			carousel.container.attr("data-ss-state", "ready");
+			
+			if (carousel.autoscroll && carousel.autoscrollRestartID === undefined) {
+				carousel.autoscrollRestartID = window.setTimeout(function() {
+					carousel.autoscrollOn();
+				}, 1000);
+			}
+			
 		});
 		
 		if (carousel.autoscroll) {
