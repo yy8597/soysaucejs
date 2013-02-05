@@ -208,11 +208,8 @@ soysauce.carousels = (function() {
 			this.container.find("[data-ss-component='item']").width(this.itemWidth);
 		}
 
-		if (this.infinite)
-			this.container.width(this.itemWidth * (this.numChildren + 2));
-		else
-			this.container.width(this.itemWidth * this.numChildren);
-			
+		this.container.width(this.itemWidth * this.numChildren);
+		
 		if (this.zoom) {
 			this.panMax.x = this.itemWidth / this.zoomMultiplier;	
 			this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
