@@ -1,4 +1,3 @@
-@charset "UTF-8";
 [data-ss-widget], [data-ss-component] {
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
   -webkit-backface-visibility: hidden;
@@ -19,40 +18,6 @@
 [data-ss-widget="toggler"][data-ss-options*="slide"] [data-ss-component="content"] {
   transition: height 0.25s ease-in-out;
   overflow: hidden;
-}
-
-.accordion > [data-ss-component="button"] {
-  font-size: 16px;
-  padding: 14px 10px;
-  border-top: 1px solid black;
-}
-.accordion > [data-ss-component="button"] .icon {
-  position: absolute;
-  top: 50%;
-  margin-top: -13px;
-  right: 5px;
-}
-.accordion > [data-ss-component="button"] .icon:after {
-  position: relative;
-  font-size: 26px;
-}
-.accordion > [data-ss-component="button"][data-ss-state="closed"] .icon:after {
-  content: "+";
-  top: 1px;
-}
-.accordion > [data-ss-component="button"][data-ss-state="open"] .icon:after {
-  content: "–";
-  bottom: 2px;
-  right: 1px;
-}
-.accordion [data-ss-component="content"][data-ss-state="open"] {
-  border-top: 1px solid black;
-}
-.accordion [data-ss-component="content"][data-ss-state="open"] > [data-ss-component="wrapper"] {
-  padding: 5px 10px;
-}
-.accordion [data-ss-component="content"][data-ss-state="open"] > [data-ss-component="wrapper"] * {
-  max-width: 100%;
 }
 
 [data-ss-widget="overlay"] {
