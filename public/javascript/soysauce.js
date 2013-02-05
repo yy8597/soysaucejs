@@ -1391,9 +1391,20 @@ soysauce.carousels = (function() {
 		
 		var dotsHtml = "";
 		var numDots = (carousel.infinite) ? carousel.numChildren - 2 : carousel.numChildren;
-		for (i = 0; i < numDots; i++) {
-			dotsHtml += "<div data-ss-component='dot'></div>";
+		var thumbnails = carousel.container.find("[data-ss-component='thumbnail']");
+		
+		if (thumbnails.length > 0) {
+			thumbnails.each(function(i, thumbnail) {
+				dotsHtml += "<div data-ss-component='dot'>" + thumbnail.outerHTML + "</div>";
+				$(this).remove();
+			});
 		}
+		else {
+			for (i = 0; i < numDots; i++) {
+				dotsHtml += "<div data-ss-component='dot'></div>";
+			}
+		}
+		
 		carousel.dots.html(dotsHtml);
 		carousel.dots = carousel.dots.find("div");
 		carousel.dots.attr("data-ss-state", "inactive")
@@ -1466,14 +1477,14 @@ soysauce.carousels = (function() {
 		if (carousel.swipe || carousel.zoom) carousel.widget.on("touchstart mousedown", function(e) {
 			var targetComponent = $(e.target).attr("data-ss-component");
 			
-			if ((targetComponent === "zoom_icon" || targetComponent === "dot") && self.interrupted) {
+			if ((targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "thumbnail") && self.interrupted) {
 				var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css("-webkit-transform"))[4]);
 				if (currXPos === carousel.offset) {
 					carousel.interrupted = false;
 				}
 			}
 			
-			if (carousel.freeze || targetComponent === "button" || targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "dots")
+			if (carousel.freeze || targetComponent === "button" || targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "dots" || targetComponent === "thumbnail")
 				return;
 			
 			carousel.handleSwipe(e);
