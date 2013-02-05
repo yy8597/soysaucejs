@@ -4,6 +4,7 @@
 		@include box-sizing(border-box);
 		display: block;
 		max-width: 100%;
+		-webkit-user-drag: none;
 	}
 	&:not([data-ss-options*="nofullscreen"]) img {
 		width: 100%;
@@ -29,9 +30,6 @@
 		&[data-ss-state="intransit-fast"] {
 			@include transition(transform .6s);
 		}
-	}
-	&[data-ss-options*="noswipe"] img {
-		-webkit-user-drag: none;
 	}
 	&[data-ss-options*="zoom"] img[data-ss-state="ready"] {
 		@include transition(transform .5s);

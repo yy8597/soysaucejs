@@ -54,6 +54,7 @@
   box-sizing: border-box;
   display: block;
   max-width: 100%;
+  -webkit-user-drag: none;
 }
 [data-ss-widget="carousel"]:not([data-ss-options*="nofullscreen"]) img {
   width: 100%;
@@ -85,9 +86,6 @@
   -moz-transition: -moz-transform 0.6s;
   -o-transition: -o-transform 0.6s;
   transition: transform 0.6s;
-}
-[data-ss-widget="carousel"][data-ss-options*="noswipe"] img {
-  -webkit-user-drag: none;
 }
 [data-ss-widget="carousel"][data-ss-options*="zoom"] img[data-ss-state="ready"] {
   -webkit-transition: -webkit-transform 0.5s;
