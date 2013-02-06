@@ -1,0 +1,20 @@
+[data-ss-widget="toggler"]:not([data-ss-options*="slide"]) {
+	> [data-ss-component="content"] {
+		&[data-ss-state="open"] {
+			display: block;
+		}
+		&[data-ss-state="closed"] {
+			display: none;
+		}
+	}
+}
+
+[data-ss-widget="toggler"][data-ss-options*="slide"] {
+	[data-ss-component="content"] {
+		transition: height 0.25s ease-in-out;
+		overflow: hidden;
+		&[data-ss-state="closed"] {
+			height: 0 !important;
+		}
+	}
+}

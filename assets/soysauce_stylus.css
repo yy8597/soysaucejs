@@ -19,6 +19,9 @@
   transition: height 0.25s ease-in-out;
   overflow: hidden;
 }
+[data-ss-widget="toggler"][data-ss-options*="slide"] [data-ss-component="content"][data-ss-state="closed"] {
+  height: 0 !important;
+}
 
 [data-ss-widget="overlay"] {
   transition: opacity 0.4s ease-in-out;
