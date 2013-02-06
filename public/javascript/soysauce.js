@@ -404,12 +404,6 @@ $.fn.imagesLoaded = function( callback ) {
 
 })(jQuery);
 
-Array.prototype.remove = function(from, to) {
-  var rest = this.slice((to || from) + 1 || this.length);
-  this.length = from < 0 ? this.length + from : from;
-  return this.push.apply(this, rest);
-};
-
 if(typeof(soysauce) === "undefined") {
 "use strict";
 
@@ -1201,7 +1195,7 @@ soysauce.carousels = (function() {
 		var newCarousel = this.widget;
 		carousels.forEach(function(e,i) {
 			if (self.id === e.id)
-				carousels.remove(i);
+				carousels.splice(i, 1);
 		});
 		newCarousel.removeAttr("data-ss-state");
 		callback();
