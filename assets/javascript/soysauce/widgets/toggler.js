@@ -1,6 +1,8 @@
 soysauce.togglers = (function() {
 	var togglers = new Array();
 	var togglerTabGroups = new Array();
+	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
+	var currentViewportWidth = window.innerWidth;
 
 	// Toggler Tab Group
 	function TogglerTabGroup(id) {
@@ -70,9 +72,6 @@ soysauce.togglers = (function() {
 	Toggler.prototype.open = function() {
 		if (!this.ready) return;
 		
-		if (this.adjustFlag)
-			this.adjustHeight();
-		
 		var self = this;
 		var prevHeight = 0;
 		if (this.tab) {
@@ -86,6 +85,9 @@ soysauce.togglers = (function() {
 			soysauce.overlay("on");
 		if (this.slide) {
 			this.ready = false;
+			if (this.adjustFlag) this.content.one(TRANSITION_END, function() {
+				self.adjustHeight();
+			});
 			if (this.isChildToggler && this.parent.slide) {
 				if (this.tab) {
 					if (!this.parent.childTabOpen) {
@@ -120,9 +122,13 @@ soysauce.togglers = (function() {
 			soysauce.overlay("off");
 		if (this.slide) {
 			this.ready = false;
-			if (this.isChildToggler && this.parent.slide && !this.tab)
+			if (this.isChildToggler && this.parent.slide && !this.tab) {
 				this.parent.addHeight(-this.height);
-			this.content.css("height", "0px");
+			}
+				this.content.css("height", "0px");
+			if (this.tab) {
+				this.setState("closed");
+			}
 		}
 		if (this.tab) {
 			var currTabOpen;
@@ -130,14 +136,11 @@ soysauce.togglers = (function() {
 			if (currTabOpen !== undefined && currTabOpen.id == self.id) 
 				this.tabGroup.setCurrOpen(undefined);	
 		}
-		if (this.slide) this.content.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
-			self.setState("closed");
-			self.ready = true;
-		});
 		else
 			this.setState("closed");
 	};
 
+	// TODO: this needs improvement; get new height and set it so that it animates on close after a resize/orientation change
 	Toggler.prototype.adjustHeight = function() {
 		this.content.css("height", "auto");
 		this.height = this.content.height();
@@ -310,7 +313,7 @@ soysauce.togglers = (function() {
 				}
 				item.content.css("height", "0px");
 				item.setState("closed");
-				item.content.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+				item.content.on(TRANSITION_END, function() {
 					item.ready = true;
 				});
 			}
@@ -319,10 +322,21 @@ soysauce.togglers = (function() {
 				item.toggle();
 			});
 
-			$(window).on("resize orientationchange", function() {
-				item.adjustFlag = true;
-				if (item.state === "open") {
-					item.adjustHeight();
+			$(window).on("resize orientationchange", function(e) {
+				if (e.type === "orientationchange") {
+					item.adjustFlag = true;
+					if (item.state === "open") {
+						item.adjustHeight();
+					}
+				}
+				else {
+					if (window.innerWidth !== currentViewportWidth) {
+						currentViewportWidth = window.innerWidth;
+						item.adjustFlag = true;
+						if (item.state === "open") {
+							item.adjustHeight();
+						}
+					}
 				}
 			});
 			togglers.push(item);
