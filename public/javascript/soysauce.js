@@ -1404,6 +1404,11 @@ soysauce.carousels = (function() {
 		carousel.dots.attr("data-ss-state", "inactive")
 		carousel.dots.first().attr("data-ss-state", "active");
 		carousel.dots.on("click", function(e) {
+			var currXPos = parseInt(soysauce.getArrayFromMatrix(carousel.container.css("-webkit-transform"))[4]);
+			if (currXPos === carousel.offset) {
+				carousel.ready = true;
+			}
+			
 			if (!carousel.ready || carousel.interrupted || carousel.freeze) return;
 			
 			soysauce.stifle(e);
