@@ -631,7 +631,7 @@ soysauce.carousels = (function() {
 		var newCarousel = this.widget;
 		carousels.forEach(function(e,i) {
 			if (self.id === e.id)
-				carousels.remove(i);
+				carousels.splice(i, 1);
 		});
 		newCarousel.removeAttr("data-ss-state");
 		callback();
