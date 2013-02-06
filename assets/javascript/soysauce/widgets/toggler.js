@@ -24,10 +24,6 @@ soysauce.togglers = (function() {
 		return this.currOpen;
 	};
 	
-	TogglerTabGroup.prototype.getAccordions = function() {
-		return this.togglers;
-	};
-	
 	TogglerTabGroup.prototype.getID = function() {
 		return this.groupid;
 	};
@@ -38,6 +34,8 @@ soysauce.togglers = (function() {
 			if (i === 0) {
 				toggler.obj.before("<div data-ss-component='button_group' data-ss-tab-id='" + self.groupid + "'></div>");
 				self.buttonGroup = $(toggler.obj[0].previousElementSibling);
+				toggler.setState("open");
+				self.currOpen = toggler;
 			}
 			self.buttonGroup.append(toggler.button);
 		});
@@ -66,6 +64,7 @@ soysauce.togglers = (function() {
 		this.ready = true;
 		this.adjustFlag = false;
 		this.horizontal = false;
+		this.freeze = false;
 	}
 
 	Toggler.prototype.open = function() {
@@ -109,9 +108,6 @@ soysauce.togglers = (function() {
 			}
 			else
 				this.content.css("height", this.height + "px");
-			this.content.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
-				self.ready = true;
-			});
 		}
 		this.setState("open");
 	};
@@ -163,6 +159,7 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.toggle = function() {
+		if (this.freeze || this.state === "open" && this.horizontal) return;
 		(this.state != "open") ? this.open() : this.close();
 	};
 
@@ -233,6 +230,14 @@ soysauce.togglers = (function() {
 			this.open();
 	};
 
+	Toggler.prototype.handleFreeze = function() {
+		this.freeze = true;
+	};
+
+	Toggler.prototype.handleUnfreeze = function() {
+		this.freeze = false;
+	};
+	
 	// Initialize
 	(function() {
 		var tabID = 1;
@@ -242,7 +247,8 @@ soysauce.togglers = (function() {
 			var self = this;
 			var options = soysauce.getOptions(this);
 
-			$(this).find("> [data-ss-component='button']").append("<span class='icon'></span>");
+			item.button.append("<span class='icon'></span>");
+			item.content.wrapInner("<div data-ss-component='wrapper'/>");
 
 			item.hasTogglers = ($(this).has("[data-ss-widget='toggler']").length > 0) ? true : false; 
 			item.isChildToggler = ($(this).parents("[data-ss-widget='toggler']").length > 0) ? true : false;
@@ -291,6 +297,7 @@ soysauce.togglers = (function() {
 			}
 			
 			if (item.slide) {
+				item.setState("open");
 				if (item.hasTogglers) {
 					var height = 0;
 					item.content.find("[data-ss-component='button']").each(function() {
@@ -302,9 +309,13 @@ soysauce.togglers = (function() {
 					item.height = item.content.height();
 				}
 				item.content.css("height", "0px");
+				item.setState("closed");
+				item.content.on("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+					item.ready = true;
+				});
 			}
 			
-			$(this).find("> [data-ss-component='button']").click(function() {
+			item.button.click(function() {
 				item.toggle();
 			});
 
@@ -339,8 +350,5 @@ soysauce.togglers = (function() {
 soysauce.togglers.forEach(function(toggler) {
 	if (toggler.state === "closed") {
 		toggler.setState("closed");
-	}
-	if (toggler.state === "closed" && toggler.slide) {
-		toggler.content.css("height", "0px");
 	}
 });

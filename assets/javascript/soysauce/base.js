@@ -130,8 +130,9 @@ Array.prototype.remove = function(from, to) {
   return this.push.apply(this, rest);
 };
 
-if(typeof(soysauce) == "undefined") {
-"use strict";	
+if(typeof(soysauce) === "undefined") {
+"use strict";
+
 soysauce = {
 	init: function() {
 		var set = $("[data-ss-widget]");
@@ -163,10 +164,18 @@ soysauce = {
 	fetch: function(selector) { // Fetch by ID
 		if (selector === undefined) return false;
 		if (typeof(selector) === "object") selector = $(selector).attr("data-ss-id");
-		if (selector===+selector && selector===(selector|0) || selector.match(/^\d+$/).length > 0) {
-			var query = "[data-ss-id='" + selector + "']";
-			var type = $(query).attr("data-ss-widget");
-			var ret;
+		if (/(^#?\.?\w+$)/.test(selector)) {
+			var query, ret, type;
+			
+			if (selector===+selector && selector === (selector|0)) {
+				query = "[data-ss-id='" + selector + "']";
+			}
+			else {
+				query = selector;
+			}
+			
+			type = $(query).attr("data-ss-widget");
+			
 			selector = parseInt(selector);
 			switch(type) {
 				case "toggler":
@@ -218,6 +227,34 @@ soysauce = {
 		supportsLocalStorage: (typeof(window.localStorage) !== "undefined") ? true : false,
 		supportsSessionStorage: (typeof(window.sessionStorage) !== "undefined") ? true : false
 	},
+	freezeChildren: function(selector) {
+		var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
+		children.each(function(index, child) {
+			var id = $(child).attr("data-ss-id");
+			soysauce.freeze(id, false);
+		});
+	},
+	freeze: function(selector, freezeChildren) {
+		if (typeof(selector) === "object") {
+			selector = parseInt($(selector).attr("data-ss-id"));
+		}
+		freezeChildren = (freezeChildren === undefined) ? true : false;
+		soysauce.fetch(selector).handleFreeze();
+		if (freezeChildren) {
+			soysauce.freezeChildren(selector);
+		}
+	},
+	unfreeze: function(selector) {
+		if (typeof(selector) === "object") {
+			selector = parseInt($(selector).attr("data-ss-id"));
+		}
+		var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
+		soysauce.fetch(selector).handleUnfreeze();
+		children.each(function(index, child) {
+			var id = $(child).attr("data-ss-id");
+			soysauce.fetch(id).handleUnfreeze();
+		});
+	}
 }
 
 soysauce.init();

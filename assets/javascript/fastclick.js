@@ -1,13 +1,13 @@
-// Regex that excludes FastClick
-// Note: newer Android devices (4.0+) do not seem to have a click delay
-var excludeFastClick = !(/android [4]/i.test(navigator.userAgent)); 
-
-if (excludeFastClick) {
+/*
+	FastClick (removes the click delay found on mobile devices).
+	More info can be found on https://github.com/ftlabs/fastclick
+*/
 (function() {
-	/*
-		FastClick (removes the click delay found on mobile devices).
-		More info can be found on https://github.com/ftlabs/fastclick
-	*/
+	// Regex that excludes FastClick
+	// Note: newer Android devices (4.0+) do not seem to have a click delay
+	var excludeFastClick = /android [4]/i.test(navigator.userAgent);
+	if (excludeFastClick) return;
+	
 	function FastClick(layer) {
 		'use strict';
 		var oldOnClick, self = this;
@@ -273,25 +273,7 @@ if (excludeFastClick) {
 		layer.removeEventListener('touchcancel', this.onTouchCancel, false);
 	};
 
-
-	if (typeof define === 'function' && define.amd) {
-		define(function() {
-			'use strict';
-			return FastClick;
-		});
-	}
-
-	if (typeof module !== 'undefined' && module.exports) {
-		module.exports = function(layer) {
-			'use strict';
-			return new FastClick(layer);
-		};
-
-		module.exports.FastClick = FastClick;
-	}
-
 	window.addEventListener('load', function() {
 	    new FastClick(document.body);
 	}, false);
 })();
-}

@@ -9,7 +9,6 @@ javascript_compressor:  closure               # (yui, closure)
 javascripts:
   soysauce:
       - assets/javascript/fastclick.js
-      - assets/javascript/parsley.js
       - assets/javascript/soysauce/base.js
       - assets/javascript/soysauce/utilities/*.js
       - assets/javascript/soysauce/widgets/*.js
