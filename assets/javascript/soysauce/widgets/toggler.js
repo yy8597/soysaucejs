@@ -1,72 +1,44 @@
 soysauce.togglers = (function() {
 	var togglers = new Array();
-	var togglerTabGroups = new Array();
 	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
 	var currentViewportWidth = window.innerWidth;
 
-	// Toggler Tab Group
-	function TogglerTabGroup(id) {
-		this.togglers = new Array();
-		this.groupid = id;
-		this.currOpen;
-		this.horizontal = false;
-		this.buttonGroup;
-	}
-	
-	TogglerTabGroup.prototype.setCurrOpen = function(selector) {
-		this.currOpen = selector;
-	};
-	
-	TogglerTabGroup.prototype.addToggler = function(selector) {
-		if (selector === undefined || !typeof(Toggler)) return false;
-		this.togglers.push(selector);
-	};
-	
-	TogglerTabGroup.prototype.getCurrOpen = function() {
-		return this.currOpen;
-	};
-	
-	TogglerTabGroup.prototype.getID = function() {
-		return this.groupid;
-	};
-	
-	TogglerTabGroup.prototype.setHorizontal = function() {
-		var self = this;
-		this.togglers.forEach(function(toggler, i) {
-			if (i === 0) {
-				toggler.obj.before("<div data-ss-component='button_group' data-ss-tab-id='" + self.groupid + "'></div>");
-				self.buttonGroup = $(toggler.obj[0].previousElementSibling);
-				toggler.setState("open");
-				self.currOpen = toggler;
-			}
-			self.buttonGroup.append(toggler.button);
-		});
-	};
-
 	// Togglers
 	function Toggler(obj) {
-		this.id = $(obj).attr("data-ss-id");
+		// Base
+		this.widget = $(obj);
+		this.id = this.widget.attr("data-ss-id");
 		this.parentID = 0;
 		this.tabID;
 		this.state = "closed";
-		this.obj = $(obj);
-		this.button = $(obj).find("> [data-ss-component='button']");
-		this.content = $(obj).find("> [data-ss-component='content']");
-		this.overlay = false;
-		this.tab = false;
-		this.slide = false;
-		this.ajax = true;
-		this.doAjax = false;
-		this.height = 0;
+		this.button = this.widget.find("> [data-ss-component='button']");
+		this.content = this.widget.find("> [data-ss-component='content']");
 		this.isChildToggler = false;
 		this.hasTogglers = false;
-		this.childTabOpen = false;
-		this.tabGroup = undefined;
 		this.parent = undefined;
 		this.ready = true;
 		this.adjustFlag = false;
-		this.horizontal = false;
 		this.freeze = false;
+		this.opened = false;
+		
+		// Slide
+		this.slide = false;
+		this.height = 0;
+		
+		// Ajax
+		this.ajax = true;
+		this.doAjax = false;
+		
+		// Tab
+		this.tab = false;
+		this.childTabOpen = false;
+		
+		// Responsive
+		this.responsive = false;
+		this.responsiveVars = {
+			threshold: 0,
+			accordions: true
+		};
 	}
 
 	Toggler.prototype.open = function() {
@@ -74,15 +46,7 @@ soysauce.togglers = (function() {
 		
 		var self = this;
 		var prevHeight = 0;
-		if (this.tab) {
-			if (this.tabGroup.getCurrOpen() !== undefined) {
-				prevHeight = this.tabGroup.getCurrOpen().height;
-				this.tabGroup.getCurrOpen().close();
-			}
-			this.tabGroup.setCurrOpen(self);
-		}
-		if (this.overlay) 
-			soysauce.overlay("on");
+		
 		if (this.slide) {
 			this.ready = false;
 			if (this.adjustFlag) this.content.one(TRANSITION_END, function() {
@@ -114,29 +78,17 @@ soysauce.togglers = (function() {
 		this.setState("open");
 	};
 
-	Toggler.prototype.close = function(closeOverlay) {
+	Toggler.prototype.close = function() {
 		var self = this;
 		
 		if (!this.ready) return;
 		
-		if (this.overlay && (closeOverlay === undefined) ? true : closeOverlay) {
-			soysauce.overlay("off");
-		}
-			
 		if (this.slide) {
 			this.ready = false;
 			if (this.isChildToggler && this.parent.slide && !this.tab) {
 				this.parent.addHeight(-this.height);
 			}
 				this.content.css("height", "0px");
-		}
-		
-		if (this.tab) {
-			var currTabOpen;
-			currTabOpen = this.tabGroup.getCurrOpen();
-			if (currTabOpen !== undefined && currTabOpen.id == self.id) {
-				this.tabGroup.setCurrOpen(undefined);
-			}
 		}
 		
 		this.setState("closed");
@@ -164,12 +116,32 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.toggle = function() {
-		if (this.freeze || this.state === "open" && this.horizontal) return;
-		(this.state != "open") ? this.open() : this.close();
+		if (this.freeze) return;
+		(!this.opened) ? this.open() : this.close();
+	};
+
+	Toggler.prototype.toggleTabs = function(e) {
+		if (this.freeze) return;
+		
+		var collapse = (this.responsiveVars.accordions && 
+										this.button.attr("data-ss-state") === "open" &&
+										this.button[0] === e.target) ? true : false;
+		
+		this.close();
+		
+		this.button = $(e.target);
+		this.content = $(e.target).find("+ [data-ss-component='content']");
+		
+		if (collapse) {
+			this.widget.attr("data-ss-state", "closed");
+			return;
+		}
+		
+		this.open();
 	};
 
 	Toggler.prototype.handleAjax = function() {
-		var obj = this.obj;
+		var obj = this.widget;
 		var content = this.content;
 		var url = "";
 		var callback;
@@ -223,16 +195,29 @@ soysauce.togglers = (function() {
 
 	Toggler.prototype.setState = function(state) {
 		this.state = state;
-		this.obj.attr("data-ss-state", state);
 		this.button.attr("data-ss-state", state);
 		this.content.attr("data-ss-state", state);
+		
+		if (!this.tab) {
+			this.widget.attr("data-ss-state", state);
+		}
+		
+		if (state === "open") {
+			this.opened = true;
+			this.widget.attr("data-ss-state", state);
+		}
+		else if (!this.tab) {
+			this.opened = false;
+		}
 	};
 
 	Toggler.prototype.setAjaxComplete = function() {
 		this.doAjax = false;
 		this.ready = true;
-		if (this.state === "ajaxing")
+		if (this.state === "open") {
 			this.open();
+			this.opened = true;
+		}
 	};
 
 	Toggler.prototype.handleFreeze = function() {
@@ -243,10 +228,18 @@ soysauce.togglers = (function() {
 		this.freeze = false;
 	};
 	
+	Toggler.prototype.handleResponsive = function() {
+		if (!this.responsive) return;
+		if (window.innerWidth >= this.responsiveVars.threshold) {
+			this.responsiveVars.accordions = false;
+		}
+		else {
+			this.responsiveVars.accordions = true;
+		}
+	};
+	
 	// Initialize
 	(function() {
-		var tabID = 1;
-		var group;
 		$("[data-ss-widget='toggler']").each(function() {
 			var item = new Toggler(this);
 			var self = this;
@@ -255,58 +248,61 @@ soysauce.togglers = (function() {
 			item.button.append("<span class='icon'></span>");
 			item.content.wrapInner("<div data-ss-component='wrapper'/>");
 
-			item.hasTogglers = ($(this).has("[data-ss-widget='toggler']").length > 0) ? true : false; 
-			item.isChildToggler = ($(this).parents("[data-ss-widget='toggler']").length > 0) ? true : false;
+			item.hasTogglers = (item.widget.has("[data-ss-widget='toggler']").length > 0) ? true : false; 
+			item.isChildToggler = (item.widget.parents("[data-ss-widget='toggler']").length > 0) ? true : false;
 			
 			if (item.isChildToggler) {
-				var parent = $(this).parents("[data-ss-widget='toggler']");
+				var parent = item.widget.parents("[data-ss-widget='toggler']");
 				item.parentID = parseInt(parent.attr("data-ss-id"));
 				item.parent = parent;
 			}
 
-			if(options) options.forEach(function(option) {
+			if (options) options.forEach(function(option) {
 				switch(option) {
 					case "ajax":
 						item.ajax = true;
 						item.doAjax = true;
 						item.handleAjax();
 						break;
-					case "overlay":
-						item.overlay = true;
-						break;
-					case "tab":
+					case "tabs":
 						item.tab = true;
 						break;
 					case "slide":
 						item.slide = true;
 						break;
-					case "horizontal":
-						item.horizontal = true;
+					case "responsive":
+						item.responsive = true;
 						break;
 				}
 			});
 			
-			if (item.tab) {
-				if (!$(self).attr("data-ss-tab-id")) {
-					var siblings = $(self).find("~ [data-ss-options*='tab']");
-					var group_name = "group"
-					group = new TogglerTabGroup(tabID);
-					item.tabID = tabID;
-					$(self).attr("data-ss-tab-id", tabID);
-					siblings.attr("data-ss-tab-id", tabID);
-					togglerTabGroups.push(group);
-					tabID++;
-				} else {
-					item.tabID = $(self).attr("data-ss-tab-id");
+			// 	Responsive is a custom option which takes multiple buttons and content.
+			// 	This inherits the "slide" and "tab" options.
+			if (item.responsive) {
+				item.responsiveVars.threshold = parseInt($(this).attr("data-ss-responsive-threshold"));
+				if (!item.responsiveVars.threshold) {
+					console.warn("Soysauce: [data-ss-responsive-threshold] tag required.");
 				}
+				$(window).on("resize orientationchange", function(e) {
+					if (e.type === "orientationchange") {
+						item.handleResponsive();
+					}
+					else {
+						if (window.innerWidth !== currentViewportWidth) {
+							currentViewportWidth = window.innerWidth;
+							item.handleResponsive();
+						}
+					}
+				});
 			}
 			
 			if (item.slide) {
 				item.setState("open");
+				
 				if (item.hasTogglers) {
 					var height = 0;
 					item.content.find("[data-ss-component='button']").each(function() {
-						height += $(this).height();
+						height += item.widget.height();
 					});
 					item.height = height;
 				}
@@ -318,45 +314,34 @@ soysauce.togglers = (function() {
 				item.content.on(TRANSITION_END, function() {
 					item.ready = true;
 				});
-			}
-			
-			item.button.click(function() {
-				item.toggle();
-			});
-
-			$(window).on("resize orientationchange", function(e) {
-				if (e.type === "orientationchange") {
-					item.adjustFlag = true;
-					if (item.state === "open") {
-						item.adjustHeight();
-					}
-				}
-				else {
-					if (window.innerWidth !== currentViewportWidth) {
-						currentViewportWidth = window.innerWidth;
+				
+				$(window).on("resize orientationchange", function(e) {
+					if (e.type === "orientationchange") {
 						item.adjustFlag = true;
 						if (item.state === "open") {
 							item.adjustHeight();
 						}
 					}
-				}
+					else {
+						if (window.innerWidth !== currentViewportWidth) {
+							currentViewportWidth = window.innerWidth;
+							item.adjustFlag = true;
+							if (item.state === "open") {
+								item.adjustHeight();
+							}
+						}
+					}
+				});
+			}
+			
+			if (item.tab) item.button.click(function(e) {
+				item.toggleTabs(e);
 			});
+			else item.button.click(function() {
+				item.toggle();
+			});
+
 			togglers.push(item);
-		});
-		togglers.forEach(function(toggler) {
-			if (toggler.tabID !== undefined) {
-				var group = togglerTabGroups[toggler.tabID - 1];
-				group.addToggler(toggler);
-				toggler.tabGroup = group;
-				if (toggler.horizontal) {
-					group.horizontal = true;
-				}
-			}
-		});
-		togglerTabGroups.forEach(function(group) {
-			if (group.horizontal) {
-				group.setHorizontal();
-			}
 		});
 	})(); // end init
 
