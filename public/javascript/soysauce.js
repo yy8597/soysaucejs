@@ -1714,6 +1714,7 @@ soysauce.togglers = (function() {
 			else
 				this.content.css("height", this.height + "px");
 		}
+		
 		this.setState("open");
 	};
 
@@ -1849,6 +1850,10 @@ soysauce.togglers = (function() {
 		else if (!this.tab) {
 			this.opened = false;
 		}
+		
+		if (this.responsive && this.opened) {
+			this.handleResponsive();
+		}
 	};
 
 	Toggler.prototype.setAjaxComplete = function() {
@@ -1877,9 +1882,11 @@ soysauce.togglers = (function() {
 				this.content = this.widget.find("[data-ss-component='content']").first();
 				this.open();
 			}
+			this.widget.css("min-height", this.button.outerHeight() + this.content.outerHeight() + "px");
 		}
 		else {
 			this.responsiveVars.accordions = true;
+			this.widget.css("min-height", "0");
 		}
 	};
 	
