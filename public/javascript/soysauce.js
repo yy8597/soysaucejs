@@ -408,16 +408,20 @@ if(typeof(soysauce) === "undefined") {
 "use strict";
 
 soysauce = {
-	init: function() {
-		var set = $("[data-ss-widget]");
-		for (var i = 0; i < set.length; i++) {
+	vars: {
+		idCount: 0
+	},
+	init: function(selector) {
+		if (!selector) {
+			var set = $("[data-ss-widget]");
+			soysauce.vars.idCount = set.length;
+			for (var i = 0; i < soysauce.vars.idCount; i++) {
 				$(set[i]).attr("data-ss-id", i+1);
+			}
 		}
-		$(document).ready(function() {
-			window.setTimeout(function(){
-				window.scrollTo(0, 1);
-			}, 0);
-		});
+		else {
+			// TODO
+		}
 	},
 	getOptions: function(selector) {
 		if($(selector).attr("data-ss-options") == undefined) return false;
@@ -528,10 +532,25 @@ soysauce = {
 			var id = $(child).attr("data-ss-id");
 			soysauce.fetch(id).handleUnfreeze();
 		});
+	},
+	reload: function(selector) {
+		// TODO
+	},
+	scrollTop: function() {
+		$(document).ready(function() {
+			window.setTimeout(function(){
+				window.scrollTo(0, 1);
+			}, 0);
+		});
+	},
+	imagesLoaded: function(selector) {
+		// TODO
 	}
 }
 
 soysauce.init();
+soysauce.scrollTop();
+soysauce.imagesLoaded();
 
 }
 
@@ -1735,32 +1754,34 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.close = function(closeOverlay) {
+		var self = this;
+		
 		if (!this.ready) return;
 		
-		var self = this;
-		if (this.overlay && (closeOverlay === undefined) ? true : closeOverlay) 
+		if (this.overlay && (closeOverlay === undefined) ? true : closeOverlay) {
 			soysauce.overlay("off");
+		}
+			
 		if (this.slide) {
 			this.ready = false;
 			if (this.isChildToggler && this.parent.slide && !this.tab) {
 				this.parent.addHeight(-this.height);
 			}
 				this.content.css("height", "0px");
-			if (this.tab) {
-				this.setState("closed");
-			}
 		}
+		
 		if (this.tab) {
 			var currTabOpen;
 			currTabOpen = this.tabGroup.getCurrOpen();
-			if (currTabOpen !== undefined && currTabOpen.id == self.id) 
-				this.tabGroup.setCurrOpen(undefined);	
+			if (currTabOpen !== undefined && currTabOpen.id == self.id) {
+				this.tabGroup.setCurrOpen(undefined);
+			}
 		}
-		else
-			this.setState("closed");
+		
+		this.setState("closed");
 	};
 
-	// TODO: get new height and set it so that it animates on close after a resize
+	// TODO: this needs improvement; get new height and set it so that it animates on close after a resize/orientation change
 	Toggler.prototype.adjustHeight = function() {
 		this.content.css("height", "auto");
 		this.height = this.content.height();
