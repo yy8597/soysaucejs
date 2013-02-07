@@ -115,29 +115,31 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.close = function(closeOverlay) {
+		var self = this;
+		
 		if (!this.ready) return;
 		
-		var self = this;
-		if (this.overlay && (closeOverlay === undefined) ? true : closeOverlay) 
+		if (this.overlay && (closeOverlay === undefined) ? true : closeOverlay) {
 			soysauce.overlay("off");
+		}
+			
 		if (this.slide) {
 			this.ready = false;
 			if (this.isChildToggler && this.parent.slide && !this.tab) {
 				this.parent.addHeight(-this.height);
 			}
 				this.content.css("height", "0px");
-			if (this.tab) {
-				this.setState("closed");
-			}
 		}
+		
 		if (this.tab) {
 			var currTabOpen;
 			currTabOpen = this.tabGroup.getCurrOpen();
-			if (currTabOpen !== undefined && currTabOpen.id == self.id) 
-				this.tabGroup.setCurrOpen(undefined);	
+			if (currTabOpen !== undefined && currTabOpen.id == self.id) {
+				this.tabGroup.setCurrOpen(undefined);
+			}
 		}
-		else
-			this.setState("closed");
+		
+		this.setState("closed");
 	};
 
 	// TODO: this needs improvement; get new height and set it so that it animates on close after a resize/orientation change
