@@ -128,16 +128,20 @@ if(typeof(soysauce) === "undefined") {
 "use strict";
 
 soysauce = {
-	init: function() {
-		var set = $("[data-ss-widget]");
-		for (var i = 0; i < set.length; i++) {
+	vars: {
+		idCount: 0
+	},
+	init: function(selector) {
+		if (!selector) {
+			var set = $("[data-ss-widget]");
+			soysauce.vars.idCount = set.length;
+			for (var i = 0; i < soysauce.vars.idCount; i++) {
 				$(set[i]).attr("data-ss-id", i+1);
+			}
 		}
-		$(document).ready(function() {
-			window.setTimeout(function(){
-				window.scrollTo(0, 1);
-			}, 0);
-		});
+		else {
+			// TODO
+		}
 	},
 	getOptions: function(selector) {
 		if($(selector).attr("data-ss-options") == undefined) return false;
@@ -248,9 +252,24 @@ soysauce = {
 			var id = $(child).attr("data-ss-id");
 			soysauce.fetch(id).handleUnfreeze();
 		});
+	},
+	reload: function(selector) {
+		// TODO
+	},
+	scrollTop: function() {
+		$(document).ready(function() {
+			window.setTimeout(function(){
+				window.scrollTo(0, 1);
+			}, 0);
+		});
+	},
+	imagesLoaded: function(selector) {
+		// TODO
 	}
 }
 
 soysauce.init();
+soysauce.scrollTop();
+soysauce.imagesLoaded();
 
 }
