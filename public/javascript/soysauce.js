@@ -1681,16 +1681,23 @@ soysauce.togglers = (function() {
 	}
 
 	Toggler.prototype.open = function() {
-		if (!this.ready) return;
+		var slideOpenWithTab = this.tab && this.responsiveVars.accordions;
+		
+		if (!this.ready && !slideOpenWithTab) return;
 		
 		var self = this;
 		var prevHeight = 0;
 		
 		if (this.slide) {
+			
+			if (!slideOpenWithTab) return;
+			
 			this.ready = false;
-			if (this.adjustFlag) this.content.one(TRANSITION_END, function() {
+			
+			if (this.adjustFlag || slideOpenWithTab) this.content.one(TRANSITION_END, function() {
 				self.adjustHeight();
 			});
+			
 			if (this.isChildToggler && this.parent.slide) {
 				if (this.tab) {
 					if (!this.parent.childTabOpen) {
@@ -1702,8 +1709,11 @@ soysauce.togglers = (function() {
 						this.parent.addHeight(offset);
 					}
 				}
-				else this.parent.addHeight(this.height);
+				else {
+					this.parent.addHeight(this.height);
+				}
 			}
+			
 			if (this.ajax && this.height === 0) {
 				$(this.content).imagesLoaded(function() {
 					self.content.css("height", "auto");
@@ -1711,8 +1721,10 @@ soysauce.togglers = (function() {
 					self.content.css("height", self.height + "px");
 				});
 			}
-			else
+			
+			else {
 				this.content.css("height", this.height + "px");
+			}
 		}
 		
 		this.setState("open");
@@ -1728,7 +1740,7 @@ soysauce.togglers = (function() {
 			if (this.isChildToggler && this.parent.slide && !this.tab) {
 				this.parent.addHeight(-this.height);
 			}
-				this.content.css("height", "0px");
+			this.content.css("height", "0px");
 		}
 		
 		this.setState("closed");
@@ -1736,8 +1748,8 @@ soysauce.togglers = (function() {
 
 	// TODO: this needs improvement; get new height and set it so that it animates on close after a resize/orientation change
 	Toggler.prototype.adjustHeight = function() {
-		this.content.css("height", "auto");
-		this.height = this.content.height();
+		// this.content.css("height", "auto");
+		// this.height = this.content.height();
 		this.adjustFlag = false;
 	};
 
@@ -1946,8 +1958,12 @@ soysauce.togglers = (function() {
 					item.height = height;
 				}
 				else {
+					item.content.each(function() {
+						$(this).attr("data-ss-slide-height", $(this).height());
+					});
 					item.height = item.content.height();
 				}
+				
 				item.content.css("height", "0px");
 				item.setState("closed");
 				item.content.on(TRANSITION_END, function() {
