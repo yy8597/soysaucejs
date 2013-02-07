@@ -1773,6 +1773,7 @@ soysauce.togglers = (function() {
 		
 		if (collapse) {
 			this.widget.attr("data-ss-state", "closed");
+			this.opened = false;
 			return;
 		}
 		
@@ -1871,6 +1872,11 @@ soysauce.togglers = (function() {
 		if (!this.responsive) return;
 		if (window.innerWidth >= this.responsiveVars.threshold) {
 			this.responsiveVars.accordions = false;
+			if (!this.opened) {
+				this.button = this.widget.find("[data-ss-component='button']").first();
+				this.content = this.widget.find("[data-ss-component='content']").first();
+				this.open();
+			}
 		}
 		else {
 			this.responsiveVars.accordions = true;
@@ -1915,24 +1921,11 @@ soysauce.togglers = (function() {
 				}
 			});
 			
-			// 	Responsive is a custom option which takes multiple buttons and content.
-			// 	This inherits the "slide" and "tab" options.
-			if (item.responsive) {
-				item.responsiveVars.threshold = parseInt($(this).attr("data-ss-responsive-threshold"));
-				if (!item.responsiveVars.threshold) {
-					console.warn("Soysauce: [data-ss-responsive-threshold] tag required.");
-				}
-				$(window).on("resize orientationchange", function(e) {
-					if (e.type === "orientationchange") {
-						item.handleResponsive();
-					}
-					else {
-						if (window.innerWidth !== currentViewportWidth) {
-							currentViewportWidth = window.innerWidth;
-							item.handleResponsive();
-						}
-					}
-				});
+			if (item.widget.attr("data-ss-state") !== undefined && item.widget.attr("data-ss-state") === "open") {
+				item.setState("open");
+			}
+			else {
+				item.setState("closed");
 			}
 			
 			if (item.slide) {
@@ -1980,15 +1973,30 @@ soysauce.togglers = (function() {
 				item.toggle();
 			});
 
+			// 	Responsive is a custom option which takes multiple buttons and content.
+			// 	This inherits the "slide" and "tab" options.
+			if (item.responsive) {
+				item.responsiveVars.threshold = parseInt($(this).attr("data-ss-responsive-threshold"));
+				if (!item.responsiveVars.threshold) {
+					console.warn("Soysauce: [data-ss-responsive-threshold] tag required.");
+				}
+				$(window).on("resize orientationchange", function(e) {
+					if (e.type === "orientationchange") {
+						item.handleResponsive();
+					}
+					else {
+						if (window.innerWidth !== currentViewportWidth) {
+							currentViewportWidth = window.innerWidth;
+							item.handleResponsive();
+						}
+					}
+				});
+				item.handleResponsive();
+			}
+
 			togglers.push(item);
 		});
 	})(); // end init
 
 	return togglers;
 })();
-
-soysauce.togglers.forEach(function(toggler) {
-	if (toggler.state === "closed") {
-		toggler.setState("closed");
-	}
-});
