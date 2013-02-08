@@ -1,4 +1,5 @@
 soysauce.carousels = (function() {
+    
 	var carousels = new Array();
 	
 	// Shared Default Globals
@@ -54,6 +55,9 @@ soysauce.carousels = (function() {
 		
 		// CMS Variables
 		this.cms = false;
+        
+        // Thumbnail Variables
+        this.thumbs = false;
 		
 		// Zoom Variables
 		this.zoom = false;
@@ -739,6 +743,9 @@ soysauce.carousels = (function() {
 				case "3d":
 					carousel.supports3d = true;
 					break;
+                case "thumbs":
+                    carousel.thumbs = true;
+                    break;
 			}
 		});
 		
@@ -756,7 +763,6 @@ soysauce.carousels = (function() {
 				$(this).remove();
 			});
 		}
-		
 		if (carousel.swipe) $(this).find("a").click(function(e) {
 			soysauce.stifle(e);
 		});
@@ -795,7 +801,7 @@ soysauce.carousels = (function() {
 		
 		carousel.maxIndex = $(this).find("[data-ss-component='item']").length;
 		
-		if (carousel.infinite) {
+        if (carousel.infinite) {
 			first_item = carousel.container.find("[data-ss-component='item']").first().clone();
 			last_item = carousel.container.find("[data-ss-component='item']").last().clone();
 			first_item.appendTo(carousel.container);
@@ -811,24 +817,38 @@ soysauce.carousels = (function() {
 		else
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		
-		carousel.links = ((items[0].tagName.match(/^a$/i) !== null) || items.find("a[href]").length > 0) ? true : false;
+		carousel.links = ((items[0].tagName.match(/^a$/i) !== null) || items.find("a[href]").length > 0) ? true : false;carousel.links = ((items[0].tagName.match(/^a$/i) !== null) || items.find("a[href]").length > 0) ? true : false;
+        
+        if (carousel.thumbs) {
+            carousel.container.find("[data-ss-component='thumbnail']").remove(); // Clear any added thumbs
+            var c = 0;
+            carousel.items.each(function(){ 
+                ++c;
+                if (carousel.infinite && (c === 1 || c === carousel.numChildren)) {
+                    // Skip first and last, as they are clones.
+                    return; 
+                }
+                var src = (carousel.links) ? $(this).find("img").attr("src") : $(this).attr("src");
+                carousel.container.append("<img data-ss-component='thumbnail' src='" + src + "'>");
+            });
+        }
 		
 		var dotsHtml = "";
 		var numDots = (carousel.infinite) ? carousel.numChildren - 2 : carousel.numChildren;
-		var thumbnails = carousel.container.find("[data-ss-component='thumbnail']");
-		
-		if (thumbnails.length > 0) {
-			thumbnails.each(function(i, thumbnail) {
-				dotsHtml += "<div data-ss-component='dot'>" + thumbnail.outerHTML + "</div>";
-				$(this).remove();
-			});
-		}
-		else {
-			for (i = 0; i < numDots; i++) {
-				dotsHtml += "<div data-ss-component='dot'></div>";
-			}
-		}
-		
+        
+        var thumbnails = carousel.container.find("[data-ss-component='thumbnail']");
+        if (thumbnails.length > 0) {
+            thumbnails.each(function(i, thumbnail) {
+                dotsHtml += "<div data-ss-component='dot'>" + thumbnail.outerHTML + "</div>";
+                $(this).remove();
+            });
+        }
+        else {
+            for (i = 0; i < numDots; i++) {
+                dotsHtml += "<div data-ss-component='dot'></div>";
+            }
+        }
+        		
 		carousel.dots.html(dotsHtml);
 		carousel.dots = carousel.dots.find("div");
 		carousel.dots.attr("data-ss-state", "inactive")
