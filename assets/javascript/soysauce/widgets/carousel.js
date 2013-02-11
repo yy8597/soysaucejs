@@ -380,7 +380,6 @@ soysauce.carousels = (function() {
 
 						$(e2.target).attr("data-ss-state", "panning");
 
-<<<<<<< HEAD
 						if (self.pinch && coords2.x2 && coords2.y2) {
 							panLock = false;
 							newX2 = coords2.x2;
@@ -462,7 +461,6 @@ soysauce.carousels = (function() {
 					self.container.attr("data-ss-state", "notransition");
 					setTranslate(self.container[0], self.offset - dragOffset);
 				});
-=======
 		this.gotoPos(newOffset, false, true);
 		this.index = index;
 		
@@ -523,7 +521,6 @@ soysauce.carousels = (function() {
 				case "3d":
 					carousel.supports3d = true;
 					break;
->>>>>>> parent of 0270acf... base stuff
 			}
 
 			// Decides whether to zoom or move to next/prev item

@@ -216,7 +216,7 @@ soysauce = {
 		freezeChildren = (freezeChildren === undefined) ? true : false;
 		soysauce.fetch(selector).handleFreeze();
 		if (freezeChildren) {
-			soysauce.freezeChildren(selector);
+				soysauce.freezeChildren(selector);
 		}
 	},
 	unfreeze: function(selector) {
@@ -234,17 +234,12 @@ soysauce = {
 		window.setTimeout(function(){
 			window.scrollTo(0, 1);
 		}, 0);
-	},
-	imagesLoaded: function(selector) {
-		// TODO
 	}
 }
 
-soysauce.imagesLoaded();
-
 $(document).ready(function() {
 	soysauce.scrollTop();
-	// soysauce.init();
+	soysauce.init();
 });
 
 }

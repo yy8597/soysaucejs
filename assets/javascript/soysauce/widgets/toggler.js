@@ -296,30 +296,6 @@ soysauce.togglers = (function() {
 				this.widget.css("min-height", "0");
 			}
 		};
-		
-		this.handleResize = function(e) {
-			if (e.type === "orientationchange") {
-				self.adjustFlag = true;
-				if (self.state === "open") {
-					self.adjustHeight();
-				}
-				if (self.responsive) {
-					self.handleResponsive();
-				}
-			}
-			else {
-				if (window.innerWidth !== currentViewportWidth) {
-					currentViewportWidth = window.innerWidth;
-					self.adjustFlag = true;
-					if (self.state === "open") {
-						self.adjustHeight();
-					}
-					if (self.responsive) {
-						self.handleResponsive();
-					}
-				}
-			}
-		}
 		// End of Instance Functions
 		
 		this.allButtons.append("<span class='icon'></span>");
@@ -375,6 +351,30 @@ soysauce.togglers = (function() {
 		
 		this.handleResponsive();
 	}
+	
+	Toggler.prototype.handleResize = function(e) {
+		if (e.type === "orientationchange") {
+			self.adjustFlag = true;
+			if (self.state === "open") {
+				self.adjustHeight();
+			}
+			if (self.responsive) {
+				self.handleResponsive();
+			}
+		}
+		else {
+			if (window.innerWidth !== currentViewportWidth) {
+				currentViewportWidth = window.innerWidth;
+				self.adjustFlag = true;
+				if (self.state === "open") {
+					self.adjustHeight();
+				}
+				if (self.responsive) {
+					self.handleResponsive();
+				}
+			}
+		}
+	};
 	
 	return {
 		init: function(selector) {
