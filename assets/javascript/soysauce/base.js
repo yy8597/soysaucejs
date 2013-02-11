@@ -131,7 +131,8 @@ soysauce = {
 	widgets: new Array(),
 	vars: {
 		idCount: 0,
-		currentViewportWidth: window.innerWidth
+		currentViewportWidth: window.innerWidth,
+		SUPPORTS3D: (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true
 	},
 	getOptions: function(selector) {
 		if($(selector).attr("data-ss-options") == undefined) return false;
