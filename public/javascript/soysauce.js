@@ -556,7 +556,11 @@ soysauce.init = function(selector) {
 				widget = soysauce.togglers.init(this);
 				break;
 		}
-		
+
+		if (widget !== undefined) {
+			$(window).on("resize orientationchange", widget.handleResize);
+		}
+
 		soysauce.widgets.push(widget);
 	});
 }
@@ -1646,12 +1650,12 @@ soysauce.ccValidators = (function() {
 
 soysauce.togglers = (function() {
 	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
-	var currentViewportWidth = window.innerWidth;
 
 	// Togglers
 	function Toggler(selector) {
 		var self = this;
 		var options = soysauce.getOptions(selector);
+		var currentViewportWidth = window.innerWidth;
 		
 		// Base
 		this.widget = $(selector);
@@ -1686,7 +1690,7 @@ soysauce.togglers = (function() {
 		// Responsive
 		this.responsive = false;
 		this.responsiveVars = {
-			threshold: 0,
+			threshold: (!this.widget.attr("data-ss-responsive-threshold")) ? 0 : parseInt(this.widget.attr("data-ss-responsive-threshold")),
 			accordions: true
 		};
 		
@@ -1942,6 +1946,30 @@ soysauce.togglers = (function() {
 				this.widget.css("min-height", "0");
 			}
 		};
+		
+		this.handleResize = function(e) {
+			if (e.type === "orientationchange") {
+				self.adjustFlag = true;
+				if (self.state === "open") {
+					self.adjustHeight();
+				}
+				if (self.responsive) {
+					self.handleResponsive();
+				}
+			}
+			else {
+				if (window.innerWidth !== currentViewportWidth) {
+					currentViewportWidth = window.innerWidth;
+					self.adjustFlag = true;
+					if (self.state === "open") {
+						self.adjustHeight();
+					}
+					if (self.responsive) {
+						self.handleResponsive();
+					}
+				}
+			}
+		}
 		// End of Instance Functions
 		
 		this.allButtons.append("<span class='icon'></span>");
@@ -1989,50 +2017,13 @@ soysauce.togglers = (function() {
 			this.allContent.on(TRANSITION_END, function() {
 				self.ready = true;
 			});
-
-			$(window).on("resize orientationchange", function(e) {
-				if (e.type === "orientationchange") {
-					self.adjustFlag = true;
-					if (self.state === "open") {
-						self.adjustHeight();
-					}
-				}
-				else {
-					if (window.innerWidth !== currentViewportWidth) {
-						currentViewportWidth = window.innerWidth;
-						self.adjustFlag = true;
-						if (self.state === "open") {
-							self.adjustHeight();
-						}
-					}
-				}
-			});
 		}
 
 		this.allButtons.click(function(e) {
 			self.toggle(e);
 		});
-
-		// 	Responsive is a custom option which takes multiple buttons and content.
-		// 	This inherits the "slide" and "tab" options.
-		if (this.responsive) {
-			this.responsiveVars.threshold = parseInt(this.widget.attr("data-ss-responsive-threshold"));
-			if (!this.responsiveVars.threshold) {
-				console.warn("Soysauce: [data-ss-responsive-threshold] tag required.");
-			}
-			$(window).on("resize orientationchange", function(e) {
-				if (e.type === "orientationchange") {
-					self.handleResponsive();
-				}
-				else {
-					if (window.innerWidth !== currentViewportWidth) {
-						currentViewportWidth = window.innerWidth;
-						self.handleResponsive();
-					}
-				}
-			});
-			this.handleResponsive();
-		}
+		
+		this.handleResponsive();
 	}
 	
 	return {
