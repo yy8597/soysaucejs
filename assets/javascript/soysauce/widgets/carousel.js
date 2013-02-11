@@ -30,6 +30,7 @@ soysauce.carousels = (function() {
 		this.prevBtn;
 		this.freeze = false;
 		this.jumping = false;
+		this.force3D = soysauce.vars.SUPPORTS3D;
 		
 		// Infinite Variables
 		this.infinite = true;
@@ -99,7 +100,7 @@ soysauce.carousels = (function() {
 					carousel.pinch = true;
 					break
 				case "3d":
-					carousel.soysauce.vars.SUPPORTS3D = true;
+					carousel.force3D = true;
 					break;
 			}
 		});
@@ -722,14 +723,14 @@ soysauce.carousels = (function() {
 		function setTranslate(element, x, y) {
 			x = (!x) ? 0 : x;
 			y =  (!y) ? 0 : y;
-			element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform = "translate" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
+			element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform = "translate" + ((force3D) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
 		}
 
 		function setScale(element, multiplier) {
 			var currTransform = element.style.webkitTransform;
 			multiplier = (!multiplier) ? ZOOM_MULTIPLIER : multiplier;
 			element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform 
-			= currTransform + " scale" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
+			= currTransform + " scale" + ((force3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
 		}
 
 		function init() {
@@ -945,8 +946,6 @@ soysauce.carousels = (function() {
 			carousels.push(carousel);
 		}
 	}
-	
-	
 	
 	return {
 		init: function(selector) {
