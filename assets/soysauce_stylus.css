@@ -19,8 +19,11 @@
   transition: height 0.25s ease-in-out;
   overflow: hidden;
 }
+[data-ss-widget="toggler"][data-ss-options*="slide"] [data-ss-component="content"][data-ss-state="closed"] {
+  height: 0 !important;
+}
 
-[data-ss-widget="overlay"] {
+[data-ss-utility="overlay"] {
   transition: opacity 0.4s ease-in-out;
   display: none;
   position: absolute;
@@ -32,7 +35,7 @@
   opacity: 0;
   z-index: 1;
 }
-[data-ss-widget="overlay"][data-ss-state="active"] {
+[data-ss-utility="overlay"][data-ss-state="active"] {
   opacity: 0.7;
 }
 

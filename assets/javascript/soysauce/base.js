@@ -128,16 +128,11 @@ if(typeof(soysauce) === "undefined") {
 "use strict";
 
 soysauce = {
-	init: function() {
-		var set = $("[data-ss-widget]");
-		for (var i = 0; i < set.length; i++) {
-				$(set[i]).attr("data-ss-id", i+1);
-		}
-		$(document).ready(function() {
-			window.setTimeout(function(){
-				window.scrollTo(0, 1);
-			}, 0);
-		});
+	widgets: new Array(),
+	vars: {
+		idCount: 0,
+		currentViewportWidth: window.innerWidth,
+		SUPPORTS3D: (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true
 	},
 	getOptions: function(selector) {
 		if($(selector).attr("data-ss-options") == undefined) return false;
@@ -171,30 +166,18 @@ soysauce = {
 			type = $(query).attr("data-ss-widget");
 			
 			selector = parseInt(selector);
-			switch(type) {
-				case "toggler":
-					soysauce.togglers.forEach(function(widget) {
-						if (widget.id == selector) {
-							ret = widget;
-						}
-					});
-					return ret;
-				case "carousel":
-					soysauce.carousels.forEach(function(widget) {
-						if (widget.id == selector) {
-							ret = widget;
-						}
-					});
-					return ret;
-				case "cc_validator":
-					soysauce.ccValidators.forEach(function(widget) {
-						if (widget.id == selector) {
-							ret = widget;
-						}
-					});
-					return ret;
-				default:
-					console.warn("Soysauce: Unfetchable item.");
+			
+			soysauce.widgets.forEach(function(widget) {
+				if (widget.id == selector) {
+					ret = widget;
+				}
+			});
+			
+			if (!ret) {
+				console.warn("Soysauce: Unfetchable item.");
+			}
+			else {
+				return ret;
 			}
 		}
 	},
@@ -235,7 +218,7 @@ soysauce = {
 		freezeChildren = (freezeChildren === undefined) ? true : false;
 		soysauce.fetch(selector).handleFreeze();
 		if (freezeChildren) {
-			soysauce.freezeChildren(selector);
+				soysauce.freezeChildren(selector);
 		}
 	},
 	unfreeze: function(selector) {
@@ -248,9 +231,28 @@ soysauce = {
 			var id = $(child).attr("data-ss-id");
 			soysauce.fetch(id).handleUnfreeze();
 		});
+	},
+	scrollTop: function() {
+		window.setTimeout(function(){
+			window.scrollTo(0, 1);
+		}, 0);
 	}
 }
 
-soysauce.init();
+// Widget Resize Handler
+$(window).on("resize orientationchange", function(e) {
+	if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
+		soysauce.vars.currentViewportWidth = window.innerWidth;
+		soysauce.widgets.forEach(function(widget) {
+			widget.handleResize();
+		});
+	}
+});
+
+// Widget Initialization
+$(document).ready(function() {
+	soysauce.scrollTop();
+	soysauce.init();
+});
 
 }

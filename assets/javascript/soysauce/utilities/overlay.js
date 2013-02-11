@@ -1,20 +1,20 @@
 soysauce.overlay = function(cmd) {
 	switch(cmd) {
 		case "init":
-			if ($("[data-ss-widget='overlay']") === undefined) break;
+			if (!$("[data-ss-utility='overlay']")) break;
 			var div = document.createElement("div");
-			div.setAttribute("data-ss-widget", "overlay");
+			div.setAttribute("data-ss-utility", "overlay");
 			div.setAttribute("data-ss-state", "inactive");
 			document.body.appendChild(div);
 			break;
 		case "on":
-			$("[data-ss-widget='overlay']").show();
+			$("[data-ss-utility='overlay']").show();
 			window.setTimeout(function() {
-				$("[data-ss-widget='overlay']").attr("data-ss-state","active");
+				$("[data-ss-utility='overlay']").attr("data-ss-state","active");
 			}, 0);
 			break;
 		case "off":
-			$("[data-ss-widget='overlay']").attr("data-ss-state","inactive");
+			$("[data-ss-utility='overlay']").attr("data-ss-state","inactive");
 			window.setTimeout(function() {
 				$("[data-ss-widget='overlay']").hide();
 			}, 400);

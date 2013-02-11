@@ -137,8 +137,16 @@ body.togglers {
 	[data-ss-widget="toggler"] {
 		margin: 10px 5px;
 	}
-	[data-ss-component="content"][data-ss-state="open"] {
-		margin: 10px 5px;
+	[data-ss-component="wrapper"] {
+		padding: 5px;
+	}
+	.tabs {
+		.bar1 {
+			margin-bottom: 5px;
+		}
+		[data-ss-component="wrapper"] {
+			padding: 0 5px 5px;
+		}
 	}
 	.bar1 {
 		border: 1px solid #333;
@@ -148,11 +156,5 @@ body.togglers {
 	.bar2 {
 		border-color: black;
 		color: #cd0000;
-	}
-	[data-ss-component="button_group"] {
-		@include display-box;
-		[data-ss-component="button"] {
-			@include box-flex(1);
-		}
 	}
 }

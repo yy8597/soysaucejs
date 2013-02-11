@@ -201,8 +201,14 @@ body.togglers h2 {
 body.togglers [data-ss-widget="toggler"] {
   margin: 10px 5px;
 }
-body.togglers [data-ss-component="content"][data-ss-state="open"] {
-  margin: 10px 5px;
+body.togglers [data-ss-component="wrapper"] {
+  padding: 5px;
+}
+body.togglers .tabs .bar1 {
+  margin-bottom: 5px;
+}
+body.togglers .tabs [data-ss-component="wrapper"] {
+  padding: 0 5px 5px;
 }
 body.togglers .bar1 {
   border: 1px solid #333;
@@ -212,16 +218,4 @@ body.togglers .bar1 {
 body.togglers .bar2 {
   border-color: black;
   color: #cd0000;
-}
-body.togglers [data-ss-component="button_group"] {
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-box;
-  display: box;
-}
-body.togglers [data-ss-component="button_group"] [data-ss-component="button"] {
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  -ms-box-flex: 1;
-  box-flex: 1;
 }
