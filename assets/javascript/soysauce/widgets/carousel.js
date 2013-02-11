@@ -281,10 +281,6 @@ soysauce.carousels = (function() {
 			self.ready = true;
 		});
 
-		if (this.fullscreen) $(window).on("resize orientationchange", function() {
-			self.adjustSize();
-		});
-		
 		if (this.swipe || this.zoom) this.widget.on("touchstart mousedown", function(e) {
 			var targetComponent = $(e.target).attr("data-ss-component");
 
@@ -438,7 +434,7 @@ soysauce.carousels = (function() {
 		return true;
 	};
 	
-	Carousel.prototype.adjustSize = function() {
+	Carousel.prototype.handleResize = function() {
 		if (this.fullscreen) {
 			var diff = this.widget.width() - this.itemWidth;
 			var prevState = this.container.attr("data-ss-state");

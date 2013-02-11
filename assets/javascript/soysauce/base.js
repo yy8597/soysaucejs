@@ -239,12 +239,6 @@ soysauce = {
 	}
 }
 
-// Widget Initialization
-$(document).ready(function() {
-	soysauce.scrollTop();
-	soysauce.init();
-});
-
 // Widget Resize Handler
 $(window).on("resize orientationchange", function(e) {
 	if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
@@ -253,6 +247,12 @@ $(window).on("resize orientationchange", function(e) {
 			widget.handleResize();
 		});
 	}
+});
+
+// Widget Initialization
+$(document).ready(function() {
+	soysauce.scrollTop();
+	soysauce.init();
 });
 
 }
