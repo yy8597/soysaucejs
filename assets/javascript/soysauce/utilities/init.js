@@ -24,13 +24,14 @@ soysauce.init = function(selector) {
 			case "toggler":
 				widget = soysauce.togglers.init(this);
 				break;
+
 		}
 
 		if (widget !== undefined) {
-			$(window).on("resize orientationchange", widget.handleResize);
 			soysauce.widgets.push(widget);
 			ret = true;
 		}
+		
 	});
 	
 	return ret;

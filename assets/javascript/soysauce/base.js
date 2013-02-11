@@ -130,7 +130,8 @@ if(typeof(soysauce) === "undefined") {
 soysauce = {
 	widgets: new Array(),
 	vars: {
-		idCount: 0
+		idCount: 0,
+		currentViewportWidth: window.innerWidth
 	},
 	getOptions: function(selector) {
 		if($(selector).attr("data-ss-options") == undefined) return false;
@@ -237,9 +238,20 @@ soysauce = {
 	}
 }
 
+// Widget Initialization
 $(document).ready(function() {
 	soysauce.scrollTop();
 	soysauce.init();
+});
+
+// Widget Resize Handler
+$(window).on("resize orientationchange", function(e) {
+	if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
+		soysauce.vars.currentViewportWidth = window.innerWidth;
+		soysauce.widgets.forEach(function(widget) {
+			widget.handleResize();
+		});
+	}
 });
 
 }
