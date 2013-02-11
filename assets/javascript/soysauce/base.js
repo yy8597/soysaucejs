@@ -130,7 +130,8 @@ if(typeof(soysauce) === "undefined") {
 soysauce = {
 	widgets: new Array(),
 	vars: {
-		idCount: 0
+		idCount: 0,
+		SUPPORTS3D: (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true
 	},
 	getOptions: function(selector) {
 		if($(selector).attr("data-ss-options") == undefined) return false;
