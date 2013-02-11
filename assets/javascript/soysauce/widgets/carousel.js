@@ -212,6 +212,8 @@ soysauce.carousels = (function() {
 		this.dots.first().attr("data-ss-state", "active");
 		this.dots.on("click", function(e) {
 			var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css("-webkit-transform"))[4]);
+			var index = 0;
+			
 			if (currXPos === self.offset) {
 				self.ready = true;
 			}
@@ -220,12 +222,12 @@ soysauce.carousels = (function() {
 
 			soysauce.stifle(e);
 
-			var index = self.dots.index(self);
+			index = self.dots.index(this);
 
 			if (self.infinite) {
 				index += 1;
 			}
-
+			
 			self.jumpTo(index);
 		});
 
