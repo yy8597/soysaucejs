@@ -542,17 +542,29 @@ soysauce.imagesLoaded();
 }
 
 soysauce.init = function(selector) {
+	var set;
+	var numItems = 0;
+	
 	if (!selector) {
-		var set = $("[data-ss-widget]");
-		soysauce.vars.idCount = set.length;
-		for (var i = 0; i < soysauce.vars.idCount; i++) {
-			$(set[i]).attr("data-ss-id", i+1);
-		}
+		set = $("[data-ss-widget]");
 	}
 	else {
-		// TODO
-		console.log(selector);
+		set = selector;
 	}
+	
+	var numItems = set.length;
+	
+	set.each(function(i) {
+		var widget = $(this);
+		var type = widget.attr("data-ss-widget");
+		widget.attr("data-ss-id", ++soysauce.vars.idCount);
+		
+		// switch (type) {
+		// 			case "toggler":
+		// 				soysauce.togglers.loader(this);
+		// 		}
+		
+	});
 	
 	// Initialize
 	// (function() {
@@ -1803,6 +1815,122 @@ soysauce.togglers = (function() {
 			threshold: 0,
 			accordions: true
 		};
+		
+		// 			var item = new Toggler(this);
+		// 			var self = this;
+		// 			var options = soysauce.getOptions(this);
+		// 
+		// 			item.allButtons.append("<span class='icon'></span>");
+		// 			item.allContent.wrapInner("<div data-ss-component='wrapper'/>");
+		// 
+		// 			item.hasTogglers = (item.widget.has("[data-ss-widget='toggler']").length > 0) ? true : false; 
+		// 			item.isChildToggler = (item.widget.parents("[data-ss-widget='toggler']").length > 0) ? true : false;
+		// 			
+		// 			if (item.isChildToggler) {
+		// 				var parent = item.widget.parents("[data-ss-widget='toggler']");
+		// 				item.parentID = parseInt(parent.attr("data-ss-id"));
+		// 				item.parent = parent;
+		// 			}
+		// 
+		// 			if (options) options.forEach(function(option) {
+		// 				switch(option) {
+		// 					case "ajax":
+		// 						item.ajax = true;
+		// 						item.doAjax = true;
+		// 						item.handleAjax();
+		// 						break;
+		// 					case "tabs":
+		// 						item.tab = true;
+		// 						break;
+		// 					case "slide":
+		// 						item.slide = true;
+		// 						break;
+		// 					case "responsive":
+		// 						item.responsive = true;
+		// 						item.tab = true;
+		// 						break;
+		// 				}
+		// 			});
+		// 			
+		// 			if (item.widget.attr("data-ss-state") !== undefined && item.widget.attr("data-ss-state") === "open") {
+		// 				item.allButtons.attr("data-ss-state", "open");
+		// 				item.allContent.attr("data-ss-state", "open");
+		// 				item.opened = true;
+		// 			}
+		// 			else {
+		// 				item.allButtons.attr("data-ss-state", "closed");
+		// 				item.allContent.attr("data-ss-state", "closed");
+		// 				item.opened = false;
+		// 			}
+		// 			
+		// 			if (item.slide) {
+		// 				item.allContent.attr("data-ss-state", "open");
+		// 				
+		// 				if (item.hasTogglers) {
+		// 					var height = 0;
+		// 					item.content.find("[data-ss-component='button']").each(function() {
+		// 						height += item.widget.height();
+		// 					});
+		// 					item.height = height;
+		// 				}
+		// 				else {
+		// 					item.allContent.each(function() {
+		// 						$(this).attr("data-ss-slide-height", $(this).height());
+		// 					});
+		// 					// item.height = item.content.height();
+		// 				}
+		// 				
+		// 				item.allContent.css("height", "0px");
+		// 				item.allContent.attr("data-ss-state", "closed");
+		// 				item.allContent.on(TRANSITION_END, function() {
+		// 					item.ready = true;
+		// 				});
+		// 				
+		// 				$(window).on("resize orientationchange", function(e) {
+		// 					if (e.type === "orientationchange") {
+		// 						item.adjustFlag = true;
+		// 						if (item.state === "open") {
+		// 							item.adjustHeight();
+		// 						}
+		// 					}
+		// 					else {
+		// 						if (window.innerWidth !== currentViewportWidth) {
+		// 							currentViewportWidth = window.innerWidth;
+		// 							item.adjustFlag = true;
+		// 							if (item.state === "open") {
+		// 								item.adjustHeight();
+		// 							}
+		// 						}
+		// 					}
+		// 				});
+		// 			}
+		// 			
+		// 			item.allButtons.click(function(e) {
+		// 				item.toggle(e);
+		// 			});
+		// 
+		// 			// 	Responsive is a custom option which takes multiple buttons and content.
+		// 			// 	This inherits the "slide" and "tab" options.
+		// 			if (item.responsive) {
+		// 				item.responsiveVars.threshold = parseInt($(this).attr("data-ss-responsive-threshold"));
+		// 				if (!item.responsiveVars.threshold) {
+		// 					console.warn("Soysauce: [data-ss-responsive-threshold] tag required.");
+		// 				}
+		// 				$(window).on("resize orientationchange", function(e) {
+		// 					if (e.type === "orientationchange") {
+		// 						item.handleResponsive();
+		// 					}
+		// 					else {
+		// 						if (window.innerWidth !== currentViewportWidth) {
+		// 							currentViewportWidth = window.innerWidth;
+		// 							item.handleResponsive();
+		// 						}
+		// 					}
+		// 				});
+		// 				item.handleResponsive();
+		// 			}
+		// 
+		// 			togglers.push(item);
 		
 		togglers.push(this);
 	}
