@@ -128,6 +128,7 @@ if(typeof(soysauce) === "undefined") {
 "use strict";
 
 soysauce = {
+	widgets: new Array(),
 	vars: {
 		idCount: 0
 	},
@@ -163,30 +164,18 @@ soysauce = {
 			type = $(query).attr("data-ss-widget");
 			
 			selector = parseInt(selector);
-			switch(type) {
-				case "toggler":
-					soysauce.togglers.forEach(function(widget) {
-						if (widget.id == selector) {
-							ret = widget;
-						}
-					});
-					return ret;
-				case "carousel":
-					soysauce.carousels.forEach(function(widget) {
-						if (widget.id == selector) {
-							ret = widget;
-						}
-					});
-					return ret;
-				case "cc_validator":
-					soysauce.ccValidators.forEach(function(widget) {
-						if (widget.id == selector) {
-							ret = widget;
-						}
-					});
-					return ret;
-				default:
-					console.warn("Soysauce: Unfetchable item.");
+			
+			soysauce.widgets.forEach(function(widget) {
+				if (widget.id == selector) {
+					ret = widget;
+				}
+			});
+			
+			if (!ret) {
+				console.warn("Soysauce: Unfetchable item.");
+			}
+			else {
+				return ret;
 			}
 		}
 	},
@@ -245,18 +234,20 @@ soysauce = {
 		// TODO
 	},
 	scrollTop: function() {
-		$(document).ready(function() {
-			window.setTimeout(function(){
-				window.scrollTo(0, 1);
-			}, 0);
-		});
+		window.setTimeout(function(){
+			window.scrollTo(0, 1);
+		}, 0);
 	},
 	imagesLoaded: function(selector) {
 		// TODO
 	}
 }
 
-soysauce.scrollTop();
 soysauce.imagesLoaded();
+
+$(document).ready(function() {
+	soysauce.scrollTop();
+	soysauce.init();
+});
 
 }
