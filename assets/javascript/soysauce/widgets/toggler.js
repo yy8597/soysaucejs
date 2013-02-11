@@ -11,8 +11,10 @@ soysauce.togglers = (function() {
 		this.parentID = 0;
 		this.tabID;
 		this.state = "closed";
-		this.button = this.widget.find("> [data-ss-component='button']");
-		this.content = this.widget.find("> [data-ss-component='content']");
+		this.allButtons = this.widget.find("> [data-ss-component='button']");
+		this.button = this.allButtons.first();
+		this.allContent = this.widget.find("> [data-ss-component='content']");
+		this.content = this.allContent.first();
 		this.isChildToggler = false;
 		this.hasTogglers = false;
 		this.parent = undefined;
@@ -42,7 +44,7 @@ soysauce.togglers = (function() {
 	}
 
 	Toggler.prototype.open = function() {
-		var slideOpenWithTab = this.tab && this.responsiveVars.accordions;
+		var slideOpenWithTab = this.responsiveVars.accordions;
 		
 		if (!this.ready && !slideOpenWithTab) return;
 		
@@ -51,7 +53,7 @@ soysauce.togglers = (function() {
 		
 		if (this.slide) {
 			
-			if (!slideOpenWithTab) return;
+			if (this.responsive && !slideOpenWithTab) return;
 			
 			this.ready = false;
 			
@@ -88,6 +90,7 @@ soysauce.togglers = (function() {
 			}
 		}
 		
+		this.opened = true;
 		this.setState("open");
 	};
 
@@ -128,30 +131,36 @@ soysauce.togglers = (function() {
 		this.content.css("height", height + "px");
 	};
 
-	Toggler.prototype.toggle = function() {
+	Toggler.prototype.toggle = function(e) {
 		if (this.freeze) return;
-		(!this.opened) ? this.open() : this.close();
-	};
+		
+		if (this.tab) {
+			var collapse = (this.button.attr("data-ss-state") === "open" &&
+											this.button[0] === e.target) ? true : false;
+											
+			this.close();
+			
+			this.button = $(e.target);
+			this.content = $(e.target).find("+ [data-ss-component='content']");
+			
+			if (this.slide) {
+				this.height = parseInt(this.content.attr("data-ss-slide-height"));
+			}
 
-	Toggler.prototype.toggleTabs = function(e) {
-		if (this.freeze) return;
-		
-		var collapse = (this.responsiveVars.accordions && 
-										this.button.attr("data-ss-state") === "open" &&
-										this.button[0] === e.target) ? true : false;
-		
-		this.close();
-		
-		this.button = $(e.target);
-		this.content = $(e.target).find("+ [data-ss-component='content']");
-		
-		if (collapse) {
-			this.widget.attr("data-ss-state", "closed");
-			this.opened = false;
-			return;
+			if (collapse) {
+				this.widget.attr("data-ss-state", "closed");
+				this.opened = false;
+				return;
+			}
+
+			this.open();
 		}
-		
-		this.open();
+		else {
+			this.button = $(e.target);
+			this.content = $(e.target).find("+ [data-ss-component='content']");
+			
+			(this.button.attr("data-ss-state") === "closed") ? this.open() : this.close();
+		}
 	};
 
 	Toggler.prototype.handleAjax = function() {
@@ -187,7 +196,7 @@ soysauce.togglers = (function() {
 			callback = obj.attr("data-ss-ajax-callback");
 			
 			if (soysauce.browserInfo.supportsSessionStorage) {
-				if (sessionStorage.getItem(url) === null) {
+				if (!sessionStorage.getItem(url)) {
 					firstTime = true;
 					$.get(url, function(data) {
 						sessionStorage.setItem(url, JSON.stringify(data));
@@ -199,11 +208,13 @@ soysauce.togglers = (function() {
 				else
 					eval(callback + "(" + sessionStorage.getItem(url) + ")");
 			}
-			else
+			else {
 				$.get(url, eval(callback));
+			}
 			
-			if (!firstTime)
+			if (!firstTime) {
 				self.setAjaxComplete();
+			}
 		});
 	};
 
@@ -212,16 +223,11 @@ soysauce.togglers = (function() {
 		this.button.attr("data-ss-state", state);
 		this.content.attr("data-ss-state", state);
 		
-		if (!this.tab) {
-			this.widget.attr("data-ss-state", state);
+		if (this.opened) {
+			this.widget.attr("data-ss-state", "open");
 		}
-		
-		if (state === "open") {
-			this.opened = true;
-			this.widget.attr("data-ss-state", state);
-		}
-		else if (!this.tab) {
-			this.opened = false;
+		else {
+			this.widget.attr("data-ss-state", "closed");
 		}
 		
 		if (this.responsive && this.opened) {
@@ -270,8 +276,8 @@ soysauce.togglers = (function() {
 			var self = this;
 			var options = soysauce.getOptions(this);
 
-			item.button.append("<span class='icon'></span>");
-			item.content.wrapInner("<div data-ss-component='wrapper'/>");
+			item.allButtons.append("<span class='icon'></span>");
+			item.allContent.wrapInner("<div data-ss-component='wrapper'/>");
 
 			item.hasTogglers = (item.widget.has("[data-ss-widget='toggler']").length > 0) ? true : false; 
 			item.isChildToggler = (item.widget.parents("[data-ss-widget='toggler']").length > 0) ? true : false;
@@ -297,19 +303,24 @@ soysauce.togglers = (function() {
 						break;
 					case "responsive":
 						item.responsive = true;
+						item.tab = true;
 						break;
 				}
 			});
 			
 			if (item.widget.attr("data-ss-state") !== undefined && item.widget.attr("data-ss-state") === "open") {
-				item.setState("open");
+				item.allButtons.attr("data-ss-state", "open");
+				item.allContent.attr("data-ss-state", "open");
+				item.opened = true;
 			}
 			else {
-				item.setState("closed");
+				item.allButtons.attr("data-ss-state", "closed");
+				item.allContent.attr("data-ss-state", "closed");
+				item.opened = false;
 			}
 			
 			if (item.slide) {
-				item.setState("open");
+				item.allContent.attr("data-ss-state", "open");
 				
 				if (item.hasTogglers) {
 					var height = 0;
@@ -319,15 +330,15 @@ soysauce.togglers = (function() {
 					item.height = height;
 				}
 				else {
-					item.content.each(function() {
+					item.allContent.each(function() {
 						$(this).attr("data-ss-slide-height", $(this).height());
 					});
-					item.height = item.content.height();
+					// item.height = item.content.height();
 				}
 				
-				item.content.css("height", "0px");
-				item.setState("closed");
-				item.content.on(TRANSITION_END, function() {
+				item.allContent.css("height", "0px");
+				item.allContent.attr("data-ss-state", "closed");
+				item.allContent.on(TRANSITION_END, function() {
 					item.ready = true;
 				});
 				
@@ -350,11 +361,8 @@ soysauce.togglers = (function() {
 				});
 			}
 			
-			if (item.tab) item.button.click(function(e) {
-				item.toggleTabs(e);
-			});
-			else item.button.click(function() {
-				item.toggle();
+			item.allButtons.click(function(e) {
+				item.toggle(e);
 			});
 
 			// 	Responsive is a custom option which takes multiple buttons and content.
