@@ -1751,8 +1751,6 @@ soysauce.togglers = (function() {
 
 	// TODO: this needs improvement; get new height and set it so that it animates on close after a resize/orientation change
 	Toggler.prototype.adjustHeight = function() {
-		// this.content.css("height", "auto");
-		// this.height = this.content.height();
 		this.adjustFlag = false;
 	};
 
@@ -1776,7 +1774,9 @@ soysauce.togglers = (function() {
 		if (this.tab) {
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
 											this.button[0] === e.target) ? true : false;
-											
+			
+			if (this.responsive && !this.responsiveVars.accordions && (this.button[0] === e.target)) return;
+				
 			this.close();
 			
 			this.button = $(e.target);
@@ -1785,7 +1785,7 @@ soysauce.togglers = (function() {
 			if (this.slide) {
 				this.height = parseInt(this.content.attr("data-ss-slide-height"));
 			}
-
+			
 			if (collapse) {
 				this.widget.attr("data-ss-state", "closed");
 				this.opened = false;
