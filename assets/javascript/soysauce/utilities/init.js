@@ -24,7 +24,9 @@ soysauce.init = function(selector) {
 			case "toggler":
 				widget = soysauce.togglers.init(this);
 				break;
-
+			case "carousel":
+				widget = soysauce.carousels.init(this);
+				break;
 		}
 
 		if (widget !== undefined) {
