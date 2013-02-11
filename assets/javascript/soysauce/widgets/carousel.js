@@ -2,6 +2,7 @@ soysauce.carousels = (function() {
 	var carousels = new Array();
 	
 	// Shared Default Globals
+	var SUPPORTS3D = (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true;
 	var AUTOSCROLL_INTERVAL = 5000;
 	var ZOOM_MULTIPLIER = 2;
 	var PEEK_WIDTH = 40;
@@ -379,6 +380,7 @@ soysauce.carousels = (function() {
 
 						$(e2.target).attr("data-ss-state", "panning");
 
+<<<<<<< HEAD
 						if (self.pinch && coords2.x2 && coords2.y2) {
 							panLock = false;
 							newX2 = coords2.x2;
@@ -460,6 +462,68 @@ soysauce.carousels = (function() {
 					self.container.attr("data-ss-state", "notransition");
 					setTranslate(self.container[0], self.offset - dragOffset);
 				});
+=======
+		this.gotoPos(newOffset, false, true);
+		this.index = index;
+		
+		return true;
+	};
+	
+	// Helper Functions
+	function setTranslate(element, x, y) {
+		x = (!x) ? 0 : x;
+		y =  (!y) ? 0 : y;
+		element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform = "translate" + ((SUPPORTS3D) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
+	}
+	
+	function setScale(element, multiplier) {
+		var currTransform = element.style.webkitTransform;
+		multiplier = (!multiplier) ? ZOOM_MULTIPLIER : multiplier;
+		element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform 
+		= currTransform + " scale" + ((SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
+	}
+	
+	function init() {
+		var carousel = new Carousel(this);
+		var self = this;
+		var options = soysauce.getOptions(this);
+		var loadCounter = 1;
+		var items;
+		var first_item, last_item;
+		var wrapper;
+		var i = 0;
+		
+		if(options) options.forEach(function(option) {
+			switch(option) {
+				case "cms":
+					carousel.cms = true;
+					break;
+				case "peek":
+					carousel.peek = true;
+					carousel.peekWidth = 40;
+					break;
+				case "finite":
+					carousel.infinite = false;
+					break;
+				case "autoscroll":
+					carousel.autoscroll = true;
+					break;
+				case "nofullscreen":
+					carousel.fullscreen = false;
+					break;
+				case "noswipe":
+					carousel.swipe = false;
+					break;
+				case "zoom":
+					carousel.zoom = true;
+					break;
+				case "pinch":
+					carousel.pinch = true;
+					break
+				case "3d":
+					carousel.supports3d = true;
+					break;
+>>>>>>> parent of 0270acf... base stuff
 			}
 
 			// Decides whether to zoom or move to next/prev item

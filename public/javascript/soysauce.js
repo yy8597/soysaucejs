@@ -410,8 +410,7 @@ if(typeof(soysauce) === "undefined") {
 soysauce = {
 	widgets: new Array(),
 	vars: {
-		idCount: 0,
-		SUPPORTS3D: (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true
+		idCount: 0
 	},
 	getOptions: function(selector) {
 		if($(selector).attr("data-ss-options") == undefined) return false;
@@ -631,6 +630,7 @@ soysauce.carousels = (function() {
 	var carousels = new Array();
 	
 	// Shared Default Globals
+	var SUPPORTS3D = (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true;
 	var AUTOSCROLL_INTERVAL = 5000;
 	var ZOOM_MULTIPLIER = 2;
 	var PEEK_WIDTH = 40;
@@ -1317,14 +1317,14 @@ soysauce.carousels = (function() {
 	function setTranslate(element, x, y) {
 		x = (!x) ? 0 : x;
 		y =  (!y) ? 0 : y;
-		element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform = "translate" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
+		element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform = "translate" + ((SUPPORTS3D) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
 	}
 	
 	function setScale(element, multiplier) {
 		var currTransform = element.style.webkitTransform;
 		multiplier = (!multiplier) ? ZOOM_MULTIPLIER : multiplier;
 		element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform 
-		= currTransform + " scale" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
+		= currTransform + " scale" + ((SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
 	}
 	
 	function init() {
@@ -1365,7 +1365,7 @@ soysauce.carousels = (function() {
 					carousel.pinch = true;
 					break
 				case "3d":
-					carousel.soysauce.vars.SUPPORTS3D = true;
+					carousel.supports3d = true;
 					break;
 			}
 		});
