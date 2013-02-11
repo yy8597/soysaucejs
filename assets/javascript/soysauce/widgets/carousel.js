@@ -76,6 +76,9 @@ soysauce.carousels = (function() {
 		this.zoomIcon;
 		this.pinch;
 		
+		// Thumbnail Variables
+		this.thumbs = false;
+		
 		if (options) options.forEach(function(option) {
 			switch(option) {
 				case "cms":
@@ -105,6 +108,9 @@ soysauce.carousels = (function() {
 					break
 				case "3d":
 					self.use3D = true;
+					break;
+				case "thumbs":
+					self.thumbs = true;
 					break;
 			}
 		});
@@ -192,6 +198,25 @@ soysauce.carousels = (function() {
 		}
 		
 		this.links = ((items[0].tagName.match(/^a$/i) !== null) || items.find("a[href]").length > 0) ? true : false;
+
+		if (this.thumbs) {
+			var c = 0;
+
+			this.container.find("[data-ss-component='thumbnail']").remove(); // Clear any added thumbs
+
+			this.items.each(function(i, item){ 
+				var src = (/img/i.test(item.tagName)) ? $(this).attr("src") : $(this).find("img").attr("src");
+				
+				++c;
+
+				// Skip first and last, as they are clones.
+				if (self.infinite && (c === 1 || c === self.numChildren)) {
+					return; 
+				}
+
+				self.container.append("<img data-ss-component='thumbnail' src='" + src + "'>");
+			});
+		}
 
 		numDots = (this.infinite) ? this.numChildren - 2 : this.numChildren;
 		thumbnails = this.container.find("[data-ss-component='thumbnail']");
