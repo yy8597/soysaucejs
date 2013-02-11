@@ -510,9 +510,6 @@ soysauce = {
 			soysauce.fetch(id).handleUnfreeze();
 		});
 	},
-	reload: function(selector) {
-		// TODO
-	},
 	scrollTop: function() {
 		window.setTimeout(function(){
 			window.scrollTo(0, 1);
@@ -527,7 +524,7 @@ soysauce.imagesLoaded();
 
 $(document).ready(function() {
 	soysauce.scrollTop();
-	soysauce.init();
+	// soysauce.init();
 });
 
 }
@@ -535,6 +532,7 @@ $(document).ready(function() {
 soysauce.init = function(selector) {
 	var set;
 	var numItems = 0;
+	var ret = false;
 	
 	if (!selector) {
 		set = $("[data-ss-widget]:not([data-ss-id])");
@@ -542,6 +540,8 @@ soysauce.init = function(selector) {
 	else {
 		set = $(selector);
 	}
+	
+	if ($(selector).attr("data-ss-id") !== undefined) return ret;
 	
 	numItems = set.length;
 	
@@ -559,10 +559,12 @@ soysauce.init = function(selector) {
 
 		if (widget !== undefined) {
 			$(window).on("resize orientationchange", widget.handleResize);
+			soysauce.widgets.push(widget);
+			ret = true;
 		}
-
-		soysauce.widgets.push(widget);
 	});
+	
+	return ret;
 }
 
 soysauce.lateload = function(selector) {

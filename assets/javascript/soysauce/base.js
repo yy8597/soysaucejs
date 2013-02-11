@@ -230,9 +230,6 @@ soysauce = {
 			soysauce.fetch(id).handleUnfreeze();
 		});
 	},
-	reload: function(selector) {
-		// TODO
-	},
 	scrollTop: function() {
 		window.setTimeout(function(){
 			window.scrollTo(0, 1);
@@ -247,7 +244,7 @@ soysauce.imagesLoaded();
 
 $(document).ready(function() {
 	soysauce.scrollTop();
-	soysauce.init();
+	// soysauce.init();
 });
 
 }
