@@ -131,18 +131,6 @@ soysauce = {
 	vars: {
 		idCount: 0
 	},
-	init: function(selector) {
-		if (!selector) {
-			var set = $("[data-ss-widget]");
-			soysauce.vars.idCount = set.length;
-			for (var i = 0; i < soysauce.vars.idCount; i++) {
-				$(set[i]).attr("data-ss-id", i+1);
-			}
-		}
-		else {
-			// TODO
-		}
-	},
 	getOptions: function(selector) {
 		if($(selector).attr("data-ss-options") == undefined) return false;
 		return $(selector).attr("data-ss-options").split(" ");
@@ -268,7 +256,6 @@ soysauce = {
 	}
 }
 
-soysauce.init();
 soysauce.scrollTop();
 soysauce.imagesLoaded();
 
