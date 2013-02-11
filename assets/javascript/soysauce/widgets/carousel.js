@@ -159,14 +159,16 @@ soysauce.carousels = (function() {
 
 		wrapper.find("~ [data-ss-button-type='prev']").click(function(e) {
 			soysauce.stifle(e);
-			if (this.ready && !this.interrupted && !this.freeze)
-			this.slideBackward();
+			if (self.ready && !self.interrupted && !self.freeze) {
+				self.slideBackward();
+			}
 		});
 
 		wrapper.find("~ [data-ss-button-type='next']").click(function(e) {
 			soysauce.stifle(e);
-			if (this.ready && !this.interrupted && !this.freeze)
-			this.slideForward();
+			if (self.ready && !self.interrupted && !self.freeze) {
+				self.slideForward();
+			}
 		});
 
 		this.maxIndex = this.widget.find("[data-ss-component='item']").length;
