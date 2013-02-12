@@ -2157,6 +2157,7 @@ soysauce.togglers = (function() {
 		if (!this.responsive) return;
 		if (window.innerWidth >= this.responsiveVars.threshold) {
 			this.responsiveVars.accordions = false;
+			this.widget.attr("data-ss-responsive-type", "tabs");
 			if (!this.opened) {
 				this.button = this.widget.find("[data-ss-component='button']").first();
 				this.content = this.widget.find("[data-ss-component='content']").first();
@@ -2166,6 +2167,7 @@ soysauce.togglers = (function() {
 		}
 		else {
 			this.responsiveVars.accordions = true;
+			this.widget.attr("data-ss-responsive-type", "accordions");
 			this.widget.css("min-height", "0");
 		}
 	};
