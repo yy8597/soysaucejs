@@ -185,6 +185,50 @@ if (!jQuery.fn.on) {
 	});
 }
 
+if (!jQuery.fn.one) {
+	jQuery.fn.extend({
+		one: function( types, selector, data, fn ) {
+			return this.on( types, selector, data, fn, 1 );
+		}
+	});
+}
+
+if (!jQuery.fn.off) {
+	jQuery.fn.extend({
+		off: function( types, selector, fn ) {
+			var handleObj, type;
+			if ( types && types.preventDefault && types.handleObj ) {
+				// ( event )  dispatched jQuery.Event
+				handleObj = types.handleObj;
+				jQuery( types.delegateTarget ).off(
+					handleObj.namespace ? handleObj.origType + "." + handleObj.namespace : handleObj.origType,
+					handleObj.selector,
+					handleObj.handler
+				);
+				return this;
+			}
+			if ( typeof types === "object" ) {
+				// ( types-object [, selector] )
+				for ( type in types ) {
+					this.off( type, selector, types[ type ] );
+				}
+				return this;
+			}
+			if ( selector === false || typeof selector === "function" ) {
+				// ( types [, fn] )
+				fn = selector;
+				selector = undefined;
+			}
+			if ( fn === false ) {
+				fn = returnFalse;
+			}
+			return this.each(function() {
+				jQuery.event.remove( this, types, fn, selector );
+			});
+		}
+	});
+}
+
 soysauce = {
 	widgets: new Array(),
 	vars: {
