@@ -748,6 +748,7 @@ soysauce.carousels = (function() {
 	var PEEK_WIDTH = 40;
 	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
 	var PINCH_SENSITIVITY = 1500; // lower to increase sensitivity for pinch zoom
+	var PREFIX = soysauce.getPrefix();
 	
 	function Carousel(selector) {
 		var options = soysauce.getOptions(selector);
@@ -981,7 +982,7 @@ soysauce.carousels = (function() {
 		this.dots.attr("data-ss-state", "inactive")
 		this.dots.first().attr("data-ss-state", "active");
 		this.dots.on("click", function(e) {
-			var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css("-webkit-transform"))[4]);
+			var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
 			var index = 0;
 			
 			if (currXPos === self.offset) {
@@ -1057,7 +1058,7 @@ soysauce.carousels = (function() {
 			var targetComponent = $(e.target).attr("data-ss-component");
 
 			if ((targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "thumbnail") && self.interrupted) {
-				var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css("-webkit-transform"))[4]);
+				var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
 				if (currXPos === self.offset) {
 					self.interrupted = false;
 				}
@@ -1105,14 +1106,9 @@ soysauce.carousels = (function() {
 			this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
 	
 		if (this.infinite) {
-			var transitionDuration = "transition-duration";
 			var duration = 0;
 			
-			if (!this.container.css("transition-duration")) {
-				transitionDuration = soysauce.getPrefix() + transitionDuration;
-			}
-			
-			duration = parseFloat(this.container.css(transitionDuration).replace(/s$/,"")) * 1000;
+			duration = parseFloat(this.container.css(PREFIX + "transition-duration").replace(/s$/,"")) * 1000;
 			
 			duration = (!duration) ? 850 : duration;
 			
@@ -1243,7 +1239,7 @@ soysauce.carousels = (function() {
 		
 		var self = this;
 		var coords1, coords2, ret;
-		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("-webkit-transform"))[4]);
+		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css(PREFIX + "transform"))[4]);
 		
 		this.interrupted = true;
 		
@@ -1355,7 +1351,7 @@ soysauce.carousels = (function() {
 			// Pan or Pinch Zooming
 			if (this.zoom && this.isZoomed) {
 				this.widget.one("touchend mouseup", function(e2) {
-					var array = soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"));
+					var array = soysauce.getArrayFromMatrix($(e2.target).css(PREFIX + "transform"));
 					var panX = parseInt(array[4]);
 					var panY = parseInt(array[5]);
 					self.panCoordsStart.x = (Math.abs(panX) > 0) ? panX : 0;
