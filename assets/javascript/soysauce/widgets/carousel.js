@@ -80,6 +80,8 @@ soysauce.carousels = (function() {
 		// Thumbnail Variables
 		this.thumbs = false;
 		
+		// Multi Item Variables
+		
 		if (options) options.forEach(function(option) {
 			switch(option) {
 				case "cms":
@@ -112,6 +114,9 @@ soysauce.carousels = (function() {
 					break;
 				case "thumbs":
 					self.thumbs = true;
+					break;
+				case "multi":
+					self.multi = true;
 					break;
 			}
 		});
