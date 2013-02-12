@@ -39,7 +39,7 @@ soysauce.togglers = (function() {
 		// Responsive
 		this.responsive = false;
 		this.responsiveVars = {
-			threshold: (!this.widget.attr("data-ss-responsive-threshold")) ? 0 : parseInt(this.widget.attr("data-ss-responsive-threshold")),
+			threshold: (!this.widget.attr("data-ss-responsive-threshold")) ? 768 : parseInt(this.widget.attr("data-ss-responsive-threshold")),
 			accordions: true
 		};
 		
@@ -343,7 +343,6 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.handleResponsive = function() {
-		console.log("inside: " + window.innerWidth);
 		if (!this.responsive) return;
 		if (window.innerWidth >= this.responsiveVars.threshold) {
 			this.responsiveVars.accordions = false;
