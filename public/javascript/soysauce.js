@@ -1036,13 +1036,12 @@ soysauce.carousels = (function() {
 				var zoomMultiplier = self.widget.attr("data-ss-zoom-multiplier");
 				self.zoomMultiplier = (!zoomMultiplier) ? ZOOM_MULTIPLIER : parseInt(zoomMultiplier);
 				self.panMax.x = (self.itemWidth - self.peekWidth) / self.zoomMultiplier;				
-				self.panMax.y = $(self).find("[data-ss-component='item']").height() / self.zoomMultiplier;
+				self.panMax.y = self.items.first().height() / self.zoomMultiplier;
 				self.panMaxOriginal.x = self.panMax.x;
 				self.panMaxOriginal.y = self.panMax.y;
 				if (self.panMax.y === 0) {
-					var imageToLoad = $(self).find("img")[0];
-					$(imageToLoad).load(function() {
-						self.panMax.y = imageToLoad.height / self.zoomMultiplier;
+					self.container.imagesLoaded(function() {
+						self.panMax.y = self.items.last().height / self.zoomMultiplier;
 						self.panMaxOriginal.y = this.panMax.y;
 					});
 				}
@@ -1523,15 +1522,19 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.checkPanLimits = function() {
-		if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x > 0)
+		if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x > 0) {
 			this.panCoords.x = this.panMax.x;
-		else if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x < 0)
+		}
+		else if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x < 0) {
 			this.panCoords.x = -this.panMax.x;
+		}
 
-		if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y > 0)
+		if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y > 0) {
 			this.panCoords.y = this.panMax.y;
-		else if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y < 0)
+		}
+		else if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y < 0) {
 			this.panCoords.y = -this.panMax.y;
+		}
 			
 		if (this.isZoomed) {
 			var img = this.items[this.index];
