@@ -363,7 +363,14 @@ soysauce.carousels = (function() {
 			this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
 	
 		if (this.infinite) {
-			var duration = parseFloat(this.container.css("transition-duration").replace(/s$/,"")) * 1000;
+			var transitionDuration = "transition-duration";
+			var duration = 0;
+			
+			if (!this.container.css("transition-duration")) {
+				transitionDuration = soysauce.getPrefix() + transitionDuration;
+			}
+			
+			duration = parseFloat(this.container.css(transitionDuration).replace(/s$/,"")) * 1000;
 			
 			duration = (!duration) ? 850 : duration;
 			

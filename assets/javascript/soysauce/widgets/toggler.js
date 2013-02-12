@@ -343,6 +343,7 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.handleResponsive = function() {
+		console.log("inside: " + window.innerWidth);
 		if (!this.responsive) return;
 		if (window.innerWidth >= this.responsiveVars.threshold) {
 			this.responsiveVars.accordions = false;

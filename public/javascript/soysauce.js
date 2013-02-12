@@ -409,7 +409,6 @@ if(typeof(soysauce) === "undefined") {
 
 if (!jQuery.fn.on) {
 	jQuery.fn.extend({
-
 		on: function( types, selector, data, fn, /*INTERNAL*/ one ) {
 			var type, origFn;
 
@@ -462,67 +461,6 @@ if (!jQuery.fn.on) {
 			return this.each( function() {
 				jQuery.event.add( this, types, fn, data, selector );
 			});
-		},
-		one: function( types, selector, data, fn ) {
-			return this.on( types, selector, data, fn, 1 );
-		},
-		off: function( types, selector, fn ) {
-			var handleObj, type;
-			if ( types && types.preventDefault && types.handleObj ) {
-				// ( event )  dispatched jQuery.Event
-				handleObj = types.handleObj;
-				jQuery( types.delegateTarget ).off(
-					handleObj.namespace ? handleObj.origType + "." + handleObj.namespace : handleObj.origType,
-					handleObj.selector,
-					handleObj.handler
-				);
-				return this;
-			}
-			if ( typeof types === "object" ) {
-				// ( types-object [, selector] )
-				for ( type in types ) {
-					this.off( type, selector, types[ type ] );
-				}
-				return this;
-			}
-			if ( selector === false || typeof selector === "function" ) {
-				// ( types [, fn] )
-				fn = selector;
-				selector = undefined;
-			}
-			if ( fn === false ) {
-				fn = returnFalse;
-			}
-			return this.each(function() {
-				jQuery.event.remove( this, types, fn, selector );
-			});
-		},
-
-		bind: function( types, data, fn ) {
-			return this.on( types, null, data, fn );
-		},
-		unbind: function( types, fn ) {
-			return this.off( types, null, fn );
-		},
-
-		delegate: function( selector, types, data, fn ) {
-			return this.on( types, selector, data, fn );
-		},
-		undelegate: function( selector, types, fn ) {
-			// ( namespace ) or ( selector, types [, fn] )
-			return arguments.length === 1 ? this.off( selector, "**" ) : this.off( types, selector || "**", fn );
-		},
-
-		trigger: function( type, data ) {
-			return this.each(function() {
-				jQuery.event.trigger( type, data, this );
-			});
-		},
-		triggerHandler: function( type, data ) {
-			var elem = this[0];
-			if ( elem ) {
-				return jQuery.event.trigger( type, data, elem, true );
-			}
 		}
 	});
 }
@@ -1122,7 +1060,14 @@ soysauce.carousels = (function() {
 			this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
 	
 		if (this.infinite) {
-			var duration = parseFloat(this.container.css("transition-duration").replace(/s$/,"")) * 1000;
+			var transitionDuration = "transition-duration";
+			var duration = 0;
+			
+			if (!this.container.css("transition-duration")) {
+				transitionDuration = soysauce.getPrefix() + transitionDuration;
+			}
+			
+			duration = parseFloat(this.container.css(transitionDuration).replace(/s$/,"")) * 1000;
 			
 			duration = (!duration) ? 850 : duration;
 			
@@ -2164,6 +2109,7 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.handleResponsive = function() {
+		console.log("inside: " + window.innerWidth);
 		if (!this.responsive) return;
 		if (window.innerWidth >= this.responsiveVars.threshold) {
 			this.responsiveVars.accordions = false;
