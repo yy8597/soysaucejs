@@ -931,7 +931,7 @@ soysauce.carousels = (function() {
 			}
 		});
 
-		this.maxIndex = this.widget.find("[data-ss-component='item']").length - 1;
+		this.maxIndex = this.widget.find("[data-ss-component='item']").length;
 		
 		if (this.multi) {
 			var numItems = parseInt(this.widget.attr("data-ss-multi-set"));
@@ -967,13 +967,18 @@ soysauce.carousels = (function() {
 
 			if (this.container.find("[data-ss-component='thumbnail']").length > 0) return;
 
+			if (self.id === 2) {
+				console.log(self.cloneDepth);
+				console.log(self.maxIndex);
+			}
+
 			this.items.each(function(i, item){ 
 				var src = (/img/i.test(item.tagName)) ? $(this).attr("src") : $(this).find("img").attr("src");
 				
 				++c;
 				
 				// Skip first and last, as they are clones.
-				if (self.infinite && (c <= self.cloneDepth || c >= (self.maxIndex + self.cloneDepth))) {
+				if (self.infinite && (c <= self.cloneDepth || c > (self.maxIndex + self.cloneDepth))) {
 					return; 
 				}
 
@@ -1015,7 +1020,7 @@ soysauce.carousels = (function() {
 			index = self.dots.index(this);
 
 			if (self.infinite) {
-				index += self.cloneDepth;
+				index += 1;
 			}
 			
 			self.jumpTo(index);
@@ -1051,7 +1056,13 @@ soysauce.carousels = (function() {
 			}
 
 			self.items.width(self.itemWidth);
-			self.gotoPos((-self.itemWidth*self.cloneDepth) + self.offset);
+
+			if (self.infinite) {
+				self.gotoPos(-self.itemWidth + self.offset);
+			}
+			else {
+				self.gotoPos(self.offset);
+			}
 
 			if (self.zoom) {
 				var zoomMultiplier = self.widget.attr("data-ss-zoom-multiplier");
@@ -1721,14 +1732,12 @@ soysauce.carousels = (function() {
 		if (index === this.index) return false;
 		
 		if (this.infinite) {
-			if (index < this.cloneDepth || index >= this.maxIndex) {
+			if (index < 1 || index > this.maxIndex )
 				return false;
-			}
 		}
 		else {
-			if (index < 0 || index > this.maxIndex) {
+			if (index < 0 || index > this.maxIndex - 1)
 				return false;
-			}
 		}
 		
 		this.jumping = true;
@@ -1782,12 +1791,12 @@ soysauce.carousels = (function() {
 		var items = carousel.container.find("[data-ss-component='item']");
 		var cloneSet1, cloneSet2;
 		
-		if (cloneDepth > carousel.maxIndex) return;
+		if (cloneDepth > carousel.maxIndex - 1) return;
 		
 		carousel.cloneDepth = cloneDepth;
 		
 		cloneSet1 = items.slice(0, cloneDepth).clone();
-		cloneSet2 = items.slice(carousel.maxIndex - cloneDepth + 1, carousel.maxIndex + 1).clone();
+		cloneSet2 = items.slice(carousel.maxIndex - cloneDepth, carousel.maxIndex).clone();
 
 		cloneSet1.appendTo(carousel.container);
 		cloneSet2.prependTo(carousel.container);
