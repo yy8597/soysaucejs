@@ -16,7 +16,7 @@ These pre-built widgets are simple to use. Some widgets have additional options 
 
 If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests.
 
-### 1) Carousel 
+### 1) Carousel
 
 Carousels allow for "slideshow" effects for images. Every carousel is pre-built with dots, infinite scrolling, buttons, and swipe.
 
