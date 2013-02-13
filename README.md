@@ -115,7 +115,7 @@ The process goes like this:
 
 It's recommended load content on this event for hidden, but necessary content such as non-primary images in a carousel.
 
-Usage:
+Ex. html:
 
 	<img data-ss-ll-src="/images/brownie.png" data-ss-options="dom">
 
@@ -123,7 +123,7 @@ Usage:
 
 It's recommended to load all unnecessary images/scripts on this event, such as images in an accordion or images in a popup.
 
-Usage:
+Ex. html:
 
 	<img data-ss-ll-src="/images/brownie.png" data-ss-options="load">
 
@@ -131,11 +131,11 @@ Usage:
 
 Call soysauce.load(target) on the element that you would like to load.
 
-	Ex:
+	Ex. html:
 
 		<img data-ss-ll-src="/images/brownie.png" class="some-target">
 	
-	Call:
+	Ex. javascript:
 	
 		soysauce.load(".some-target");
 
