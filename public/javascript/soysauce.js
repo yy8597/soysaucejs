@@ -945,7 +945,7 @@ soysauce.carousels = (function() {
 				createClones(this, 1);
 			}
 			else {
-				createClones(this, 2);
+				createClones(this, 1);
 			}
 			this.lastSlideTime = new Date().getTime();
 		}
@@ -967,18 +967,13 @@ soysauce.carousels = (function() {
 
 			if (this.container.find("[data-ss-component='thumbnail']").length > 0) return;
 
-			if (self.id === 2) {
-				console.log(self.cloneDepth);
-				console.log(self.maxIndex);
-			}
-
 			this.items.each(function(i, item){ 
 				var src = (/img/i.test(item.tagName)) ? $(this).attr("src") : $(this).find("img").attr("src");
 				
 				++c;
-				
+
 				// Skip first and last, as they are clones.
-				if (self.infinite && (c <= self.cloneDepth || c > (self.maxIndex + self.cloneDepth))) {
+				if (self.infinite && (c === 1 || c === self.numChildren)) {
 					return; 
 				}
 
@@ -986,7 +981,7 @@ soysauce.carousels = (function() {
 			});
 		}
 
-		numDots = (this.infinite) ? this.numChildren - this.cloneDepth*2: this.numChildren;
+		numDots = (this.infinite) ? this.numChildren - 2 : this.numChildren;
 		thumbnails = this.container.find("[data-ss-component='thumbnail']");
 
 		if (thumbnails.length > 0) {
@@ -1036,11 +1031,12 @@ soysauce.carousels = (function() {
 		items.attr("data-ss-state", "inactive");
 		
 		if (this.infinite) {
-			$(items[this.cloneDepth]).attr("data-ss-state", "active");
+			$(items[1]).attr("data-ss-state", "active");
 			this.index++;
 		}
 
 		this.container.imagesLoaded(function(items) {
+			
 			if (self.multi) {
 				self.itemWidth = self.widget.width() / self.multiVars.numItems;
 			}
@@ -1172,28 +1168,28 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.slideForward = function(fast) {
 		if (!this.ready || 
-			(!this.infinite && this.index === this.numChildren - this.cloneDepth) || 
+			(!this.infinite && this.index === this.numChildren - 1) || 
 			this.isZooming) return false;
 		
 		if (this.infinite)
-			$(this.dots[this.index - this.cloneDepth]).attr("data-ss-state", "inactive");
+			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
 		else
 			$(this.dots[this.index]).attr("data-ss-state", "inactive");
 			
 		$(this.items[this.index++]).attr("data-ss-state", "inactive");
 		
-		if (this.infinite && this.index === this.numChildren - this.cloneDepth) {
-			$(this.items[this.cloneDepth]).attr("data-ss-state", "active");
-			this.index = this.cloneDepth;
+		if (this.infinite && this.index === this.numChildren - 1) {
+			$(this.items[1]).attr("data-ss-state", "active");
+			this.index = 1;
 		}
 		else
 			$(this.items[this.index]).attr("data-ss-state", "active");
 		
 		if (this.infinite)
-			$(this.dots[this.index - this.cloneDepth]).attr("data-ss-state", "active");
+			$(this.dots[this.index - 1]).attr("data-ss-state", "active");
 		else {
 			$(this.dots[this.index]).attr("data-ss-state", "active");
-			if (this.index === this.numChildren - this.cloneDepth)
+			if (this.index === this.numChildren - 1)
 				this.nextBtn.attr("data-ss-state", "disabled");
 			if (this.numChildren > 1)
 				this.prevBtn.attr("data-ss-state", "enabled");
@@ -1210,21 +1206,21 @@ soysauce.carousels = (function() {
 		if (!this.ready || (!this.infinite && this.index === 0) || this.isZooming) return false;
 		
 		if (this.infinite)
-			$(this.dots[this.index - this.cloneDepth]).attr("data-ss-state", "inactive");
+			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
 		else
 			$(this.dots[this.index]).attr("data-ss-state", "inactive");
 			
 		$(this.items[this.index--]).attr("data-ss-state", "inactive");
 		
 		if (this.infinite && this.index === 0) {
-			$(this.items[this.numChildren - this.cloneDepth - 1]).attr("data-ss-state", "active");
-			this.index = this.numChildren - this.cloneDepth - 1;
+			$(this.items[this.numChildren - 2]).attr("data-ss-state", "active");
+			this.index = this.numChildren - 2;
 		}
 		else
 			$(this.items[this.index]).attr("data-ss-state", "active");
 		
 		if (this.infinite)
-			$(this.dots[this.index - this.cloneDepth]).attr("data-ss-state", "active");
+			$(this.dots[this.index - 1]).attr("data-ss-state", "active");
 		else {
 			$(this.dots[this.index]).attr("data-ss-state", "active");
 			if (this.index === 0)
