@@ -413,7 +413,9 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.slideForward = function(fast) {
-		if (!this.ready || (!this.infinite && this.index === this.numChildren - 1) || this.isZooming) return false;
+		if (!this.ready || 
+			(!this.infinite && this.index === this.numChildren - 1) || 
+			this.isZooming) return false;
 		
 		if (this.infinite)
 			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
@@ -790,16 +792,21 @@ soysauce.carousels = (function() {
 					return;
 				
 				if (xDist > 0) {
-					if (!self.infinite && self.index === self.numChildren - 1)
+					if (!self.infinite && self.index === self.numChildren - 1 ||
+						(self.multi && !self.infinite && self.index === self.numChildren - self.multiVars.stepSize - 1)) {
 						self.gotoPos(self.index * -self.itemWidth);
-					else
+					}
+					else {
 						self.slideForward(fast);
+					}
 				}
 				else {
-					if (!self.infinite && self.index === 0)
+					if (!self.infinite && self.index === 0) {
 						self.gotoPos(0);
-					else
+					}
+					else {
 						self.slideBackward(fast);
+					}
 				}
 			}
 		});
