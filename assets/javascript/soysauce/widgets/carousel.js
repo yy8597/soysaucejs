@@ -188,9 +188,21 @@ soysauce.carousels = (function() {
 		});
 
 		this.maxIndex = this.widget.find("[data-ss-component='item']").length;
-
+		
+		if (this.multi) {
+			var numItems = parseInt(this.widget.attr("data-ss-multi-set"));
+			this.multiVars.numItems = (!numItems) ? 2 : numItems;
+		}
+		
 		if (this.infinite) {
-			createClones(this, 1);
+			if (this.multi) {
+				// createClones(this, this.multiVars.numItems);
+				console.warn("Soysauce: 'multi' option with infinite scrolling not yet supported. Please add 'finite' option.")
+				createClones(this, 1);
+			}
+			else {
+				createClones(this, 1);
+			}
 			this.lastSlideTime = new Date().getTime();
 		}
 
@@ -282,8 +294,6 @@ soysauce.carousels = (function() {
 		this.container.imagesLoaded(function(items) {
 			
 			if (self.multi) {
-				var numItems = parseInt(self.widget.attr("data-ss-multi-set"));
-				self.multiVars.numItems = (!numItems) ? 2 : numItems;
 				self.itemWidth = self.widget.width() / self.multiVars.numItems;
 			}
 			else {
