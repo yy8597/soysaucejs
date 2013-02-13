@@ -45,6 +45,7 @@ soysauce.carousels = (function() {
 		this.infiniteID;
 		this.forward;
 		this.lastSlideTime;
+		this.cloneDepth = 0;
 		
 		// Fullscreen & Peek Variables
 		this.fullscreen = true;
@@ -1045,9 +1046,11 @@ soysauce.carousels = (function() {
 		
 		if (cloneDepth > carousel.maxIndex - 1) return;
 		
-		cloneSet1 = items.slice(0, cloneDepth).clone();
-		cloneSet2 = items.slice(carousel.maxIndex - cloneDepth - 1, carousel.maxIndex - 1).clone();
+		carousel.cloneDepth = cloneDepth;
 		
+		cloneSet1 = items.slice(0, cloneDepth).clone();
+		cloneSet2 = items.slice(carousel.maxIndex - cloneDepth, carousel.maxIndex).clone();
+
 		cloneSet1.appendTo(carousel.container);
 		cloneSet2.prependTo(carousel.container);
 	}
