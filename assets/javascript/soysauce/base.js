@@ -237,7 +237,7 @@ soysauce = {
 		SUPPORTS3D: (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true
 	},
 	getOptions: function(selector) {
-		if($(selector).attr("data-ss-options") == undefined) return false;
+		if(!$(selector).attr("data-ss-options")) return false;
 		return $(selector).attr("data-ss-options").split(" ");
 	},
 	getPrefix: function() {
@@ -248,12 +248,12 @@ soysauce = {
 		return "";
 	},
 	stifle: function(e) {
-		if (e === undefined) return false;
+		if (!e) return false;
 		e.stopImmediatePropagation();
 		e.preventDefault();
 	},
 	fetch: function(selector) { // Fetch by ID
-		if (selector === undefined) return false;
+		if (!selector) return false;
 		if (typeof(selector) === "object") selector = $(selector).attr("data-ss-id");
 		if (/(^#?\.?\w+$)/.test(selector)) {
 			var query, ret, type;

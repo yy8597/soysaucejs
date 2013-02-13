@@ -832,16 +832,20 @@ soysauce.carousels = (function() {
 				self.panCoords.x *= -self.zoomMultiplier;
 				
 				if (e1.type.match(/mousedown/i) !== null) {
-					if (e1.originalEvent !== undefined) 
+					if (e1.originalEvent !== undefined) {
 						offset = e1.originalEvent.offsetY;
-					else 
+					}
+					else {
 						offset = e1.offsetY;
+					}
 				}
 				else {
-					if (e1.originalEvent !== undefined) 
+					if (e1.originalEvent !== undefined) {
 						offset = e1.originalEvent.pageY - $(e1.target).offset().top;
-					else 
+					} 
+					else {
 						offset = e1.pageY - $(e1.target).offset().top;
+					}
 				}
 
 				self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.zoomMultiplier) - offset;
