@@ -1,4 +1,4 @@
-Soysauce (BETA)
+Soysauce
 ==========================
 Original Author: Edward Gaba
 
@@ -131,11 +131,10 @@ Ex. html:
 
 Call soysauce.load(target) on the element that you would like to load.
 
-	Ex. html:
+Ex. html:
 
-		<img data-ss-ll-src="/images/brownie.png" class="some-target">
+	<img data-ss-ll-src="/images/brownie.png" class="some-target">
 	
-	Ex. javascript:
+Ex. javascript:
 	
-		soysauce.load(".some-target");
-
+	soysauce.load(".some-target");
