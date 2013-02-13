@@ -1512,10 +1512,14 @@ soysauce.carousels = (function() {
 			if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
-				if (e2.target.tagName.match(/^a$/i) !== null)
+				
+				if (e2.target.tagName.match(/^a$/i) !== null) {
 					window.location.href = $(e2).attr("href");
-				else if ($(e2.target).closest("a").length > 0)
+				}
+					
+				else if ($(e2.target).closest("a").length > 0) {
 					window.location.href = $(e2.target).closest("a").attr("href");
+				}
 			}
 			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed)) {
 				soysauce.stifle(e1);
@@ -1531,12 +1535,13 @@ soysauce.carousels = (function() {
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
 				
-				if (self.lockScroll === "y")
+				if (self.lockScroll === "y") {
 					return;
+				}
 				
 				if (xDist > 0) {
 					if (!self.infinite && self.index === self.numChildren - 1 ||
-							(self.multi && !self.infinite && self.index === self.numChildren - self.multiVars.stepSize - 1)) {
+						(self.multi && !self.infinite && self.index === self.numChildren - self.multiVars.stepSize - 1)) {
 						self.gotoPos(self.index * -self.itemWidth);
 					}
 					else {
