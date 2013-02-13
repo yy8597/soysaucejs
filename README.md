@@ -27,24 +27,24 @@ Required Attributes:
 
 Optional Attributes:
 	
-	1) data-ss-options="OPTION"					- Add your options
+	1) data-ss-options="OPTION"		- Add your options
 	2) data-ss-autoscroll-interval="x"	- Autoscroll timing delay; default is 5000
-	3) data-ss-peek-width="x"						- Total peek width (not per side); default is 40 (in pixels)
-	4) data-ss-zoom-multiplier="x"			- Zoom Multiplier; default is 2
+	3) data-ss-peek-width="x"		- Total peek width (not per side); default is 40 (in pixels)
+	4) data-ss-zoom-multiplier="x"		- Zoom Multiplier; default is 2
 
 Options:
 
-	1) "autoscroll" - timer based autoscrolling, default is 5000ms
-	2) "3d"					- forces 3d on devices, 3d is turned off by default for androids and opera browsers; default on for iOS
-	3) "peek" 			- allows item "previewing" on both sides of the main item
+	1) "autoscroll" 	- timer based autoscrolling, default is 5000ms
+	2) "3d"			- forces 3d on devices, 3d is turned off by default for androids and opera browsers; default on for iOS
+	3) "peek" 		- allows item "previewing" on both sides of the main item
 	4) "finite" 		- does not loop around once end is reached
 	5) "noswipe" 		- disables the ability to swipe
-	6) "zoom" 			- allows the user to zoom in on an item
-	6a) "pinch"			- must be paired with zoom, allows for pinch zoom effects
-	7) "thumbs"			- uses thumbnails instead of dots; practical for PDP carousels
-	8) "multi"			- allows for multiple items per screen; practical for "Recommended Products"
-	9) "cms"				- converts the CMS style nodes to correctly adapt to the soysauce carousel; create the container 
-										with this option and import the CMS inside
+	6) "zoom" 		- allows the user to zoom in on an item
+	6a) "pinch"		- must be paired with zoom, allows for pinch zoom effects
+	7) "thumbs"		- uses thumbnails instead of dots; practical for PDP carousels
+	8) "multi"		- allows for multiple items per screen; practical for "Recommended Products"
+	9) "cms"		- converts the CMS style nodes to correctly adapt to the soysauce carousel; create the container 
+				  with this option and import the CMS inside
 	10) "nofullscreen" - disables resizing of images
 
 Ex. Usage:
@@ -62,20 +62,20 @@ Togglers allow for hiding and showing content when necessary.
 
 Required Attributes:
 
-	1) data-ss-widget="toggler"					- Add this to the container
-	2) data-ss-component="button"				- Add this to the target button
-	3) data-ss-component="content"			- Add this to the content you want to toggle
+	1) data-ss-widget="toggler"		- Add this to the container
+	2) data-ss-component="button"		- Add this to the target button
+	3) data-ss-component="content"		- Add this to the content you want to toggle
 
 Optional Attributes:
 
-	1) data-ss-options="OPTION"					- Add your options
+	1) data-ss-options="OPTION"		- Add your options
 	2) data-ss-responsive-threshold="x"	- Used with the responsive option; define the threshold to 
 																				use tabs/accordions; default is 768
 
 Options:
 
-	1) tabs 				- immediate child buttons/content are linked and only one can be opened at a time
-	2) slide				- slide animation
+	1) tabs 		- immediate child buttons/content are linked and only one can be opened at a time
+	2) slide		- slide animation
 	3) responsive		- before the threshold, accordion-esque; after the threshold, tab-esque
 
 Usage:
