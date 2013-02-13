@@ -519,7 +519,7 @@ soysauce = {
 		SUPPORTS3D: (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true
 	},
 	getOptions: function(selector) {
-		if($(selector).attr("data-ss-options") == undefined) return false;
+		if(!$(selector).attr("data-ss-options")) return false;
 		return $(selector).attr("data-ss-options").split(" ");
 	},
 	getPrefix: function() {
@@ -530,12 +530,12 @@ soysauce = {
 		return "";
 	},
 	stifle: function(e) {
-		if (e === undefined) return false;
+		if (!e) return false;
 		e.stopImmediatePropagation();
 		e.preventDefault();
 	},
 	fetch: function(selector) { // Fetch by ID
-		if (selector === undefined) return false;
+		if (!selector) return false;
 		if (typeof(selector) === "object") selector = $(selector).attr("data-ss-id");
 		if (/(^#?\.?\w+$)/.test(selector)) {
 			var query, ret, type;
@@ -823,6 +823,11 @@ soysauce.carousels = (function() {
 		this.thumbs = false;
 		
 		// Multi Item Variables
+		this.multi = false;
+		this.multiVars = {
+			numItems: 2,
+			stepSize: 1
+		};
 		
 		if (options) options.forEach(function(option) {
 			switch(option) {
@@ -947,7 +952,7 @@ soysauce.carousels = (function() {
 		if (this.thumbs) {
 			var c = 0;
 
-			this.container.find("[data-ss-component='thumbnail']").remove(); // Clear any added thumbs
+			if (this.container.find("[data-ss-component='thumbnail']").length > 0) return;
 
 			this.items.each(function(i, item){ 
 				var src = (/img/i.test(item.tagName)) ? $(this).attr("src") : $(this).find("img").attr("src");
@@ -1018,8 +1023,16 @@ soysauce.carousels = (function() {
 		}
 
 		this.container.imagesLoaded(function(items) {
-			self.itemWidth = self.widget.width();
-
+			
+			if (self.multi) {
+				var numItems = parseInt(self.widget.attr("data-ss-multi-set"));
+				self.multiVars.numItems = (!numItems) ? 2 : numItems;
+				self.itemWidth = self.widget.width() / self.multiVars.numItems;
+			}
+			else {
+				self.itemWidth = self.widget.width();
+			}
+			
 			self.container.width(self.itemWidth * self.numChildren);
 
 			if (self.peek) {
@@ -1085,7 +1098,6 @@ soysauce.carousels = (function() {
 					self.autoscrollOn();
 				}, 1000);
 			}
-
 		});
 
 		if (this.autoscroll) {
@@ -1212,25 +1224,40 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleResize = function() {
+		var self = this;
+		var widgetWidth = this.widget.width();
+		
+		if (this.multi) {
+			this.itemWidth = widgetWidth / this.multiVars.numItems;
+		}
+
 		if (this.fullscreen) {
-			var diff = this.widget.width() - this.itemWidth;
+			var diff;
 			var prevState = this.container.attr("data-ss-state");
-			var self = this;
+			
+			if (this.multi) {
+				diff = widgetWidth - (this.itemWidth * this.multiVars.numItems);
+			}
+			else {
+				diff = widgetWidth - this.itemWidth;
+			}
+			
 			this.itemWidth -= this.peekWidth;
 			this.itemWidth += diff;
 			this.offset = -this.index * this.itemWidth + this.peekWidth/2;
 			this.container.attr("data-ss-state", "notransition");
 			setTranslate(this.container[0], this.offset);			
-			this.container.find("[data-ss-component='item']").width(this.itemWidth);
+			this.items.width(this.itemWidth);
 		}
 
 		this.container.width(this.itemWidth * this.numChildren);
-		
+
 		if (this.zoom) {
 			this.panMax.x = this.itemWidth / this.zoomMultiplier;	
 			this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
 			this.checkPanLimits();
 		}
+
 	};
 	
 	Carousel.prototype.handleInterrupt = function(e) {
@@ -1575,16 +1602,20 @@ soysauce.carousels = (function() {
 				self.panCoords.x *= -self.zoomMultiplier;
 				
 				if (e1.type.match(/mousedown/i) !== null) {
-					if (e1.originalEvent !== undefined) 
+					if (e1.originalEvent !== undefined) {
 						offset = e1.originalEvent.offsetY;
-					else 
+					}
+					else {
 						offset = e1.offsetY;
+					}
 				}
 				else {
-					if (e1.originalEvent !== undefined) 
+					if (e1.originalEvent !== undefined) {
 						offset = e1.originalEvent.pageY - $(e1.target).offset().top;
-					else 
+					} 
+					else {
 						offset = e1.pageY - $(e1.target).offset().top;
+					}
 				}
 
 				self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.zoomMultiplier) - offset;
