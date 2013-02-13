@@ -753,7 +753,6 @@ soysauce.carousels = (function() {
 	function Carousel(selector) {
 		var options = soysauce.getOptions(selector);
 		var self = this;
-		var first_item, last_item;
 		var wrapper;
 		var dotsHtml = "";
 		var numDots;
@@ -823,6 +822,8 @@ soysauce.carousels = (function() {
 		// Thumbnail Variables
 		this.thumbs = false;
 		
+		// Multi Item Variables
+		
 		if (options) options.forEach(function(option) {
 			switch(option) {
 				case "cms":
@@ -855,6 +856,9 @@ soysauce.carousels = (function() {
 					break;
 				case "thumbs":
 					self.thumbs = true;
+					break;
+				case "multi":
+					self.multi = true;
 					break;
 			}
 		});
@@ -924,10 +928,7 @@ soysauce.carousels = (function() {
 		this.maxIndex = this.widget.find("[data-ss-component='item']").length;
 
 		if (this.infinite) {
-			first_item = this.container.find("[data-ss-component='item']").first().clone();
-			last_item = this.container.find("[data-ss-component='item']").last().clone();
-			first_item.appendTo(this.container);
-			last_item.prependTo(this.container);
+			createClones(this, 1);
 			this.lastSlideTime = new Date().getTime();
 		}
 
@@ -1092,7 +1093,7 @@ soysauce.carousels = (function() {
 			this.autoscrollInterval = (!interval) ? AUTOSCROLL_INTERVAL : parseInt(interval);
 			this.autoscrollOn();
 		}
-	}
+	} // End Constructor
 	
 	Carousel.prototype.gotoPos = function(x, fast, jumping) {
 		var self = this;
@@ -1136,8 +1137,9 @@ soysauce.carousels = (function() {
 					}, 0);
 				}, duration);
 			}
-			else
+			else {
 				this.infiniteID = undefined;
+			}
 		}
 	};
 	
@@ -1636,35 +1638,25 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.autoscrollOn = function() {
 		var self = this;
-		if (this.autoscrollID === undefined) {
+		
+		if (!this.autoscrollID) {
 			this.autoscrollID = window.setInterval(function() {
 				self.slideForward();
 			}, self.autoscrollInterval);
 			return true;
 		}
+		
 		return false;
 	};
 	
 	Carousel.prototype.autoscrollOff = function() {
 		var self = this;
-		if (this.autoscrollID !== undefined) {
-			window.clearInterval(self.autoscrollID);
-			this.autoscrollID = undefined;
-			return true;
-		}
-		return false;
-	};
-	
-	Carousel.prototype.reload = function(callback) {
-		var self = this;
-		var newCarousel = this.widget;
-		carousels.forEach(function(e,i) {
-			if (self.id === e.id)
-				carousels.splice(i, 1);
-		});
-		newCarousel.removeAttr("data-ss-state");
-		callback();
-		newCarousel.each(init);
+		
+		if (!this.autoscrollID) return false;
+		
+		window.clearInterval(self.autoscrollID);
+		this.autoscrollID = undefined;
+		
 		return true;
 	};
 	
@@ -1718,14 +1710,36 @@ soysauce.carousels = (function() {
 	function setTranslate(element, x, y) {
 		x = (!x) ? 0 : x;
 		y =  (!y) ? 0 : y;
-		element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform = "translate" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
+		element.style.webkitTransform = 
+		element.style.msTransform = 
+		element.style.OTransform = 
+		element.style.MozTransform = 
+		element.style.transform = 
+			"translate" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
 	}
 	
 	function setScale(element, multiplier) {
 		var currTransform = element.style.webkitTransform;
 		multiplier = (!multiplier) ? ZOOM_MULTIPLIER : multiplier;
-		element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform 
-		= currTransform + " scale" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
+		element.style.webkitTransform = 
+		element.style.msTransform = 
+		element.style.OTransform = 
+		element.style.MozTransform = 
+		element.style.transform = 
+			currTransform + " scale" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
+	}
+	
+	function createClones(carousel, cloneDepth) {
+		var items = carousel.container.find("[data-ss-component='item']");
+		var cloneSet1, cloneSet2;
+		
+		if (cloneDepth > carousel.maxIndex - 1) return;
+		
+		cloneSet1 = items.slice(0, cloneDepth).clone();
+		cloneSet2 = items.slice(carousel.maxIndex - cloneDepth - 1, carousel.maxIndex - 1).clone();
+		
+		cloneSet1.appendTo(carousel.container);
+		cloneSet2.prependTo(carousel.container);
 	}
 	
 	return {
