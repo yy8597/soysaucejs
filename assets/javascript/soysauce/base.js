@@ -253,7 +253,7 @@ soysauce = {
 		e.preventDefault();
 	},
 	fetch: function(selector) {
-		var query, ret, type;
+		var query, ret;
 		
 		if (!selector) return false;
 		
@@ -278,21 +278,17 @@ soysauce = {
 			query = selector;
 		}
 
-		type = $(query).attr("data-ss-widget");
-
-		if (type) {
-			soysauce.widgets.forEach(function(widget) {
-				if (widget.id === selector) {
-					ret = widget;
-				}
-			});
-
-			if (!ret) {
-				console.warn("Soysauce: Unfetchable item.");
+		soysauce.widgets.forEach(function(widget) {
+			if (widget.id === selector) {
+				ret = widget;
 			}
-			else {
-				return ret;
-			}
+		});
+
+		if (!ret) {
+			return false;
+		}
+		else {
+			return ret;
 		}
 	},
 	getCoords: function(e) {
