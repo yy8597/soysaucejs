@@ -2,20 +2,48 @@ soysauce.togglers = (function() {
 	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
 	
 	// Togglers
-	function Toggler(selector) {
+	function Toggler(selector, orphan) {
 		var self = this;
 		var options = soysauce.getOptions(selector);
 		
 		// Base
-		this.widget = $(selector);
+		if (orphan) {
+			var togglerID = $(selector).attr("data-ss-toggler-id");
+			var query = "[data-ss-toggler-id='" + togglerID + "']";
+			this.orphan = true;
+			this.widget = $(query);
+			
+			this.widget.each(function(i, component) {
+				var type = $(component).attr("data-ss-component");
+				switch (type) {
+					case "button":
+						self.button = $(component);
+						break;
+					case "content":
+						self.content = $(component);
+						break;
+				}
+			});
+			
+			this.button.click(function(e) {
+				self.toggle(e);
+			});
+			
+			this.setState("closed");
+		}
+		else {
+			this.widget = $(selector);
+			this.orphan = false;
+			this.allButtons = this.widget.find("> [data-ss-component='button']");
+			this.button = this.allButtons.first();
+			this.allContent = this.widget.find("> [data-ss-component='content']");
+			this.content = this.allContent.first();
+		}
+		
 		this.id = parseInt(this.widget.attr("data-ss-id"));
 		this.parentID = 0;
 		this.tabID;
 		this.state = "closed";
-		this.allButtons = this.widget.find("> [data-ss-component='button']");
-		this.button = this.allButtons.first();
-		this.allContent = this.widget.find("> [data-ss-component='content']");
-		this.content = this.allContent.first();
 		this.isChildToggler = false;
 		this.hasTogglers = false;
 		this.parent = undefined;
@@ -62,6 +90,8 @@ soysauce.togglers = (function() {
 			}
 		});
 
+		if (this.orphan) return this;
+
 		this.allButtons.append("<span class='icon'></span>");
 		this.allContent.wrapInner("<div data-ss-component='wrapper'/>");
 
@@ -85,7 +115,7 @@ soysauce.togglers = (function() {
 			this.widget.attr("data-ss-state", "closed");
 			this.opened = false;
 		}
-
+		
 		if (this.slide) {
 			this.allContent.attr("data-ss-state", "open");
 
@@ -214,6 +244,18 @@ soysauce.togglers = (function() {
 	Toggler.prototype.toggle = function(e) {
 		if (this.freeze) return;
 
+		if (this.orphan) {
+			if (this.opened) {
+				this.opened = false;
+				this.setState("closed");
+			}
+			else {
+				this.opened = true;
+				this.setState("open");
+			}
+			return;
+		}
+
 		if (this.tab) {
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
 											this.button[0] === e.target) ? true : false;
@@ -248,7 +290,7 @@ soysauce.togglers = (function() {
 			if (collapse) {
 				this.opened = false;
 			}
-
+			
 			(this.button.attr("data-ss-state") === "closed") ? this.open() : this.close();
 		}
 	};
@@ -313,6 +355,8 @@ soysauce.togglers = (function() {
 		this.button.attr("data-ss-state", state);
 		this.content.attr("data-ss-state", state);
 
+		if (this.orphan) return;
+
 		if (this.opened) {
 			this.widget.attr("data-ss-state", "open");
 		}
@@ -362,8 +406,8 @@ soysauce.togglers = (function() {
 	};
 	
 	return {
-		init: function(selector) {
-			return new Toggler(selector);
+		init: function(selector, orphan) {
+			return new Toggler(selector, orphan);
 		}
 	};
 	
