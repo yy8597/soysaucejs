@@ -252,29 +252,41 @@ soysauce = {
 		e.stopImmediatePropagation();
 		e.preventDefault();
 	},
-	fetch: function(selector) { // Fetch by ID
+	fetch: function(selector) {
+		var query, ret, type;
+		
 		if (!selector) return false;
-		if (typeof(selector) === "object") selector = $(selector).attr("data-ss-id");
-		if (/(^#?\.?\w+$)/.test(selector)) {
-			var query, ret, type;
-			
-			if (selector===+selector && selector === (selector|0)) {
-				query = "[data-ss-id='" + selector + "']";
+		
+		if (typeof(selector) === "object") {
+			selector = parseInt($(selector).attr("data-ss-id"));
+		}
+		
+		if (typeof(selector) === "string") {
+			var val = parseInt($(selector).attr("data-ss-id"));;
+
+			if (isNaN(val)) {
+				val = parseInt(selector);
 			}
-			else {
-				query = selector;
-			}
-			
-			type = $(query).attr("data-ss-widget");
-			
-			selector = parseInt(selector);
-			
+
+			selector = val;
+		}
+		
+		if (selector===+selector && selector === (selector|0)) {
+			query = "[data-ss-id='" + selector + "']";
+		}
+		else {
+			query = selector;
+		}
+
+		type = $(query).attr("data-ss-widget");
+
+		if (type) {
 			soysauce.widgets.forEach(function(widget) {
-				if (widget.id == selector) {
+				if (widget.id === selector) {
 					ret = widget;
 				}
 			});
-			
+
 			if (!ret) {
 				console.warn("Soysauce: Unfetchable item.");
 			}
