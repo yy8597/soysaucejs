@@ -22,8 +22,17 @@ Contribute
 If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have Compass and Jammit.
 
 	gem install compass
-	
 	gem install jammit
+
+To compile the css run this command in the main directory:
+
+	compass watch
+	-OR-
+	compass compile
+
+To bundle the javascript run this command in the main directory:
+
+	jammit
 
 ### 1) Carousel
 
