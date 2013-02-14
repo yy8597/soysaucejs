@@ -4,9 +4,9 @@ Original Author: Edward Gaba
 
 Current CDN URLs
 --------------
-http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.js
-http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.min.js
-http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.css
+* Compressed (39.6 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.min.js
+* Uncompressed (59.5 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.js
+* CSS (3.8 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.css
 
 About
 --------------
