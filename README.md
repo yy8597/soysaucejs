@@ -9,7 +9,6 @@ Soysauce is a customizable javascript widget library. Popular widgets included a
 * CSS (3.8 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.css
 
 ## Widgets
-
 These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include both the CSS and JS file (use the CDN links above).
 
 ## Contribute
