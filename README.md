@@ -1,24 +1,18 @@
-Soysauce
-==========================
+# Soysauce
 Original Author: Edward Gaba
 
-Current CDN URLs
---------------
+Soysauce is a customizable javascript widget library. Popular widgets included are carousels and accordions. Please file any issues you find in Github.
+
+## Current CDN URLs
 * Compressed (39.6 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.min.js
 * Uncompressed (59.5 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.js
 * CSS (3.8 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.css
 
-About
---------------
-Soysauce is a mobile-specific javascript widget library.
-
-Widgets
---------------
+## Widgets
 
 These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include both the CSS and JS file (use the CDN links above).
 
-Contribute
---------------
+## Contribute
 If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have Compass and Jammit.
 
 	gem install compass
