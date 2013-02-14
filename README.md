@@ -15,12 +15,15 @@ Soysauce is a mobile-specific javascript widget library.
 Widgets
 --------------
 
-These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include:
+These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include both the CSS and JS file (use the CDN links above).
 
-	soysauce.css (found in assets)
-	soysauce.js (found in public/javascript)
+Contribute
+--------------
+If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have Compass and Jammit.
 
-If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests.
+	gem install compass
+	
+	gem install jammit
 
 ### 1) Carousel
 
