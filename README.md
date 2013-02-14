@@ -2,6 +2,12 @@ Soysauce
 ==========================
 Original Author: Edward Gaba
 
+Current CDN URLs
+--------------
+http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.js
+http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.min.js
+http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.css
+
 About
 --------------
 Soysauce is a mobile-specific javascript widget library.
