@@ -5,11 +5,11 @@ soysauce.carousels = (function() {
 	var PEEK_WIDTH = 40;
 	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
 	var PINCH_SENSITIVITY = 1500; // lower to increase sensitivity for pinch zoom
+	var PREFIX = soysauce.getPrefix();
 	
 	function Carousel(selector) {
 		var options = soysauce.getOptions(selector);
 		var self = this;
-		var first_item, last_item;
 		var wrapper;
 		var dotsHtml = "";
 		var numDots;
@@ -45,6 +45,7 @@ soysauce.carousels = (function() {
 		this.infiniteID;
 		this.forward;
 		this.lastSlideTime;
+		this.cloneDepth = 0;
 		
 		// Fullscreen & Peek Variables
 		this.fullscreen = true;
@@ -79,6 +80,13 @@ soysauce.carousels = (function() {
 		// Thumbnail Variables
 		this.thumbs = false;
 		
+		// Multi Item Variables
+		this.multi = false;
+		this.multiVars = {
+			numItems: 2,
+			stepSize: 1
+		};
+		
 		if (options) options.forEach(function(option) {
 			switch(option) {
 				case "cms":
@@ -111,6 +119,9 @@ soysauce.carousels = (function() {
 					break;
 				case "thumbs":
 					self.thumbs = true;
+					break;
+				case "multi":
+					self.multi = true;
 					break;
 			}
 		});
@@ -178,12 +189,21 @@ soysauce.carousels = (function() {
 		});
 
 		this.maxIndex = this.widget.find("[data-ss-component='item']").length;
-
+		
+		if (this.multi) {
+			var numItems = parseInt(this.widget.attr("data-ss-multi-set"));
+			this.multiVars.numItems = (!numItems) ? 2 : numItems;
+		}
+		
 		if (this.infinite) {
-			first_item = this.container.find("[data-ss-component='item']").first().clone();
-			last_item = this.container.find("[data-ss-component='item']").last().clone();
-			first_item.appendTo(this.container);
-			last_item.prependTo(this.container);
+			if (this.multi) {
+				// createClones(this, this.multiVars.numItems);
+				console.warn("Soysauce: 'multi' option with infinite scrolling not yet supported. Please add 'finite' option.")
+				createClones(this, 1);
+			}
+			else {
+				createClones(this, 1);
+			}
 			this.lastSlideTime = new Date().getTime();
 		}
 
@@ -202,7 +222,7 @@ soysauce.carousels = (function() {
 		if (this.thumbs) {
 			var c = 0;
 
-			this.container.find("[data-ss-component='thumbnail']").remove(); // Clear any added thumbs
+			if (this.container.find("[data-ss-component='thumbnail']").length > 0) return;
 
 			this.items.each(function(i, item){ 
 				var src = (/img/i.test(item.tagName)) ? $(this).attr("src") : $(this).find("img").attr("src");
@@ -238,7 +258,7 @@ soysauce.carousels = (function() {
 		this.dots.attr("data-ss-state", "inactive")
 		this.dots.first().attr("data-ss-state", "active");
 		this.dots.on("click", function(e) {
-			var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css("-webkit-transform"))[4]);
+			var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
 			var index = 0;
 			
 			if (currXPos === self.offset) {
@@ -273,8 +293,14 @@ soysauce.carousels = (function() {
 		}
 
 		this.container.imagesLoaded(function(items) {
-			self.itemWidth = self.widget.width();
-
+			
+			if (self.multi) {
+				self.itemWidth = self.widget.width() / self.multiVars.numItems;
+			}
+			else {
+				self.itemWidth = self.widget.width();
+			}
+			
 			self.container.width(self.itemWidth * self.numChildren);
 
 			if (self.peek) {
@@ -295,13 +321,12 @@ soysauce.carousels = (function() {
 				var zoomMultiplier = self.widget.attr("data-ss-zoom-multiplier");
 				self.zoomMultiplier = (!zoomMultiplier) ? ZOOM_MULTIPLIER : parseInt(zoomMultiplier);
 				self.panMax.x = (self.itemWidth - self.peekWidth) / self.zoomMultiplier;				
-				self.panMax.y = $(self).find("[data-ss-component='item']").height() / self.zoomMultiplier;
+				self.panMax.y = self.items.first().height() / self.zoomMultiplier;
 				self.panMaxOriginal.x = self.panMax.x;
 				self.panMaxOriginal.y = self.panMax.y;
 				if (self.panMax.y === 0) {
-					var imageToLoad = $(self).find("img")[0];
-					$(imageToLoad).load(function() {
-						self.panMax.y = imageToLoad.height / self.zoomMultiplier;
+					self.container.imagesLoaded(function() {
+						self.panMax.y = self.items.last().height / self.zoomMultiplier;
 						self.panMaxOriginal.y = this.panMax.y;
 					});
 				}
@@ -315,7 +340,7 @@ soysauce.carousels = (function() {
 			var targetComponent = $(e.target).attr("data-ss-component");
 
 			if ((targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "thumbnail") && self.interrupted) {
-				var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css("-webkit-transform"))[4]);
+				var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
 				if (currXPos === self.offset) {
 					self.interrupted = false;
 				}
@@ -341,7 +366,6 @@ soysauce.carousels = (function() {
 					self.autoscrollOn();
 				}, 1000);
 			}
-
 		});
 
 		if (this.autoscroll) {
@@ -349,7 +373,7 @@ soysauce.carousels = (function() {
 			this.autoscrollInterval = (!interval) ? AUTOSCROLL_INTERVAL : parseInt(interval);
 			this.autoscrollOn();
 		}
-	}
+	} // End Constructor
 	
 	Carousel.prototype.gotoPos = function(x, fast, jumping) {
 		var self = this;
@@ -363,7 +387,9 @@ soysauce.carousels = (function() {
 			this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
 	
 		if (this.infinite) {
-			var duration = parseFloat(this.container.css("transition-duration").replace(/s$/,"")) * 1000;
+			var duration = 0;
+			
+			duration = parseFloat(this.container.css(PREFIX + "transition-duration").replace(/s$/,"")) * 1000;
 			
 			duration = (!duration) ? 850 : duration;
 			
@@ -391,13 +417,16 @@ soysauce.carousels = (function() {
 					}, 0);
 				}, duration);
 			}
-			else
+			else {
 				this.infiniteID = undefined;
+			}
 		}
 	};
 	
 	Carousel.prototype.slideForward = function(fast) {
-		if (!this.ready || (!this.infinite && this.index === this.numChildren - 1) || this.isZooming) return false;
+		if (!this.ready || 
+			(!this.infinite && this.index === this.numChildren - 1) || 
+			this.isZooming) return false;
 		
 		if (this.infinite)
 			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
@@ -465,25 +494,40 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleResize = function() {
+		var self = this;
+		var widgetWidth = this.widget.width();
+		
+		if (this.multi) {
+			this.itemWidth = widgetWidth / this.multiVars.numItems;
+		}
+
 		if (this.fullscreen) {
-			var diff = this.widget.width() - this.itemWidth;
+			var diff;
 			var prevState = this.container.attr("data-ss-state");
-			var self = this;
+			
+			if (this.multi) {
+				diff = widgetWidth - (this.itemWidth * this.multiVars.numItems);
+			}
+			else {
+				diff = widgetWidth - this.itemWidth;
+			}
+			
 			this.itemWidth -= this.peekWidth;
 			this.itemWidth += diff;
 			this.offset = -this.index * this.itemWidth + this.peekWidth/2;
 			this.container.attr("data-ss-state", "notransition");
 			setTranslate(this.container[0], this.offset);			
-			this.container.find("[data-ss-component='item']").width(this.itemWidth);
+			this.items.width(this.itemWidth);
 		}
 
 		this.container.width(this.itemWidth * this.numChildren);
-		
+
 		if (this.zoom) {
 			this.panMax.x = this.itemWidth / this.zoomMultiplier;	
 			this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
 			this.checkPanLimits();
 		}
+
 	};
 	
 	Carousel.prototype.handleInterrupt = function(e) {
@@ -494,7 +538,7 @@ soysauce.carousels = (function() {
 		
 		var self = this;
 		var coords1, coords2, ret;
-		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css("-webkit-transform"))[4]);
+		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css(PREFIX + "transform"))[4]);
 		
 		this.interrupted = true;
 		
@@ -606,7 +650,7 @@ soysauce.carousels = (function() {
 			// Pan or Pinch Zooming
 			if (this.zoom && this.isZoomed) {
 				this.widget.one("touchend mouseup", function(e2) {
-					var array = soysauce.getArrayFromMatrix($(e2.target).css("-webkit-transform"));
+					var array = soysauce.getArrayFromMatrix($(e2.target).css(PREFIX + "transform"));
 					var panX = parseInt(array[4]);
 					var panY = parseInt(array[5]);
 					self.panCoordsStart.x = (Math.abs(panX) > 0) ? panX : 0;
@@ -736,10 +780,14 @@ soysauce.carousels = (function() {
 			if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
-				if (e2.target.tagName.match(/^a$/i) !== null)
+				
+				if (e2.target.tagName.match(/^a$/i) !== null) {
 					window.location.href = $(e2).attr("href");
-				else if ($(e2.target).closest("a").length > 0)
+				}
+					
+				else if ($(e2.target).closest("a").length > 0) {
 					window.location.href = $(e2.target).closest("a").attr("href");
+				}
 			}
 			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed)) {
 				soysauce.stifle(e1);
@@ -755,35 +803,45 @@ soysauce.carousels = (function() {
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
 				
-				if (self.lockScroll === "y")
+				if (self.lockScroll === "y") {
 					return;
+				}
 				
 				if (xDist > 0) {
-					if (!self.infinite && self.index === self.numChildren - 1)
+					if (!self.infinite && self.index === self.numChildren - 1 ||
+						(self.multi && !self.infinite && self.index === self.numChildren - self.multiVars.stepSize - 1)) {
 						self.gotoPos(self.index * -self.itemWidth);
-					else
+					}
+					else {
 						self.slideForward(fast);
+					}
 				}
 				else {
-					if (!self.infinite && self.index === 0)
+					if (!self.infinite && self.index === 0) {
 						self.gotoPos(0);
-					else
+					}
+					else {
 						self.slideBackward(fast);
+					}
 				}
 			}
 		});
 	};
 	
 	Carousel.prototype.checkPanLimits = function() {
-		if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x > 0)
+		if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x > 0) {
 			this.panCoords.x = this.panMax.x;
-		else if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x < 0)
+		}
+		else if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x < 0) {
 			this.panCoords.x = -this.panMax.x;
+		}
 
-		if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y > 0)
+		if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y > 0) {
 			this.panCoords.y = this.panMax.y;
-		else if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y < 0)
+		}
+		else if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y < 0) {
 			this.panCoords.y = -this.panMax.y;
+		}
 			
 		if (this.isZoomed) {
 			var img = this.items[this.index];
@@ -824,16 +882,20 @@ soysauce.carousels = (function() {
 				self.panCoords.x *= -self.zoomMultiplier;
 				
 				if (e1.type.match(/mousedown/i) !== null) {
-					if (e1.originalEvent !== undefined) 
+					if (e1.originalEvent !== undefined) {
 						offset = e1.originalEvent.offsetY;
-					else 
+					}
+					else {
 						offset = e1.offsetY;
+					}
 				}
 				else {
-					if (e1.originalEvent !== undefined) 
+					if (e1.originalEvent !== undefined) {
 						offset = e1.originalEvent.pageY - $(e1.target).offset().top;
-					else 
+					} 
+					else {
 						offset = e1.pageY - $(e1.target).offset().top;
+					}
 				}
 
 				self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.zoomMultiplier) - offset;
@@ -887,35 +949,25 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.autoscrollOn = function() {
 		var self = this;
-		if (this.autoscrollID === undefined) {
+		
+		if (!this.autoscrollID) {
 			this.autoscrollID = window.setInterval(function() {
 				self.slideForward();
 			}, self.autoscrollInterval);
 			return true;
 		}
+		
 		return false;
 	};
 	
 	Carousel.prototype.autoscrollOff = function() {
 		var self = this;
-		if (this.autoscrollID !== undefined) {
-			window.clearInterval(self.autoscrollID);
-			this.autoscrollID = undefined;
-			return true;
-		}
-		return false;
-	};
-	
-	Carousel.prototype.reload = function(callback) {
-		var self = this;
-		var newCarousel = this.widget;
-		carousels.forEach(function(e,i) {
-			if (self.id === e.id)
-				carousels.splice(i, 1);
-		});
-		newCarousel.removeAttr("data-ss-state");
-		callback();
-		newCarousel.each(init);
+		
+		if (!this.autoscrollID) return false;
+		
+		window.clearInterval(self.autoscrollID);
+		this.autoscrollID = undefined;
+		
 		return true;
 	};
 	
@@ -969,14 +1021,38 @@ soysauce.carousels = (function() {
 	function setTranslate(element, x, y) {
 		x = (!x) ? 0 : x;
 		y =  (!y) ? 0 : y;
-		element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform = "translate" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
+		element.style.webkitTransform = 
+		element.style.msTransform = 
+		element.style.OTransform = 
+		element.style.MozTransform = 
+		element.style.transform = 
+			"translate" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
 	}
 	
 	function setScale(element, multiplier) {
 		var currTransform = element.style.webkitTransform;
 		multiplier = (!multiplier) ? ZOOM_MULTIPLIER : multiplier;
-		element.style.webkitTransform = element.style.msTransform = element.style.OTransform = element.style.MozTransform = element.style.transform 
-		= currTransform + " scale" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
+		element.style.webkitTransform = 
+		element.style.msTransform = 
+		element.style.OTransform = 
+		element.style.MozTransform = 
+		element.style.transform = 
+			currTransform + " scale" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
+	}
+	
+	function createClones(carousel, cloneDepth) {
+		var items = carousel.container.find("[data-ss-component='item']");
+		var cloneSet1, cloneSet2;
+		
+		if (cloneDepth > carousel.maxIndex - 1) return;
+		
+		carousel.cloneDepth = cloneDepth;
+		
+		cloneSet1 = items.slice(0, cloneDepth).clone();
+		cloneSet2 = items.slice(carousel.maxIndex - cloneDepth, carousel.maxIndex).clone();
+
+		cloneSet1.appendTo(carousel.container);
+		cloneSet2.prependTo(carousel.container);
 	}
 	
 	return {

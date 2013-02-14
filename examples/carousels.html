@@ -19,23 +19,19 @@
 			</ul>
 		</div>
 		<h2>Basic Carousel - fullscreen, infinite, swipe, dots, and buttons are standard for all carousels</h2>
-		<div data-ss-widget="carousel" class="thumbnails">
+		<div data-ss-widget="carousel">
 			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
 			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
 			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
 			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
-			<img data-ss-component="thumbnail" src="http://placehold.it/600x400/cdcdcd">
-			<img data-ss-component="thumbnail" src="http://placehold.it/300x200/cdcdcd">
-			<img data-ss-component="thumbnail" src="http://placehold.it/600x400/cdcdcd">
-			<img data-ss-component="thumbnail" src="http://placehold.it/300x200/cdcdcd">
 		</div>
-        <h2>Carousel with thumbnails generated from source Images</h2>
-        <div data-ss-widget="carousel" data-ss-options="thumbs finite" class="thumbnails">
-            <a data-ss-component="item" href="#"><img src="http://placehold.it/600x400/cdcdcd"></a>
+    <h2>Carousel with thumbnails generated from source Images</h2>
+    <div data-ss-widget="carousel" data-ss-options="thumbs" class="thumbnails">
+      <a data-ss-component="item" href="#"><img src="http://placehold.it/600x400/cdcdcd"></a>
 			<a data-ss-component="item" href="#"><img src="http://placehold.it/300x200/cdcdcd"></a>
 			<a data-ss-component="item" href="#"><img src="http://placehold.it/600x400/cdcdcd"></a>
 			<a data-ss-component="item" href="#"><img src="http://placehold.it/300x200/cdcdcd"></a>
-        </div>
+    </div>
 		<h2>Carousel and autoscroll. Added css to dots.</h2>
 		<div data-ss-widget="carousel" class="dots" data-ss-options="autoscroll">
 			<a data-ss-component="item" href="#"><img src="http://placehold.it/600x400/cdcdcd"></a>
@@ -57,8 +53,8 @@
 			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
 			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
 		</div>
-		<h2>Carousel and double items</h2>
-		<div data-ss-widget="carousel" class="double" data-ss-options="double">
+		<h2>Finite Carousel and multiple items. Default is 2.</h2>
+		<div data-ss-widget="carousel" class="double" data-ss-options="multi finite">
 			<div data-ss-component="item">
 				<img src="http://placehold.it/600x400/cdcdcd">
 			</div>
@@ -66,12 +62,10 @@
 				<img src="http://placehold.it/300x200/cdcdcd">
 			</div>
 			<div data-ss-component="item">
-				<img src="http://placehold.it/600x400/cdcdcd">
 				<img src="http://placehold.it/300x200/cdcdcd">
 			</div>
 			<div data-ss-component="item">
 				<img src="http://placehold.it/600x400/cdcdcd">
-				<img src="http://placehold.it/300x200/cdcdcd">
 			</div>
 		</div>
 		<h2>Carousel w/ fullscreen and zoom and pinch. Added css to dots.</h2>
@@ -86,7 +80,7 @@
 				<img src="http://www.autocarbike.com/wp-content/uploads/2012/12/2012-ducati-1199-Panigale-red-wallpaper-front-view-2-600x400.jpg">
 			</div>
 		</div>
-		<script src="../assets/javascript/jquery.js"></script>
+		<script src="http://code.jquery.com/jquery-1.5.1.js"></script>
 		<script src="../public/javascript/soysauce.js"></script>
 	</body>
 </html>

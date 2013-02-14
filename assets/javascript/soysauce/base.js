@@ -127,6 +127,108 @@ $.fn.imagesLoaded = function( callback ) {
 if(typeof(soysauce) === "undefined") {
 "use strict";
 
+if (!jQuery.fn.on) {
+	jQuery.fn.extend({
+		on: function( types, selector, data, fn, /*INTERNAL*/ one ) {
+			var type, origFn;
+
+			// Types can be a map of types/handlers
+			if ( typeof types === "object" ) {
+				// ( types-Object, selector, data )
+				if ( typeof selector !== "string" ) {
+					// ( types-Object, data )
+					data = data || selector;
+					selector = undefined;
+				}
+				for ( type in types ) {
+					this.on( type, selector, data, types[ type ], one );
+				}
+				return this;
+			}
+
+			if ( data == null && fn == null ) {
+				// ( types, fn )
+				fn = selector;
+				data = selector = undefined;
+			} else if ( fn == null ) {
+				if ( typeof selector === "string" ) {
+					// ( types, selector, fn )
+					fn = data;
+					data = undefined;
+				} else {
+					// ( types, data, fn )
+					fn = data;
+					data = selector;
+					selector = undefined;
+				}
+			}
+			if ( fn === false ) {
+				fn = returnFalse;
+			} else if ( !fn ) {
+				return this;
+			}
+
+			if ( one === 1 ) {
+				origFn = fn;
+				fn = function( event ) {
+					// Can use an empty set, since event contains the info
+					jQuery().off( event );
+					return origFn.apply( this, arguments );
+				};
+				// Use same guid so caller can remove using origFn
+				fn.guid = origFn.guid || ( origFn.guid = jQuery.guid++ );
+			}
+			return this.each( function() {
+				jQuery.event.add( this, types, fn, data, selector );
+			});
+		}
+	});
+}
+
+if (!jQuery.fn.one) {
+	jQuery.fn.extend({
+		one: function( types, selector, data, fn ) {
+			return this.on( types, selector, data, fn, 1 );
+		}
+	});
+}
+
+if (!jQuery.fn.off) {
+	jQuery.fn.extend({
+		off: function( types, selector, fn ) {
+			var handleObj, type;
+			if ( types && types.preventDefault && types.handleObj ) {
+				// ( event )  dispatched jQuery.Event
+				handleObj = types.handleObj;
+				jQuery( types.delegateTarget ).off(
+					handleObj.namespace ? handleObj.origType + "." + handleObj.namespace : handleObj.origType,
+					handleObj.selector,
+					handleObj.handler
+				);
+				return this;
+			}
+			if ( typeof types === "object" ) {
+				// ( types-object [, selector] )
+				for ( type in types ) {
+					this.off( type, selector, types[ type ] );
+				}
+				return this;
+			}
+			if ( selector === false || typeof selector === "function" ) {
+				// ( types [, fn] )
+				fn = selector;
+				selector = undefined;
+			}
+			if ( fn === false ) {
+				fn = returnFalse;
+			}
+			return this.each(function() {
+				jQuery.event.remove( this, types, fn, selector );
+			});
+		}
+	});
+}
+
 soysauce = {
 	widgets: new Array(),
 	vars: {
@@ -135,7 +237,7 @@ soysauce = {
 		SUPPORTS3D: (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true
 	},
 	getOptions: function(selector) {
-		if($(selector).attr("data-ss-options") == undefined) return false;
+		if(!$(selector).attr("data-ss-options")) return false;
 		return $(selector).attr("data-ss-options").split(" ");
 	},
 	getPrefix: function() {
@@ -146,12 +248,12 @@ soysauce = {
 		return "";
 	},
 	stifle: function(e) {
-		if (e === undefined) return false;
+		if (!e) return false;
 		e.stopImmediatePropagation();
 		e.preventDefault();
 	},
 	fetch: function(selector) { // Fetch by ID
-		if (selector === undefined) return false;
+		if (!selector) return false;
 		if (typeof(selector) === "object") selector = $(selector).attr("data-ss-id");
 		if (/(^#?\.?\w+$)/.test(selector)) {
 			var query, ret, type;
@@ -218,7 +320,7 @@ soysauce = {
 		freezeChildren = (freezeChildren === undefined) ? true : false;
 		soysauce.fetch(selector).handleFreeze();
 		if (freezeChildren) {
-				soysauce.freezeChildren(selector);
+			soysauce.freezeChildren(selector);
 		}
 	},
 	unfreeze: function(selector) {

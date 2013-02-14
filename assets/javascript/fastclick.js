@@ -50,7 +50,9 @@
 
 	FastClick.prototype.needsClick = function(target) {
 		'use strict';
+		
 		switch (target.nodeName.toLowerCase()) {
+		case 'a':
 		case 'label':
 		case 'video':
 			return true;

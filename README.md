@@ -1,61 +1,107 @@
-Soysauce (BETA)
-==========================
+# Soysauce
 Original Author: Edward Gaba
 
-About
---------------
-Soysauce is a mobile-specific javascript widget library.
+Soysauce is a customizable javascript widget library. Popular widgets included are carousels and accordions. Please file any issues you find in Github.
 
-Widgets
---------------
+## Current CDN URLs
+* Compressed (39.6 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.min.js
+* Uncompressed (59.5 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.js
+* CSS (3.8 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.4/soysauce.css
 
-These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include:
+## Widgets
 
-	soysauce.css (found in assets)
-	soysauce.js (found in public/javascript)
+These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include both the CSS and JS file (use the CDN links above).
 
-If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests.
+## Contribute
+If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have Compass and Jammit.
+
+	gem install compass
+	gem install jammit
+
+To compile the css run this command in the main directory:
+
+	compass watch
+	-OR-
+	compass compile
+
+To bundle the javascript run this command in the main directory:
+
+	jammit
 
 ### 1) Carousel
 
-Carousels allow for "slideshow" effects for images.
+Carousels allow for "slideshow" effects for images. Every carousel is pre-built with dots, infinite scrolling, buttons, and swipe.
 
 Required Attributes:
 
-	1) data-ss-widget="carousel"
-	2) data-ss-component="item"
+	1) data-ss-widget="carousel" 	- Add this to the container
+	2) data-ss-component="item" 	- Add this to the items
 
-Usage:
+Optional Attributes:
+	
+	1) data-ss-options="OPTION"			- Add your options
+	2) data-ss-autoscroll-interval="x"	- Autoscroll timing delay; default is 5000
+	3) data-ss-peek-width="x"			- Total peek width (not per side); default is 40 (in pixels)
+	4) data-ss-zoom-multiplier="x"		- Zoom Multiplier; default is 2
 
-	<div data-ss-widget="carousel">
+Options:
+
+	1) "autoscroll" 	- timer based autoscrolling, default is 5000ms
+	2) "3d"				- forces 3d on devices, 3d is turned off by default for androids and opera browsers; default on for iOS
+	3) "peek" 			- allows item "previewing" on both sides of the main item
+	4) "finite" 		- does not loop around once end is reached
+	5) "noswipe" 		- disables the ability to swipe
+	6) "zoom" 			- allows the user to zoom in on an item
+	6a) "pinch"			- must be paired with zoom, allows for pinch zoom effects
+	7) "thumbs"			- uses thumbnails instead of dots; practical for PDP carousels
+	8) "multi"			- allows for multiple items per screen; practical for "Recommended Products"
+	9) "cms"			- converts the CMS style nodes to correctly adapt to the soysauce carousel; create the container 
+				  	  	with this option and import the CMS inside
+	10) "nofullscreen" - disables resizing of images
+
+Ex. Usage:
+
+	<div data-ss-widget="carousel" data-ss-options="autoscroll peek">
 		<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
 		<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
 		<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
 		<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
 	</div>
 
-Additional Options:
+### 2) Toggler
 
-	1) autoscroll - timer based autoscrolling, default is 5000ms. To change, use [data-ss-autoscroll-interval="x"]
-	2) fullscreen - takes on width of screen
-	3) peek - allows item "previewing" on both sides of the main item. modify width with [data-ss-peek-width="x"]
-	4) finite - does not continue once you hit the end
-	5) noswipe - disables the ability to swipe
-	6) zoom - allows the user to zoom in on an item. modify zoom multiplier with [data-ss-zoom-multiplier="x"]
-
-### 2) Accordion
-
-Accordions allow for hiding and showing content when necessary.
+Togglers allow for hiding and showing content when necessary.
 
 Required Attributes:
 
-	1) data-ss-widget="accordion"
-	2) data-ss-component="button"
-	3) data-ss-component="content"
+	1) data-ss-widget="toggler"		- Add this to the container
+	2) data-ss-component="button"	- Add this to the target button
+	3) data-ss-component="content"	- Add this to the content you want to toggle
+
+Optional Attributes:
+
+	1) data-ss-options="OPTION"			- Add your options
+	2) data-ss-responsive-threshold="x"	- Used with the responsive option; define the threshold to 
+																				use tabs/accordions; default is 768
+
+Options:
+
+	1) tabs 		- immediate child buttons/content are linked and only one can be opened at a time
+	2) slide		- slide animation
+	3) responsive	- before the threshold, accordion-esque; after the threshold, tab-esque
 
 Usage:
 
-	<div data-ss-widget="accordion" data-ss-options="tab slide">
+	<div data-ss-widget="accordion" data-ss-options="tabs slide">
+		<h1 data-ss-component="button">BUTTON</h1>
+		<div data-ss-component="content">
+			<ul>
+				<li>content</li>
+				<li>content</li>
+				<li>content</li>
+				<li>content</li>
+			</ul>
+		</div>
 		<h1 data-ss-component="button">BUTTON</h1>
 		<div data-ss-component="content">
 			<ul>
@@ -66,13 +112,6 @@ Usage:
 			</ul>
 		</div>
 	</div>
-
-Options:
-
-	1) overlay - provides a transparent overlay behind main content
-	2) ajax - transfer JSON information from the same-domain
-	3) tab - only one accordion open at a time per group
-	4) slide - animate a slidedown effect
 
 ### 3) Lateload
 
@@ -88,18 +127,26 @@ The process goes like this:
 
 It's recommended load content on this event for hidden, but necessary content such as non-primary images in a carousel.
 
-Usage:
+Ex. html:
 
-	<img data-ss-dcl-src="/images/brownie.png">
+	<img data-ss-ll-src="/images/brownie.png" data-ss-options="dom">
 
 ##### "load" event
 
 It's recommended to load all unnecessary images/scripts on this event, such as images in an accordion or images in a popup.
 
-Usage:
+Ex. html:
 
-	<img data-ss-ll-src="/images/brownie.png">
+	<img data-ss-ll-src="/images/brownie.png" data-ss-options="load">
 
-Notes
---------------
-* This widget package requires jQuery 1.7+
+##### Manual load
+
+Call soysauce.load(target) on the element that you would like to load.
+
+Ex. html:
+
+	<img data-ss-ll-src="/images/brownie.png" class="some-target">
+	
+Ex. javascript:
+	
+	soysauce.load(".some-target");

@@ -40,7 +40,7 @@
 	[data-ss-component="zoom_icon"], [data-ss-component="button"] {
 		z-index: 10;
 	}
-	&.thumbnails {
+	&[data-ss-options*="thumbs"] {
 		[data-ss-component="dots"] {
 			margin: 10px 0;
 		}
@@ -53,12 +53,6 @@
 			&[data-ss-state="active"] {
 				opacity: 1;
 			}
-		}
-	}
-	&.pdpMain {
-		[data-ss-component="item"] img {
-			max-width: 260px;
-			margin: 0 auto;
 		}
 	}
 }
