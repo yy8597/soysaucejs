@@ -1,32 +1,37 @@
-# Soysauce
+# Soysauce (v1.0.8)
 Original Author: Edward Gaba
 
 Soysauce is a customizable javascript widget library. Popular widgets included are carousels and accordions. Please file any issues you find in Github.
 
 ## Current CDN URLs
-* Compressed (39.6 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.7/soysauce.min.js
-* Uncompressed (59.5 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.7/soysauce.js
-* CSS (3.8 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.7/soysauce.css
+* Compressed (41.50 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.8/soysauce.min.js
+* Uncompressed (62.19 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.8/soysauce.js
+* CSS (3.93 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.8/soysauce.css
 
 ## Widgets
 These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include both the CSS and JS file (use the CDN links above).
 
 ## Contribute
-If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have Compass and Jammit.
+If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have the bundle, compass, jammit, rake, and asset_sync gems. All you have to run is:
 
-	gem install compass
-	gem install jammit
+	gem install bundle
+	bundle
 
-To compile the css run this command in the main directory:
+To create a build, run this command in the main directory. This compiles the CSS/JS, places the assets in the "build" directory, pushes it up to the CDN, and updates the readme.
+
+	rake v=[VERSION_NUMBER]
+	(ex. rake v=1.0.5)
+
+To compile the css, run this command in the main directory:
 
 	compass watch
-	-OR-
+		 -OR-
 	compass compile
 
-To bundle the javascript run this command in the main directory:
+To bundle the javascript, run this command in the main directory:
 
 	jammit
-
+	
 ### 1) Carousel
 
 Carousels allow for "slideshow" effects for images. Every carousel is pre-built with dots, infinite scrolling, buttons, and swipe.
