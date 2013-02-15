@@ -153,4 +153,4 @@ Ex. html:
 	
 Ex. javascript:
 	
-	soysauce.load(".some-target");
+	soysauce.lateload(".some-target");
