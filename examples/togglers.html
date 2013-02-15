@@ -160,12 +160,20 @@
 				Lorem ipsum dolor sit amet, con...
 			</div>
 		</div>
+		<h2>Toggler using IDs</h2>
+		<div data-ss-component="button" data-ss-toggler-id="test">Toggler Button</div>
+		<div data-ss-component="content" data-ss-toggler-id="test">
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus luctus dolor id ante eleifend a placerat 
+			risus porta. Donec lectus purus, porta sed bibendum quis, mollis ut tellus. Maecenas pellentesque metus 
+			vel est auctor auctor. Suspendisse imperdiet ipsum ac turpis commodo non dignissim velit suscipit. 
+			Donec felis metus, ornare in posuere id, dig...
+		</div>
 		<h2>Ajax Accordion - local is seen as a null origin, so this will throw a CORS error. m.truerunner.com has an example if you click on 'brands' on the home page</h2>
 		<div data-ss-widget="toggler" class="accordion1" data-ss-options="ajax" data-ss-ajax-url="accordionsExample.json" data-ss-ajax-callback="getData">
 			<div class="bar1" data-ss-component="button">Ajax Accordion - Click me</div>
 			<div class="injectHere" data-ss-component="content"></div>
 		</div>
 		<script src="../assets/javascript/jquery.js"></script>
-		<script src="../public/javascript/soysauce.js"></script>
+		<script src="../public/javascript/soysauce.min.js"></script>
 	</body>
 </html>

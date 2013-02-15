@@ -1,11 +1,9 @@
-[data-ss-widget="toggler"]:not([data-ss-options*="slide"]) {
-	> [data-ss-component="content"] {
-		&[data-ss-state="open"] {
-			display: block;
-		}
-		&[data-ss-state="closed"] {
-			display: none;
-		}
+[data-ss-widget="toggler"]:not([data-ss-options*="slide"]) > [data-ss-component="content"] {
+	&[data-ss-state="open"] {
+		display: block;
+	}
+	&[data-ss-state="closed"] {
+		display: none;
 	}
 }
 

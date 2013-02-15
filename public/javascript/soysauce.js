@@ -534,35 +534,43 @@ soysauce = {
 		e.stopImmediatePropagation();
 		e.preventDefault();
 	},
-	fetch: function(selector) { // Fetch by ID
+	fetch: function(selector) {
+		var query, ret;
+		
 		if (!selector) return false;
-		if (typeof(selector) === "object") selector = $(selector).attr("data-ss-id");
-		if (/(^#?\.?\w+$)/.test(selector)) {
-			var query, ret, type;
-			
-			if (selector===+selector && selector === (selector|0)) {
-				query = "[data-ss-id='" + selector + "']";
+		
+		if (typeof(selector) === "object") {
+			selector = parseInt($(selector).attr("data-ss-id"));
+		}
+		
+		if (typeof(selector) === "string") {
+			var val = parseInt($(selector).attr("data-ss-id"));;
+
+			if (isNaN(val)) {
+				val = parseInt(selector);
 			}
-			else {
-				query = selector;
+
+			selector = val;
+		}
+		
+		if (selector===+selector && selector === (selector|0)) {
+			query = "[data-ss-id='" + selector + "']";
+		}
+		else {
+			query = selector;
+		}
+
+		soysauce.widgets.forEach(function(widget) {
+			if (widget.id === selector) {
+				ret = widget;
 			}
-			
-			type = $(query).attr("data-ss-widget");
-			
-			selector = parseInt(selector);
-			
-			soysauce.widgets.forEach(function(widget) {
-				if (widget.id == selector) {
-					ret = widget;
-				}
-			});
-			
-			if (!ret) {
-				console.warn("Soysauce: Unfetchable item.");
-			}
-			else {
-				return ret;
-			}
+		});
+
+		if (!ret) {
+			return false;
+		}
+		else {
+			return ret;
 		}
 	},
 	getCoords: function(e) {
@@ -647,7 +655,7 @@ soysauce.init = function(selector) {
 	var ret = false;
 	
 	if (!selector) {
-		set = $("[data-ss-widget]:not([data-ss-id])");
+		set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
 	}
 	else {
 		set = $(selector);
@@ -660,12 +668,18 @@ soysauce.init = function(selector) {
 	set.each(function(i) {
 		var type = $(this).attr("data-ss-widget");
 		var widget;
+		var orphan = false;
 		
 		$(this).attr("data-ss-id", ++soysauce.vars.idCount);
 		
+		if (!type && $(this).attr("data-ss-toggler-id") !== undefined) {
+			type = "toggler";
+			orphan = true;
+		}
+		
 		switch (type) {
 			case "toggler":
-				widget = soysauce.togglers.init(this);
+				widget = soysauce.togglers.init(this, orphan);
 				break;
 			case "carousel":
 				widget = soysauce.carousels.init(this);
@@ -1168,7 +1182,7 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.slideForward = function(fast) {
 		if (!this.ready || 
-			(!this.infinite && this.index === this.numChildren - 1) || 
+			(!this.infinite && this.index === this.numChildren - 1) ||
 			this.isZooming) return false;
 		
 		if (this.infinite)
@@ -1552,7 +1566,7 @@ soysauce.carousels = (function() {
 				
 				if (xDist > 0) {
 					if (!self.infinite && self.index === self.numChildren - 1 ||
-						(self.multi && !self.infinite && self.index === self.numChildren - self.multiVars.stepSize - 1)) {
+						(self.multi && !self.infinite && self.index === self.numChildren - self.multiVars.numItems)) {
 						self.gotoPos(self.index * -self.itemWidth);
 					}
 					else {
@@ -1883,20 +1897,53 @@ soysauce.togglers = (function() {
 	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
 	
 	// Togglers
-	function Toggler(selector) {
+	function Toggler(selector, orphan) {
 		var self = this;
 		var options = soysauce.getOptions(selector);
 		
 		// Base
-		this.widget = $(selector);
+		if (orphan) {
+			var togglerID = $(selector).attr("data-ss-toggler-id");
+			var query = "[data-ss-toggler-id='" + togglerID + "']";
+			this.orphan = true;
+			this.widget = $(query);
+			
+			this.widget.each(function(i, component) {
+				var type = $(component).attr("data-ss-component");
+				switch (type) {
+					case "button":
+						self.button = $(component);
+						break;
+					case "content":
+						self.content = $(component);
+						break;
+				}
+			});
+			
+			if (!this.content) {
+				console.warn("Soysauce: No content found for toggler-id '" + togglerID + "'. Toggler may not work.");
+				return;
+			}
+			
+			this.button.click(function(e) {
+				self.toggle(e);
+			});
+			
+			this.setState("closed");
+		}
+		else {
+			this.widget = $(selector);
+			this.orphan = false;
+			this.allButtons = this.widget.find("> [data-ss-component='button']");
+			this.button = this.allButtons.first();
+			this.allContent = this.widget.find("> [data-ss-component='content']");
+			this.content = this.allContent.first();
+		}
+		
 		this.id = parseInt(this.widget.attr("data-ss-id"));
 		this.parentID = 0;
 		this.tabID;
 		this.state = "closed";
-		this.allButtons = this.widget.find("> [data-ss-component='button']");
-		this.button = this.allButtons.first();
-		this.allContent = this.widget.find("> [data-ss-component='content']");
-		this.content = this.allContent.first();
 		this.isChildToggler = false;
 		this.hasTogglers = false;
 		this.parent = undefined;
@@ -1943,6 +1990,8 @@ soysauce.togglers = (function() {
 			}
 		});
 
+		if (this.orphan) return this;
+
 		this.allButtons.append("<span class='icon'></span>");
 		this.allContent.wrapInner("<div data-ss-component='wrapper'/>");
 
@@ -1966,7 +2015,7 @@ soysauce.togglers = (function() {
 			this.widget.attr("data-ss-state", "closed");
 			this.opened = false;
 		}
-
+		
 		if (this.slide) {
 			this.allContent.attr("data-ss-state", "open");
 
@@ -2095,6 +2144,18 @@ soysauce.togglers = (function() {
 	Toggler.prototype.toggle = function(e) {
 		if (this.freeze) return;
 
+		if (this.orphan) {
+			if (this.opened) {
+				this.opened = false;
+				this.setState("closed");
+			}
+			else {
+				this.opened = true;
+				this.setState("open");
+			}
+			return;
+		}
+
 		if (this.tab) {
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
 											this.button[0] === e.target) ? true : false;
@@ -2129,7 +2190,7 @@ soysauce.togglers = (function() {
 			if (collapse) {
 				this.opened = false;
 			}
-
+			
 			(this.button.attr("data-ss-state") === "closed") ? this.open() : this.close();
 		}
 	};
@@ -2194,6 +2255,8 @@ soysauce.togglers = (function() {
 		this.button.attr("data-ss-state", state);
 		this.content.attr("data-ss-state", state);
 
+		if (this.orphan) return;
+
 		if (this.opened) {
 			this.widget.attr("data-ss-state", "open");
 		}
@@ -2243,8 +2306,8 @@ soysauce.togglers = (function() {
 	};
 	
 	return {
-		init: function(selector) {
-			return new Toggler(selector);
+		init: function(selector, orphan) {
+			return new Toggler(selector, orphan);
 		}
 	};
 	
