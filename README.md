@@ -145,7 +145,7 @@ Ex. html:
 
 ##### Manual load
 
-Call soysauce.load(target) on the element that you would like to load.
+Call soysauce.lateload(target) on the element that you would like to load.
 
 Ex. html:
 
