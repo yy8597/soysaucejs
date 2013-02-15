@@ -1,8 +1,4 @@
 .sass-cache
 .DS_Store
-<<<<<<< HEAD
-assets/main.css
-=======
-assets/javascript/jquery.js
->>>>>>> 1633f6608f2af119f71120b022b3d094f0bb7f3d
 /nbproject/private/
+/build/
