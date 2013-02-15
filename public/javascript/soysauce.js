@@ -1920,6 +1920,11 @@ soysauce.togglers = (function() {
 				}
 			});
 			
+			if (!this.content) {
+				console.warn("Soysauce: No content found for toggler-id '" + togglerID + "'. Toggler may not work.");
+				return;
+			}
+			
 			this.button.click(function(e) {
 				self.toggle(e);
 			});
