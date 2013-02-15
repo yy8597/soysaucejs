@@ -58,14 +58,6 @@ task :build do
   FileUtils.copy("public/javascript/soysauce.min.js", "build/latest")
   FileUtils.copy("assets/soysauce.css", "build/latest")
 
-  # Create build tag
-  pushTag = Thread.new {
-    puts "Soysauce: Pushing tag to github..."
-    system "git tag -a " + version + " -m 'Creating build " + version + "'"
-  }
-  
-  pushTag.join
-
   # Publish to CDN (currently not working, something to do with the paths... sync manually)
   # if defined?(AssetSync)
   #     puts "Soysauce: Publishing assets to CDN..."
@@ -96,6 +88,15 @@ task :build do
   File.open("README.md", "w") {
     |file| file.write(readme)
   }
+
+  # Create build tag
+  pushTag = Thread.new {
+    puts "Soysauce: Pushing tag to github..."
+    system "git tag -a " + version + " -m 'Creating build " + version + "'"
+    system "git push --tags"
+  }
+  
+  pushTag.join
 
   puts "Soysauce: Build " + version + " successful!"
 
