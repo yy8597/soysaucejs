@@ -17,7 +17,7 @@ If you would like to contribute, fork the repo (git@github.com:brandingbrand/soy
 	gem install bundle
 	bundle
 
-To create a build, run this command in the main directory. This compiles the CSS/JS, places the assets in the "build" directory, pushes it up to the CDN, and updates the readme.
+To create a build, run this command in the main directory. This compiles the CSS/JS, places the assets in the "build" directory, pushes it up to the CDN, and updates the readme. After you run this command, you must sync the files manually (bug in the rakefile at the moment).
 
 	rake v=[VERSION_NUMBER]
 	(ex. rake v=1.0.5)
