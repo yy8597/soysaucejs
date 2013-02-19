@@ -1,18 +1,18 @@
-# Soysauce (v1.0.8)
+# Soysauce (v1.0.9)
 Original Author: Edward Gaba
 
 Soysauce is a customizable javascript widget library. Popular widgets included are carousels and accordions. Please file any issues you find in Github.
 
 ## Current CDN URLs
-* Compressed (41.50 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.8/soysauce.min.js
-* Uncompressed (62.19 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.8/soysauce.js
-* CSS (3.93 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.8/soysauce.css
+* Compressed (41.50 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.9/soysauce.min.js
+* Uncompressed (62.19 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.9/soysauce.js
+* CSS (3.93 KB) - http://d2q80d41oaezoi.cloudfront.net/v1.0.9/soysauce.css
 
 ## Widgets
 These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include both the CSS and JS file (use the CDN links above).
 
 ## Contribute
-If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have the bundle, compass, jammit, rake, and asset_sync gems. All you have to run is:
+If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have the bundle, compass, jammit, rake, and aws-sdk gems. All you have to run is:
 
 	gem install bundle
 	bundle
