@@ -1,13 +1,8 @@
 #!/usr/bin/ruby
 require "rake"
 require "jammit"
-require "asset_sync"
-
-# CDN Info
-PROVIDER = "AWS"
-FOG_DIRECTORY = "soysauce"
-ACCESS_KEY_ID = "AKIAIU3WR5GFI4LDXEOA"
-SECRET_ACCESS_KEY = "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"
+require "yaml"
+require "aws-sdk"
 
 task :default => [:build]
 
@@ -58,21 +53,45 @@ task :build do
   FileUtils.copy("public/javascript/soysauce.min.js", "build/latest")
   FileUtils.copy("assets/soysauce.css", "build/latest")
 
-  # Publish to CDN (currently not working, something to do with the paths... sync manually)
-  # if defined?(AssetSync)
-  #     puts "Soysauce: Publishing assets to CDN..."
-  #     
-  #     AssetSync.configure do |config|
-  #       config.fog_provider = PROVIDER
-  #       config.fog_directory = FOG_DIRECTORY
-  #       config.aws_access_key_id = ACCESS_KEY_ID
-  #       config.aws_secret_access_key = SECRET_ACCESS_KEY
-  #       config.prefix = "assets"
-  #       config.public_path = Pathname("./build")
-  #     end
-  #     
-  #     AssetSync.sync
-  #   end
+  # Publish to CDN
+  cdn = Thread.new {
+    puts "Soysauce: Uploading to CDN..."
+    config_file = File.join(File.dirname(__FILE__), "/config/cdn.yml")
+
+    unless File.exist?(config_file)
+      puts "Soysauce: File '/config/cdn.yml' does not exist."
+      exit 1
+    end
+
+    config = YAML.load(File.read(config_file))
+
+    unless config.kind_of?(Hash)
+      puts "Soysauce: File '/config/cdn.yml' is incorrectly configured."
+      exit 1
+    end
+
+    AWS.config(config)
+
+    s3 = AWS::S3.new
+    bucket = s3.buckets.create("soysauce")
+    
+    Dir.foreach("build/" + version) do |file|
+      next if file == '.' or file == '..'
+      
+      file_path = version + "/" + file
+      puts "Uploading " + file_path + "..."
+      o = bucket.objects[file_path]
+      
+      if File.extname(file) =~ /\.css/
+        o.write(:file => "build/" + file_path, :content_type => "text/css")
+      else
+        o.write(:file => "build/" + file_path, :content_type => "text/javascript")
+      end
+      
+    end
+  }
+  
+  cdn.join
   
   # Update Readme
   readme = File.read("README.md")
