@@ -12,7 +12,7 @@ Soysauce is a customizable javascript widget library. Popular widgets included a
 These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include both the CSS and JS file (use the CDN links above).
 
 ## Contribute
-If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have the bundle, compass, jammit, rake, and asset_sync gems. All you have to run is:
+If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have the bundle, compass, jammit, rake, and aws-sdk gems. All you have to run is:
 
 	gem install bundle
 	bundle
