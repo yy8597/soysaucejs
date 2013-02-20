@@ -19,27 +19,31 @@ task :build do
   
   # Create soysauce.js, soysauce.min.js, and soysauce.css
   puts "Soysauce: Compiling assets..."
-  bundle = Thread.new {
+  
+  bundleCompressed = Thread.new {
     Jammit.package!
   }
   
-  bundle.join
-  
-  config = File.read("config/assets.yml")
-  config = config.gsub(/(compress_assets:\s+)on/, "\\1off")
-  config = config.gsub(/soysauce\.min/, "soysauce")
-  
-  File.rename("config/assets.yml", "config/assets2.yml")
-  File.open("config/assets.yml", "w") {
-    |file| file.write(config)
+  bundleUncompressed = Thread.new {
+    config = File.read("config/assets.yml")
+    config = config.gsub(/(compress_assets:\s+)on/, "\\1off")
+    config = config.gsub(/soysauce\.min/, "soysauce")
+
+    File.rename("config/assets.yml", "config/assets2.yml")
+    File.open("config/assets.yml", "w") {
+      |file| file.write(config)
+    }
+    
+    Jammit.package!
   }
   
-  bundle = Thread.new {
-    Jammit.package!
+  compileCSS = Thread.new {
     system "compass compile"
   }
   
-  bundle.join
+  bundleCompressed.join
+  bundleUncompressed.join
+  compileCSS.join
   
   # Copy files to build directory
   File.delete("config/assets.yml");
@@ -54,27 +58,27 @@ task :build do
   FileUtils.copy("assets/soysauce.css", "build/latest")
 
   # Publish to CDN
-  cdn = Thread.new {
-    puts "Soysauce: Uploading to CDN..."
-    config_file = File.join(File.dirname(__FILE__), "/config/cdn.yml")
+  puts "Soysauce: Uploading to CDN..."
+  config_file = File.join(File.dirname(__FILE__), "/config/cdn.yml")
 
-    unless File.exist?(config_file)
-      puts "Soysauce: File '/config/cdn.yml' does not exist."
-      exit 1
-    end
+  unless File.exist?(config_file)
+    puts "Soysauce: File '/config/cdn.yml' does not exist."
+    exit 1
+  end
 
-    config = YAML.load(File.read(config_file))
+  config = YAML.load(File.read(config_file))
 
-    unless config.kind_of?(Hash)
-      puts "Soysauce: File '/config/cdn.yml' is incorrectly configured."
-      exit 1
-    end
+  unless config.kind_of?(Hash)
+    puts "Soysauce: File '/config/cdn.yml' is incorrectly configured."
+    exit 1
+  end
 
-    AWS.config(config)
+  AWS.config(config)
 
-    s3 = AWS::S3.new
-    bucket = s3.buckets.create("soysauce")
-    
+  s3 = AWS::S3.new
+  bucket = s3.buckets.create("soysauce")
+
+  uploadCurrent = Thread.new {
     Dir.foreach("build/" + version) do |file|
       next if file == '.' or file == '..'
       
@@ -87,11 +91,27 @@ task :build do
       else
         o.write(:file => "build/" + file_path, :content_type => "text/javascript")
       end
-      
     end
   }
   
-  cdn.join
+  updateLatest = Thread.new {
+    Dir.foreach("build/latest") do |file|
+      next if file == '.' or file == '..'
+
+      file_path = version + "/" + file
+      puts "Uploading " + "latest/" + file + "..."
+      o = bucket.objects["latest/" + file]
+
+      if File.extname(file) =~ /\.css/
+        o.write(:file => "build/latest/" + file, :content_type => "text/css")
+      else
+        o.write(:file => "build/latest/" + file, :content_type => "text/javascript")
+      end
+    end
+  }
+
+  uploadCurrent.join
+  updateLatest.join
   
   # Update Readme
   readme = File.read("README.md")
