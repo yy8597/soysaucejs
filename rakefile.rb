@@ -11,6 +11,14 @@ task :build do
   version = "v" + ENV["v"]
   puts "Soysauce: Creating build " + version + "..."
   
+  if (!File.directory? "build")
+    Dir::mkdir("build")
+  end
+  
+  if (!File.directory? "build/latest")
+    Dir::mkdir("build/latest")
+  end
+  
   begin
     Dir::mkdir("build/" + version)
   rescue
