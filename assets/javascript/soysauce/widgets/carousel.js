@@ -394,7 +394,7 @@ soysauce.carousels = (function() {
 			
 			duration = parseFloat(this.container.css(PREFIX + "transition-duration").replace(/s$/,"")) * 1000;
 			
-			duration = (!duration) ? 850 : duration;
+			duration = (!duration) ? 650 : duration;
 			
 			// Slide Backward
 			if (!jumping && this.index === this.numChildren - 2 && !this.forward) {
