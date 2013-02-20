@@ -132,8 +132,7 @@ task :build do
   pushTag = Thread.new {
     puts "Soysauce: Pushing tag to github..."
     system "git tag -a " + version + " -m 'Creating build " + version + "'"
-    system "git push master --tags"
-    system "git push upstream --tags"
+    system "git push --tags"
   }
   
   pushTag.join
