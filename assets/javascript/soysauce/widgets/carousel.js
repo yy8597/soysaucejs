@@ -293,6 +293,9 @@ soysauce.carousels = (function() {
 		}
 
 		this.container.imagesLoaded(function(items) {
+			var firstItem = self.items.first();
+			var padding = parseInt(firstItem.css("padding-left")) + parseInt(firstItem.css("padding-right"));
+			var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
 			
 			if (self.multi) {
 				self.itemWidth = self.widget.width() / self.multiVars.numItems;
@@ -307,8 +310,8 @@ soysauce.carousels = (function() {
 				self.itemWidth -= self.peekWidth;
 				self.offset += self.peekWidth/2;
 			}
-
-			self.items.width(self.itemWidth);
+			
+			self.items.width(self.itemWidth - padding - margin);
 
 			if (self.infinite) {
 				self.gotoPos(-self.itemWidth + self.offset);
