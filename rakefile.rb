@@ -139,7 +139,7 @@ task :build do
   # Create build tag
   pushTag = Thread.new {
     puts "Soysauce: Pushing tag to github..."
-    system "git commit -am 'Creating build " + version "'"
+    system "git commit -am 'Creating build " + version + "'"
     system "git tag -a " + version + " -m 'Creating build " + version + "'"
     system "git push --tags"
   }
