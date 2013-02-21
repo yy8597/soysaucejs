@@ -1116,6 +1116,7 @@ soysauce.carousels = (function() {
 		});
 
 		this.container.on(TRANSITION_END, function() {
+			self.widget.trigger("slideEnd");
 			self.ready = true;
 			self.jumping = false;
 			self.interrupted = false;
@@ -1127,7 +1128,7 @@ soysauce.carousels = (function() {
 				}, 1000);
 			}
 		});
-
+		
 		if (this.autoscroll) {
 			var interval = this.widget.attr("data-ss-autoscroll-interval");
 			this.autoscrollInterval = (!interval) ? AUTOSCROLL_INTERVAL : parseInt(interval);
@@ -1141,11 +1142,13 @@ soysauce.carousels = (function() {
 		this.offset = x;
 		setTranslate(this.container[0], x);
 		
-		if (this.ready)
+		if (this.ready) {
 			this.container.attr("data-ss-state", "ready");
-		else
+		}
+		else {
 			this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
-	
+		}
+		
 		if (this.infinite) {
 			var duration = 0;
 			
