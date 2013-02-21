@@ -118,3 +118,9 @@
 [data-ss-widget="carousel"][data-ss-options*="thumbs"] [data-ss-component="dot"][data-ss-state="active"] {
   opacity: 1;
 }
+[data-ss-widget="carousel"][data-ss-options*="autoheight"] {
+  -webkit-transition: height 0.2s;
+  -moz-transition: height 0.2s;
+  -o-transition: height 0.2s;
+  transition: height 0.2s;
+}

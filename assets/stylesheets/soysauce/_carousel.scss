@@ -55,4 +55,7 @@
 			}
 		}
 	}
+	&[data-ss-options*="autoheight"] {
+		@include transition(height 0.2s);
+	}
 }
