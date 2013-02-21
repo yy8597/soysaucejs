@@ -335,7 +335,6 @@ soysauce.carousels = (function() {
 				}
 			}
 			
-			self.widget.trigger("SSWidgetReady").attr("data-ss-state", "ready");
 			self.ready = true;
 		});
 
@@ -788,12 +787,12 @@ soysauce.carousels = (function() {
 				self.container.attr("data-ss-state", "ready");
 				
 				if (e2.target.tagName.match(/^a$/i) !== null) {
-					window.location.href = $(e2).attr("href");
+					window.location.href = $(e2.target).attr("href");
 				}
-					
 				else if ($(e2.target).closest("a").length > 0) {
 					window.location.href = $(e2.target).closest("a").attr("href");
 				}
+				
 			}
 			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed)) {
 				soysauce.stifle(e1);
