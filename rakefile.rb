@@ -40,14 +40,14 @@ task :build do
     bundleMutex.synchronize do
       config = File.read("config/assets.yml")
       config = config.gsub(/(compress_assets:\s+)on/, "\\1off")
-      config = config.gsub(/soysauce\.min/, "soysauce")
+      config = config.gsub(/soysauce(\.lite)?\.min/, "soysauce\\1")
       
       File.rename("config/assets.yml", "config/assets2.yml")
       File.open("config/assets.yml", "w") {
         |file| file.write(config)
       }
+      Jammit.package!
     end
-    Jammit.package!
   }
   
   compileCSS = Thread.new {
@@ -63,11 +63,15 @@ task :build do
   File.rename("config/assets2.yml", "config/assets.yml")
 
   FileUtils.copy("public/javascript/soysauce.js", "build/" + version)
+  FileUtils.copy("public/javascript/soysauce.lite.js", "build/" + version)
   FileUtils.copy("public/javascript/soysauce.min.js", "build/" + version)
+  FileUtils.copy("public/javascript/soysauce.lite.min.js", "build/" + version)
   FileUtils.copy("assets/soysauce.css", "build/" + version)
 
   FileUtils.copy("public/javascript/soysauce.js", "build/latest")
+  FileUtils.copy("public/javascript/soysauce.lite.js", "build/latest")
   FileUtils.copy("public/javascript/soysauce.min.js", "build/latest")
+  FileUtils.copy("public/javascript/soysauce.lite.min.js", "build/latest")
   FileUtils.copy("assets/soysauce.css", "build/latest")
 
   # Publish to CDN
@@ -135,8 +139,12 @@ task :build do
   readme = File.read("README.md")
   
   readme = readme.gsub(/v[\d\.]+/, version)
+  size = '%.2f' % (File.size("public/javascript/soysauce.lite.min.js").to_f / 1000)
+  readme = readme.gsub(/(Compressed Lite \()[\d\.]+/, "\\1" + size)
   size = '%.2f' % (File.size("public/javascript/soysauce.min.js").to_f / 1000)
   readme = readme.gsub(/(Compressed \()[\d\.]+/, "\\1" + size)
+  size = '%.2f' % (File.size("public/javascript/soysauce.lite.js").to_f / 1000)
+  readme = readme.gsub(/(Uncompressed Lite \()[\d\.]+/, "\\1" + size)
   size = '%.2f' % (File.size("public/javascript/soysauce.js").to_f / 1000)
   readme = readme.gsub(/(Uncompressed \()[\d\.]+/, "\\1" + size)
   size = '%.2f' % (File.size("assets/soysauce.css").to_f / 1000)
