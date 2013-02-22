@@ -11,6 +11,14 @@ task :build do
   version = "v" + ENV["v"]
   puts "Soysauce: Creating build " + version + "..."
   
+  if (!File.directory? "build")
+    Dir::mkdir("build")
+  end
+  
+  if (!File.directory? "build/latest")
+    Dir::mkdir("build/latest")
+  end
+  
   begin
     Dir::mkdir("build/" + version)
   rescue
@@ -20,21 +28,26 @@ task :build do
   # Create soysauce.js, soysauce.min.js, and soysauce.css
   puts "Soysauce: Compiling assets..."
   
+  bundleMutex = Mutex.new
+  
   bundleCompressed = Thread.new {
-    Jammit.package!
+    bundleMutex.synchronize do
+      Jammit.package!
+    end
   }
   
   bundleUncompressed = Thread.new {
-    config = File.read("config/assets.yml")
-    config = config.gsub(/(compress_assets:\s+)on/, "\\1off")
-    config = config.gsub(/soysauce\.min/, "soysauce")
-
-    File.rename("config/assets.yml", "config/assets2.yml")
-    File.open("config/assets.yml", "w") {
-      |file| file.write(config)
-    }
-    
-    Jammit.package!
+    bundleMutex.synchronize do
+      config = File.read("config/assets.yml")
+      config = config.gsub(/(compress_assets:\s+)on/, "\\1off")
+      config = config.gsub(/soysauce(\.lite)?\.min/, "soysauce\\1")
+      
+      File.rename("config/assets.yml", "config/assets2.yml")
+      File.open("config/assets.yml", "w") {
+        |file| file.write(config)
+      }
+      Jammit.package!
+    end
   }
   
   compileCSS = Thread.new {
@@ -50,11 +63,15 @@ task :build do
   File.rename("config/assets2.yml", "config/assets.yml")
 
   FileUtils.copy("public/javascript/soysauce.js", "build/" + version)
+  FileUtils.copy("public/javascript/soysauce.lite.js", "build/" + version)
   FileUtils.copy("public/javascript/soysauce.min.js", "build/" + version)
+  FileUtils.copy("public/javascript/soysauce.lite.min.js", "build/" + version)
   FileUtils.copy("assets/soysauce.css", "build/" + version)
 
   FileUtils.copy("public/javascript/soysauce.js", "build/latest")
+  FileUtils.copy("public/javascript/soysauce.lite.js", "build/latest")
   FileUtils.copy("public/javascript/soysauce.min.js", "build/latest")
+  FileUtils.copy("public/javascript/soysauce.lite.min.js", "build/latest")
   FileUtils.copy("assets/soysauce.css", "build/latest")
 
   # Publish to CDN
@@ -76,20 +93,24 @@ task :build do
   AWS.config(config)
 
   s3 = AWS::S3.new
-  bucket = s3.buckets.create("soysauce")
+  bucket = s3.buckets.create("express-cdn")
+
+  bucketMutex = Mutex.new
 
   uploadCurrent = Thread.new {
     Dir.foreach("build/" + version) do |file|
       next if file == '.' or file == '..'
       
       file_path = version + "/" + file
-      puts "Uploading " + file_path + "..."
-      o = bucket.objects[file_path]
+      puts "Uploading soysauce/" + file_path + "..."
       
-      if File.extname(file) =~ /\.css/
-        o.write(:file => "build/" + file_path, :content_type => "text/css")
-      else
-        o.write(:file => "build/" + file_path, :content_type => "text/javascript")
+      bucketMutex.synchronize do
+        o = bucket.objects["soysauce/" + file_path]
+        if File.extname(file) =~ /\.css/
+          o.write(:file => "build/" + file_path, :content_type => "text/css", :acl => :public_read)
+        else
+          o.write(:file => "build/" + file_path, :content_type => "text/javascript", :acl => :public_read)
+        end
       end
     end
   }
@@ -98,18 +119,19 @@ task :build do
     Dir.foreach("build/latest") do |file|
       next if file == '.' or file == '..'
 
-      file_path = version + "/" + file
-      puts "Uploading " + "latest/" + file + "..."
-      o = bucket.objects["latest/" + file]
-
-      if File.extname(file) =~ /\.css/
-        o.write(:file => "build/latest/" + file, :content_type => "text/css")
-      else
-        o.write(:file => "build/latest/" + file, :content_type => "text/javascript")
+      puts "Uploading soysauce/latest/" + file + "..."
+      
+      bucketMutex.synchronize do
+        o = bucket.objects["soysauce/latest/" + file]
+        if File.extname(file) =~ /\.css/
+          o.write(:file => "build/latest/" + file, :content_type => "text/css", :acl => :public_read)
+        else
+          o.write(:file => "build/latest/" + file, :content_type => "text/javascript", :acl => :public_read)
+        end
       end
     end
   }
-
+  
   uploadCurrent.join
   updateLatest.join
   
@@ -117,8 +139,12 @@ task :build do
   readme = File.read("README.md")
   
   readme = readme.gsub(/v[\d\.]+/, version)
+  size = '%.2f' % (File.size("public/javascript/soysauce.lite.min.js").to_f / 1000)
+  readme = readme.gsub(/(Compressed Lite \()[\d\.]+/, "\\1" + size)
   size = '%.2f' % (File.size("public/javascript/soysauce.min.js").to_f / 1000)
   readme = readme.gsub(/(Compressed \()[\d\.]+/, "\\1" + size)
+  size = '%.2f' % (File.size("public/javascript/soysauce.lite.js").to_f / 1000)
+  readme = readme.gsub(/(Uncompressed Lite \()[\d\.]+/, "\\1" + size)
   size = '%.2f' % (File.size("public/javascript/soysauce.js").to_f / 1000)
   readme = readme.gsub(/(Uncompressed \()[\d\.]+/, "\\1" + size)
   size = '%.2f' % (File.size("assets/soysauce.css").to_f / 1000)
@@ -131,6 +157,7 @@ task :build do
   # Create build tag
   pushTag = Thread.new {
     puts "Soysauce: Pushing tag to github..."
+    system "git commit -am 'Creating build " + version + "'"
     system "git tag -a " + version + " -m 'Creating build " + version + "'"
     system "git push --tags"
   }

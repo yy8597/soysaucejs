@@ -12,3 +12,10 @@ javascripts:
       - assets/javascript/soysauce/base.js
       - assets/javascript/soysauce/utilities/*.js
       - assets/javascript/soysauce/widgets/*.js
+  soysauce.lite.min:
+      - assets/javascript/fastclick.js
+      - assets/javascript/soysauce/base.js
+      - assets/javascript/soysauce/utilities/init.js
+      - assets/javascript/soysauce/utilities/lateload.js
+      - assets/javascript/soysauce/widgets/carousel.js
+      - assets/javascript/soysauce/widgets/toggler.js

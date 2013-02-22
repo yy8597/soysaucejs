@@ -24,11 +24,12 @@
 	}
 	[data-ss-component="container_wrapper"] {
 		overflow: hidden;
+		max-height: 100%;
 	}
 	&[data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"]) {
-		@include transition(transform .85s);
+		@include transition(transform .65s);
 		&[data-ss-state="intransit-fast"] {
-			@include transition(transform .6s);
+			@include transition(transform .45s);
 		}
 	}
 	&[data-ss-options*="zoom"] img[data-ss-state="ready"] {
@@ -54,5 +55,8 @@
 				opacity: 1;
 			}
 		}
+	}
+	&[data-ss-options*="autoheight"] {
+		@include transition(height 0.2s);
 	}
 }

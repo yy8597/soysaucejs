@@ -1,3 +1,729 @@
+/*
+	FastClick (removes the click delay found on mobile devices).
+	More info can be found on https://github.com/ftlabs/fastclick
+*/
+(function() {
+	// Regex that excludes FastClick
+	// Note: newer Android devices (4.0+) do not seem to have a click delay
+	var excludeFastClick = /android [4]/i.test(navigator.userAgent);
+	if (excludeFastClick) return;
+	
+	function FastClick(layer) {
+		'use strict';
+		var oldOnClick, self = this;
+		this.trackingClick = false;
+		this.trackingClickStart = 0;
+		this.targetElement = null;
+		this.layer = layer;
+
+		if (!layer || !layer.nodeType) {
+			throw new TypeError('Layer must be a document node');
+		}
+
+		this.onClick = function() { FastClick.prototype.onClick.apply(self, arguments); };
+		this.onTouchStart = function() { FastClick.prototype.onTouchStart.apply(self, arguments); };
+		this.onTouchMove = function() { FastClick.prototype.onTouchMove.apply(self, arguments); };
+		this.onTouchEnd = function() { FastClick.prototype.onTouchEnd.apply(self, arguments); };
+		this.onTouchCancel = function() { FastClick.prototype.onTouchCancel.apply(self, arguments); };
+
+		if (typeof window.ontouchstart === 'undefined') {
+			return;
+		}
+
+		layer.addEventListener('click', this.onClick, true);
+		layer.addEventListener('touchstart', this.onTouchStart, false);
+		layer.addEventListener('touchmove', this.onTouchMove, false);
+		layer.addEventListener('touchend', this.onTouchEnd, false);
+		layer.addEventListener('touchcancel', this.onTouchCancel, false);
+
+		if (typeof layer.onclick === 'function') {
+
+			oldOnClick = layer.onclick;
+			layer.addEventListener('click', function(event) {
+				oldOnClick(event);
+			}, false);
+			layer.onclick = null;
+		}
+	}
+
+	FastClick.prototype.deviceIsAndroid = navigator.userAgent.indexOf('Android') > 0;
+
+	FastClick.prototype.needsClick = function(target) {
+		'use strict';
+		
+		switch (target.nodeName.toLowerCase()) {
+		case 'a':
+		case 'label':
+		case 'video':
+			return true;
+		default:
+			return (/\bneedsclick\b/).test(target.className);
+		}
+	};
+
+	FastClick.prototype.needsFocus = function(target) {
+		'use strict';
+		switch (target.nodeName.toLowerCase()) {
+		case 'textarea':
+		case 'select':
+			return true;
+		case 'input':
+			switch (target.type) {
+			case 'button':
+			case 'checkbox':
+			case 'file':
+			case 'image':
+			case 'radio':
+			case 'submit':
+				return false;
+			}
+			return true;
+		default:
+			return (/\bneedsfocus\b/).test(target.className);
+		}
+	};
+
+	FastClick.prototype.maybeSendClick = function(targetElement, event) {
+		'use strict';
+		var clickEvent, touch;
+
+		if (this.needsClick(targetElement)) {
+			return false;
+		}
+
+		if (document.activeElement && document.activeElement !== targetElement) {
+			document.activeElement.blur();
+		}
+
+		touch = event.changedTouches[0];
+
+		clickEvent = document.createEvent('MouseEvents');
+		clickEvent.initMouseEvent('click', true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
+		clickEvent.forwardedTouchEvent = true;
+		targetElement.dispatchEvent(clickEvent);
+
+		return true;
+	};
+
+	FastClick.prototype.onTouchStart = function(event) {
+		'use strict';
+		var touch = event.targetTouches[0];
+
+		this.trackingClick = true;
+		this.trackingClickStart = event.timeStamp;
+		this.targetElement = event.target;
+
+		this.touchStartX = touch.pageX;
+		this.touchStartY = touch.pageY;
+
+		if (event.timeStamp - this.lastClickTime < 200) {
+			event.preventDefault();
+		}
+		return true;
+	};
+
+	FastClick.prototype.touchHasMoved = function(event) {
+		'use strict';
+		var touch = event.targetTouches[0];
+
+		if (Math.abs(touch.pageX - this.touchStartX) > 10 || Math.abs(touch.pageY - this.touchStartY) > 10) {
+			return true;
+		}
+
+		return false;
+	};
+
+	FastClick.prototype.onTouchMove = function(event) {
+		'use strict';
+		if (!this.trackingClick) {
+			return true;
+		}
+
+		if (this.targetElement !== event.target || this.touchHasMoved(event)) {
+			this.trackingClick = false;
+			this.targetElement = null;
+		}
+
+		return true;
+	};
+
+	FastClick.prototype.findControl = function(labelElement) {
+		'use strict';
+
+		if (labelElement.control !== undefined) {
+			return labelElement.control;
+		}
+
+		if (labelElement.htmlFor) {
+			return document.getElementById(labelElement.htmlFor);
+		}
+
+		return labelElement.querySelector('button, input:not([type=hidden]), keygen, meter, output, progress, select, textarea');
+	};
+
+	FastClick.prototype.onTouchEnd = function(event) {
+		'use strict';
+		var forElement, trackingClickStart, targetElement = this.targetElement;
+
+		if (!this.trackingClick) {
+			return true;
+		}
+
+		if (event.timeStamp - this.lastClickTime < 200) {
+			this.cancelNextClick = true
+			return true;
+		}
+
+		this.lastClickTime = event.timeStamp
+
+		trackingClickStart = this.trackingClickStart;
+		this.trackingClick = false;
+		this.trackingClickStart = 0;
+
+		if (targetElement.nodeName.toLowerCase() === 'label') {
+			forElement = this.findControl(targetElement);
+			if (forElement) {
+				targetElement.focus();
+				if (this.deviceIsAndroid) {
+					return false;
+				}
+
+				if (this.maybeSendClick(forElement, event)) {
+					event.preventDefault();
+				}
+
+				return false;
+			}
+		} else if (this.needsFocus(targetElement)) {
+
+			if ((event.timeStamp - trackingClickStart) > 100) {
+
+				this.targetElement = null;
+				return true;
+			}
+
+			targetElement.focus();
+
+			if (targetElement.tagName.toLowerCase() !== 'select') {
+				event.preventDefault();
+			}
+
+			return false;
+		}
+
+		if (!this.maybeSendClick(targetElement, event)) {
+			return false;
+		}
+
+		event.preventDefault();
+		return false;
+	};
+
+	FastClick.prototype.onTouchCancel = function() {
+		'use strict';
+		this.trackingClick = false;
+		this.targetElement = null;
+	};
+
+	FastClick.prototype.onClick = function(event) {
+		'use strict';
+
+		var oldTargetElement;
+
+		if (event.forwardedTouchEvent) {
+			return true;
+		}
+
+		if (!this.targetElement) {
+			return true;
+		}
+
+		oldTargetElement = this.targetElement;
+		this.targetElement = null;
+
+		if (!event.cancelable) {
+			return true;
+		}
+
+		if (event.target.type === 'submit' && event.detail === 0) {
+			return true;
+		}
+
+		if (!this.needsClick(oldTargetElement) || this.cancelNextClick) {
+			this.cancelNextClick = false
+			if (event.stopImmediatePropagation) {
+				event.stopImmediatePropagation();
+			}
+
+			event.stopPropagation();
+			event.preventDefault();
+
+			return false;
+		}
+
+		return true;
+	};
+
+	FastClick.prototype.destroy = function() {
+		'use strict';
+		var layer = this.layer;
+
+		layer.removeEventListener('click', this.onClick, true);
+		layer.removeEventListener('touchstart', this.onTouchStart, false);
+		layer.removeEventListener('touchmove', this.onTouchMove, false);
+		layer.removeEventListener('touchend', this.onTouchEnd, false);
+		layer.removeEventListener('touchcancel', this.onTouchCancel, false);
+	};
+
+	window.addEventListener('load', function() {
+	    new FastClick(document.body);
+	}, false);
+})();
+
+/*!
+ * jQuery imagesLoaded plugin v2.1.1
+ * http://github.com/desandro/imagesloaded
+ *
+ * MIT License. by Paul Irish et al.
+ */
+
+/*jshint curly: true, eqeqeq: true, noempty: true, strict: true, undef: true, browser: true */
+/*global jQuery: false */
+
+;(function($, undefined) {
+'use strict';
+
+// blank image data-uri bypasses webkit log warning (thx doug jones)
+var BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+
+$.fn.imagesLoaded = function( callback ) {
+	var $this = this,
+		deferred = $.isFunction($.Deferred) ? $.Deferred() : 0,
+		hasNotify = $.isFunction(deferred.notify),
+		$images = $this.find('img').add( $this.filter('img') ),
+		loaded = [],
+		proper = [],
+		broken = [];
+
+	// Register deferred callbacks
+	if ($.isPlainObject(callback)) {
+		$.each(callback, function (key, value) {
+			if (key === 'callback') {
+				callback = value;
+			} else if (deferred) {
+				deferred[key](value);
+			}
+		});
+	}
+
+	function doneLoading() {
+		var $proper = $(proper),
+			$broken = $(broken);
+
+		if ( deferred ) {
+			if ( broken.length ) {
+				deferred.reject( $images, $proper, $broken );
+			} else {
+				deferred.resolve( $images );
+			}
+		}
+
+		if ( $.isFunction( callback ) ) {
+			callback.call( $this, $images, $proper, $broken );
+		}
+	}
+
+	function imgLoadedHandler( event ) {
+		imgLoaded( event.target, event.type === 'error' );
+	}
+
+	function imgLoaded( img, isBroken ) {
+		// don't proceed if BLANK image, or image is already loaded
+		if ( img.src === BLANK || $.inArray( img, loaded ) !== -1 ) {
+			return;
+		}
+
+		// store element in loaded images array
+		loaded.push( img );
+
+		// keep track of broken and properly loaded images
+		if ( isBroken ) {
+			broken.push( img );
+		} else {
+			proper.push( img );
+		}
+
+		// cache image and its state for future calls
+		$.data( img, 'imagesLoaded', { isBroken: isBroken, src: img.src } );
+
+		// trigger deferred progress method if present
+		if ( hasNotify ) {
+			deferred.notifyWith( $(img), [ isBroken, $images, $(proper), $(broken) ] );
+		}
+
+		// call doneLoading and clean listeners if all images are loaded
+		if ( $images.length === loaded.length ) {
+			setTimeout( doneLoading );
+			$images.unbind( '.imagesLoaded', imgLoadedHandler );
+		}
+	}
+
+	// if no images, trigger immediately
+	if ( !$images.length ) {
+		doneLoading();
+	} else {
+		$images.bind( 'load.imagesLoaded error.imagesLoaded', imgLoadedHandler )
+		.each( function( i, el ) {
+			var src = el.src;
+
+			// find out if this image has been already checked for status
+			// if it was, and src has not changed, call imgLoaded on it
+			var cached = $.data( el, 'imagesLoaded' );
+			if ( cached && cached.src === src ) {
+				imgLoaded( el, cached.isBroken );
+				return;
+			}
+
+			// if complete is true and browser supports natural sizes, try
+			// to check for image status manually
+			if ( el.complete && el.naturalWidth !== undefined ) {
+				imgLoaded( el, el.naturalWidth === 0 || el.naturalHeight === 0 );
+				return;
+			}
+
+			// cached images don't fire load sometimes, so we reset src, but only when
+			// dealing with IE, or image is complete (loaded) and failed manual check
+			// webkit hack from http://groups.google.com/group/jquery-dev/browse_thread/thread/eee6ab7b2da50e1f
+			if ( el.readyState || el.complete ) {
+				el.src = BLANK;
+				el.src = src;
+			}
+		});
+	}
+
+	return deferred ? deferred.promise( $this ) : $this;
+};
+
+})(jQuery);
+
+if(typeof(soysauce) === "undefined") {
+"use strict";
+
+if (!jQuery.fn.on) {
+	jQuery.fn.extend({
+		on: function( types, selector, data, fn, /*INTERNAL*/ one ) {
+			var type, origFn;
+
+			// Types can be a map of types/handlers
+			if ( typeof types === "object" ) {
+				// ( types-Object, selector, data )
+				if ( typeof selector !== "string" ) {
+					// ( types-Object, data )
+					data = data || selector;
+					selector = undefined;
+				}
+				for ( type in types ) {
+					this.on( type, selector, data, types[ type ], one );
+				}
+				return this;
+			}
+
+			if ( data == null && fn == null ) {
+				// ( types, fn )
+				fn = selector;
+				data = selector = undefined;
+			} else if ( fn == null ) {
+				if ( typeof selector === "string" ) {
+					// ( types, selector, fn )
+					fn = data;
+					data = undefined;
+				} else {
+					// ( types, data, fn )
+					fn = data;
+					data = selector;
+					selector = undefined;
+				}
+			}
+			if ( fn === false ) {
+				fn = returnFalse;
+			} else if ( !fn ) {
+				return this;
+			}
+
+			if ( one === 1 ) {
+				origFn = fn;
+				fn = function( event ) {
+					// Can use an empty set, since event contains the info
+					jQuery().off( event );
+					return origFn.apply( this, arguments );
+				};
+				// Use same guid so caller can remove using origFn
+				fn.guid = origFn.guid || ( origFn.guid = jQuery.guid++ );
+			}
+			return this.each( function() {
+				jQuery.event.add( this, types, fn, data, selector );
+			});
+		}
+	});
+}
+
+if (!jQuery.fn.one) {
+	jQuery.fn.extend({
+		one: function( types, selector, data, fn ) {
+			return this.on( types, selector, data, fn, 1 );
+		}
+	});
+}
+
+if (!jQuery.fn.off) {
+	jQuery.fn.extend({
+		off: function( types, selector, fn ) {
+			var handleObj, type;
+			if ( types && types.preventDefault && types.handleObj ) {
+				// ( event )  dispatched jQuery.Event
+				handleObj = types.handleObj;
+				jQuery( types.delegateTarget ).off(
+					handleObj.namespace ? handleObj.origType + "." + handleObj.namespace : handleObj.origType,
+					handleObj.selector,
+					handleObj.handler
+				);
+				return this;
+			}
+			if ( typeof types === "object" ) {
+				// ( types-object [, selector] )
+				for ( type in types ) {
+					this.off( type, selector, types[ type ] );
+				}
+				return this;
+			}
+			if ( selector === false || typeof selector === "function" ) {
+				// ( types [, fn] )
+				fn = selector;
+				selector = undefined;
+			}
+			if ( fn === false ) {
+				fn = returnFalse;
+			}
+			return this.each(function() {
+				jQuery.event.remove( this, types, fn, selector );
+			});
+		}
+	});
+}
+
+soysauce = {
+	widgets: new Array(),
+	vars: {
+		idCount: 0,
+		currentViewportWidth: window.innerWidth,
+		SUPPORTS3D: (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true
+	},
+	getOptions: function(selector) {
+		if(!$(selector).attr("data-ss-options")) return false;
+		return $(selector).attr("data-ss-options").split(" ");
+	},
+	getPrefix: function() {
+		if (navigator.userAgent.match(/webkit/i) !== null) return "-webkit-";
+		else if (navigator.userAgent.match(/windows\sphone|msie/i) !== null) return "-ms-";
+		else if (navigator.userAgent.match(/^mozilla/i) !== null) return "-moz-";
+		else if (navigator.userAgent.match(/opera/i) !== null) return "-o-";
+		return "";
+	},
+	stifle: function(e) {
+		if (!e) return false;
+		e.stopImmediatePropagation();
+		e.preventDefault();
+	},
+	fetch: function(selector) {
+		var query, ret;
+		
+		if (!selector) return false;
+		
+		if (typeof(selector) === "object") {
+			selector = parseInt($(selector).attr("data-ss-id"));
+		}
+		
+		if (typeof(selector) === "string") {
+			var val = parseInt($(selector).attr("data-ss-id"));;
+
+			if (isNaN(val)) {
+				val = parseInt(selector);
+			}
+
+			selector = val;
+		}
+		
+		if (selector===+selector && selector === (selector|0)) {
+			query = "[data-ss-id='" + selector + "']";
+		}
+		else {
+			query = selector;
+		}
+
+		soysauce.widgets.forEach(function(widget) {
+			if (widget.id === selector) {
+				ret = widget;
+			}
+		});
+
+		if (!ret) {
+			return false;
+		}
+		else {
+			return ret;
+		}
+	},
+	getCoords: function(e) {
+		if (!e) return;
+		if (e.originalEvent !== undefined) e = e.originalEvent;
+		if (e.touches && e.touches.length === 1)
+			return {x: e.touches[0].clientX, y: e.touches[0].clientY};
+		else if (e.touches && e.touches.length === 2)
+			return {x: e.touches[0].clientX, y: e.touches[0].clientY, x2: e.touches[1].clientX, y2: e.touches[1].clientY};
+		else if (e.changedTouches && e.changedTouches.length === 1)
+			return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY};
+		else if (e.changedTouches && e.changedTouches.length === 2)
+			return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY, x2: e.changedTouches[1].clientX, y2: e.changedTouches[1].clientY};
+		else if (e.clientX !== undefined)
+			return {x: e.clientX, y: e.clientY};
+	},
+	getArrayFromMatrix: function(matrix) {
+		return matrix.substr(7, matrix.length - 8).split(', ');
+	},
+	browserInfo: {
+		userAgent: navigator.userAgent,
+		supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,
+		supportsLocalStorage: (typeof(window.localStorage) !== "undefined") ? true : false,
+		supportsSessionStorage: (typeof(window.sessionStorage) !== "undefined") ? true : false
+	},
+	freezeChildren: function(selector) {
+		var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
+		children.each(function(index, child) {
+			var id = $(child).attr("data-ss-id");
+			soysauce.freeze(id, false);
+		});
+	},
+	freeze: function(selector, freezeChildren) {
+		if (typeof(selector) === "object") {
+			selector = parseInt($(selector).attr("data-ss-id"));
+		}
+		freezeChildren = (freezeChildren === undefined) ? true : false;
+		soysauce.fetch(selector).handleFreeze();
+		if (freezeChildren) {
+			soysauce.freezeChildren(selector);
+		}
+	},
+	unfreeze: function(selector) {
+		if (typeof(selector) === "object") {
+			selector = parseInt($(selector).attr("data-ss-id"));
+		}
+		var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
+		soysauce.fetch(selector).handleUnfreeze();
+		children.each(function(index, child) {
+			var id = $(child).attr("data-ss-id");
+			soysauce.fetch(id).handleUnfreeze();
+		});
+	},
+	scrollTop: function() {
+		window.setTimeout(function(){
+			window.scrollTo(0, 1);
+		}, 0);
+	}
+}
+
+// Widget Resize Handler
+$(window).on("resize orientationchange", function(e) {
+	if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
+		soysauce.vars.currentViewportWidth = window.innerWidth;
+		soysauce.widgets.forEach(function(widget) {
+			widget.handleResize();
+		});
+	}
+});
+
+// Widget Initialization
+$(document).ready(function() {
+	soysauce.scrollTop();
+	soysauce.init();
+});
+
+}
+
+soysauce.init = function(selector) {
+	var set;
+	var numItems = 0;
+	var ret = false;
+	
+	if (!selector) {
+		set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
+	}
+	else {
+		set = $(selector);
+	}
+	
+	if ($(selector).attr("data-ss-id") !== undefined) return ret;
+	
+	numItems = set.length;
+	
+	set.each(function(i) {
+		var type = $(this).attr("data-ss-widget");
+		var widget;
+		var orphan = false;
+		
+		$(this).attr("data-ss-id", ++soysauce.vars.idCount);
+		
+		if (!type && $(this).attr("data-ss-toggler-id") !== undefined) {
+			type = "toggler";
+			orphan = true;
+		}
+		
+		switch (type) {
+			case "toggler":
+				widget = soysauce.togglers.init(this, orphan);
+				break;
+			case "carousel":
+				widget = soysauce.carousels.init(this);
+				break;
+		}
+
+		if (widget !== undefined) {
+			soysauce.widgets.push(widget);
+			$(this).trigger("SSWidgetReady");
+			ret = true;
+		}
+		
+	});
+	
+	return ret;
+}
+
+soysauce.lateload = function(selector) {
+	
+	function loadItem(selector) {
+		var curr = $(selector);
+		var val = curr.attr("data-ss-ll-src");
+		if (val) 
+			curr.attr("src", val).attr("data-ss-ll-src", "");
+	}
+	
+	if (selector)
+		$("[data-ss-ll-src]:not([data-ss-options])").each(loadItem(selector));
+	else {
+		$(document).on("DOMContentLoaded", function() {
+			$("[data-ss-ll-src][data-ss-options='dom']").each(function(i, e) {
+				loadItem(e);
+			});
+		});
+		$(window).on("load", function() {
+			$("[data-ss-ll-src][data-ss-options='load']").each(function(i, e) {
+				loadItem(e);
+			});
+		});
+	}
+};
+
+soysauce.lateload();
+
 soysauce.carousels = (function() {
 	// Shared Default Globals
 	var AUTOSCROLL_INTERVAL = 5000;
@@ -1097,6 +1823,426 @@ soysauce.carousels = (function() {
 	return {
 		init: function(selector) {
 			return new Carousel(selector);
+		}
+	};
+	
+})();
+
+soysauce.togglers = (function() {
+	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
+	
+	// Togglers
+	function Toggler(selector, orphan) {
+		var self = this;
+		var options = soysauce.getOptions(selector);
+		
+		// Base
+		if (orphan) {
+			var togglerID = $(selector).attr("data-ss-toggler-id");
+			var query = "[data-ss-toggler-id='" + togglerID + "']";
+			this.orphan = true;
+			this.widget = $(query);
+			
+			this.widget.each(function(i, component) {
+				var type = $(component).attr("data-ss-component");
+				switch (type) {
+					case "button":
+						self.button = $(component);
+						break;
+					case "content":
+						self.content = $(component);
+						break;
+				}
+			});
+			
+			if (!this.content) {
+				console.warn("Soysauce: No content found for toggler-id '" + togglerID + "'. Toggler may not work.");
+				return;
+			}
+			
+			this.button.click(function(e) {
+				self.toggle(e);
+			});
+			
+			this.setState("closed");
+		}
+		else {
+			this.widget = $(selector);
+			this.orphan = false;
+			this.allButtons = this.widget.find("> [data-ss-component='button']");
+			this.button = this.allButtons.first();
+			this.allContent = this.widget.find("> [data-ss-component='content']");
+			this.content = this.allContent.first();
+		}
+		
+		this.id = parseInt(this.widget.attr("data-ss-id"));
+		this.parentID = 0;
+		this.tabID;
+		this.state = "closed";
+		this.isChildToggler = false;
+		this.hasTogglers = false;
+		this.parent = undefined;
+		this.ready = true;
+		this.adjustFlag = false;
+		this.freeze = false;
+		this.opened = false;
+		
+		// Slide
+		this.slide = false;
+		this.height = 0;
+		
+		// Ajax
+		this.ajax = false;
+		this.doAjax = false;
+		
+		// Tab
+		this.tab = false;
+		this.childTabOpen = false;
+		
+		// Responsive
+		this.responsive = false;
+		this.responsiveVars = {
+			threshold: (!this.widget.attr("data-ss-responsive-threshold")) ? 768 : parseInt(this.widget.attr("data-ss-responsive-threshold")),
+			accordions: true
+		};
+		
+		if (options) options.forEach(function(option) {
+			switch(option) {
+				case "ajax":
+					self.ajax = true;
+					self.doAjax = true;
+					break;
+				case "tabs":
+					self.tab = true;
+					break;
+				case "slide":
+					self.slide = true;
+					break;
+				case "responsive":
+					self.responsive = true;
+					self.tab = true;
+					break;
+			}
+		});
+
+		if (this.orphan) return this;
+
+		this.allButtons.append("<span class='icon'></span>");
+		this.allContent.wrapInner("<div data-ss-component='wrapper'/>");
+
+		this.hasTogglers = (this.widget.has("[data-ss-widget='toggler']").length > 0) ? true : false; 
+		this.isChildToggler = (this.widget.parents("[data-ss-widget='toggler']").length > 0) ? true : false;
+
+		if (this.isChildToggler) {
+			var parent = this.widget.parents("[data-ss-widget='toggler']");
+			this.parentID = parseInt(parent.attr("data-ss-id"));
+			this.parent = parent;
+		}
+
+		if (this.widget.attr("data-ss-state") !== undefined && this.widget.attr("data-ss-state") === "open") {
+			this.allButtons.attr("data-ss-state", "open");
+			this.allContent.attr("data-ss-state", "open");
+			this.opened = true;
+		}
+		else {
+			this.allButtons.attr("data-ss-state", "closed");
+			this.allContent.attr("data-ss-state", "closed");
+			this.widget.attr("data-ss-state", "closed");
+			this.opened = false;
+		}
+		
+		if (this.slide) {
+			this.allContent.attr("data-ss-state", "open");
+
+			if (this.hasTogglers) {
+				var height = 0;
+				this.content.find("[data-ss-component='button']").each(function() {
+					height += self.widget.height();
+				});
+				this.height = height;
+			}
+			else {
+				this.allContent.each(function() {
+					$(this).attr("data-ss-slide-height", $(this).height());
+				});
+			}
+
+			this.allContent.css("height", "0px");
+			this.allContent.attr("data-ss-state", "closed");
+			this.allContent.on(TRANSITION_END, function() {
+				self.ready = true;
+			});
+		}
+
+		this.allButtons.click(function(e) {
+			self.toggle(e);
+		});
+		
+		this.handleResponsive();
+	}
+	
+	Toggler.prototype.open = function() {
+		var slideOpenWithTab = this.responsiveVars.accordions;
+
+		if (!this.ready && !slideOpenWithTab) return;
+
+		var self = this;
+		var prevHeight = 0;
+
+		if (this.slide) {
+			if (this.responsive && !slideOpenWithTab) return;
+
+			this.ready = false;
+
+			if (this.adjustFlag || slideOpenWithTab) this.content.one(TRANSITION_END, function() {
+				self.adjustHeight();
+			});
+
+			if (this.isChildToggler && this.parent.slide) {
+				if (this.tab) {
+					if (!this.parent.childTabOpen) {
+						this.parent.addHeight(this.height);
+						this.parent.childTabOpen = true;
+					}
+					else {
+						var offset = this.height - prevHeight;
+						this.parent.addHeight(offset);
+					}
+				}
+				else {
+					this.parent.addHeight(this.height);
+				}
+			}
+
+			if (this.ajax && this.height === 0) {
+				$(this.content).imagesLoaded(function() {
+					self.content.css("height", "auto");
+					self.height = self.content.height();
+					self.content.css("height", self.height + "px");
+				});
+			}
+			else {
+				this.height = parseInt(this.content.attr("data-ss-slide-height"));
+				this.content.css("height", this.height + "px");
+			}
+		}
+
+		this.opened = true;
+		this.setState("open");
+	};
+	
+	Toggler.prototype.close = function() {
+		var self = this;
+
+		if (!this.ready) return;
+
+		if (this.slide) {
+			this.ready = false;
+			if (this.isChildToggler && this.parent.slide && !this.tab) {
+				this.parent.addHeight(-this.height);
+			}
+			this.content.css("height", "0px");
+		}
+
+		this.setState("closed");
+	};
+	
+	Toggler.prototype.handleResize = function() {
+		this.adjustFlag = true;
+		if (this.state === "open") {
+			this.adjustHeight();
+		}
+		if (this.responsive) {
+			this.handleResponsive();
+		}
+	};
+	
+	// TODO: this needs improvement; get new height and set it so that it animates on close after a resize/orientation change
+	Toggler.prototype.adjustHeight = function() {
+		this.adjustFlag = false;
+	};
+
+	Toggler.prototype.addHeight = function(height) {
+		if (!height===+height || !height===(height|0)) return;
+		this.height += height;
+		this.height = (this.height < 0) ? 0 : this.height;
+		this.content.css("height", this.height + "px");
+	};
+
+	Toggler.prototype.setHeight = function(height) {
+		if (!height===+height || !height===(height|0)) return;
+		this.height = height;
+		this.height = (this.height < 0) ? 0 : this.height;
+		this.content.css("height", height + "px");
+	};
+
+	Toggler.prototype.toggle = function(e) {
+		if (this.freeze) return;
+
+		if (this.orphan) {
+			if (this.opened) {
+				this.opened = false;
+				this.setState("closed");
+			}
+			else {
+				this.opened = true;
+				this.setState("open");
+			}
+			return;
+		}
+
+		if (this.tab) {
+			var collapse = (this.button.attr("data-ss-state") === "open" &&
+											this.button[0] === e.target) ? true : false;
+
+			if (this.responsive && !this.responsiveVars.accordions && (this.button[0] === e.target)) return;
+
+			this.close();
+
+			this.button = $(e.target);
+			this.content = $(e.target).find("+ [data-ss-component='content']");
+
+			if (this.slide) {
+				this.height = parseInt(this.content.attr("data-ss-slide-height"));
+			}
+
+			if (collapse) {
+				this.widget.attr("data-ss-state", "closed");
+				this.opened = false;
+				return;
+			}
+
+			this.open();
+		}
+		else {
+			this.button = $(e.target);
+			this.content = $(e.target).find("+ [data-ss-component='content']");
+
+			var collapse = (this.button.attr("data-ss-state") === "open" &&
+											this.button[0] === e.target &&
+											this.widget.find("[data-ss-component='button'][data-ss-state='open']").length === 1) ? true : false;
+			
+			if (collapse) {
+				this.opened = false;
+			}
+			
+			(this.button.attr("data-ss-state") === "closed") ? this.open() : this.close();
+		}
+	};
+
+	Toggler.prototype.handleAjax = function() {
+		var obj = this.widget;
+		var content = this.content;
+		var url = "";
+		var callback;
+		var self = this;
+		var firstTime = false;
+
+		this.button.click(function(e) {
+			if (!self.doAjax) {
+				self.toggle();
+				soysauce.stifle(e);
+				return;
+			}
+
+			soysauce.stifle(e);
+			self.setState("ajaxing");
+			self.ready = false;
+
+			if(!obj.attr("data-ss-ajax-url")) {
+				console.warn("Soysauce: 'data-ss-ajax-url' tag required. Must be on the same domain.");
+				return;
+			}
+
+			if(!obj.attr("data-ss-ajax-callback")) {
+				console.warn("Soysauce: 'data-ss-ajax-callback' required.");
+				return;
+			}
+
+			url = obj.attr("data-ss-ajax-url");
+			callback = obj.attr("data-ss-ajax-callback");
+
+			if (soysauce.browserInfo.supportsSessionStorage) {
+				if (!sessionStorage.getItem(url)) {
+					firstTime = true;
+					$.get(url, function(data) {
+						sessionStorage.setItem(url, JSON.stringify(data));
+						eval(callback + "(" + JSON.stringify(data) + ")");
+						self.setAjaxComplete();
+						firstTime = false;
+					});
+				}
+				else
+					eval(callback + "(" + sessionStorage.getItem(url) + ")");
+			}
+			else {
+				$.get(url, eval(callback));
+			}
+
+			if (!firstTime) {
+				self.setAjaxComplete();
+			}
+		});
+	};
+
+	Toggler.prototype.setState = function(state) {
+		this.state = state;
+		this.button.attr("data-ss-state", state);
+		this.content.attr("data-ss-state", state);
+
+		if (this.orphan) return;
+
+		if (this.opened) {
+			this.widget.attr("data-ss-state", "open");
+		}
+		else {
+			this.widget.attr("data-ss-state", "closed");
+		}
+
+		if (this.responsive && this.opened) {
+			this.handleResponsive();
+		}
+	};
+
+	Toggler.prototype.setAjaxComplete = function() {
+		this.doAjax = false;
+		this.ready = true;
+		if (this.state === "open") {
+			this.open();
+			this.opened = true;
+		}
+	};
+
+	Toggler.prototype.handleFreeze = function() {
+		this.freeze = true;
+	};
+
+	Toggler.prototype.handleUnfreeze = function() {
+		this.freeze = false;
+	};
+
+	Toggler.prototype.handleResponsive = function() {
+		if (!this.responsive) return;
+		if (window.innerWidth >= this.responsiveVars.threshold) {
+			this.responsiveVars.accordions = false;
+			this.widget.attr("data-ss-responsive-type", "tabs");
+			if (!this.opened) {
+				this.button = this.widget.find("[data-ss-component='button']").first();
+				this.content = this.widget.find("[data-ss-component='content']").first();
+				this.open();
+			}
+			this.widget.css("min-height", this.button.outerHeight() + this.content.outerHeight() + "px");
+		}
+		else {
+			this.responsiveVars.accordions = true;
+			this.widget.attr("data-ss-responsive-type", "accordions");
+			this.widget.css("min-height", "0");
+		}
+	};
+	
+	return {
+		init: function(selector, orphan) {
+			return new Toggler(selector, orphan);
 		}
 	};
 	
