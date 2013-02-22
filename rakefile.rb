@@ -28,16 +28,16 @@ task :build do
   # Create soysauce.js, soysauce.min.js, and soysauce.css
   puts "Soysauce: Compiling assets..."
   
-  mutex = Mutex.new
+  bundleMutex = Mutex.new
   
   bundleCompressed = Thread.new {
-    mutex.synchronize do
+    bundleMutex.synchronize do
       Jammit.package!
     end
   }
   
   bundleUncompressed = Thread.new {
-    mutex.synchronize do
+    bundleMutex.synchronize do
       config = File.read("config/assets.yml")
       config = config.gsub(/(compress_assets:\s+)on/, "\\1off")
       config = config.gsub(/soysauce\.min/, "soysauce")
@@ -91,6 +91,8 @@ task :build do
   s3 = AWS::S3.new
   bucket = s3.buckets.create("express-cdn")
 
+  bucketMutex = Mutex.new
+
   uploadCurrent = Thread.new {
     Dir.foreach("build/" + version) do |file|
       next if file == '.' or file == '..'
@@ -99,13 +101,17 @@ task :build do
       puts "Uploading soysauce/" + file_path + "..."
       o = bucket.objects["soysauce/" + file_path]
       
-      if File.extname(file) =~ /\.css/
-        o.write(:file => "build/" + file_path, :content_type => "text/css", :acl => :public_read)
-      else
-        o.write(:file => "build/" + file_path, :content_type => "text/javascript", :acl => :public_read)
+      bucketMutex.synchronize do
+        if File.extname(file) =~ /\.css/
+          o.write(:file => "build/" + file_path, :content_type => "text/css", :acl => :public_read)
+        else
+          o.write(:file => "build/" + file_path, :content_type => "text/javascript", :acl => :public_read)
+        end
       end
     end
   }
+  
+  uploadCurrent.join
   
   updateLatest = Thread.new {
     Dir.foreach("build/latest") do |file|
@@ -113,16 +119,17 @@ task :build do
 
       puts "Uploading soysauce/latest/" + file + "..."
       o = bucket.objects["soysauce/latest/" + file]
-
-      if File.extname(file) =~ /\.css/
-        o.write(:file => "build/latest/" + file, :content_type => "text/css", :acl => :public_read)
-      else
-        o.write(:file => "build/latest/" + file, :content_type => "text/javascript", :acl => :public_read)
+      
+      bucketMutex.synchronize do
+        if File.extname(file) =~ /\.css/
+          o.write(:file => "build/latest/" + file, :content_type => "text/css", :acl => :public_read)
+        else
+          o.write(:file => "build/latest/" + file, :content_type => "text/javascript", :acl => :public_read)
+        end
       end
     end
   }
   
-  uploadCurrent.join
   updateLatest.join
   
   # Update Readme
