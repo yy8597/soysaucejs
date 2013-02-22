@@ -320,11 +320,11 @@ soysauce.carousels = (function() {
 			self.items.width(self.itemWidth - padding - margin);
 
 			if (self.infinite) {
-				self.gotoPos(-self.itemWidth + self.offset);
+				self.offset = -self.itemWidth + self.offset;
 			}
-			else {
-				self.gotoPos(self.offset);
-			}
+			
+			self.container.attr("data-ss-state", "notransition");
+			setTranslate(self.container[0], self.offset);
 
 			if (self.zoom) {
 				var zoomMultiplier = self.widget.attr("data-ss-zoom-multiplier");
@@ -341,7 +341,10 @@ soysauce.carousels = (function() {
 				}
 			}
 			
-			self.ready = true;
+			window.setTimeout(function() {
+				self.container.attr("data-ss-state", "ready");
+				self.ready = true;
+			}, 0);
 		});
 
 		if (this.swipe || this.zoom) this.widget.on("touchstart mousedown", function(e) {
@@ -1085,7 +1088,7 @@ soysauce.carousels = (function() {
 		var items = carousel.container.find("[data-ss-component='item']");
 		var cloneSet1, cloneSet2;
 		
-		if (cloneDepth > carousel.maxIndex - 1) return;
+		if (cloneDepth > carousel.maxIndex) return;
 		
 		carousel.cloneDepth = cloneDepth;
 		
