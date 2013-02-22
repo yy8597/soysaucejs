@@ -688,7 +688,7 @@ soysauce.init = function(selector) {
 
 		if (widget !== undefined) {
 			soysauce.widgets.push(widget);
-			$(this).trigger("SSWidgetReady").attr("data-ss-state", "ready");
+			$(this).trigger("SSWidgetReady");
 			ret = true;
 		}
 		
@@ -1149,13 +1149,18 @@ soysauce.carousels = (function() {
 			var height = $(this.items[this.index]).outerHeight();
 			
 			this.widget.css("min-height", height);
+			
 			this.widget.one("SSWidgetReady", function() {
 				self.widget.css("height", height);
 				window.setTimeout(function() {
-					self.widget.css("min-height", "auto");
+					self.widget.css("min-height", "0px");
 				}, 300);
 			});
 		}
+		
+		this.widget.one("SSWidgetReady", function() {
+			self.widget.attr("data-ss-state", "ready");
+		});
 	} // End Constructor
 	
 	Carousel.prototype.gotoPos = function(x, fast, jumping) {
@@ -1799,18 +1804,8 @@ soysauce.carousels = (function() {
 		}
 
 		if (this.autoheight) {
-			var delay;
-			var currHeight = $(self.items[self.index]).outerHeight();
 			var newHeight = $(self.items[index]).outerHeight();
-			
-			if (newHeight < currHeight) {
-				this.widget.one("slideEnd", function() {
-					self.widget.height(newHeight);
-				});
-			}
-			else {
-				self.widget.height(newHeight);
-			}
+			this.widget.height(newHeight);
 		}
 
 		this.gotoPos(newOffset, false, true);

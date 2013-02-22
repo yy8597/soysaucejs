@@ -84,7 +84,7 @@ task :build do
   AWS.config(config)
 
   s3 = AWS::S3.new
-  bucket = s3.buckets.create("soysauce")
+  bucket = s3.buckets.create("express-cdn")
 
   uploadCurrent = Thread.new {
     Dir.foreach("build/" + version) do |file|
@@ -92,7 +92,7 @@ task :build do
       
       file_path = version + "/" + file
       puts "Uploading " + file_path + "..."
-      o = bucket.objects[file_path]
+      o = bucket.objects["soysauce/" + file_path]
       
       if File.extname(file) =~ /\.css/
         o.write(:file => "build/" + file_path, :content_type => "text/css")
@@ -106,9 +106,8 @@ task :build do
     Dir.foreach("build/latest") do |file|
       next if file == '.' or file == '..'
 
-      file_path = version + "/" + file
-      puts "Uploading " + "latest/" + file + "..."
-      o = bucket.objects["latest/" + file]
+      puts "Uploading soysauce/latest/" + file + "..."
+      o = bucket.objects["soysauce/latest/" + file]
 
       if File.extname(file) =~ /\.css/
         o.write(:file => "build/latest/" + file, :content_type => "text/css")
