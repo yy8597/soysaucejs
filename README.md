@@ -10,7 +10,7 @@ Soysauce is a customizable javascript widget library. Popular widgets included a
 * Uncompressed (63.34 KB) - http://cdn.brandingbrand.com/soysauce/v1.0.20/soysauce.js
 * CSS (4.14 KB) - http://cdn.brandingbrand.com/soysauce/v1.0.20/soysauce.css
 
-Note: Lite contains only the bare essentials (which will later help with scaling as we grow with different widgets):
+Note: Lite contains only the bare essentials (which will later help with scaling as the number of widgets increase):
 
 	Fastclick
 	Carousel
