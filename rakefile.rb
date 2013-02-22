@@ -99,9 +99,9 @@ task :build do
       
       file_path = version + "/" + file
       puts "Uploading soysauce/" + file_path + "..."
-      o = bucket.objects["soysauce/" + file_path]
       
       bucketMutex.synchronize do
+        o = bucket.objects["soysauce/" + file_path]
         if File.extname(file) =~ /\.css/
           o.write(:file => "build/" + file_path, :content_type => "text/css", :acl => :public_read)
         else
@@ -111,16 +111,14 @@ task :build do
     end
   }
   
-  uploadCurrent.join
-  
   updateLatest = Thread.new {
     Dir.foreach("build/latest") do |file|
       next if file == '.' or file == '..'
 
       puts "Uploading soysauce/latest/" + file + "..."
-      o = bucket.objects["soysauce/latest/" + file]
       
       bucketMutex.synchronize do
+        o = bucket.objects["soysauce/latest/" + file]
         if File.extname(file) =~ /\.css/
           o.write(:file => "build/latest/" + file, :content_type => "text/css", :acl => :public_read)
         else
@@ -130,6 +128,7 @@ task :build do
     end
   }
   
+  uploadCurrent.join
   updateLatest.join
   
   # Update Readme
@@ -150,9 +149,9 @@ task :build do
   # Create build tag
   pushTag = Thread.new {
     puts "Soysauce: Pushing tag to github..."
-    system "git commit -am 'Creating build " + version + "'"
-    system "git tag -a " + version + " -m 'Creating build " + version + "'"
-    system "git push --tags"
+    # system "git commit -am 'Creating build " + version + "'"
+    # system "git tag -a " + version + " -m 'Creating build " + version + "'"
+    # system "git push --tags"
   }
   
   pushTag.join
