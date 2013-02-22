@@ -391,13 +391,18 @@ soysauce.carousels = (function() {
 			var height = $(this.items[this.index]).outerHeight();
 			
 			this.widget.css("min-height", height);
+			
 			this.widget.one("SSWidgetReady", function() {
 				self.widget.css("height", height);
 				window.setTimeout(function() {
-					self.widget.css("min-height", "auto");
+					self.widget.css("min-height", "0px");
 				}, 300);
 			});
 		}
+		
+		this.widget.one("SSWidgetReady", function() {
+			self.widget.attr("data-ss-state", "ready");
+		});
 	} // End Constructor
 	
 	Carousel.prototype.gotoPos = function(x, fast, jumping) {
