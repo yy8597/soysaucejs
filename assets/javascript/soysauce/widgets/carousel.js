@@ -1046,18 +1046,8 @@ soysauce.carousels = (function() {
 		}
 
 		if (this.autoheight) {
-			var delay;
-			var currHeight = $(self.items[self.index]).outerHeight();
 			var newHeight = $(self.items[index]).outerHeight();
-			
-			if (newHeight < currHeight) {
-				this.widget.one("slideEnd", function() {
-					self.widget.height(newHeight);
-				});
-			}
-			else {
-				self.widget.height(newHeight);
-			}
+			this.widget.height(newHeight);
 		}
 
 		this.gotoPos(newOffset, false, true);
