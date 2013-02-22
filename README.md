@@ -11,11 +11,10 @@ Soysauce is a customizable javascript widget library. Popular widgets included a
 * CSS (4.14 KB) - http://cdn.brandingbrand.com/soysauce/v1.0.20/soysauce.css
 
 Note: Lite contains only the bare essentials (which will later help with scaling as the number of widgets increase):
-
-	Fastclick
-	Carousel
-	Toggler
-	Lateload
+* Fastclick
+* Carousel
+* Toggler
+* Lateload
 
 ## Widgets
 These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include both the CSS and JS file (use the CDN links above).
