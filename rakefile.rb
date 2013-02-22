@@ -28,20 +28,25 @@ task :build do
   # Create soysauce.js, soysauce.min.js, and soysauce.css
   puts "Soysauce: Compiling assets..."
   
+  mutex = Mutex.new
+  
   bundleCompressed = Thread.new {
-    Jammit.package!
+    mutex.synchronize do
+      Jammit.package!
+    end
   }
   
   bundleUncompressed = Thread.new {
-    config = File.read("config/assets.yml")
-    config = config.gsub(/(compress_assets:\s+)on/, "\\1off")
-    config = config.gsub(/soysauce\.min/, "soysauce")
-
-    File.rename("config/assets.yml", "config/assets2.yml")
-    File.open("config/assets.yml", "w") {
-      |file| file.write(config)
-    }
-    
+    mutex.synchronize do
+      config = File.read("config/assets.yml")
+      config = config.gsub(/(compress_assets:\s+)on/, "\\1off")
+      config = config.gsub(/soysauce\.min/, "soysauce")
+      
+      File.rename("config/assets.yml", "config/assets2.yml")
+      File.open("config/assets.yml", "w") {
+        |file| file.write(config)
+      }
+    end
     Jammit.package!
   }
   
@@ -91,13 +96,13 @@ task :build do
       next if file == '.' or file == '..'
       
       file_path = version + "/" + file
-      puts "Uploading " + file_path + "..."
+      puts "Uploading soysauce/" + file_path + "..."
       o = bucket.objects["soysauce/" + file_path]
       
       if File.extname(file) =~ /\.css/
-        o.write(:file => "build/" + file_path, :content_type => "text/css")
+        o.write(:file => "build/" + file_path, :content_type => "text/css", :acl => :public_read)
       else
-        o.write(:file => "build/" + file_path, :content_type => "text/javascript")
+        o.write(:file => "build/" + file_path, :content_type => "text/javascript", :acl => :public_read)
       end
     end
   }
@@ -110,13 +115,13 @@ task :build do
       o = bucket.objects["soysauce/latest/" + file]
 
       if File.extname(file) =~ /\.css/
-        o.write(:file => "build/latest/" + file, :content_type => "text/css")
+        o.write(:file => "build/latest/" + file, :content_type => "text/css", :acl => :public_read)
       else
-        o.write(:file => "build/latest/" + file, :content_type => "text/javascript")
+        o.write(:file => "build/latest/" + file, :content_type => "text/javascript", :acl => :public_read)
       end
     end
   }
-
+  
   uploadCurrent.join
   updateLatest.join
   
