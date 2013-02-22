@@ -77,6 +77,7 @@
 }
 [data-ss-widget="carousel"] [data-ss-component="container_wrapper"] {
   overflow: hidden;
+  max-height: 100%;
 }
 [data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"]) {
   -webkit-transition: -webkit-transform 0.65s;

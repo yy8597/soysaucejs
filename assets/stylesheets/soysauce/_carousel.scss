@@ -24,6 +24,7 @@
 	}
 	[data-ss-component="container_wrapper"] {
 		overflow: hidden;
+		max-height: 100%;
 	}
 	&[data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"]) {
 		@include transition(transform .65s);
