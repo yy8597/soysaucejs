@@ -78,8 +78,10 @@ h2 {
 			}
 		}
 	}
-	[data-ss-component="item"] {
-		padding: 10px;
+	.peek {
+		[data-ss-component="item"] {
+			padding: 10px;
+		}
 	}
 	.buttons {
 		[data-ss-component="button"] {

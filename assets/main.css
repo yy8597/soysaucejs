@@ -140,7 +140,7 @@ h2 {
 .ss_carousels .dots [data-ss-component="dot"][data-ss-state="active"] {
   background: #cd0000;
 }
-.ss_carousels [data-ss-component="item"] {
+.ss_carousels .peek [data-ss-component="item"] {
   padding: 10px;
 }
 .ss_carousels .buttons [data-ss-component="button"] {
