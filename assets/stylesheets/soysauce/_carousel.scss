@@ -29,7 +29,7 @@
 	&[data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"]) {
 		@include transition(transform .65s);
 		&[data-ss-state="intransit-fast"] {
-			@include transition(transform .45s);
+			@include transition(transform .40s);
 		}
 	}
 	&[data-ss-options*="zoom"] img[data-ss-state="ready"] {
