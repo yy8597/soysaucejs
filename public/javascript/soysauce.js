@@ -280,7 +280,7 @@
 	}, false);
 })();
 
-/*!
+/*
  * jQuery imagesLoaded plugin v2.1.1
  * http://github.com/desandro/imagesloaded
  *
