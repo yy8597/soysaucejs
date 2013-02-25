@@ -2,7 +2,7 @@ soysauce.carousels = (function() {
 	// Shared Default Globals
 	var AUTOSCROLL_INTERVAL = 5000;
 	var ZOOM_MULTIPLIER = 2;
-	var PEEK_WIDTH = 40;
+	var PEEK_WIDTH = 20;
 	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
 	var PINCH_SENSITIVITY = 1500; // lower to increase sensitivity for pinch zoom
 	var PREFIX = soysauce.getPrefix();
@@ -26,6 +26,7 @@ soysauce.carousels = (function() {
 		this.numChildren = 0;
 		this.itemWidth = 0;
 		this.offset = 0;
+		this.spacingOffset = 0;
 		this.ready = false;
 		this.interrupted = false;
 		this.links = false;
@@ -51,6 +52,7 @@ soysauce.carousels = (function() {
 		this.fullscreen = true;
 		this.peek = false;
 		this.peekWidth = 0;
+		this.peekAlign;
 		
 		// Swipe Variables
 		this.swipe = true;
@@ -97,7 +99,6 @@ soysauce.carousels = (function() {
 					break;
 				case "peek":
 					self.peek = true;
-					self.peekWidth = 40;
 					break;
 				case "finite":
 					self.infinite = false;
@@ -285,6 +286,7 @@ soysauce.carousels = (function() {
 		});
 
 		if (this.peek) {
+			this.peekAlign = (!this.widget.attr("data-ss-peek-align")) ? "center" : this.widget.attr("data-ss-peek-align");
 			this.peekWidth = (!this.widget.attr("data-ss-peek-width")) ? PEEK_WIDTH : parseInt(this.widget.attr("data-ss-peek-width"));
 			if (this.peekWidth % 2) {
 				this.widget.attr("data-ss-peek-width", ++this.peekWidth);
@@ -303,6 +305,8 @@ soysauce.carousels = (function() {
 			var padding = parseInt(firstItem.css("padding-left")) + parseInt(firstItem.css("padding-right"));
 			var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
 			
+			self.spacingOffset = padding + margin;
+			
 			if (self.multi) {
 				self.itemWidth = self.widget.width() / self.multiVars.numItems;
 			}
@@ -313,14 +317,25 @@ soysauce.carousels = (function() {
 			self.container.width(self.itemWidth * self.numChildren);
 
 			if (self.peek) {
-				self.itemWidth -= self.peekWidth;
-				self.offset += self.peekWidth/2;
+				self.itemWidth -= self.peekWidth
+				switch (self.peekAlign) {
+					case "center":
+						self.offset += self.peekWidth/2;
+						break;
+					case "left":
+						break;
+					case "right":
+						self.offset += self.peekWidth;
+						break;
+				}
 			}
 			
-			self.items.width(self.itemWidth - padding - margin);
-
+			self.offset += self.spacingOffset/2;
+			self.itemWidth -= self.spacingOffset;
+			self.items.width(self.itemWidth);
+		
 			if (self.infinite) {
-				self.offset = -self.itemWidth + self.offset;
+				self.offset -= self.itemWidth;
 			}
 			
 			self.container.attr("data-ss-state", "notransition");
@@ -429,7 +444,7 @@ soysauce.carousels = (function() {
 			if (!jumping && this.index === this.numChildren - 2 && !this.forward) {
 				this.infiniteID = window.setTimeout(function() {
 					self.container.attr("data-ss-state", "notransition");
-					self.offset = -self.index*self.itemWidth + self.peekWidth/2;
+					self.offset = -self.index*self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "ready");
@@ -441,7 +456,7 @@ soysauce.carousels = (function() {
 			else if (!jumping && this.index === 1 && this.forward) {
 				this.infiniteID = window.setTimeout(function() {
 					self.container.attr("data-ss-state", "notransition");
-					self.offset = -self.itemWidth + self.peekWidth/2;
+					self.offset = -self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "ready");
@@ -598,49 +613,58 @@ soysauce.carousels = (function() {
 			self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
 			setTranslate(self.container[0], self.offset);
 		}
-		else
+		else {
 			setTranslate(this.container[0], xcoord);
+		}
 		
 		coords1 = soysauce.getCoords(e);
 		
 		this.widget.on("touchmove mousemove", function(e2) {
+			var dragOffset;
+			
 			if (self.isZoomed) {
 				soysauce.stifle(e);
 				soysauce.stifle(e2);
 				return;
 			}
 			
-			var dragOffset;
 			ret = coords2 = soysauce.getCoords(e2);
 			
 			if (self.lockScroll === undefined) {
-				if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2)
+				if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2) {
 					self.lockScroll = "y";
-				else
+				}
+				else {
 					self.lockScroll = "x";
+				}
 			}
 			
-			if (self.lockScroll === "y")
+			if (self.lockScroll === "y") {
 				return;
+			}
 			
 			soysauce.stifle(e2);
 			dragOffset = coords1.x - coords2.x;
 			
-			if (self.infiniteID !== undefined)
+			if (self.infiniteID !== undefined) {
 				setTranslate(self.container[0], self.offset - dragOffset);
-			else
+			}
+			else {
 				setTranslate(self.container[0], xcoord - dragOffset);
+			}
 		});
 		
 		if (this.infiniteID !== undefined) this.widget.one("touchend mouseup", function(e2) {
 			self.infiniteID = undefined;
 			self.container.attr("data-ss-state", "intransit");
 			
-			if (self.index === self.numChildren - 2)
-				self.offset = -self.index*self.itemWidth + self.peekWidth/2;
-			else if (self.index === 1)
-				self.offset = -self.itemWidth + self.peekWidth/2;
-			
+			if (self.index === self.numChildren - 2) {
+				self.offset = -self.index*self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+			}
+			else if (self.index === 1) {
+				self.offset = -self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+			}
+
 			window.setTimeout(function() {
 				setTranslate(self.container[0], self.offset);
 			}, 0);
@@ -844,7 +868,7 @@ soysauce.carousels = (function() {
 				if (xDist > 0) {
 					if (!self.infinite && self.index === self.numChildren - 1 ||
 						(self.multi && !self.infinite && self.index === self.numChildren - self.multiVars.numItems)) {
-						self.gotoPos(self.index * -self.itemWidth);
+						self.gotoPos(self.index * -self.itemWidth + (self.peekWidth + self.spacingOffset)/2 );
 					}
 					else {
 						self.slideForward(fast);
@@ -852,7 +876,7 @@ soysauce.carousels = (function() {
 				}
 				else {
 					if (!self.infinite && self.index === 0) {
-						self.gotoPos(0);
+						self.gotoPos((self.peekWidth + self.spacingOffset) / 2);
 					}
 					else {
 						self.slideBackward(fast);
