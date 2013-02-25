@@ -140,14 +140,8 @@ h2 {
 .ss_carousels .dots [data-ss-component="dot"][data-ss-state="active"] {
   background: #cd0000;
 }
-.ss_carousels .itemFade [data-ss-component="item"] {
-  -webkit-transition: opacity 0.7s;
-  -moz-transition: opacity 0.7s;
-  -o-transition: opacity 0.7s;
-  transition: opacity 0.7s;
-}
-.ss_carousels .itemFade [data-ss-component="item"][data-ss-state="inactive"] {
-  opacity: 0.4;
+.ss_carousels .peek [data-ss-component="item"] {
+  padding: 10px;
 }
 .ss_carousels .buttons [data-ss-component="button"] {
   position: absolute;

@@ -86,10 +86,10 @@
   transition: transform 0.65s;
 }
 [data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"])[data-ss-state="intransit-fast"] {
-  -webkit-transition: -webkit-transform 0.45s;
-  -moz-transition: -moz-transform 0.45s;
-  -o-transition: -o-transform 0.45s;
-  transition: transform 0.45s;
+  -webkit-transition: -webkit-transform 0.4s;
+  -moz-transition: -moz-transform 0.4s;
+  -o-transition: -o-transform 0.4s;
+  transition: transform 0.4s;
 }
 [data-ss-widget="carousel"][data-ss-options*="zoom"] img[data-ss-state="ready"] {
   -webkit-transition: -webkit-transform 0.5s;

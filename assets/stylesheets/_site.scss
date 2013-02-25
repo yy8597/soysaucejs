@@ -78,12 +78,9 @@ h2 {
 			}
 		}
 	}
-	.itemFade {
+	.peek {
 		[data-ss-component="item"] {
-			@include transition(opacity .7s);
-		}
-		[data-ss-component="item"][data-ss-state="inactive"] {
-			opacity: 0.4;
+			padding: 10px;
 		}
 	}
 	.buttons {
