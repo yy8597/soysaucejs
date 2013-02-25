@@ -78,13 +78,11 @@ h2 {
 			}
 		}
 	}
+	[data-ss-component="item"] {
+		padding: 10px;
+	}
 	.itemFade {
-		[data-ss-component="item"] {
-			@include transition(opacity .7s);
-		}
-		[data-ss-component="item"][data-ss-state="inactive"] {
-			opacity: 0.4;
-		}
+		
 	}
 	.buttons {
 		[data-ss-component="button"] {
