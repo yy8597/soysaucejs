@@ -443,6 +443,7 @@ soysauce.carousels = (function() {
 			// Slide Backward
 			if (!jumping && this.index === this.numChildren - 2 && !this.forward) {
 				this.infiniteID = window.setTimeout(function() {
+					console.log("do transition (backwards)");
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = -self.index*self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
 					setTranslate(self.container[0], self.offset);
@@ -455,6 +456,7 @@ soysauce.carousels = (function() {
 			// Slide Forward
 			else if (!jumping && this.index === 1 && this.forward) {
 				this.infiniteID = window.setTimeout(function() {
+					console.log("do transition (forward)");
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = -self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
 					setTranslate(self.container[0], self.offset);
