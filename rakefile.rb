@@ -7,6 +7,13 @@ require "aws-sdk"
 task :default => [:build]
 
 task :build do
+  # Check if config exists
+  config_file = File.join(File.dirname(__FILE__), "/config/cdn.yml")
+  
+  unless File.exist?(config_file)
+    abort("Soysauce: File '/config/cdn.yml' does not exist. Ask @egaba88 for the key or create your own. Aborting.")
+  end
+  
   # Create build directory
   version = "v" + ENV["v"]
   puts "Soysauce: Creating build " + version + "..."
@@ -76,18 +83,11 @@ task :build do
 
   # Publish to CDN
   puts "Soysauce: Uploading to CDN..."
-  config_file = File.join(File.dirname(__FILE__), "/config/cdn.yml")
-
-  unless File.exist?(config_file)
-    puts "Soysauce: File '/config/cdn.yml' does not exist."
-    exit 1
-  end
 
   config = YAML.load(File.read(config_file))
 
   unless config.kind_of?(Hash)
-    puts "Soysauce: File '/config/cdn.yml' is incorrectly configured."
-    exit 1
+    abort("Soysauce: File '/config/cdn.yml' is incorrectly configured. Aborting.")
   end
 
   AWS.config(config)
