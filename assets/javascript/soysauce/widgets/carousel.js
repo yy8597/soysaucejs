@@ -47,6 +47,7 @@ soysauce.carousels = (function() {
 		this.forward;
 		this.lastSlideTime;
 		this.cloneDepth = 0;
+		this.looping = false;
 		
 		// Fullscreen & Peek Variables
 		this.fullscreen = true;
@@ -434,7 +435,7 @@ soysauce.carousels = (function() {
 		}
 		
 		if (this.infinite) {
-			var duration = 0;
+			var duration = 0, xcoord = 0;
 			
 			duration = parseFloat(this.container.css(PREFIX + "transition-duration").replace(/s$/,"")) * 1000;
 			
@@ -443,28 +444,30 @@ soysauce.carousels = (function() {
 			// Slide Backward
 			if (!jumping && this.index === this.numChildren - 2 && !this.forward) {
 				this.infiniteID = window.setTimeout(function() {
-					console.log("do transition (backwards)");
+					xcoord = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
 					self.container.attr("data-ss-state", "notransition");
-					self.offset = -self.index*self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+					self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
-						self.container.attr("data-ss-state", "ready");
-						self.ready = true;
+						self.container.attr("data-ss-state", "intransit");
+						self.offset = -self.index*self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+						setTranslate(self.container[0], self.offset);
 					}, 0);
-				}, duration);
+				}, 0);
 			}
 			// Slide Forward
 			else if (!jumping && this.index === 1 && this.forward) {
 				this.infiniteID = window.setTimeout(function() {
-					console.log("do transition (forward)");
+					xcoord = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
 					self.container.attr("data-ss-state", "notransition");
-					self.offset = -self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+					self.offset = self.itemWidth*(self.numChildren - 2) + xcoord;
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
-						self.container.attr("data-ss-state", "ready");
-						self.ready = true;
+						self.container.attr("data-ss-state", "intransit");
+						self.offset = -self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+						setTranslate(self.container[0], self.offset);
 					}, 0);
-				}, duration);
+				}, 0);
 			}
 			else {
 				this.infiniteID = undefined;
@@ -603,21 +606,16 @@ soysauce.carousels = (function() {
 		
 		self.container.attr("data-ss-state", "notransition");
 		
-		// Forward Loop Interrupt
-		if (this.infinite && this.index === 1 && this.forward) {
-			window.clearInterval(self.infiniteID);
-			self.offset = self.itemWidth*(self.numChildren - 2) + xcoord;
-			setTranslate(self.container[0], self.offset);
-		}
-		// Backward Loop Interrupt
-		else if (this.infinite && (this.index === this.numChildren - 2) && !this.forward) {
-			window.clearInterval(self.infiniteID);
-			self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
-			setTranslate(self.container[0], self.offset);
+		// Loop Interrupt
+		if ((this.infinite && this.index === 1 && this.forward) || (this.infinite && (this.index === this.numChildren - 2) && !this.forward)) {
+			this.looping = true;
 		}
 		else {
-			setTranslate(this.container[0], xcoord);
+			this.looping = false;
 		}
+		
+		window.clearInterval(this.infiniteID);
+		setTranslate(this.container[0], xcoord);
 		
 		coords1 = soysauce.getCoords(e);
 		
@@ -648,17 +646,11 @@ soysauce.carousels = (function() {
 			soysauce.stifle(e2);
 			dragOffset = coords1.x - coords2.x;
 			
-			if (self.infiniteID !== undefined) {
-				setTranslate(self.container[0], self.offset - dragOffset);
-			}
-			else {
-				setTranslate(self.container[0], xcoord - dragOffset);
-			}
+			setTranslate(self.container[0], xcoord - dragOffset);
 		});
 		
 		if (this.infiniteID !== undefined) this.widget.one("touchend mouseup", function(e2) {
 			self.infiniteID = undefined;
-			self.container.attr("data-ss-state", "intransit");
 			
 			if (self.index === self.numChildren - 2) {
 				self.offset = -self.index*self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
@@ -666,8 +658,9 @@ soysauce.carousels = (function() {
 			else if (self.index === 1) {
 				self.offset = -self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
 			}
-
+			
 			window.setTimeout(function() {
+				self.container.attr("data-ss-state", "intransit");
 				setTranslate(self.container[0], self.offset);
 			}, 0);
 		});
@@ -821,10 +814,12 @@ soysauce.carousels = (function() {
 			
 			var targetComponent = $(e2.target).attr("data-ss-component");
 			
-			if (targetComponent === "button")
+			if (targetComponent === "button") {
 				return;
+			}
 			
 			coords2 = soysauce.getCoords(e2);
+			
 			if (coords2 !== null) lastX = coords2.x;
 
 			var xDist = self.coords1x - lastX;
@@ -854,6 +849,7 @@ soysauce.carousels = (function() {
 				self.toggleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
 			}
 			else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25)) {
+				if (self.looping) return;
 				soysauce.stifle(e1);
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
