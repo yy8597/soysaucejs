@@ -2025,6 +2025,7 @@ soysauce.togglers = (function() {
 		// Ajax
 		this.ajax = false;
 		this.doAjax = false;
+		this.ajaxData;
 		
 		// Tab
 		this.tab = false;
@@ -2109,8 +2110,75 @@ soysauce.togglers = (function() {
 			self.toggle(e);
 		});
 		
-		this.handleResponsive();
-	}
+		if (this.responsive) {
+			this.handleResponsive();
+		}
+		
+		if (this.ajax) {
+			var obj = this.widget;
+			var content = this.widget.find("> [data-ss-component='content'][data-ss-ajax-url]");
+			var ajaxButton;
+			var url = "";
+			var callback;
+			var self = this;
+			var firstTime = false;
+			
+			if (content.length === 0) {
+				console.warn("Soysauce: 'data-ss-ajax-url' tag required. Must be on the same domain.");
+				return;
+			}
+			
+			content.each(function(i, contentItem) {
+				ajaxButton = $(contentItem.previousElementSibling);
+				ajaxButton.click(function(e) {
+					
+					if (!self.doAjax) return;
+
+					self.setState("ajaxing");
+					self.ready = false;
+
+					url = $(contentItem).attr("data-ss-ajax-url");
+
+					if (soysauce.browserInfo.supportsSessionStorage) {
+						if (!sessionStorage.getItem(url)) {
+							firstTime = true;
+							$.get(url, function(data) {
+								sessionStorage.setItem(url, JSON.stringify(data));
+								if (typeof(data) === "object") {
+									self.ajaxData = data;
+								}
+								else {
+									self.ajaxData = JSON.parse(data);
+								}
+								obj.trigger("SSAjaxComplete");
+								self.setAjaxComplete();
+								firstTime = false;
+							});
+						}
+						else {
+							self.ajaxData = JSON.parse(sessionStorage.getItem(url));
+							obj.trigger("SSAjaxComplete");
+						}
+					}
+					else {
+						$.get(url, function(data) {
+							if (typeof(data) === "object") {
+								self.ajaxData = data;
+							}
+							else {
+								self.ajaxData = JSON.parse(data);
+							}
+							obj.trigger("SSAjaxComplete");
+						});
+					}
+					if (!firstTime) {
+						self.setAjaxComplete();
+					}
+				});
+			});
+		}
+		
+	} // End constructor
 	
 	Toggler.prototype.open = function() {
 		var slideOpenWithTab = this.responsiveVars.accordions;
@@ -2261,61 +2329,6 @@ soysauce.togglers = (function() {
 		}
 	};
 
-	Toggler.prototype.handleAjax = function() {
-		var obj = this.widget;
-		var content = this.content;
-		var url = "";
-		var callback;
-		var self = this;
-		var firstTime = false;
-
-		this.button.click(function(e) {
-			if (!self.doAjax) {
-				self.toggle();
-				soysauce.stifle(e);
-				return;
-			}
-
-			soysauce.stifle(e);
-			self.setState("ajaxing");
-			self.ready = false;
-
-			if(!obj.attr("data-ss-ajax-url")) {
-				console.warn("Soysauce: 'data-ss-ajax-url' tag required. Must be on the same domain.");
-				return;
-			}
-
-			if(!obj.attr("data-ss-ajax-callback")) {
-				console.warn("Soysauce: 'data-ss-ajax-callback' required.");
-				return;
-			}
-
-			url = obj.attr("data-ss-ajax-url");
-			callback = obj.attr("data-ss-ajax-callback");
-
-			if (soysauce.browserInfo.supportsSessionStorage) {
-				if (!sessionStorage.getItem(url)) {
-					firstTime = true;
-					$.get(url, function(data) {
-						sessionStorage.setItem(url, JSON.stringify(data));
-						eval(callback + "(" + JSON.stringify(data) + ")");
-						self.setAjaxComplete();
-						firstTime = false;
-					});
-				}
-				else
-					eval(callback + "(" + sessionStorage.getItem(url) + ")");
-			}
-			else {
-				$.get(url, eval(callback));
-			}
-
-			if (!firstTime) {
-				self.setAjaxComplete();
-			}
-		});
-	};
-
 	Toggler.prototype.setState = function(state) {
 		this.state = state;
 		this.button.attr("data-ss-state", state);
@@ -2338,9 +2351,8 @@ soysauce.togglers = (function() {
 	Toggler.prototype.setAjaxComplete = function() {
 		this.doAjax = false;
 		this.ready = true;
-		if (this.state === "open") {
-			this.open();
-			this.opened = true;
+		if (this.opened) {
+			this.setState("open");
 		}
 	};
 
