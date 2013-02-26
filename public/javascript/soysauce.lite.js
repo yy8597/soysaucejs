@@ -1034,9 +1034,9 @@ soysauce.carousels = (function() {
 		this.container.imagesLoaded(function(items) {
 			var firstItem = self.items.first();
 			var padding = parseInt(firstItem.css("padding-left")) + parseInt(firstItem.css("padding-right"));
-			var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
+			// var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
 			
-			self.spacingOffset = padding + margin;
+			self.spacingOffset = padding;
 			
 			if (self.multi) {
 				self.itemWidth = self.widget.width() / self.multiVars.numItems;
@@ -1045,25 +1045,27 @@ soysauce.carousels = (function() {
 				self.itemWidth = self.widget.width();
 			}
 			
-			self.container.width(self.itemWidth * self.numChildren);
-
 			if (self.peek) {
-				self.itemWidth -= self.peekWidth
+				self.itemWidth -= self.peekWidth*2;
 				switch (self.peekAlign) {
 					case "center":
-						self.offset += self.peekWidth/2;
-						break;
-					case "left":
-						break;
-					case "right":
 						self.offset += self.peekWidth;
+						break;
+					case "left": // TBI
+						break;
+					case "right": // TBI
 						break;
 				}
 			}
 			
-			self.offset += self.spacingOffset/2;
-			self.itemWidth -= self.spacingOffset;
-			self.items.width(self.itemWidth);
+			self.container.width(self.itemWidth * self.numChildren);
+			
+			if (/img/i.test(self.items[0].tagName)) {
+				self.items.width(self.itemWidth);
+			}
+			else {
+				self.items.width(self.itemWidth - self.spacingOffset);
+			}
 		
 			if (self.infinite) {
 				self.offset -= self.itemWidth;
@@ -1180,7 +1182,7 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.index*self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+						self.offset = -self.index*self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -1194,7 +1196,7 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+						self.offset = -self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -1383,10 +1385,10 @@ soysauce.carousels = (function() {
 			self.infiniteID = undefined;
 			
 			if (self.index === self.numChildren - 2) {
-				self.offset = -self.index*self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+				self.offset = -self.index*self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
 			}
 			else if (self.index === 1) {
-				self.offset = -self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+				self.offset = -self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
 			}
 			
 			window.setTimeout(function() {
