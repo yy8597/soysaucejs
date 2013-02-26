@@ -655,10 +655,10 @@ soysauce.carousels = (function() {
 			self.infiniteID = undefined;
 			
 			if (self.index === self.numChildren - 2) {
-				self.offset = -self.index*self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+				self.offset = -self.index*self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
 			}
 			else if (self.index === 1) {
-				self.offset = -self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+				self.offset = -self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
 			}
 			
 			window.setTimeout(function() {
