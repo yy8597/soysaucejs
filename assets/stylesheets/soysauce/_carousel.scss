@@ -18,6 +18,7 @@
 	}
 	&:not([data-ss-state]) {
 		opacity: 0;
+		max-height: 400px;
 	}
 	&[data-ss-state] {
 		opacity: 1;

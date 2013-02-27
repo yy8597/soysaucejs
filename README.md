@@ -1,14 +1,14 @@
-# Soysauce (v1.1.6)
+# Soysauce (v1.1.7)
 Original Author: Edward Gaba
 
 Soysauce is a customizable javascript widget library. Popular widgets included are carousels and accordions. Please file any issues you find in Github.
 
 ## Current CDN URLs
-* Compressed Lite (39.91 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.6/soysauce.lite.min.js
-* Uncompressed Lite (61.56 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.6/soysauce.lite.js
-* Compressed (41.94 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.6/soysauce.min.js
-* Uncompressed (64.36 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.6/soysauce.js
-* CSS (4.13 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.6/soysauce.css
+* Compressed Lite (39.98 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.7/soysauce.lite.min.js
+* Uncompressed Lite (61.66 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.7/soysauce.lite.js
+* Compressed (42.01 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.7/soysauce.min.js
+* Uncompressed (64.47 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.7/soysauce.js
+* CSS (4.16 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.7/soysauce.css
 
 Note: Lite contains only the bare essentials (which will later help with scaling as the number of widgets increase):
 * Fastclick

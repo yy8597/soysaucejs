@@ -1131,16 +1131,19 @@ soysauce.carousels = (function() {
 		}
 		
 		this.widget.one("SSWidgetReady", function() {
-			self.widget.attr("data-ss-state", "ready");
-			self.container.attr("data-ss-state", "ready");
-			self.ready = true;
-			
-			if (this.autoheight) {
-				self.widget.css("height", height);
+			self.container.imagesLoaded(function() {
+				self.widget.attr("data-ss-state", "ready");
+				self.ready = true;
 				window.setTimeout(function() {
-					self.widget.css("min-height", "0px");
-				}, 300);
-			}
+					self.container.attr("data-ss-state", "ready");
+				}, 0);
+				if (this.autoheight) {
+					self.widget.css("height", height);
+					window.setTimeout(function() {
+						self.widget.css("min-height", "0px");
+					}, 300);
+				}
+			});
 		});
 	} // End Constructor
 	
