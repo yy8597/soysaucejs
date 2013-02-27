@@ -280,7 +280,7 @@
 	}, false);
 })();
 
-/*!
+/*
  * jQuery imagesLoaded plugin v2.1.1
  * http://github.com/desandro/imagesloaded
  *
@@ -702,12 +702,16 @@ soysauce.lateload = function(selector) {
 	function loadItem(selector) {
 		var curr = $(selector);
 		var val = curr.attr("data-ss-ll-src");
-		if (val) 
-			curr.attr("src", val).attr("data-ss-ll-src", "");
+		if (val) {
+			curr.attr("src", val).removeAttr("data-ss-ll-src");
+			return true;
+		}
+		return false;
 	}
 	
-	if (selector)
-		$("[data-ss-ll-src]:not([data-ss-options])").each(loadItem(selector));
+	if (selector) {
+		return loadItem(selector);
+	}
 	else {
 		$(document).on("DOMContentLoaded", function() {
 			$("[data-ss-ll-src][data-ss-options='dom']").each(function(i, e) {
@@ -1064,7 +1068,7 @@ soysauce.carousels = (function() {
 			var padding = parseInt(firstItem.css("padding-left")) + parseInt(firstItem.css("padding-right"));
 			var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
 			
-			self.spacingOffset = padding + margin;
+			self.spacingOffset = padding;
 			
 			if (self.multi) {
 				self.itemWidth = self.widget.width() / self.multiVars.numItems;
@@ -1073,32 +1077,28 @@ soysauce.carousels = (function() {
 				self.itemWidth = self.widget.width();
 			}
 			
-			self.container.width(self.itemWidth * self.numChildren);
-
 			if (self.peek) {
-				self.itemWidth -= self.peekWidth
+				self.itemWidth -= self.peekWidth*2;
 				switch (self.peekAlign) {
 					case "center":
-						self.offset += self.peekWidth/2;
-						break;
-					case "left":
-						break;
-					case "right":
 						self.offset += self.peekWidth;
+						break;
+					case "left": // TBI
+						break;
+					case "right": // TBI
 						break;
 				}
 			}
 			
-			self.offset += self.spacingOffset/2;
-			self.itemWidth -= self.spacingOffset;
-			self.items.width(self.itemWidth);
+			self.container.width((self.itemWidth + margin) * self.numChildren);
+			self.items.css("width", self.itemWidth + "px");
 		
 			if (self.infinite) {
 				self.offset -= self.itemWidth;
 			}
 			
 			self.container.attr("data-ss-state", "notransition");
-			setTranslate(self.container[0], self.offset);
+			setTranslate(self.container[0], self.offset - (margin*2) + (margin/2));
 
 			if (self.zoom) {
 				var zoomMultiplier = self.widget.attr("data-ss-zoom-multiplier");
@@ -1208,7 +1208,7 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.index*self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+						self.offset = -self.index*self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -1222,7 +1222,7 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+						self.offset = -self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -1324,15 +1324,21 @@ soysauce.carousels = (function() {
 				diff = widgetWidth - this.itemWidth;
 			}
 			
-			this.itemWidth -= this.peekWidth;
+			if (this.peek) {
+				this.itemWidth -= this.peekWidth*2;
+			}
+			
 			this.itemWidth += diff;
-			this.offset = -this.index * this.itemWidth + this.peekWidth/2;
+			
+			this.offset = -this.index * this.itemWidth + this.peekWidth;
 			this.container.attr("data-ss-state", "notransition");
-			setTranslate(this.container[0], this.offset);			
-			this.items.width(this.itemWidth);
+			
+			this.items.css("width", this.itemWidth + "px");
+			
+			setTranslate(this.container[0], this.offset);
 		}
 
-		this.container.width(this.itemWidth * this.numChildren);
+		this.container.css("width", (this.itemWidth * this.numChildren) + "px");
 
 		if (this.zoom) {
 			this.panMax.x = this.itemWidth / this.zoomMultiplier;	
@@ -1411,10 +1417,10 @@ soysauce.carousels = (function() {
 			self.infiniteID = undefined;
 			
 			if (self.index === self.numChildren - 2) {
-				self.offset = -self.index*self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+				self.offset = -self.index*self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
 			}
 			else if (self.index === 1) {
-				self.offset = -self.itemWidth + (self.peekWidth + self.spacingOffset)/2;
+				self.offset = -self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
 			}
 			
 			window.setTimeout(function() {
@@ -1624,7 +1630,7 @@ soysauce.carousels = (function() {
 				if (xDist > 0) {
 					if (!self.infinite && self.index === self.numChildren - 1 ||
 						(self.multi && !self.infinite && self.index === self.numChildren - self.multiVars.numItems)) {
-						self.gotoPos(self.index * -self.itemWidth + (self.peekWidth + self.spacingOffset)/2 );
+						self.gotoPos(self.index * -self.itemWidth + (self.peekWidth/2) + self.spacingOffset);
 					}
 					else {
 						self.slideForward(fast);
@@ -1632,7 +1638,7 @@ soysauce.carousels = (function() {
 				}
 				else {
 					if (!self.infinite && self.index === 0) {
-						self.gotoPos((self.peekWidth + self.spacingOffset) / 2);
+						self.gotoPos((self.peekWidth/2) + self.spacingOffset);
 					}
 					else {
 						self.slideBackward(fast);
@@ -2021,6 +2027,7 @@ soysauce.togglers = (function() {
 		// Ajax
 		this.ajax = false;
 		this.doAjax = false;
+		this.ajaxData;
 		
 		// Tab
 		this.tab = false;
@@ -2105,8 +2112,75 @@ soysauce.togglers = (function() {
 			self.toggle(e);
 		});
 		
-		this.handleResponsive();
-	}
+		if (this.responsive) {
+			this.handleResponsive();
+		}
+		
+		if (this.ajax) {
+			var obj = this.widget;
+			var content = this.widget.find("> [data-ss-component='content'][data-ss-ajax-url]");
+			var ajaxButton;
+			var url = "";
+			var callback;
+			var self = this;
+			var firstTime = false;
+			
+			if (content.length === 0) {
+				console.warn("Soysauce: 'data-ss-ajax-url' tag required. Must be on the same domain.");
+				return;
+			}
+			
+			content.each(function(i, contentItem) {
+				ajaxButton = $(contentItem.previousElementSibling);
+				ajaxButton.click(function(e) {
+					
+					if (!self.doAjax) return;
+
+					self.setState("ajaxing");
+					self.ready = false;
+
+					url = $(contentItem).attr("data-ss-ajax-url");
+
+					if (soysauce.browserInfo.supportsSessionStorage) {
+						if (!sessionStorage.getItem(url)) {
+							firstTime = true;
+							$.get(url, function(data) {
+								sessionStorage.setItem(url, JSON.stringify(data));
+								if (typeof(data) === "object") {
+									self.ajaxData = data;
+								}
+								else {
+									self.ajaxData = JSON.parse(data);
+								}
+								obj.trigger("SSAjaxComplete");
+								self.setAjaxComplete();
+								firstTime = false;
+							});
+						}
+						else {
+							self.ajaxData = JSON.parse(sessionStorage.getItem(url));
+							obj.trigger("SSAjaxComplete");
+						}
+					}
+					else {
+						$.get(url, function(data) {
+							if (typeof(data) === "object") {
+								self.ajaxData = data;
+							}
+							else {
+								self.ajaxData = JSON.parse(data);
+							}
+							obj.trigger("SSAjaxComplete");
+						});
+					}
+					if (!firstTime) {
+						self.setAjaxComplete();
+					}
+				});
+			});
+		}
+		
+	} // End constructor
 	
 	Toggler.prototype.open = function() {
 		var slideOpenWithTab = this.responsiveVars.accordions;
@@ -2257,61 +2331,6 @@ soysauce.togglers = (function() {
 		}
 	};
 
-	Toggler.prototype.handleAjax = function() {
-		var obj = this.widget;
-		var content = this.content;
-		var url = "";
-		var callback;
-		var self = this;
-		var firstTime = false;
-
-		this.button.click(function(e) {
-			if (!self.doAjax) {
-				self.toggle();
-				soysauce.stifle(e);
-				return;
-			}
-
-			soysauce.stifle(e);
-			self.setState("ajaxing");
-			self.ready = false;
-
-			if(!obj.attr("data-ss-ajax-url")) {
-				console.warn("Soysauce: 'data-ss-ajax-url' tag required. Must be on the same domain.");
-				return;
-			}
-
-			if(!obj.attr("data-ss-ajax-callback")) {
-				console.warn("Soysauce: 'data-ss-ajax-callback' required.");
-				return;
-			}
-
-			url = obj.attr("data-ss-ajax-url");
-			callback = obj.attr("data-ss-ajax-callback");
-
-			if (soysauce.browserInfo.supportsSessionStorage) {
-				if (!sessionStorage.getItem(url)) {
-					firstTime = true;
-					$.get(url, function(data) {
-						sessionStorage.setItem(url, JSON.stringify(data));
-						eval(callback + "(" + JSON.stringify(data) + ")");
-						self.setAjaxComplete();
-						firstTime = false;
-					});
-				}
-				else
-					eval(callback + "(" + sessionStorage.getItem(url) + ")");
-			}
-			else {
-				$.get(url, eval(callback));
-			}
-
-			if (!firstTime) {
-				self.setAjaxComplete();
-			}
-		});
-	};
-
 	Toggler.prototype.setState = function(state) {
 		this.state = state;
 		this.button.attr("data-ss-state", state);
@@ -2334,9 +2353,8 @@ soysauce.togglers = (function() {
 	Toggler.prototype.setAjaxComplete = function() {
 		this.doAjax = false;
 		this.ready = true;
-		if (this.state === "open") {
-			this.open();
-			this.opened = true;
+		if (this.opened) {
+			this.setState("open");
 		}
 	};
 
