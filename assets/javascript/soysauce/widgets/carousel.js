@@ -398,25 +398,25 @@ soysauce.carousels = (function() {
 			var height = $(this.items[this.index]).outerHeight();
 			
 			this.widget.css("min-height", height);
-			
-			this.widget.one("SSWidgetReady", function() {
-				self.widget.css("height", height);
-				window.setTimeout(function() {
-					self.widget.css("min-height", "0px");
-				}, 300);
-			});
 		}
 		
 		this.widget.one("SSWidgetReady", function() {
 			self.widget.attr("data-ss-state", "ready");
 			self.container.attr("data-ss-state", "ready");
 			self.ready = true;
+			
+			if (this.autoheight) {
+				self.widget.css("height", height);
+				window.setTimeout(function() {
+					self.widget.css("min-height", "0px");
+				}, 300);
+			}
 		});
 	} // End Constructor
 	
-	Carousel.prototype.gotoPos = function(x, fast, jumping) {
+	Carousel.prototype.gotoPos = function(x, fast, jumping, resettingPosition) {
 		var self = this;
-		
+
 		this.offset = x;
 		setTranslate(this.container[0], x);
 		
@@ -435,7 +435,7 @@ soysauce.carousels = (function() {
 			duration = (!duration) ? 650 : duration;
 			
 			// Slide Backward
-			if (!jumping && this.index === this.numChildren - 2 && !this.forward) {
+			if (!resettingPosition && !jumping && this.index === this.numChildren - 2 && !this.forward) {
 				this.infiniteID = window.setTimeout(function() {
 					xcoord = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
 					self.container.attr("data-ss-state", "notransition");
@@ -449,7 +449,7 @@ soysauce.carousels = (function() {
 				}, 0);
 			}
 			// Slide Forward
-			else if (!jumping && this.index === 1 && this.forward) {
+			else if (!resettingPosition && !jumping && this.index === 1 && this.forward) {
 				this.infiniteID = window.setTimeout(function() {
 					xcoord = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
 					self.container.attr("data-ss-state", "notransition");
@@ -737,32 +737,30 @@ soysauce.carousels = (function() {
 						
 						newDist = Math.sqrt(ys + xs);
 						
-						if (originalDist === 0)
+						if (originalDist === 0) {
 							originalDist = newDist;
-						else if (zoomingIn === null || (zoomingIn === true && (newDist < prevDist) && prevDist !== -1) || (zoomingIn === false && (newDist > prevDist) && prevDist !== -1)) {
-							originalDist = newDist;
-							if (zoomingIn)
-								zoomingIn = false;
-							else
-								zoomingIn = true;
 						}
+						else if (zoomingIn === null || 
+										(zoomingIn === true && (newDist < prevDist) && prevDist !== -1) || 
+										(zoomingIn === false && (newDist > prevDist) && prevDist !== -1)) {
+							originalDist = newDist;
+							zoomingIn = (zoomingIn) ? false : true;
+						}
+						
 						prevDist = newDist;
 						
 						scale = (newDist - originalDist)/PINCH_SENSITIVITY;
 						
 						self.zoomMultiplier += scale;
-						
-						if (self.zoomMultiplier >= self.zoomMax)
-							self.zoomMultiplier = self.zoomMax;
-						else if (self.zoomMultiplier <= self.zoomMin)
-							self.zoomMultiplier = self.zoomMin;
+						self.zoomMultiplier = (self.zoomMultiplier >= self.zoomMax) ? self.zoomMax : self.zoomMin;
 						
 						self.panMax.x = (self.zoomMultiplier - 1) * self.panMaxOriginal.x;				
 						self.panMax.y = (self.zoomMultiplier - 1) * self.panMaxOriginal.y;
 						
-						if (self.zoomMultiplier === self.zoomMax || self.zoomMultiplier === self.zoomMin) 
+						if (self.zoomMultiplier === self.zoomMax || self.zoomMultiplier === self.zoomMin) {
 							return;
-						
+						}
+							
 						self.checkPanLimits();
 
 						self.panCoordsStart.x = self.panCoords.x;
@@ -783,18 +781,20 @@ soysauce.carousels = (function() {
 			// Swipe Forward/Backward
 			else if (this.swipe) this.widget.on("touchmove mousemove", function(e2) {
 				var dragOffset;
-				
 				coords2 = soysauce.getCoords(e2);
 				
 				if (self.lockScroll === undefined) {
-					if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2)
+					if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2) {
 						self.lockScroll = "y";
-					else
+					}
+					else {
 						self.lockScroll = "x";
+					}
 				}
 				
-				if (self.lockScroll === "y")
+				if (self.lockScroll === "y") {
 					return;
+				}
 				
 				soysauce.stifle(e2);
 				self.panning = true;
@@ -852,12 +852,12 @@ soysauce.carousels = (function() {
 				soysauce.stifle(e1);
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
-				self.gotoPos(self.offset, true);
+				self.gotoPos(self.offset, true, false, true);
 			}
 			else if (Math.abs(xDist) > 3 && self.swipe) {
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
-				
+
 				if (self.lockScroll === "y") {
 					return;
 				}
