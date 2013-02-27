@@ -352,11 +352,6 @@ soysauce.carousels = (function() {
 					});
 				}
 			}
-			
-			window.setTimeout(function() {
-				self.container.attr("data-ss-state", "ready");
-				self.ready = true;
-			}, 0);
 		});
 
 		if (this.swipe || this.zoom) this.widget.on("touchstart mousedown", function(e) {
@@ -414,6 +409,8 @@ soysauce.carousels = (function() {
 		
 		this.widget.one("SSWidgetReady", function() {
 			self.widget.attr("data-ss-state", "ready");
+			self.container.attr("data-ss-state", "ready");
+			self.ready = true;
 		});
 	} // End Constructor
 	
