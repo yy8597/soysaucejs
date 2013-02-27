@@ -141,7 +141,7 @@ h2 {
   background: #cd0000;
 }
 .ss_carousels .peek [data-ss-component="item"] {
-  padding: 0 5px;
+  margin: 0 5px;
 }
 .ss_carousels .buttons [data-ss-component="button"] {
   position: absolute;
