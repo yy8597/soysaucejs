@@ -65,6 +65,7 @@ soysauce.togglers = (function() {
 		this.ajax = false;
 		this.doAjax = false;
 		this.ajaxData;
+		this.ajaxing = false;
 		
 		// Tab
 		this.tab = false;
@@ -179,19 +180,28 @@ soysauce.togglers = (function() {
 					url = $(contentItem).attr("data-ss-ajax-url");
 
 					if (soysauce.browserInfo.supportsSessionStorage) {
+						self.ajaxing = true;
 						if (!sessionStorage.getItem(url)) {
 							firstTime = true;
-							$.get(url, function(data) {
-								sessionStorage.setItem(url, JSON.stringify(data));
-								if (typeof(data) === "object") {
-									self.ajaxData = data;
+							$.ajax({
+								url: url,
+								type: "GET",
+								success: function(data) {
+									sessionStorage.setItem(url, JSON.stringify(data));
+									if (typeof(data) === "object") {
+										self.ajaxData = data;
+									}
+									else {
+										self.ajaxData = JSON.parse(data);
+									}
+									obj.trigger("SSAjaxComplete");
+									self.setAjaxComplete();
+									firstTime = false;
+								},
+								error: function(data) {
+									console.warn("Soysauce: Unable to fetch " + url);
+									self.setAjaxComplete();
 								}
-								else {
-									self.ajaxData = JSON.parse(data);
-								}
-								obj.trigger("SSAjaxComplete");
-								self.setAjaxComplete();
-								firstTime = false;
 							});
 						}
 						else {
@@ -200,14 +210,23 @@ soysauce.togglers = (function() {
 						}
 					}
 					else {
-						$.get(url, function(data) {
-							if (typeof(data) === "object") {
-								self.ajaxData = data;
+						$.ajax({
+							url: url,
+							type: "GET",
+							success: function(data) {
+								if (typeof(data) === "object") {
+									self.ajaxData = data;
+								}
+								else {
+									self.ajaxData = JSON.parse(data);
+								}
+								obj.trigger("SSAjaxComplete");
+								self.ajaxing = false;
+							},
+							error: function(data) {
+								console.warn("Soysauce: Unable to fetch " + url);
+								self.setAjaxComplete();
 							}
-							else {
-								self.ajaxData = JSON.parse(data);
-							}
-							obj.trigger("SSAjaxComplete");
 						});
 					}
 					if (!firstTime) {
@@ -315,7 +334,7 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.toggle = function(e) {
-		if (this.freeze) return;
+		if (this.freeze || this.ajaxing) return;
 
 		if (this.orphan) {
 			if (this.opened) {
@@ -389,6 +408,7 @@ soysauce.togglers = (function() {
 
 	Toggler.prototype.setAjaxComplete = function() {
 		this.doAjax = false;
+		this.ajaxing = false;
 		this.ready = true;
 		if (this.opened) {
 			this.setState("open");
