@@ -214,10 +214,18 @@ body.togglers .bar2 {
   color: #cd0000;
 }
 
-body.lateload [data-ss-ll-src] {
+body.lazyload [data-ss-widget="lazyload"] {
+  -webkit-transition: opacity 1s;
+  -moz-transition: opacity 1s;
+  -o-transition: opacity 1s;
+  transition: opacity 1s;
   display: block;
   width: 200px;
   height: 200px;
-  background: #efefef;
+  background: #BBB;
   margin: 10px auto;
+  opacity: 0.3;
+}
+body.lazyload [data-ss-widget="lazyload"][src] {
+  opacity: 1;
 }

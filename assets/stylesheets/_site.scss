@@ -156,12 +156,17 @@ body.togglers {
 	}
 }
 
-body.lateload {
-	[data-ss-ll-src] {
+body.lazyload {
+	[data-ss-widget="lazyload"] {
+		@include transition(opacity 1s);
 		display: block;
 		width: 200px;
 		height: 200px;
-		background: #efefef;
+		background: #BBB;
 		margin: 10px auto;
+		opacity: 0.3;
+		&[src] {
+			opacity: 1;
+		}
 	}
 }
