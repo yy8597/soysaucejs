@@ -34,7 +34,7 @@ soysauce.init = function(selector) {
 				widget = soysauce.carousels.init(this);
 				break;
 			case "lazyload":
-				widget = soysauce.lazyload.init(this);
+				widget = soysauce.lazyloader.init(this);
 				break;
 		}
 

@@ -156,8 +156,8 @@ body.togglers {
 	}
 }
 
-body.lazyload {
-	[data-ss-widget="lazyload"] {
+body.lazyloader {
+	[data-ss-widget="lazyloader"] img {
 		@include transition(opacity 1s);
 		display: block;
 		width: 200px;

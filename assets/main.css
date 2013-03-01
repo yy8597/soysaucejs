@@ -214,7 +214,7 @@ body.togglers .bar2 {
   color: #cd0000;
 }
 
-body.lazyload [data-ss-widget="lazyload"] {
+body.lazyloader [data-ss-widget="lazyloader"] img {
   -webkit-transition: opacity 1s;
   -moz-transition: opacity 1s;
   -o-transition: opacity 1s;
@@ -226,6 +226,6 @@ body.lazyload [data-ss-widget="lazyload"] {
   margin: 10px auto;
   opacity: 0.3;
 }
-body.lazyload [data-ss-widget="lazyload"][src] {
+body.lazyloader [data-ss-widget="lazyloader"] img[src] {
   opacity: 1;
 }
