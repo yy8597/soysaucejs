@@ -213,3 +213,11 @@ body.togglers .bar2 {
   border-color: black;
   color: #cd0000;
 }
+
+body.lateload [data-ss-ll-src] {
+  display: block;
+  width: 200px;
+  height: 200px;
+  background: #efefef;
+  margin: 10px auto;
+}
