@@ -413,7 +413,7 @@ soysauce.carousels = (function() {
 				window.setTimeout(function() {
 					self.container.attr("data-ss-state", "ready");
 				}, 0);
-				if (this.autoheight) {
+				if (self.autoheight) {
 					self.widget.css("height", height);
 					window.setTimeout(function() {
 						self.widget.css("min-height", "0px");
