@@ -172,7 +172,7 @@ soysauce.togglers = (function() {
 				ajaxButton = $(contentItem.previousElementSibling);
 				ajaxButton.click(function(e) {
 					
-					if (!self.doAjax) return;
+					if (!self.doAjax || self.ajaxing) return;
 
 					self.setState("ajaxing");
 					self.ready = false;
