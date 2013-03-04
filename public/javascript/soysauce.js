@@ -596,34 +596,6 @@ soysauce = {
 		supportsLocalStorage: (typeof(window.localStorage) !== "undefined") ? true : false,
 		supportsSessionStorage: (typeof(window.sessionStorage) !== "undefined") ? true : false
 	},
-	freezeChildren: function(selector) {
-		var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
-		children.each(function(index, child) {
-			var id = $(child).attr("data-ss-id");
-			soysauce.freeze(id, false);
-		});
-	},
-	freeze: function(selector, freezeChildren) {
-		if (typeof(selector) === "object") {
-			selector = parseInt($(selector).attr("data-ss-id"));
-		}
-		freezeChildren = (freezeChildren === undefined) ? true : false;
-		soysauce.fetch(selector).handleFreeze();
-		if (freezeChildren) {
-			soysauce.freezeChildren(selector);
-		}
-	},
-	unfreeze: function(selector) {
-		if (typeof(selector) === "object") {
-			selector = parseInt($(selector).attr("data-ss-id"));
-		}
-		var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
-		soysauce.fetch(selector).handleUnfreeze();
-		children.each(function(index, child) {
-			var id = $(child).attr("data-ss-id");
-			soysauce.fetch(id).handleUnfreeze();
-		});
-	},
 	scrollTop: function() {
 		window.setTimeout(function(){
 			window.scrollTo(0, 1);
@@ -648,6 +620,37 @@ $(document).ready(function() {
 });
 
 }
+
+soysauce.freezeChildren = function(selector) {
+	var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
+	children.each(function(index, child) {
+		var id = $(child).attr("data-ss-id");
+		soysauce.freeze(id, false);
+	});
+};
+
+soysauce.freeze = function(selector, freezeChildren) {
+	if (typeof(selector) === "object") {
+		selector = parseInt($(selector).attr("data-ss-id"));
+	}
+	freezeChildren = (freezeChildren === undefined) ? true : false;
+	soysauce.fetch(selector).handleFreeze();
+	if (freezeChildren) {
+		soysauce.freezeChildren(selector);
+	}
+};
+
+soysauce.unfreeze = function(selector) {
+	if (typeof(selector) === "object") {
+		selector = parseInt($(selector).attr("data-ss-id"));
+	}
+	var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
+	soysauce.fetch(selector).handleUnfreeze();
+	children.each(function(index, child) {
+		var id = $(child).attr("data-ss-id");
+		soysauce.fetch(id).handleUnfreeze();
+	});
+};
 
 soysauce.init = function(selector) {
 	var set;
@@ -1971,6 +1974,7 @@ soysauce.ccValidators = (function() {
 })();
 
 soysauce.lazyloader = (function() {
+	var THROTTLE = 100; // milliseconds
 	
 	function Lazyloader(selector) {
 		var options = soysauce.getOptions(selector);
@@ -1982,7 +1986,8 @@ soysauce.lazyloader = (function() {
 		this.vertical = true;
 		this.horizontal = false; // Implement later for horizontal scrolling sites (i.e tablet)
 		this.context = window; // Perhaps later we'll want to change the context
-		this.threshold = 100;
+		this.threshold = (!this.widget.attr("data-ss-threshold")) ? 100 : parseInt(this.widget.attr("data-ss-threshold"));
+		this.timeStamp = 0; // for throttling
 		
 		if (options) options.forEach(function(option) {
 			switch(option) {
@@ -1991,15 +1996,23 @@ soysauce.lazyloader = (function() {
 			}
 		});
 		
-		this.update();
+		this.update(0);
 		
-		$(window).scroll(function() {
-			if (self.images.length) self.update();
-		});
+		$(window).scroll(update);
+		
+		function update(e) {
+			if ((e.timeStamp - self.timeStamp) > THROTTLE) {
+				if (self.images.length === 0) {
+					$(window).unbind("scroll", update);
+					return;
+				}
+				self.timeStamp = e.timeStamp;
+				self.update($(document).scrollTop());
+			}
+		}
 	};
 	
-	Lazyloader.prototype.update = function() {
-		var top = $(document).scrollTop();
+	Lazyloader.prototype.update = function(top) {
 		var contextTop = top - this.threshold;
 		var contextBottom = top + this.threshold + $(this.context).height();
 		this.images.each(function(i, image) {
