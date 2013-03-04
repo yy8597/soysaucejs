@@ -104,7 +104,7 @@ Options:
 
 Usage:
 
-	<div data-ss-widget="accordion" data-ss-options="tabs slide">
+	<div data-ss-widget="toggler" data-ss-options="tabs">
 		<h1 data-ss-component="button">BUTTON</h1>
 		<div data-ss-component="content">
 			<ul>
