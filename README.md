@@ -162,3 +162,16 @@ Ex. html:
 Ex. javascript:
 	
 	soysauce.lateload(".some-target");
+
+### 4) Lazyloader
+
+This basic lazyloader loads images when in view of the screen. Give the images a preset height/width or a preloaded image src.
+
+Usage:
+	
+	<div data-ss-widget="lazyloader">
+		<img data-ss-ll-src="http://placehold.it/600x400/cdcdcd">
+		<img data-ss-ll-src="http://placehold.it/300x200/cdcdcd">
+		<img data-ss-ll-src="http://placehold.it/600x400/cdcdcd">
+		<img data-ss-ll-src="http://placehold.it/600x400/cdcdcd">
+	</div>
