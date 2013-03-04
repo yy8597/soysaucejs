@@ -684,6 +684,9 @@ soysauce.init = function(selector) {
 			case "carousel":
 				widget = soysauce.carousels.init(this);
 				break;
+			case "lazyloader":
+				widget = soysauce.lazyloader.init(this);
+				break;
 		}
 
 		if (widget !== undefined) {
@@ -978,6 +981,12 @@ soysauce.carousels = (function() {
 		}
 
 		this.items = items = this.widget.find("[data-ss-component='item']");
+		
+		if (items.length === 0) {
+			console.warn("Soysauce: No [data-ss-component='item'] attributes found with widget id " + this.id);
+			return;
+		}
+		
 		this.numChildren = items.length;
 
 		if (!this.infinite) {
@@ -987,7 +996,7 @@ soysauce.carousels = (function() {
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		}
 		
-		this.links = ((items[0].tagName.match(/^a$/i) !== null) || items.find("a[href]").length > 0) ? true : false;
+		this.links = (items[0].tagName.match(/^a$/i) !== null || items[0].tagName.match(/^a$/i) !== undefined || items.find("a[href]").length > 0) ? true : false;
 
 		if (this.thumbs) {
 			var c = 0;
@@ -1169,7 +1178,7 @@ soysauce.carousels = (function() {
 				window.setTimeout(function() {
 					self.container.attr("data-ss-state", "ready");
 				}, 0);
-				if (this.autoheight) {
+				if (self.autoheight) {
 					self.widget.css("height", height);
 					window.setTimeout(function() {
 						self.widget.css("min-height", "0px");
@@ -1961,6 +1970,58 @@ soysauce.ccValidators = (function() {
 	return validators;
 })();
 
+soysauce.lazyloader = (function() {
+	
+	function Lazyloader(selector) {
+		var options = soysauce.getOptions(selector);
+		var self = this;
+		
+		this.widget = $(selector);
+		this.id = parseInt(this.widget.attr("data-ss-id"));
+		this.images = this.widget.find("[data-ss-ll-src]");
+		this.vertical = true;
+		this.horizontal = false; // Implement later for horizontal scrolling sites (i.e tablet)
+		this.context = window; // Perhaps later we'll want to change the context
+		this.threshold = 100;
+		
+		if (options) options.forEach(function(option) {
+			switch(option) {
+				case "option1":
+					break;
+			}
+		});
+		
+		this.update();
+		
+		$(window).scroll(function() {
+			if (self.images.length) self.update();
+		});
+	};
+	
+	Lazyloader.prototype.update = function() {
+		var top = $(document).scrollTop();
+		var contextTop = top - this.threshold;
+		var contextBottom = top + this.threshold + $(this.context).height();
+		this.images.each(function(i, image) {
+			if ((image.offsetTop + image.height > contextTop) && (image.offsetTop < contextBottom)) {
+				soysauce.lateload(image);
+			}
+		});
+		this.images = this.widget.find("[data-ss-ll-src]");
+	};
+	
+	Lazyloader.prototype.handleResize = function() {
+		// Placeholder - required soysauce function
+	};
+	
+	return {
+		init: function(selector) {
+			return new Lazyloader(selector);
+		}
+	};
+	
+})();
+
 soysauce.togglers = (function() {
 	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
 	
@@ -2028,6 +2089,7 @@ soysauce.togglers = (function() {
 		this.ajax = false;
 		this.doAjax = false;
 		this.ajaxData;
+		this.ajaxing = false;
 		
 		// Tab
 		this.tab = false;
@@ -2134,7 +2196,7 @@ soysauce.togglers = (function() {
 				ajaxButton = $(contentItem.previousElementSibling);
 				ajaxButton.click(function(e) {
 					
-					if (!self.doAjax) return;
+					if (!self.doAjax || self.ajaxing) return;
 
 					self.setState("ajaxing");
 					self.ready = false;
@@ -2142,19 +2204,28 @@ soysauce.togglers = (function() {
 					url = $(contentItem).attr("data-ss-ajax-url");
 
 					if (soysauce.browserInfo.supportsSessionStorage) {
+						self.ajaxing = true;
 						if (!sessionStorage.getItem(url)) {
 							firstTime = true;
-							$.get(url, function(data) {
-								sessionStorage.setItem(url, JSON.stringify(data));
-								if (typeof(data) === "object") {
-									self.ajaxData = data;
+							$.ajax({
+								url: url,
+								type: "GET",
+								success: function(data) {
+									sessionStorage.setItem(url, JSON.stringify(data));
+									if (typeof(data) === "object") {
+										self.ajaxData = data;
+									}
+									else {
+										self.ajaxData = JSON.parse(data);
+									}
+									obj.trigger("SSAjaxComplete");
+									self.setAjaxComplete();
+									firstTime = false;
+								},
+								error: function(data) {
+									console.warn("Soysauce: Unable to fetch " + url);
+									self.setAjaxComplete();
 								}
-								else {
-									self.ajaxData = JSON.parse(data);
-								}
-								obj.trigger("SSAjaxComplete");
-								self.setAjaxComplete();
-								firstTime = false;
 							});
 						}
 						else {
@@ -2163,14 +2234,23 @@ soysauce.togglers = (function() {
 						}
 					}
 					else {
-						$.get(url, function(data) {
-							if (typeof(data) === "object") {
-								self.ajaxData = data;
+						$.ajax({
+							url: url,
+							type: "GET",
+							success: function(data) {
+								if (typeof(data) === "object") {
+									self.ajaxData = data;
+								}
+								else {
+									self.ajaxData = JSON.parse(data);
+								}
+								obj.trigger("SSAjaxComplete");
+								self.ajaxing = false;
+							},
+							error: function(data) {
+								console.warn("Soysauce: Unable to fetch " + url);
+								self.setAjaxComplete();
 							}
-							else {
-								self.ajaxData = JSON.parse(data);
-							}
-							obj.trigger("SSAjaxComplete");
 						});
 					}
 					if (!firstTime) {
@@ -2278,7 +2358,7 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.toggle = function(e) {
-		if (this.freeze) return;
+		if (this.freeze || this.ajaxing) return;
 
 		if (this.orphan) {
 			if (this.opened) {
@@ -2352,6 +2432,7 @@ soysauce.togglers = (function() {
 
 	Toggler.prototype.setAjaxComplete = function() {
 		this.doAjax = false;
+		this.ajaxing = false;
 		this.ready = true;
 		if (this.opened) {
 			this.setState("open");
