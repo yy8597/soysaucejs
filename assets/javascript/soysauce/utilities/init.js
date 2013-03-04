@@ -33,7 +33,7 @@ soysauce.init = function(selector) {
 			case "carousel":
 				widget = soysauce.carousels.init(this);
 				break;
-			case "lazyload":
+			case "lazyloader":
 				widget = soysauce.lazyloader.init(this);
 				break;
 		}
