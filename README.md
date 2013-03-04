@@ -1,14 +1,14 @@
-# Soysauce (v1.1.7)
+# Soysauce (v1.1.8)
 Original Author: Edward Gaba
 
 Soysauce is a customizable javascript widget library. Popular widgets included are carousels and accordions. Please file any issues you find in Github.
 
 ## Current CDN URLs
-* Compressed Lite (39.98 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.7/soysauce.lite.min.js
-* Uncompressed Lite (61.66 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.7/soysauce.lite.js
-* Compressed (42.01 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.7/soysauce.min.js
-* Uncompressed (64.47 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.7/soysauce.js
-* CSS (4.16 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.7/soysauce.css
+* Compressed Lite (40.51 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.8/soysauce.lite.min.js
+* Uncompressed Lite (62.48 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.8/soysauce.lite.js
+* Compressed (43.33 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.8/soysauce.min.js
+* Uncompressed (66.62 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.8/soysauce.js
+* CSS (4.16 KB) - http://cdn.brandingbrand.com/soysauce/v1.1.8/soysauce.css
 
 Note: Lite contains only the bare essentials (which will later help with scaling as the number of widgets increase):
 * Fastclick
@@ -104,7 +104,7 @@ Options:
 
 Usage:
 
-	<div data-ss-widget="accordion" data-ss-options="tabs slide">
+	<div data-ss-widget="toggler" data-ss-options="tabs">
 		<h1 data-ss-component="button">BUTTON</h1>
 		<div data-ss-component="content">
 			<ul>
@@ -162,3 +162,16 @@ Ex. html:
 Ex. javascript:
 	
 	soysauce.lateload(".some-target");
+
+### 4) Lazyloader
+
+This basic lazyloader loads images when in view of the screen. Give the images a preset height/width or a preloaded image src.
+
+Usage:
+	
+	<div data-ss-widget="lazyloader">
+		<img data-ss-ll-src="http://placehold.it/600x400/cdcdcd">
+		<img data-ss-ll-src="http://placehold.it/300x200/cdcdcd">
+		<img data-ss-ll-src="http://placehold.it/600x400/cdcdcd">
+		<img data-ss-ll-src="http://placehold.it/600x400/cdcdcd">
+	</div>

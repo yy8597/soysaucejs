@@ -216,6 +216,12 @@ soysauce.carousels = (function() {
 		}
 
 		this.items = items = this.widget.find("[data-ss-component='item']");
+		
+		if (items.length === 0) {
+			console.warn("Soysauce: No [data-ss-component='item'] attributes found with widget id " + this.id);
+			return;
+		}
+		
 		this.numChildren = items.length;
 
 		if (!this.infinite) {
@@ -225,7 +231,7 @@ soysauce.carousels = (function() {
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		}
 		
-		this.links = ((items[0].tagName.match(/^a$/i) !== null) || items.find("a[href]").length > 0) ? true : false;
+		this.links = (items[0].tagName.match(/^a$/i) !== null || items[0].tagName.match(/^a$/i) !== undefined || items.find("a[href]").length > 0) ? true : false;
 
 		if (this.thumbs) {
 			var c = 0;
@@ -407,7 +413,7 @@ soysauce.carousels = (function() {
 				window.setTimeout(function() {
 					self.container.attr("data-ss-state", "ready");
 				}, 0);
-				if (this.autoheight) {
+				if (self.autoheight) {
 					self.widget.css("height", height);
 					window.setTimeout(function() {
 						self.widget.css("min-height", "0px");
