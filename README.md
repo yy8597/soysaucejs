@@ -167,6 +167,14 @@ Ex. javascript:
 
 This basic lazyloader loads images when in view of the screen. Give the images a preset height/width or a preloaded image src.
 
+Required Attributes:
+
+	1) data-ss-widget="lazyloader"		- Add this to the container
+
+Optional Attributes:
+
+	1) data-ss-threshold="PIXELS" 		- Defaults to 100px; Extra considered space above/below screen
+
 Usage:
 	
 	<div data-ss-widget="lazyloader">
