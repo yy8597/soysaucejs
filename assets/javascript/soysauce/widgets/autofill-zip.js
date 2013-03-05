@@ -12,12 +12,13 @@ soysauce.autofillZip = (function() {
 	
 	autofillZip.prototype.retrieveData = function(e) {
 		var value = e.target.value;
-		
+		console.log("here");
+		console.log(google);
 		if (!google) return;
 
 		if ((value.length === 5) && (parseFloat(value) == parseInt(value)) && !isNaN(value))  {
 			console.log(value);
-			
+
 		}
 	};
 	
