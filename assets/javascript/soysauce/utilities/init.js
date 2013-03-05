@@ -2,6 +2,7 @@ soysauce.init = function(selector) {
 	var set;
 	var numItems = 0;
 	var ret = false;
+	var addGoogleScript = false;
 	
 	if (!selector) {
 		set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
@@ -38,6 +39,7 @@ soysauce.init = function(selector) {
 				break;
 			case "autofill-zip":
 				widget = soysauce.autofillZip.init(this);
+				addGoogleScript = true;
 				break;
 		}
 
@@ -49,5 +51,15 @@ soysauce.init = function(selector) {
 		
 	});
 	
+	if (addGoogleScript && !$("script[src*='maps.google.com/maps/api']").length) {
+		$("body").append("<script async src='https://maps.google.com/maps/api/js?sensor=false'></script>");
+	}
+	
 	return ret;
 }
+
+soysauce.geocoder = (function() {
+	console.log(google);
+	return 1;
+	// return console.log(google);
+})()
