@@ -690,6 +690,9 @@ soysauce.init = function(selector) {
 			case "lazyloader":
 				widget = soysauce.lazyloader.init(this);
 				break;
+			case "autofill-zip":
+				widget = soysauce.autofillZip.init(this);
+				break;
 		}
 
 		if (widget !== undefined) {
@@ -766,6 +769,216 @@ soysauce.overlay = function(cmd) {
 
 soysauce.overlay("init");
 
+soysauce.ccValidators = (function() {
+	var validators = new Array();
+	
+	function ccValidator(input) {
+		var self = this;
+		
+		this.id = parseInt($(input).attr("data-ss-id"));
+		this.input = $(input);
+		this.state1;
+		this.state2;
+		
+		this.input.on("keyup change", function(e) {
+			var card_num = e.target.value.replace(/-/g, "");
+			
+			// State 1
+			if (card_num.length === 1) {
+				$(e.target).trigger("state1");
+				if (card_num.match(/^4/)) {
+					self.state1 = "visa";
+				} else if (card_num.match(/^5/)) {
+					self.state1 = "mastercard";
+				} else if (card_num.match(/^3/)) {
+					self.state1 = "amex dinersclub";
+				} else if (card_num.match(/^6(?:011|5[0-9]{2})/)) {
+					self.state1 = "discover";
+				} else if (card_num.match(/^(?:2131|1800|35\d{3})/)) {
+					self.state1 = "jcb";
+				} else {
+					self.state1 = undefined;
+				}
+			} else if (card_num.length === 0) {
+				self.state1 = undefined;
+			}
+
+			// State 2
+			if (card_num.match(/^4[0-9]{12}(?:[0-9]{3})?$/)) {
+				self.state2 = "visa";
+				$(e.target).trigger("state2");
+			} else if (card_num.match(/^5[1-5][0-9]{14}$/)) {
+				self.state2 = "mastercard";
+				$(e.target).trigger("state2");
+			} else if (card_num.match(/^3[47][0-9]{13}$/)) {
+				self.state2 = "amex";
+				$(e.target).trigger("state2");
+			} else if (card_num.match(/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/)) {
+				self.state2 = "dinersclub";
+				$(e.target).trigger("state2");
+			} else if (card_num.match(/^6(?:011|5[0-9]{2})[0-9]{12}$/)) {
+				self.state2 = "discover";
+				$(e.target).trigger("state2");
+			} else if (card_num.match(/^(?:2131|1800|35\d{3})\d{11}$/)) {
+				self.state2 = "jcb";
+				$(e.target).trigger("state2");
+			} else {
+				self.state2 = undefined;
+			}
+				
+		});
+	}
+	
+	// Init
+	(function() {
+		$("[data-ss-widget='cc_validator']").each(function() {
+			var validator = new ccValidator(this);
+			validators.push(validator);
+		});
+		
+	})(); // end init
+	
+	
+	return validators;
+})();
+
+soysauce.autofillZip = (function() {
+	
+	function autofillZip(selector) {
+		this.widget = $(selector);
+		this.id = parseInt($(selector).attr("data-ss-id"));
+		this.zip = this.widget.find("> [data-ss-component='zip']");
+		this.city = this.widget.find("> [data-ss-component='city']");
+		this.state = this.widget.find("> [data-ss-component='state']");
+	}
+	
+	autofillZip.prototype.retrieveData = function() {
+		// Cache 
+		var el = $(this);
+
+		// Did they type five integers?
+		if ((el.val().length == 5) && (is_int(el.val())))  {
+
+			// Call Ziptastic for information
+			$.ajax({
+				url: "http://zip.elevenbasetwo.com",
+				cache: false,
+				dataType: "json",
+				type: "GET",
+				data: "zip=" + el.val(),
+				success: function(result, success) {
+					setTimeout(function() {
+
+						// Odd Cases
+						if (result.city === "PITT") {
+							result.city = "PITTSBURGH";
+						}
+						else if (result.city === "OKC") {
+							result.city = "Oklahoma City";
+						}
+
+						$("#checkoutCity").attr("value", result.city);
+						$("#stateOrProvince").attr("value", result.state);
+						checkState($("#stateOrProvince")[0]);
+
+						$("#city_state_zip").removeClass("field_error");
+						},0);
+
+						if (firstReveal) {
+							$(".m_autofill").show();
+						}
+						firstReveal = false;		
+					},
+					error: function() {
+						// Cannot find zip code
+						$(".m_autofill").show();
+					}
+			});
+		}
+	}
+	
+	return {
+		init: function(selector) {
+			return new autofillZip(selector);
+		}
+	};
+	
+})();
+// 
+// function is_int(value){ 
+//   if((parseFloat(value) == parseInt(value)) && !isNaN(value)){
+//     return true;
+//   } else { 
+//     return false;
+//   } 
+// }
+// 
+// // Set up
+// var firstReveal = true;
+// var skip = false;
+// 
+// // Check if URL is working
+// $.ajax({
+//   url: "http://zip.elevenbasetwo.com",
+//   cache: false,
+//   dataType: "json",
+//   type: "GET",
+// 	data: "zip=15203",
+//   success: function(result, success) {
+// 		$(".m_autofill").hide();
+//   },
+// 	error: function(result, success) {
+// 		skip = true;
+// 	}
+// });
+// 
+// if (skip) return;
+// 
+// $("#zipCode"). on("keyup change", function() {
+// 
+// 	// Cache 
+// 	var el = $(this);
+// 
+// 	// Did they type five integers?
+// 	if ((el.val().length == 5) && (is_int(el.val())))  {
+// 
+// 		// Call Ziptastic for information
+// 		$.ajax({
+// 			url: "http://zip.elevenbasetwo.com",
+// 			cache: false,
+// 			dataType: "json",
+// 			type: "GET",
+// 			data: "zip=" + el.val(),
+// 			success: function(result, success) {
+// 				setTimeout(function() {
+// 					
+// 					// Odd Cases
+// 					if (result.city === "PITT") {
+// 						result.city = "PITTSBURGH";
+// 					}
+// 					else if (result.city === "OKC") {
+// 						result.city = "Oklahoma City";
+// 					}
+// 					
+// 					$("#checkoutCity").attr("value", result.city);
+// 					$("#stateOrProvince").attr("value", result.state);
+// 					checkState($("#stateOrProvince")[0]);
+// 					
+// 					$("#city_state_zip").removeClass("field_error");
+// 				},0);
+// 
+// 				if (firstReveal) {
+// 					$(".m_autofill").show();
+// 				}
+// 				firstReveal = false;		
+// 			},
+// 			error: function() {
+// 				// Cannot find zip code
+// 				$(".m_autofill").show();
+// 			}
+// 		});
+// 	}
+// });
 soysauce.carousels = (function() {
 	// Shared Default Globals
 	var AUTOSCROLL_INTERVAL = 5000;
@@ -999,8 +1212,8 @@ soysauce.carousels = (function() {
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		}
 		
-		this.links = (items[0].tagName.match(/^a$/i) !== null || items[0].tagName.match(/^a$/i) !== undefined || items.find("a[href]").length > 0) ? true : false;
-
+		this.links = ((items[0].tagName.match(/^a$/i) !== null && items[0].tagName.match(/^a$/i) !== undefined) || items.find("a[href]").length > 0) ? true : false;
+		
 		if (this.thumbs) {
 			var c = 0;
 
@@ -1581,7 +1794,7 @@ soysauce.carousels = (function() {
 				setTranslate(self.container[0], self.offset - dragOffset);
 			});
 		}
-
+		
 		// Decides whether to zoom or move to next/prev item
 		this.widget.one("touchend mouseup", function(e2) {
 			if (self.jumping) return;
@@ -1607,7 +1820,7 @@ soysauce.carousels = (function() {
 			var fast = (velocity > 0.9) ? true : false;
 			
 			self.widget.off("touchmove mousemove");
-			
+
 			if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
@@ -1618,7 +1831,6 @@ soysauce.carousels = (function() {
 				else if ($(e2.target).closest("a").length > 0) {
 					window.location.href = $(e2.target).closest("a").attr("href");
 				}
-				
 			}
 			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed)) {
 				soysauce.stifle(e1);
@@ -1900,79 +2112,6 @@ soysauce.carousels = (function() {
 	
 })();
 
-soysauce.ccValidators = (function() {
-	var validators = new Array();
-	
-	function ccValidator(input) {
-		var self = this;
-		
-		this.id = parseInt($(input).attr("data-ss-id"));
-		this.input = $(input);
-		this.state1;
-		this.state2;
-		
-		this.input.on("keyup change", function(e) {
-			var card_num = e.target.value.replace(/-/g, "");
-			
-			// State 1
-			if (card_num.length === 1) {
-				$(e.target).trigger("state1");
-				if (card_num.match(/^4/)) {
-					self.state1 = "visa";
-				} else if (card_num.match(/^5/)) {
-					self.state1 = "mastercard";
-				} else if (card_num.match(/^3/)) {
-					self.state1 = "amex dinersclub";
-				} else if (card_num.match(/^6(?:011|5[0-9]{2})/)) {
-					self.state1 = "discover";
-				} else if (card_num.match(/^(?:2131|1800|35\d{3})/)) {
-					self.state1 = "jcb";
-				} else {
-					self.state1 = undefined;
-				}
-			} else if (card_num.length === 0) {
-				self.state1 = undefined;
-			}
-
-			// State 2
-			if (card_num.match(/^4[0-9]{12}(?:[0-9]{3})?$/)) {
-				self.state2 = "visa";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^5[1-5][0-9]{14}$/)) {
-				self.state2 = "mastercard";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^3[47][0-9]{13}$/)) {
-				self.state2 = "amex";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/)) {
-				self.state2 = "dinersclub";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^6(?:011|5[0-9]{2})[0-9]{12}$/)) {
-				self.state2 = "discover";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^(?:2131|1800|35\d{3})\d{11}$/)) {
-				self.state2 = "jcb";
-				$(e.target).trigger("state2");
-			} else {
-				self.state2 = undefined;
-			}
-				
-		});
-	}
-	
-	// Init
-	(function() {
-		$("[data-ss-widget='cc_validator']").each(function() {
-			var validator = new ccValidator(this);
-			validators.push(validator);
-		});
-		
-	})(); // end init
-	
-	
-	return validators;
-})();
-
 soysauce.lazyloader = (function() {
 	var THROTTLE = 100; // milliseconds
 	
@@ -2201,7 +2340,7 @@ soysauce.togglers = (function() {
 			var firstTime = false;
 			
 			if (content.length === 0) {
-				console.warn("Soysauce: 'data-ss-ajax-url' tag required. Must be on the same domain.");
+				console.warn("Soysauce: 'data-ss-ajax-url' tag required on content. Must be on the same domain if site doesn't support CORS.");
 				return;
 			}
 			

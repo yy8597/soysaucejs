@@ -659,6 +659,9 @@ soysauce.init = function(selector) {
 			case "lazyloader":
 				widget = soysauce.lazyloader.init(this);
 				break;
+			case "autofill-zip":
+				widget = soysauce.autofillZip.init(this);
+				break;
 		}
 
 		if (widget !== undefined) {
@@ -936,8 +939,8 @@ soysauce.carousels = (function() {
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		}
 		
-		this.links = (items[0].tagName.match(/^a$/i) !== null || items[0].tagName.match(/^a$/i) !== undefined || items.find("a[href]").length > 0) ? true : false;
-
+		this.links = ((items[0].tagName.match(/^a$/i) !== null && items[0].tagName.match(/^a$/i) !== undefined) || items.find("a[href]").length > 0) ? true : false;
+		
 		if (this.thumbs) {
 			var c = 0;
 
@@ -1518,7 +1521,7 @@ soysauce.carousels = (function() {
 				setTranslate(self.container[0], self.offset - dragOffset);
 			});
 		}
-
+		
 		// Decides whether to zoom or move to next/prev item
 		this.widget.one("touchend mouseup", function(e2) {
 			if (self.jumping) return;
@@ -1544,7 +1547,7 @@ soysauce.carousels = (function() {
 			var fast = (velocity > 0.9) ? true : false;
 			
 			self.widget.off("touchmove mousemove");
-			
+
 			if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
@@ -1555,7 +1558,6 @@ soysauce.carousels = (function() {
 				else if ($(e2.target).closest("a").length > 0) {
 					window.location.href = $(e2.target).closest("a").attr("href");
 				}
-				
 			}
 			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed)) {
 				soysauce.stifle(e1);
@@ -2003,7 +2005,7 @@ soysauce.togglers = (function() {
 			var firstTime = false;
 			
 			if (content.length === 0) {
-				console.warn("Soysauce: 'data-ss-ajax-url' tag required. Must be on the same domain.");
+				console.warn("Soysauce: 'data-ss-ajax-url' tag required on content. Must be on the same domain if site doesn't support CORS.");
 				return;
 			}
 			
