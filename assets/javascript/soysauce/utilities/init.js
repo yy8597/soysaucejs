@@ -52,15 +52,11 @@ soysauce.init = function(selector) {
 	});
 	
 	if (addGoogleScript && !$("script[src*='maps.google.com/maps/api']").length) {
-		$("body").append("<script src='http://maps.google.com/maps/api/js?sensor=false'></script>");
-		// $("script[src*='maps.google.com/maps/api']").load(function() {
-		// 			soysauce.geocoder = (function() {
-		// 				console.log(google);
-		// 				// return new google.maps.Geocoder();
-		// 			})();
-		// 		});
+		$("body").append("<script src='http://maps.google.com/maps/api/js?sensor=false&callback=soysauce.geocoder'></script>");
+		soysauce.geocoder = (function() {
+			return new google.maps.Geocoder();
+		});
 	}
 	
 	return ret;
 }
-
