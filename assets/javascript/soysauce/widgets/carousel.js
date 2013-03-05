@@ -231,8 +231,8 @@ soysauce.carousels = (function() {
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		}
 		
-		this.links = ((items[0].tagName.match(/^a$/i) !== null && items[0].tagName.match(/^a$/i) !== undefined) || items.find("a[href]").length > 0) ? true : false;
-		
+		this.links = (items[0].tagName.match(/^a$/i) !== null || items[0].tagName.match(/^a$/i) !== undefined || items.find("a[href]").length > 0) ? true : false;
+
 		if (this.thumbs) {
 			var c = 0;
 
@@ -312,7 +312,7 @@ soysauce.carousels = (function() {
 			var padding = parseInt(firstItem.css("padding-left")) + parseInt(firstItem.css("padding-right"));
 			var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
 			
-			self.spacingOffset = padding;
+			self.spacingOffset = 0; // remove this for now
 			
 			if (self.multi) {
 				self.itemWidth = self.widget.width() / self.multiVars.numItems;
@@ -452,7 +452,7 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.index*self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
+						self.offset = -self.index*self.itemWidth + self.peekWidth + self.spacingOffset;
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -466,7 +466,7 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
+						self.offset = -self.itemWidth + self.peekWidth + self.spacingOffset;
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -813,7 +813,7 @@ soysauce.carousels = (function() {
 				setTranslate(self.container[0], self.offset - dragOffset);
 			});
 		}
-		
+
 		// Decides whether to zoom or move to next/prev item
 		this.widget.one("touchend mouseup", function(e2) {
 			if (self.jumping) return;
@@ -839,7 +839,7 @@ soysauce.carousels = (function() {
 			var fast = (velocity > 0.9) ? true : false;
 			
 			self.widget.off("touchmove mousemove");
-
+			
 			if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
@@ -850,6 +850,7 @@ soysauce.carousels = (function() {
 				else if ($(e2.target).closest("a").length > 0) {
 					window.location.href = $(e2.target).closest("a").attr("href");
 				}
+				
 			}
 			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed)) {
 				soysauce.stifle(e1);
