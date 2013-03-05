@@ -36,6 +36,9 @@ soysauce.init = function(selector) {
 			case "lazyloader":
 				widget = soysauce.lazyloader.init(this);
 				break;
+			case "autofill-zip":
+				widget = soysauce.autofillZip.init(this);
+				break;
 		}
 
 		if (widget !== undefined) {

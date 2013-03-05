@@ -6,7 +6,7 @@
 	-webkit-backface-visibility: hidden;
 	position: relative;
 	z-index: 5;
-	&:not([data-ss-widget="cc_validator"]) {
+	&:not([data-ss-widget="autofill-cc"],[data-ss-widget="autofill-zip"]) {
 		-webkit-user-select: none;
 	}
 }
