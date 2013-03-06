@@ -625,6 +625,7 @@ soysauce.init = function(selector) {
 	var set;
 	var numItems = 0;
 	var ret = false;
+	var addGoogleScript = false;
 	
 	if (!selector) {
 		set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
@@ -659,6 +660,10 @@ soysauce.init = function(selector) {
 			case "lazyloader":
 				widget = soysauce.lazyloader.init(this);
 				break;
+			case "autofill-zip":
+				widget = soysauce.autofillZip.init(this);
+				addGoogleScript = true;
+				break;
 		}
 
 		if (widget !== undefined) {
@@ -668,6 +673,13 @@ soysauce.init = function(selector) {
 		}
 		
 	});
+	
+	if (addGoogleScript && !$("script[src*='maps.google.com/maps/api']").length) {
+		$("body").append("<script src='http://maps.google.com/maps/api/js?sensor=false&callback=soysauce.geocoder'></script>");
+		soysauce.geocoder = (function() {
+			return new google.maps.Geocoder();
+		});
+	}
 	
 	return ret;
 }
@@ -2003,7 +2015,7 @@ soysauce.togglers = (function() {
 			var firstTime = false;
 			
 			if (content.length === 0) {
-				console.warn("Soysauce: 'data-ss-ajax-url' tag required. Must be on the same domain.");
+				console.warn("Soysauce: 'data-ss-ajax-url' tag required on content. Must be on the same domain if site doesn't support CORS.");
 				return;
 			}
 			
