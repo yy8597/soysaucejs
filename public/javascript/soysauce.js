@@ -1144,7 +1144,7 @@ soysauce.carousels = (function() {
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		}
 		
-		this.links = (items[0].tagName.match(/^a$/i) !== null || items[0].tagName.match(/^a$/i) !== undefined || items.find("a[href]").length > 0) ? true : false;
+		this.links = ((items[0].tagName.match(/^a$/i) !== null && items[0].tagName.match(/^a$/i) !== undefined) || items.find("a[href]").length > 0) ? true : false;
 
 		if (this.thumbs) {
 			var c = 0;
