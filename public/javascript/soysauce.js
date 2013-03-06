@@ -869,10 +869,17 @@ soysauce.autofillZip = (function() {
 	}
 	
 	autofillZip.prototype.retrieveData = function(e) {
-		var value = e.target.value;
-		var self = this;
+		var value,
+				self = this;
 		
 		if (!soysauce.geocoder) return;
+		
+		if (!e) {
+			value = this.zip[0].value;
+		}
+		else {
+			value = e.target.value;
+		}
 
 		if ((value.length === 5) && (parseFloat(value) == parseInt(value)) && !isNaN(value))  {
 			soysauce.geocoder().geocode({"address": value}, function(results, status) {
@@ -1315,7 +1322,6 @@ soysauce.carousels = (function() {
 		if (this.autoheight) {
 			var self = this;
 			var height = $(this.items[this.index]).outerHeight();
-			
 			this.widget.css("min-height", height);
 		}
 		
@@ -1327,6 +1333,7 @@ soysauce.carousels = (function() {
 					self.container.attr("data-ss-state", "ready");
 				}, 0);
 				if (self.autoheight) {
+					var height = $(this.items[this.index]).outerHeight();
 					self.widget.css("height", height);
 					window.setTimeout(function() {
 						self.widget.css("min-height", "0px");
