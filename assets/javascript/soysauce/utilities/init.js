@@ -52,7 +52,8 @@ soysauce.init = function(selector) {
 	});
 	
 	if (addGoogleScript && !$("script[src*='maps.google.com/maps/api']").length) {
-		$("body").append("<script src='http://maps.google.com/maps/api/js?sensor=false&callback=soysauce.geocoder'></script>");
+		var protocol = (location.protocol === "https:") ? "https:" : "http:";
+		$("body").append("<script src='" + protocol + "//maps.google.com/maps/api/js?sensor=false&callback=soysauce.geocoder'></script>");
 		soysauce.geocoder = (function() {
 			return new google.maps.Geocoder();
 		});
