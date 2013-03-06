@@ -659,9 +659,6 @@ soysauce.init = function(selector) {
 			case "lazyloader":
 				widget = soysauce.lazyloader.init(this);
 				break;
-			case "autofill-zip":
-				widget = soysauce.autofillZip.init(this);
-				break;
 		}
 
 		if (widget !== undefined) {
@@ -2006,7 +2003,7 @@ soysauce.togglers = (function() {
 			var firstTime = false;
 			
 			if (content.length === 0) {
-				console.warn("Soysauce: 'data-ss-ajax-url' tag required on content. Must be on the same domain if site doesn't support CORS.");
+				console.warn("Soysauce: 'data-ss-ajax-url' tag required. Must be on the same domain.");
 				return;
 			}
 			

@@ -16,3 +16,9 @@
 		}
 	}
 }
+
+[data-ss-widget="toggler"]:not([data-ss-options*="slide"]), [data-ss-toggler-id] {
+	[data-ss-component="content"] {
+		display: none;
+	}
+}
