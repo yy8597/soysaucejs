@@ -22,13 +22,15 @@ soysauce.autofillZip = (function() {
 
 		if ((value.length === 5) && (parseFloat(value) == parseInt(value)) && !isNaN(value))  {
 			soysauce.geocoder().geocode({"address": value}, function(results, status) {
-				var city, state_long, state_short;
+				var city, state_long, state_short, state_index;
 				
 				if (status === "ZERO_RESULTS") return;
 				
 				city = results[0].address_components[1].long_name;
 				state_long = results[0].address_components[3].long_name;
-				state_short = results[0].address_components[3].short_name;
+				
+				state_index = results[0].address_components.length - 2;
+				state_short = results[0].address_components[state_index].short_name;
 				
 				self.city.val(city);
 				self.state.val(state_short);
@@ -41,6 +43,10 @@ soysauce.autofillZip = (function() {
 				}
 			});
 		}
+	};
+	
+	autofillZip.prototype.handleResize = function() {
+		// Placeholder - required soysauce function
 	};
 	
 	return {
