@@ -39,7 +39,7 @@ soysauce.lazyloader = (function() {
 	
 	Lazyloader.prototype.update = function(top) {
 		var contextTop = top - this.threshold;
-		var contextBottom = top + this.threshold + $(this.context).height();
+		var contextBottom = top + this.threshold + this.context.innerHeight;
 		this.images.each(function(i, image) {
 			if ((image.offsetTop + image.height > contextTop) && (image.offsetTop < contextBottom)) {
 				soysauce.lateload(image);

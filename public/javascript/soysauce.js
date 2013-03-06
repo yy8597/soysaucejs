@@ -656,6 +656,7 @@ soysauce.init = function(selector) {
 	var set;
 	var numItems = 0;
 	var ret = false;
+	var addGoogleScript = false;
 	
 	if (!selector) {
 		set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
@@ -690,6 +691,10 @@ soysauce.init = function(selector) {
 			case "lazyloader":
 				widget = soysauce.lazyloader.init(this);
 				break;
+			case "autofill-zip":
+				widget = soysauce.autofillZip.init(this);
+				addGoogleScript = true;
+				break;
 		}
 
 		if (widget !== undefined) {
@@ -699,6 +704,14 @@ soysauce.init = function(selector) {
 		}
 		
 	});
+	
+	if (addGoogleScript && !$("script[src*='maps.google.com/maps/api']").length) {
+		var protocol = (location.protocol === "https:") ? "https:" : "http:";
+		$("body").append("<script src='" + protocol + "//maps.google.com/maps/api/js?sensor=false&callback=soysauce.geocoder'></script>");
+		soysauce.geocoder = (function() {
+			return new google.maps.Geocoder();
+		});
+	}
 	
 	return ret;
 }
@@ -765,6 +778,138 @@ soysauce.overlay = function(cmd) {
 };
 
 soysauce.overlay("init");
+
+soysauce.ccValidators = (function() {
+	var validators = new Array();
+	
+	function ccValidator(input) {
+		var self = this;
+		
+		this.id = parseInt($(input).attr("data-ss-id"));
+		this.input = $(input);
+		this.state1;
+		this.state2;
+		
+		this.input.on("keyup change", function(e) {
+			var card_num = e.target.value.replace(/-/g, "");
+			
+			// State 1
+			if (card_num.length === 1) {
+				$(e.target).trigger("state1");
+				if (card_num.match(/^4/)) {
+					self.state1 = "visa";
+				} else if (card_num.match(/^5/)) {
+					self.state1 = "mastercard";
+				} else if (card_num.match(/^3/)) {
+					self.state1 = "amex dinersclub";
+				} else if (card_num.match(/^6(?:011|5[0-9]{2})/)) {
+					self.state1 = "discover";
+				} else if (card_num.match(/^(?:2131|1800|35\d{3})/)) {
+					self.state1 = "jcb";
+				} else {
+					self.state1 = undefined;
+				}
+			} else if (card_num.length === 0) {
+				self.state1 = undefined;
+			}
+
+			// State 2
+			if (card_num.match(/^4[0-9]{12}(?:[0-9]{3})?$/)) {
+				self.state2 = "visa";
+				$(e.target).trigger("state2");
+			} else if (card_num.match(/^5[1-5][0-9]{14}$/)) {
+				self.state2 = "mastercard";
+				$(e.target).trigger("state2");
+			} else if (card_num.match(/^3[47][0-9]{13}$/)) {
+				self.state2 = "amex";
+				$(e.target).trigger("state2");
+			} else if (card_num.match(/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/)) {
+				self.state2 = "dinersclub";
+				$(e.target).trigger("state2");
+			} else if (card_num.match(/^6(?:011|5[0-9]{2})[0-9]{12}$/)) {
+				self.state2 = "discover";
+				$(e.target).trigger("state2");
+			} else if (card_num.match(/^(?:2131|1800|35\d{3})\d{11}$/)) {
+				self.state2 = "jcb";
+				$(e.target).trigger("state2");
+			} else {
+				self.state2 = undefined;
+			}
+				
+		});
+	}
+	
+	// Init
+	(function() {
+		$("[data-ss-widget='cc_validator']").each(function() {
+			var validator = new ccValidator(this);
+			validators.push(validator);
+		});
+		
+	})(); // end init
+	
+	
+	return validators;
+})();
+
+soysauce.autofillZip = (function() {
+	
+	function autofillZip(selector) {
+		var self = this;
+		
+		this.widget = $(selector);
+		this.id = parseInt($(selector).attr("data-ss-id"));
+		this.zip = this.widget.find("[data-ss-component='zip']");
+		this.city = this.widget.find("[data-ss-component='city']");
+		this.state = this.widget.find("[data-ss-component='state']");
+		
+		this.zip.on("keyup change", function(e) {
+			self.retrieveData(e);
+		});
+	}
+	
+	autofillZip.prototype.retrieveData = function(e) {
+		var value = e.target.value;
+		var self = this;
+		
+		if (!soysauce.geocoder) return;
+
+		if ((value.length === 5) && (parseFloat(value) == parseInt(value)) && !isNaN(value))  {
+			soysauce.geocoder().geocode({"address": value}, function(results, status) {
+				var city, state_long, state_short, state_index;
+				
+				if (status === "ZERO_RESULTS") return;
+				
+				city = results[0].address_components[1].long_name;
+				state_long = results[0].address_components[3].long_name;
+				
+				state_index = results[0].address_components.length - 2;
+				state_short = results[0].address_components[state_index].short_name;
+				
+				self.city.val(city);
+				self.state.val(state_short);
+
+				if (self.state.val() === "") {
+					self.state.val(state_short.toLowerCase());
+					if (self.state.val() === "") {
+						self.state.val(state_long);
+					}
+				}
+			});
+		}
+	};
+	
+	autofillZip.prototype.handleResize = function() {
+		// Placeholder - required soysauce function
+	};
+	
+	return {
+		init: function(selector) {
+			return new autofillZip(selector);
+		}
+	};
+	
+})();
 
 soysauce.carousels = (function() {
 	// Shared Default Globals
@@ -1080,7 +1225,7 @@ soysauce.carousels = (function() {
 			var padding = parseInt(firstItem.css("padding-left")) + parseInt(firstItem.css("padding-right"));
 			var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
 			
-			self.spacingOffset = padding;
+			self.spacingOffset = 0; // remove this for now
 			
 			if (self.multi) {
 				self.itemWidth = self.widget.width() / self.multiVars.numItems;
@@ -1220,7 +1365,7 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.index*self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
+						self.offset = -self.index*self.itemWidth + self.peekWidth + self.spacingOffset;
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -1234,7 +1379,7 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
+						self.offset = -self.itemWidth + self.peekWidth + self.spacingOffset;
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -1900,79 +2045,6 @@ soysauce.carousels = (function() {
 	
 })();
 
-soysauce.ccValidators = (function() {
-	var validators = new Array();
-	
-	function ccValidator(input) {
-		var self = this;
-		
-		this.id = parseInt($(input).attr("data-ss-id"));
-		this.input = $(input);
-		this.state1;
-		this.state2;
-		
-		this.input.on("keyup change", function(e) {
-			var card_num = e.target.value.replace(/-/g, "");
-			
-			// State 1
-			if (card_num.length === 1) {
-				$(e.target).trigger("state1");
-				if (card_num.match(/^4/)) {
-					self.state1 = "visa";
-				} else if (card_num.match(/^5/)) {
-					self.state1 = "mastercard";
-				} else if (card_num.match(/^3/)) {
-					self.state1 = "amex dinersclub";
-				} else if (card_num.match(/^6(?:011|5[0-9]{2})/)) {
-					self.state1 = "discover";
-				} else if (card_num.match(/^(?:2131|1800|35\d{3})/)) {
-					self.state1 = "jcb";
-				} else {
-					self.state1 = undefined;
-				}
-			} else if (card_num.length === 0) {
-				self.state1 = undefined;
-			}
-
-			// State 2
-			if (card_num.match(/^4[0-9]{12}(?:[0-9]{3})?$/)) {
-				self.state2 = "visa";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^5[1-5][0-9]{14}$/)) {
-				self.state2 = "mastercard";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^3[47][0-9]{13}$/)) {
-				self.state2 = "amex";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/)) {
-				self.state2 = "dinersclub";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^6(?:011|5[0-9]{2})[0-9]{12}$/)) {
-				self.state2 = "discover";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^(?:2131|1800|35\d{3})\d{11}$/)) {
-				self.state2 = "jcb";
-				$(e.target).trigger("state2");
-			} else {
-				self.state2 = undefined;
-			}
-				
-		});
-	}
-	
-	// Init
-	(function() {
-		$("[data-ss-widget='cc_validator']").each(function() {
-			var validator = new ccValidator(this);
-			validators.push(validator);
-		});
-		
-	})(); // end init
-	
-	
-	return validators;
-})();
-
 soysauce.lazyloader = (function() {
 	var THROTTLE = 100; // milliseconds
 	
@@ -2014,7 +2086,7 @@ soysauce.lazyloader = (function() {
 	
 	Lazyloader.prototype.update = function(top) {
 		var contextTop = top - this.threshold;
-		var contextBottom = top + this.threshold + $(this.context).height();
+		var contextBottom = top + this.threshold + this.context.innerHeight;
 		this.images.each(function(i, image) {
 			if ((image.offsetTop + image.height > contextTop) && (image.offsetTop < contextBottom)) {
 				soysauce.lateload(image);
@@ -2201,7 +2273,7 @@ soysauce.togglers = (function() {
 			var firstTime = false;
 			
 			if (content.length === 0) {
-				console.warn("Soysauce: 'data-ss-ajax-url' tag required. Must be on the same domain.");
+				console.warn("Soysauce: 'data-ss-ajax-url' tag required on content. Must be on the same domain if site doesn't support CORS.");
 				return;
 			}
 			

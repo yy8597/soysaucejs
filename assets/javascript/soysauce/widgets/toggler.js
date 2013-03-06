@@ -164,7 +164,7 @@ soysauce.togglers = (function() {
 			var firstTime = false;
 			
 			if (content.length === 0) {
-				console.warn("Soysauce: 'data-ss-ajax-url' tag required. Must be on the same domain.");
+				console.warn("Soysauce: 'data-ss-ajax-url' tag required on content. Must be on the same domain if site doesn't support CORS.");
 				return;
 			}
 			

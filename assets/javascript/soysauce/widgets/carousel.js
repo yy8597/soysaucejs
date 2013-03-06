@@ -312,7 +312,7 @@ soysauce.carousels = (function() {
 			var padding = parseInt(firstItem.css("padding-left")) + parseInt(firstItem.css("padding-right"));
 			var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
 			
-			self.spacingOffset = padding;
+			self.spacingOffset = 0; // remove this for now
 			
 			if (self.multi) {
 				self.itemWidth = self.widget.width() / self.multiVars.numItems;
@@ -452,7 +452,7 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.index*self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
+						self.offset = -self.index*self.itemWidth + self.peekWidth + self.spacingOffset;
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -466,7 +466,7 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
+						self.offset = -self.itemWidth + self.peekWidth + self.spacingOffset;
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);

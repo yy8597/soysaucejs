@@ -43,6 +43,8 @@ task :build do
     end
   }
   
+  bundleCompressed.join
+  
   bundleUncompressed = Thread.new {
     bundleMutex.synchronize do
       config = File.read("config/assets.yml")
@@ -61,7 +63,6 @@ task :build do
     system "compass compile"
   }
   
-  bundleCompressed.join
   bundleUncompressed.join
   compileCSS.join
   
