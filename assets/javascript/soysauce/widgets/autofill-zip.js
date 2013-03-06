@@ -15,10 +15,17 @@ soysauce.autofillZip = (function() {
 	}
 	
 	autofillZip.prototype.retrieveData = function(e) {
-		var value = e.target.value;
-		var self = this;
+		var value,
+				self = this;
 		
 		if (!soysauce.geocoder) return;
+		
+		if (!e) {
+			value = this.zip[0].value;
+		}
+		else {
+			value = e.target.value;
+		}
 
 		if ((value.length === 5) && (parseFloat(value) == parseInt(value)) && !isNaN(value))  {
 			soysauce.geocoder().geocode({"address": value}, function(results, status) {
