@@ -5,9 +5,9 @@ soysauce.autofillZip = (function() {
 		
 		this.widget = $(selector);
 		this.id = parseInt($(selector).attr("data-ss-id"));
-		this.zip = this.widget.find("> [data-ss-component='zip']");
-		this.city = this.widget.find("> [data-ss-component='city']");
-		this.state = this.widget.find("> [data-ss-component='state']");
+		this.zip = this.widget.find("[data-ss-component='zip']");
+		this.city = this.widget.find("[data-ss-component='city']");
+		this.state = this.widget.find("[data-ss-component='state']");
 		
 		this.zip.on("keyup change", function(e) {
 			self.retrieveData(e);
