@@ -12,8 +12,8 @@ soysauce.autofillZip = (function() {
 		this.state = this.widget.find("[data-ss-component='state']");
 		this.lastRequestedData;
 		
-		this.zip.on("keyup change", function(e) {
-			self.getLocationData(e);
+		this.zip.on("keyup change", function() {
+			self.getLocationData();
 		});
 	}
 	
