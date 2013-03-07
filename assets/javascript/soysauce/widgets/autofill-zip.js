@@ -40,7 +40,7 @@ soysauce.autofillZip = (function() {
 		var value = this.zip[0].value;
 		
 		if ((value.length === 5) && (parseFloat(value) == parseInt(value)) && !isNaN(value))  {
-			$("body").append("<script src='" + BASE_URL + API_KEY + "&location=" + value + "&callback=soysauce.fetch(" + this.id + ").setLocationData" + "'></script>");
+			$("body").append("<script src='" + BASE_URL + API_KEY + "&location=" + value + "&callback=soysauce.fetch(" + this.id + ").setLocationData'></script>");
 		}
 	};
 	
