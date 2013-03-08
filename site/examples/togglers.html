@@ -169,9 +169,9 @@
 			Donec felis metus, ornare in posuere id, dig...
 		</div>
 		<h2>Ajax Accordion - local is seen as a null origin, so this will throw a CORS error. m.truerunner.com has an example if you click on 'brands' on the home page</h2>
-		<div data-ss-widget="toggler" class="accordion1" data-ss-options="ajax" data-ss-ajax-url="accordionsExample.json" data-ss-ajax-callback="getData">
+		<div data-ss-widget="toggler" class="accordion1" data-ss-options="ajax">
 			<div class="bar1" data-ss-component="button">Ajax Accordion - Click me</div>
-			<div class="injectHere" data-ss-component="content"></div>
+			<div class="injectHere" data-ss-component="content" data-ss-ajax-url="throwA404.json"></div>
 		</div>
 		<script src="http://code.jquery.com/jquery-1.9.0.min.js"></script>
 		<script src="../assets/soysauce.min.js"></script>

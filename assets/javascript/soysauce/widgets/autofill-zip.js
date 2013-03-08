@@ -1,4 +1,5 @@
 soysauce.autofillZip = (function() {
+	var BASE_URL = "//jeocoder.herokuapp.com/zips/";
 	
 	function autofillZip(selector) {
 		var self = this;
@@ -8,38 +9,37 @@ soysauce.autofillZip = (function() {
 		this.zip = this.widget.find("[data-ss-component='zip']");
 		this.city = this.widget.find("[data-ss-component='city']");
 		this.state = this.widget.find("[data-ss-component='state']");
+		this.lastRequestedData;
 		
-		this.zip.on("keyup change", function(e) {
-			self.retrieveData(e);
+		this.zip.on("keyup change", function() {
+			self.getLocationData();
 		});
 	}
 	
-	autofillZip.prototype.retrieveData = function(e) {
-		var value = e.target.value;
+	autofillZip.prototype.setLocationData = function(data) {
 		var self = this;
+		var city = data.city;
+		var state = data.state;
 		
-		if (!soysauce.geocoder) return;
+		this.lastRequestedData = data;
 
+		self.city.val(city);
+		self.state.val(state);
+	};
+	
+	autofillZip.prototype.getLocationData = function() {
+		var self = this;
+		var value = this.zip[0].value;
+		
 		if ((value.length === 5) && (parseFloat(value) == parseInt(value)) && !isNaN(value))  {
-			soysauce.geocoder().geocode({"address": value}, function(results, status) {
-				var city, state_long, state_short, state_index;
-				
-				if (status === "ZERO_RESULTS") return;
-				
-				city = results[0].address_components[1].long_name;
-				state_long = results[0].address_components[3].long_name;
-				
-				state_index = results[0].address_components.length - 2;
-				state_short = results[0].address_components[state_index].short_name;
-				
-				self.city.val(city);
-				self.state.val(state_short);
-
-				if (self.state.val() === "") {
-					self.state.val(state_short.toLowerCase());
-					if (self.state.val() === "") {
-						self.state.val(state_long);
-					}
+			$.ajax({
+				dataType: "json",
+				url: BASE_URL + value,
+				success: function(data) {
+					self.setLocationData(data);
+				},
+				error: function() {
+					console.warn("Soysauce: Could not fetch zip code " + value);
 				}
 			});
 		}

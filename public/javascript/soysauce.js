@@ -656,7 +656,6 @@ soysauce.init = function(selector) {
 	var set;
 	var numItems = 0;
 	var ret = false;
-	var addGoogleScript = false;
 	
 	if (!selector) {
 		set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
@@ -693,7 +692,6 @@ soysauce.init = function(selector) {
 				break;
 			case "autofill-zip":
 				widget = soysauce.autofillZip.init(this);
-				addGoogleScript = true;
 				break;
 		}
 
@@ -704,14 +702,6 @@ soysauce.init = function(selector) {
 		}
 		
 	});
-	
-	if (addGoogleScript && !$("script[src*='maps.google.com/maps/api']").length) {
-		var protocol = (location.protocol === "https:") ? "https:" : "http:";
-		$("body").append("<script src='" + protocol + "//maps.google.com/maps/api/js?sensor=false&callback=soysauce.geocoder'></script>");
-		soysauce.geocoder = (function() {
-			return new google.maps.Geocoder();
-		});
-	}
 	
 	return ret;
 }
@@ -853,6 +843,7 @@ soysauce.ccValidators = (function() {
 })();
 
 soysauce.autofillZip = (function() {
+	var BASE_URL = "//jeocoder.herokuapp.com/zips/";
 	
 	function autofillZip(selector) {
 		var self = this;
@@ -862,38 +853,37 @@ soysauce.autofillZip = (function() {
 		this.zip = this.widget.find("[data-ss-component='zip']");
 		this.city = this.widget.find("[data-ss-component='city']");
 		this.state = this.widget.find("[data-ss-component='state']");
+		this.lastRequestedData;
 		
-		this.zip.on("keyup change", function(e) {
-			self.retrieveData(e);
+		this.zip.on("keyup change", function() {
+			self.getLocationData();
 		});
 	}
 	
-	autofillZip.prototype.retrieveData = function(e) {
-		var value = e.target.value;
+	autofillZip.prototype.setLocationData = function(data) {
 		var self = this;
+		var city = data.city;
+		var state = data.state;
 		
-		if (!soysauce.geocoder) return;
+		this.lastRequestedData = data;
 
+		self.city.val(city);
+		self.state.val(state);
+	};
+	
+	autofillZip.prototype.getLocationData = function() {
+		var self = this;
+		var value = this.zip[0].value;
+		
 		if ((value.length === 5) && (parseFloat(value) == parseInt(value)) && !isNaN(value))  {
-			soysauce.geocoder().geocode({"address": value}, function(results, status) {
-				var city, state_long, state_short, state_index;
-				
-				if (status === "ZERO_RESULTS") return;
-				
-				city = results[0].address_components[1].long_name;
-				state_long = results[0].address_components[3].long_name;
-				
-				state_index = results[0].address_components.length - 2;
-				state_short = results[0].address_components[state_index].short_name;
-				
-				self.city.val(city);
-				self.state.val(state_short);
-
-				if (self.state.val() === "") {
-					self.state.val(state_short.toLowerCase());
-					if (self.state.val() === "") {
-						self.state.val(state_long);
-					}
+			$.ajax({
+				dataType: "json",
+				url: BASE_URL + value,
+				success: function(data) {
+					self.setLocationData(data);
+				},
+				error: function() {
+					console.warn("Soysauce: Could not fetch zip code " + value);
 				}
 			});
 		}
@@ -1144,7 +1134,7 @@ soysauce.carousels = (function() {
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		}
 		
-		this.links = (items[0].tagName.match(/^a$/i) !== null || items[0].tagName.match(/^a$/i) !== undefined || items.find("a[href]").length > 0) ? true : false;
+		this.links = ((items[0].tagName.match(/^a$/i) !== null && items[0].tagName.match(/^a$/i) !== undefined) || items.find("a[href]").length > 0) ? true : false;
 
 		if (this.thumbs) {
 			var c = 0;
@@ -1315,7 +1305,6 @@ soysauce.carousels = (function() {
 		if (this.autoheight) {
 			var self = this;
 			var height = $(this.items[this.index]).outerHeight();
-			
 			this.widget.css("min-height", height);
 		}
 		
@@ -1327,6 +1316,7 @@ soysauce.carousels = (function() {
 					self.container.attr("data-ss-state", "ready");
 				}, 0);
 				if (self.autoheight) {
+					var height = $(this.items[this.index]).outerHeight();
 					self.widget.css("height", height);
 					window.setTimeout(function() {
 						self.widget.css("min-height", "0px");

@@ -625,7 +625,6 @@ soysauce.init = function(selector) {
 	var set;
 	var numItems = 0;
 	var ret = false;
-	var addGoogleScript = false;
 	
 	if (!selector) {
 		set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
@@ -662,7 +661,6 @@ soysauce.init = function(selector) {
 				break;
 			case "autofill-zip":
 				widget = soysauce.autofillZip.init(this);
-				addGoogleScript = true;
 				break;
 		}
 
@@ -673,14 +671,6 @@ soysauce.init = function(selector) {
 		}
 		
 	});
-	
-	if (addGoogleScript && !$("script[src*='maps.google.com/maps/api']").length) {
-		var protocol = (location.protocol === "https:") ? "https:" : "http:";
-		$("body").append("<script src='" + protocol + "//maps.google.com/maps/api/js?sensor=false&callback=soysauce.geocoder'></script>");
-		soysauce.geocoder = (function() {
-			return new google.maps.Geocoder();
-		});
-	}
 	
 	return ret;
 }
@@ -949,7 +939,7 @@ soysauce.carousels = (function() {
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		}
 		
-		this.links = (items[0].tagName.match(/^a$/i) !== null || items[0].tagName.match(/^a$/i) !== undefined || items.find("a[href]").length > 0) ? true : false;
+		this.links = ((items[0].tagName.match(/^a$/i) !== null && items[0].tagName.match(/^a$/i) !== undefined) || items.find("a[href]").length > 0) ? true : false;
 
 		if (this.thumbs) {
 			var c = 0;
@@ -1120,7 +1110,6 @@ soysauce.carousels = (function() {
 		if (this.autoheight) {
 			var self = this;
 			var height = $(this.items[this.index]).outerHeight();
-			
 			this.widget.css("min-height", height);
 		}
 		
@@ -1132,6 +1121,7 @@ soysauce.carousels = (function() {
 					self.container.attr("data-ss-state", "ready");
 				}, 0);
 				if (self.autoheight) {
+					var height = $(this.items[this.index]).outerHeight();
 					self.widget.css("height", height);
 					window.setTimeout(function() {
 						self.widget.css("min-height", "0px");
