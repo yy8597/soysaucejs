@@ -843,8 +843,7 @@ soysauce.ccValidators = (function() {
 })();
 
 soysauce.autofillZip = (function() {
-	var BASE_URL = "//www.mapquestapi.com/geocoding/v1/address?key=";
-	var API_KEY = "Fmjtd%7Cluub2l6tnu%2Ca5%3Do5-96tw0f";
+	var BASE_URL = "//jeocoder.herokuapp.com/zips/";
 	
 	function autofillZip(selector) {
 		var self = this;
@@ -856,27 +855,20 @@ soysauce.autofillZip = (function() {
 		this.state = this.widget.find("[data-ss-component='state']");
 		this.lastRequestedData;
 		
-		this.zip.on("keyup change", function(e) {
-			self.getLocationData(e);
+		this.zip.on("keyup change", function() {
+			self.getLocationData();
 		});
 	}
 	
 	autofillZip.prototype.setLocationData = function(data) {
 		var self = this;
+		var city = data.city;
+		var state = data.state;
 		
 		this.lastRequestedData = data;
-		if (data.info.statuscode === 0) {
-			$.each(data.results[0].locations, function(i, locationData) {
-				var city = locationData.adminArea5;
-				var state = locationData.adminArea3;
-				
-				self.city.val(city);
-				self.state.val(state);
-			});
-		}
-		else {
-			console.warn("Soysauce: Geocoder returned error code " + data.info.statuscode);
-		}
+
+		self.city.val(city);
+		self.state.val(state);
 	};
 	
 	autofillZip.prototype.getLocationData = function() {
@@ -884,7 +876,16 @@ soysauce.autofillZip = (function() {
 		var value = this.zip[0].value;
 		
 		if ((value.length === 5) && (parseFloat(value) == parseInt(value)) && !isNaN(value))  {
-			$("body").append("<script src='" + BASE_URL + API_KEY + "&location=" + value + "&callback=soysauce.fetch(" + this.id + ").setLocationData" + "'></script>");
+			$.ajax({
+				dataType: "json",
+				url: BASE_URL + value,
+				success: function(data) {
+					self.setLocationData(data);
+				},
+				error: function() {
+					console.warn("Soysauce: Could not fetch zip code " + value);
+				}
+			});
 		}
 	};
 	
