@@ -39,7 +39,14 @@ To compile the css, run this command in the main directory:
 To bundle the javascript, run this command in the main directory:
 
 	jammit
-	
+
+## Examples
+
+Please see the Soysauce website for usage and examples:
+http://soysauce.s3.amazonaws.com/site/home.html
+
+Stuff below will be delete soon...
+
 ### 1) Carousel
 
 Carousels allow for "slideshow" effects for images. Every carousel is pre-built with dots, infinite scrolling, buttons, and swipe.

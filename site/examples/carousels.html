@@ -5,89 +5,29 @@
 		<link rel="stylesheet" href="../assets/main.css">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	</head>
-	<body class="ss_carousels">
+	<body class="carousels">
 		<h1>Carousels</h1>
-		<div class="options">
-			<h3>Full list of options</h3>
-			<ul>
-				<li>peek - shows images on left and right</li>
-				<li>finite - does not repeat</li>
-				<li>autoscroll - timer based forward scrolling</li>
-				<li>noswipe - user cannot swipe</li>
-				<li>3d - force 3d, off on androids by default</li>
-				<li>zoom - allows the user to zoom in on an item</li>
-			</ul>
-		</div>
-		<h2>Basic Carousel - fullscreen, infinite, swipe, dots, and buttons are standard for all carousels</h2>
-		<div data-ss-widget="carousel">
-			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
-			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
-		</div>
-    <h2>Carousel with thumbnails generated from source Images</h2>
-    <div data-ss-widget="carousel" data-ss-options="thumbs" class="thumbnails">
-      <a data-ss-component="item" href="#"><img src="http://placehold.it/600x400/cdcdcd"></a>
-			<a data-ss-component="item" href="#"><img src="http://placehold.it/300x200/cdcdcd"></a>
-			<a data-ss-component="item" href="#"><img src="http://placehold.it/600x400/cdcdcd"></a>
-			<a data-ss-component="item" href="#"><img src="http://placehold.it/300x200/cdcdcd"></a>
-    </div>
-		<h2>Carousel and autoscroll. Added css to dots.</h2>
-		<div data-ss-widget="carousel" class="dots" data-ss-options="autoscroll">
-			<a data-ss-component="item" href="#"><img src="http://placehold.it/600x400/cdcdcd"></a>
-			<a data-ss-component="item" href="#"><img src="http://placehold.it/300x200/cdcdcd"></a>
-			<a data-ss-component="item" href="#"><img src="http://placehold.it/600x400/cdcdcd"></a>
-			<a data-ss-component="item" href="#"><img src="http://placehold.it/300x200/cdcdcd"></a>
-		</div>
-		<h2>Carousel and peek. [data-ss-peek-width] attribute optional. In this example, it has a peek width of 40px, 20 on each side.</h2>
-		<div data-ss-widget="carousel" class="peek buttons" data-ss-options="peek">
-			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
-			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
-		</div>
-		<h2>Finite Carousel /w noswipe. Added css to buttons.</h2>
-		<div data-ss-widget="carousel" class="buttons" data-ss-options="noswipe finite">
-			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
-			<img data-ss-component="item" src="http://placehold.it/600x400/cdcdcd">
-			<img data-ss-component="item" src="http://placehold.it/300x200/cdcdcd">
-		</div>
-		<h2>Finite Carousel and multiple items. Default is 2.</h2>
-		<div data-ss-widget="carousel" class="double" data-ss-options="multi finite">
-			<div data-ss-component="item">
-				<img src="http://placehold.it/600x400/cdcdcd">
-			</div>
-			<div data-ss-component="item">
-				<img src="http://placehold.it/300x200/cdcdcd">
-			</div>
-			<div data-ss-component="item">
-				<img src="http://placehold.it/300x200/cdcdcd">
-			</div>
-			<div data-ss-component="item">
-				<img src="http://placehold.it/600x400/cdcdcd">
+		<ul class="breadcrumbs">
+			<li><a href="../home.html">Home</a></li>
+			<li class="active"> > Carousels</li>
+		</ul>
+		<div class="container">
+			<form class="options">
+				<header>Choose your options</header>
+				<div><input type="checkbox" id="autoscroll"><label for="autoscroll">Autoscroll</label></div>
+				<div><input type="checkbox" id="peek"><label for="peek">Peek</label></div>
+				<div><input type="checkbox" id="finite"><label for="finite">Finite</label></div>
+				<div><input type="checkbox" id="noswipe"><label for="noswipe">No Swipe</label></div>
+				<div><input type="checkbox" id="zoom"><label for="zoom">Zoom</label></div>
+				<button type="submit">Generate</button>
+			</form>
+			<div data-ss-widget="carousel" data-ss-options="finite">
+				<img data-ss-component="item" src="http://pipocamoderna.com.br/wp-content/uploads/2012/06/ironman-08preview-lg-600x400.jpg">
+				<img data-ss-component="item" src="http://wallpapermaning.com/wp-content/uploads/2013/01/Audi-R8-Background-600x400.jpg">
+				<img data-ss-component="item" src="http://collider.com/wp-content/image-base/Movies/I/Iron_Man_movie/Iron_Man_Movie_/iron_man_movie_image__11_.jpg">
 			</div>
 		</div>
-		<h2>Carousel w/ fullscreen and zoom and pinch. Added css to dots.</h2>
-		<div data-ss-widget="carousel" class="dots" data-ss-options="zoom pinch" data-ss-zoom-min="1.5" data-ss-zoom-max="3">
-			<div data-ss-component="item">
-				<img src="http://carduzz.com/wp-content/uploads/2012/12/2012-Ducati-848-EVO-Base-5-600x400.jpg">
-			</div>
-			<div href="/" data-ss-component="item">
-				<img src="http://carduzz.com/wp-content/uploads/2012/12/2012-Ducati-848-EVO-Base-4-600x400.jpg">
-			</div>
-			<div href="/" data-ss-component="item">
-				<img src="http://www.autocarbike.com/wp-content/uploads/2012/12/2012-ducati-1199-Panigale-red-wallpaper-front-view-2-600x400.jpg">
-			</div>
-		</div>
-		<img data-ss-component="item" data-ss-ll-src="http://placehold.it/600x400/cdcdcd">
-		<img data-ss-component="item" data-ss-ll-src="http://placehold.it/600x400/cdcdcd">
-		<img data-ss-component="item" data-ss-ll-src="http://placehold.it/600x400/cdcdcd">
-		<img data-ss-component="item" data-ss-ll-src="http://placehold.it/600x400/cdcdcd">
-		<img data-ss-component="item" data-ss-ll-src="http://placehold.it/600x400/cdcdcd">
-		<img data-ss-component="item" data-ss-ll-src="http://placehold.it/600x400/cdcdcd">
-		<img data-ss-component="item" data-ss-ll-src="http://placehold.it/600x400/cdcdcd">
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="http://code.jquery.com/jquery-1.9.0.min.js"></script>
 		<script src="../assets/soysauce.min.js"></script>
 	</body>
 </html>
