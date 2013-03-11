@@ -662,6 +662,9 @@ soysauce.init = function(selector) {
 			case "autofill-zip":
 				widget = soysauce.autofillZip.init(this);
 				break;
+			case "autodetect-cc":
+				widget = soysauce.autodetectCC.init(this);
+				break;
 		}
 
 		if (widget !== undefined) {
