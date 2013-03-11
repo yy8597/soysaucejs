@@ -51,4 +51,45 @@ $(document).ready(function() {
 			widget.zip.find("+ img").hide();
 		}
 	}
+	else if ($("body").hasClass("autodetect-cc")) {
+		var widget = soysauce.fetch("#cc-input");
+		var prediction = $("#prediction");
+		var result = $("#result");
+		var ccInput = $("#cc-input");
+		var cardElements = $(".cards li");
+		
+		ccInput.on("SSDetect1", function() {
+			prediction.html(widget.state1);
+			
+			if (widget.state1 !== undefined) {
+				cardElements.each(function(i, card) {
+					var cards = widget.state1.split(" ");
+					var setInactive = true;
+
+					cards.forEach(function(name) {
+						if ($(card).hasClass(name)) {
+							setInactive = false;
+						}
+					});
+
+					if (setInactive) {
+						$(card).addClass("inactive");
+					}
+				});
+			}
+		});
+		
+		ccInput.on("SSDetect2", function() {
+			result.html(widget.state2);
+			$(".cards li:not(." + widget.state2 + ")").addClass("inactive");
+		});
+		
+		ccInput.on("keyup change", function() {
+			if (ccInput.val() === "") {
+				prediction.html("");
+				result.html("");
+				cardElements.removeClass("inactive");
+			}
+		});
+	}
 });
