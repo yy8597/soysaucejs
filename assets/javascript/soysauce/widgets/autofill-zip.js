@@ -1,5 +1,6 @@
 soysauce.autofillZip = (function() {
 	var BASE_URL = "//jeocoder.herokuapp.com/zips/";
+	var AOL_URL = "//www.mapquestapi.com/geocoding/v1/reverse?key=Fmjtd%7Cluub2l6tnu%2Ca5%3Do5-96tw0f";
 	
 	function autofillZip(selector) {
 		var self = this;
@@ -10,11 +11,20 @@ soysauce.autofillZip = (function() {
 		this.city = this.widget.find("[data-ss-component='city']");
 		this.state = this.widget.find("[data-ss-component='state']");
 		this.lastRequestedData;
+		this.reverse = false;
 		
 		this.zip.on("keyup change", function() {
 			self.getLocationData();
 		});
 	}
+	
+	autofillZip.prototype.reverseGeocode = function() {
+		if (!navigator.geolocation) return;
+		navigator.geolocation.getCurrentPosition(function(data) {
+			console.log(data.coords.latitude);
+			console.log(data.coords.longitude);
+		});
+	};
 	
 	autofillZip.prototype.setLocationData = function(data) {
 		var self = this;
