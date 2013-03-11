@@ -1,0 +1,78 @@
+* {
+	@include box-sizing(border-box);
+}
+
+html {
+	-webkit-text-size-adjust: none;
+}
+
+body {
+	position: relative;
+	font-size: 13px;
+	font-family: 'Open Sans', sans-serif;
+}
+
+img {
+	max-width: 100%;
+	-webkit-user-select: none;
+	-webkit-tap-highlight-color:  rgba(255, 255, 255, 0); 
+}
+
+h1 {
+	margin: 10px;
+	padding-bottom: 10px;
+	border-bottom: 2px solid #AAA;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+h2 {
+	margin: 10px 5px 5px;
+}
+
+body > header {
+	position: relative;
+	border-bottom: 1px solid black;
+	margin-bottom: 10px;
+	.title {
+		display: inline-block;
+		font-size: 24px;
+		padding: 10px;
+	}
+	.github {
+		font-size: 16px;
+		position: absolute;
+		right: 10px;
+		top: 15px;
+	}
+}
+
+.options {
+	@include border-radius(3px);
+	background: #eee;
+	border: 1px solid #777;
+	margin: 10px 5px;
+	padding: 10px;
+	h3 {
+		font-weight: bold;
+		padding-bottom: 5px;
+		border-bottom: 1px solid #aaa;
+		margin-bottom: 5px;
+	}
+	li:not(:last-of-type) {
+		margin: 3px 0;
+		padding-bottom: 3px;
+		border-bottom: 1px dotted #AAA;
+	}
+	li:hover {
+		color: #cd0000;
+		text-shadow: 0 1px 0 white;
+	}
+}
+
+.breadcrumbs {
+	margin: 10px;
+	li {
+		display: inline-block;
+	}
+}

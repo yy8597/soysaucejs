@@ -294,4 +294,21 @@ body > header .github {
 }
 .zip [data-ss-widget="autofill-zip"] [data-ss-component="zip"] {
   max-width: 140px;
+  float: left;
+}
+.zip [data-ss-widget="autofill-zip"] [data-ss-component="zip"] + .ajaxLoader {
+  display: none;
+  position: relative;
+  top: 13px;
+}
+.zip .reverseHeader {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
+}
+.zip h2 {
+  font-weight: bold;
+}
+.zip button {
+  display: block;
 }
