@@ -12,22 +12,19 @@
 			<li class="active"> > Carousels</li>
 		</ul>
 		<div class="container">
-			<form class="options">
+			<form class="options" action="" method="GET">
 				<header>Choose your options</header>
-				<div><input type="checkbox" id="autoscroll"><label for="autoscroll">Autoscroll</label></div>
-				<div><input type="checkbox" id="peek"><label for="peek">Peek</label></div>
-				<div><input type="checkbox" id="finite"><label for="finite">Finite</label></div>
-				<div><input type="checkbox" id="noswipe"><label for="noswipe">No Swipe</label></div>
-				<div><input type="checkbox" id="zoom"><label for="zoom">Zoom</label></div>
+				<div><input type="checkbox" id="autoscroll" name="autoscroll" value="true"><label for="autoscroll">Autoscroll</label></div>
+				<div><input type="checkbox" id="peek" name="peek" value="true"><label for="peek">Peek</label></div>
+				<div><input type="checkbox" id="finite" name="finite" value="true"><label for="finite">Finite</label></div>
+				<div><input type="checkbox" id="noswipe" name="noswipe" value="true"><label for="noswipe">No Swipe</label></div>
+				<div><input type="checkbox" id="zoom" name="zoom" value="true"><label for="zoom">Zoom</label></div>
 				<button type="submit">Generate</button>
 			</form>
-			<div data-ss-widget="carousel" data-ss-options="finite">
-				<img data-ss-component="item" src="http://pipocamoderna.com.br/wp-content/uploads/2012/06/ironman-08preview-lg-600x400.jpg">
-				<img data-ss-component="item" src="http://wallpapermaning.com/wp-content/uploads/2013/01/Audi-R8-Background-600x400.jpg">
-				<img data-ss-component="item" src="http://collider.com/wp-content/image-base/Movies/I/Iron_Man_movie/Iron_Man_Movie_/iron_man_movie_image__11_.jpg">
-			</div>
+			<div id="carousel"></div>
 		</div>
 		<script src="http://code.jquery.com/jquery-1.9.0.min.js"></script>
 		<script src="../assets/soysauce.min.js"></script>
+		<script src="../assets/site.js"></script>
 	</body>
 </html>

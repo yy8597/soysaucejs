@@ -11,6 +11,64 @@
 	}
 }
 
+.edward {
+	-webkit-backface-visibility: hidden;
+	-moz-backface-visibility: hidden;
+	-ms-backface-visibility: hidden;
+	-o-backface-visibility: hidden;
+	backface-visibility: hidden;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-delay: .2s;
+	-webkit-animation-timing-function: ease;
+	-webkit-animation-fill-mode: both;
+	-moz-animation-duration: 1s;
+	-moz-animation-delay: .2s;
+	-moz-animation-timing-function: ease;
+	-moz-animation-fill-mode: both;
+	-ms-animation-duration: 1s;
+	-ms-animation-delay: .2s;
+	-ms-animation-timing-function: ease;
+	-ms-animation-fill-mode: both;
+	-o-animation-duration: 1s;
+	-o-animation-delay: .2s;
+	-o-animation-timing-function: ease;
+	-o-animation-fill-mode: both;
+	animation-duration: 1s;
+	animation-delay: .2s;
+	animation-timing-function: ease;
+	animation-fill-mode: both;
+}
+
+@-webkit-keyframes bounce {
+	0%, 20%, 50%, 80%, 100% {-webkit-transform: translateX(0);}
+	40% {-webkit-transform: translateX(-30px);}
+	60% {-webkit-transform: translateX(-15px);}
+}
+
+@-moz-keyframes bounce {
+	0%, 20%, 50%, 80%, 100% {-moz-transform: translateX(0);}
+	40% {-moz-transform: translateX(-30px);}
+	60% {-moz-transform: translateX(-15px);}
+}
+
+@-o-keyframes bounce {
+	0%, 20%, 50%, 80%, 100% {-o-transform: translateX(0);}
+	40% {-o-transform: translateX(-30px);}
+	60% {-o-transform: translateX(-15px);}
+}
+@keyframes bounce {
+	0%, 20%, 50%, 80%, 100% {transform: translateX(0);}
+	40% {transform: translateX(-30px);}
+	60% {transform: translateX(-15px);}
+}
+
+.bounce {
+	-webkit-animation-name: bounce;
+	-moz-animation-name: bounce;
+	-o-animation-name: bounce;
+	animation-name: bounce;
+}
+
 // Widget Styles
 @import "soysauce/_toggler.scss";
 @import "soysauce/_overlay.scss";
