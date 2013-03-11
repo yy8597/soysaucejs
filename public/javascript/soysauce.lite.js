@@ -883,7 +883,12 @@ soysauce.carousels = (function() {
 			}
 		}
 		
-		wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='disabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
+		if (this.infinite) {
+			wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='enabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
+		}
+		else {
+			wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='disabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
+		}
 		wrapper.after("<div data-ss-component='dots'></div>")
 		this.dots = this.widget.find("[data-ss-component='dots']");
 
