@@ -26,17 +26,31 @@ soysauce.autodetectCC = (function() {
 			var keycode = e.keyCode ? e.keyCode : e.which;
 			
 			// State 1
-			if (card_num.length === 1) {
+			if (card_num.length < 4) {
 				if (card_num.match(/^4/)) {
 					self.state1 = "visa";
-				} else if (card_num.match(/^5/)) {
+				} 
+				else if (card_num.match(/^5/)) {
 					self.state1 = "mastercard";
-				} else if (card_num.match(/^3/)) {
-					self.state1 = "amex dinersclub jcb";
-				} else if (card_num.match(/^6/)) {
+				} 
+				else if (card_num.match(/^6/)) {
 					self.state1 = "discover";
-				} else {
-					self.state1 = undefined;
+				} 
+				else if (card_num.match(/^3/)) {
+					if (card_num.length === 1) {
+						self.state1 = "amex dinersclub jcb";
+					}
+					else {
+						if (card_num.match(/^3(4|7)/)) {
+							self.state1 = "amex";
+						}
+						else if (card_num.match(/^3(0|8)/)) {
+							self.state1 = "dinersclub";
+						}
+						else if (card_num.match(/^35/)) {
+							self.state1 = "jcb";
+						}
+					}
 				}
 				$(e.target).trigger("SSDetect1");
 			} 
@@ -70,7 +84,9 @@ soysauce.autodetectCC = (function() {
 				self.state2 = undefined;
 			}
 			
-			if (self.format && card_num.length > 3 && keycode !== 8 && keycode !== 46) {
+			// keycodes: 8 = backspace, 46 = delete, 91 = command, 17 = ctrl
+			if (self.format && card_num.length > 3 && 
+				keycode !== 8 && keycode !== 46 && keycode !== 91 && keycode !== 17) {
 				self.formatInput();
 			}
 			

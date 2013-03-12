@@ -75,6 +75,9 @@ $(document).ready(function() {
 					if (setInactive) {
 						$(card).addClass("inactive");
 					}
+					else {
+						$(card).removeClass("inactive");
+					}
 				});
 			}
 		});
@@ -82,6 +85,7 @@ $(document).ready(function() {
 		ccInput.on("SSDetect2", function() {
 			result.html(widget.state2);
 			$(".cards li:not(." + widget.state2 + ")").addClass("inactive");
+			$(".cards li." + widget.state2).removeClass("inactive");
 		});
 		
 		ccInput.on("keyup change", function() {
