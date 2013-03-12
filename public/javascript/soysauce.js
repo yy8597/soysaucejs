@@ -781,8 +781,8 @@ soysauce.autodetectCC = (function() {
 		this.widget = $(this);
 		this.id = parseInt($(selector).attr("data-ss-id"));
 		this.input = $(selector);
-		this.state1;
-		this.state2;
+		this.prediction;
+		this.result;
 		this.format = false;
 		
 		if (options) options.forEach(function(option) {
@@ -802,60 +802,60 @@ soysauce.autodetectCC = (function() {
 			// State 1 - Prediction
 			if (card_num.length < 4) {
 				if (card_num.match(/^4/)) {
-					self.state1 = "visa";
+					self.prediction = "visa";
 				} 
 				else if (card_num.match(/^5/)) {
-					self.state1 = "mastercard";
+					self.prediction = "mastercard";
 				} 
 				else if (card_num.match(/^6/)) {
-					self.state1 = "discover";
+					self.prediction = "discover";
 				} 
 				else if (card_num.match(/^3/)) {
 					if (card_num.length === 1) {
-						self.state1 = "amex dinersclub jcb";
+						self.prediction = "amex dinersclub jcb";
 					}
 					else {
 						if (card_num.match(/^3(4|7)/)) {
-							self.state1 = "amex";
+							self.prediction = "amex";
 						}
 						else if (card_num.match(/^3(0|8)/)) {
-							self.state1 = "dinersclub";
+							self.prediction = "dinersclub";
 						}
 						else if (card_num.match(/^35/)) {
-							self.state1 = "jcb";
+							self.prediction = "jcb";
 						}
 					}
 				}
-				$(e.target).trigger("SSDetect1");
+				$(e.target).trigger("SSPrediction");
 			} 
 			else if (card_num.length === 0) {
-				self.state1 = undefined;
+				self.prediction = undefined;
 			}
 
 			// State 2 - Result
 			if (card_num.length > 12 && validCC(card_num)) {
 				if (card_num.match(/^4[0-9]{12}(?:[0-9]{3})?$/)) {
-					self.state2 = "visa";
-					$(e.target).trigger("SSDetect2");
+					self.result = "visa";
+					$(e.target).trigger("SSResult");
 				} else if (card_num.match(/^5[1-5][0-9]{14}$/)) {
-					self.state2 = "mastercard";
-					$(e.target).trigger("SSDetect2");
+					self.result = "mastercard";
+					$(e.target).trigger("SSResult");
 				} else if (card_num.match(/^3[47][0-9]{13}$/)) {
-					self.state2 = "amex";
-					$(e.target).trigger("SSDetect2");
+					self.result = "amex";
+					$(e.target).trigger("SSResult");
 				} else if (card_num.match(/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/)) {
-					self.state2 = "dinersclub";
-					$(e.target).trigger("SSDetect2");
+					self.result = "dinersclub";
+					$(e.target).trigger("SSResult");
 				} else if (card_num.match(/^6(?:011|5[0-9]{2})[0-9]{12}$/)) {
-					self.state2 = "discover";
-					$(e.target).trigger("SSDetect2");
+					self.result = "discover";
+					$(e.target).trigger("SSResult");
 				} else if (card_num.match(/^(?:2131|1800|35\d{3})\d{11}$/)) {
-					self.state2 = "jcb";
-					$(e.target).trigger("SSDetect2");
+					self.result = "jcb";
+					$(e.target).trigger("SSResult");
 				}
 			}
 			else {
-				self.state2 = undefined;
+				self.result = undefined;
 			}
 			
 			// keycodes: 8 = backspace, 46 = delete, 91 = command, 17 = ctrl, 189 = dash

@@ -58,12 +58,12 @@ $(document).ready(function() {
 		var ccInput = $("#cc-input");
 		var cardElements = $(".cards li");
 		
-		ccInput.on("SSDetect1", function() {
-			prediction.html(widget.state1);
+		ccInput.on("SSPrediction", function() {
+			prediction.html(widget.prediction);
 			
-			if (widget.state1 !== undefined) {
+			if (widget.prediction !== undefined) {
 				cardElements.each(function(i, card) {
-					var cards = widget.state1.split(" ");
+					var cards = widget.prediction.split(" ");
 					var setInactive = true;
 
 					cards.forEach(function(name) {
@@ -82,10 +82,10 @@ $(document).ready(function() {
 			}
 		});
 		
-		ccInput.on("SSDetect2", function() {
-			result.html(widget.state2);
-			$(".cards li:not(." + widget.state2 + ")").addClass("inactive");
-			$(".cards li." + widget.state2).removeClass("inactive");
+		ccInput.on("SSResult", function() {
+			result.html(widget.result);
+			$(".cards li:not(." + widget.result + ")").addClass("inactive");
+			$(".cards li." + widget.result).removeClass("inactive");
 		});
 		
 		ccInput.on("keyup change", function() {
