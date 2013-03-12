@@ -25,7 +25,7 @@ soysauce.autodetectCC = (function() {
 			var card_num = e.target.value.replace(/-/g, "");
 			var keycode = e.keyCode ? e.keyCode : e.which;
 			
-			// State 1
+			// State 1 - Prediction
 			if (card_num.length < 4) {
 				if (card_num.match(/^4/)) {
 					self.state1 = "visa";
@@ -58,7 +58,7 @@ soysauce.autodetectCC = (function() {
 				self.state1 = undefined;
 			}
 
-			// State 2
+			// State 2 - Result
 			if (card_num.length > 12 && validCC(card_num)) {
 				if (card_num.match(/^4[0-9]{12}(?:[0-9]{3})?$/)) {
 					self.state2 = "visa";
@@ -84,9 +84,9 @@ soysauce.autodetectCC = (function() {
 				self.state2 = undefined;
 			}
 			
-			// keycodes: 8 = backspace, 46 = delete, 91 = command, 17 = ctrl
+			// keycodes: 8 = backspace, 46 = delete, 91 = command, 17 = ctrl, 189 = dash
 			if (self.format && card_num.length > 3 && 
-				keycode !== 8 && keycode !== 46 && keycode !== 91 && keycode !== 17) {
+				keycode !== 8 && keycode !== 46 && keycode !== 91 && keycode !== 17 && keycode !== 189) {
 				self.formatInput();
 			}
 			
@@ -95,17 +95,41 @@ soysauce.autodetectCC = (function() {
 	
 	autodetectCC.prototype.formatInput = function() {
 		var val = this.input.val();
-		var count = val.replace(/-/g, "").length;
 		var isAmex = (/^3[47]/.test(val.replace(/-/g, ""))) ? true : false;
 		var isDC = (/^3(?:0[0-5]|[68][0-9])/.test(val.replace(/-/g, "")) && !isAmex) ? true : false;
 		
-		if (	count === 4 ||
-					count === 8 && !isDC && !isAmex ||
-					count === 11 && isAmex ||
-					count === 10 && isDC ||
-					count === 12 && !isDC && !isAmex ) {
-			val += "-";
-			this.input.val(val);
+		if (isAmex || isDC) {
+			if (val[4] !== undefined && val[4] !== "-") {
+				val = insertStringAt("-", 4, val);
+				this.input.val(val);
+			}
+			if (val[11] !== undefined && val[11] !== "-") {
+				val = insertStringAt("-", 11, val);
+				this.input.val(val);
+			}
+		}
+		else {
+			if (val[4] !== undefined && val[4] !== "-") {
+				val = insertStringAt("-", 4, val);
+				this.input.val(val);
+			}
+			if (val[9] !== undefined && val[9] !== "-") {
+				val = insertStringAt("-", 9, val);
+				this.input.val(val);
+			}
+			if (val[14] !== undefined && val[14] !== "-") {
+				val = insertStringAt("-", 14, val)
+				this.input.val(val);
+			}
+		}
+		
+		function insertStringAt(content, index, dest) {
+			if (index > 0) {
+				return dest.substring(0, index) + content + dest.substring(index, dest.length);
+			}
+			else {
+				return content + dest;
+			}
 		}
 	};
 	
