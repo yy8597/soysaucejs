@@ -22,7 +22,7 @@ soysauce.autodetectCC = (function() {
 		this.input.attr("maxlength", "19");
 		
 		this.input.on("keyup change", function(e) {
-			var card_num = e.target.value.replace(/-/g, "");
+			var card_num = e.target.value.replace(/[-\s]+/g, "");
 			var keycode = e.keyCode ? e.keyCode : e.which;
 			
 			// State 1 - Prediction
@@ -51,6 +51,9 @@ soysauce.autodetectCC = (function() {
 							self.prediction = "jcb";
 						}
 					}
+				}
+				else {
+					self.prediction = undefined;
 				}
 				$(e.target).trigger("SSPrediction");
 			} 
@@ -94,9 +97,9 @@ soysauce.autodetectCC = (function() {
 	}
 	
 	autodetectCC.prototype.formatInput = function() {
-		var val = this.input.val();
-		var isAmex = (/^3[47]/.test(val.replace(/-/g, ""))) ? true : false;
-		var isDC = (/^3(?:0[0-5]|[68][0-9])/.test(val.replace(/-/g, "")) && !isAmex) ? true : false;
+		var val = this.input.val().replace(/[\s]+/g, "");
+		var isAmex = (/^3[47]/.test(val.replace(/[-\s]+/g, ""))) ? true : false;
+		var isDC = (/^3(?:0[0-5]|[68][0-9])/.test(val.replace(/[-\s]+/g, "")) && !isAmex) ? true : false;
 		
 		if (isAmex || isDC) {
 			if (val[4] !== undefined && val[4] !== "-") {
