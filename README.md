@@ -25,7 +25,11 @@ If you would like to contribute, fork the repo (git@github.com:brandingbrand/soy
 	gem install bundle
 	bundle
 
-To create a build, run this command in the main directory. This compiles the CSS/JS, places the assets in the "build" directory, pushes it up to the CDN, and updates the readme. After you run this command, you must sync the files manually (bug in the rakefile at the moment).
+Note: If you have trouble installing gems, make sure you have XCode with Command Line Tools and RVM. RVM can be installed via:
+
+	curl -L https://get.rvm.io | bash -s stable
+
+To create a build, run this command in the main directory. This compiles the CSS/JS, places the assets in the "build" directory, pushes it up to the CDN, and updates the readme. You must have cdn.yml located in the assets folder.
 
 	rake v=[VERSION_NUMBER]
 	(ex. rake v=1.0.5)
@@ -33,7 +37,7 @@ To create a build, run this command in the main directory. This compiles the CSS
 To compile the css, run this command in the main directory:
 
 	compass watch
-		 -OR-
+		-OR-
 	compass compile
 
 To bundle the javascript, run this command in the main directory:
