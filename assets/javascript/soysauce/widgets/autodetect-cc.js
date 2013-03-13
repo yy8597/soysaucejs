@@ -81,10 +81,23 @@ soysauce.autodetectCC = (function() {
 				} else if (card_num.match(/^(?:2131|1800|35\d{3})\d{11}$/)) {
 					self.result = "jcb";
 					$(e.target).trigger("SSResult");
+				} else {
+					self.result = undefined;
+					$(e.target).trigger("SSResult");
 				}
 			}
 			else {
+				var resultChanged = (self.result !== undefined) ? true : false;
 				self.result = undefined;
+				if (self.prediction === "visa" && card_num.length === 16 ||
+						self.prediction === "mastercard" && card_num.length === 16 ||
+						self.prediction === "amex" && card_num.length === 15 ||
+						self.prediction === "dinersclub" && card_num.length === 16 ||
+						self.prediction === "discover" && card_num.length === 14 ||
+						self.prediction === "jcb" && card_num.length === 16 ||
+						!self.prediction && card_num.length === 16 || resultChanged) {
+					$(e.target).trigger("SSResult");
+				}
 			}
 			
 			// keycodes: 8 = backspace, 46 = delete, 91 = command, 17 = ctrl, 189 = dash

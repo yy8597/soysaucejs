@@ -79,11 +79,20 @@ $(document).ready(function() {
 						$(card).removeClass("inactive");
 					}
 				});
+			} 
+			else {
+				prediction.html("unknown type");
+				cardElements.addClass("inactive");
 			}
 		});
 		
 		ccInput.on("SSResult", function() {
-			result.html(widget.result);
+			if (!widget.result) {
+				result.html("invalid card");
+			}
+			else {
+				result.html(widget.result);
+			}
 			$(".cards li:not(." + widget.result + ")").addClass("inactive");
 			$(".cards li." + widget.result).removeClass("inactive");
 		});
