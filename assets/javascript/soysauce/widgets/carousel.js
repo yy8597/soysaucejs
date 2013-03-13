@@ -359,7 +359,7 @@ soysauce.carousels = (function() {
 				if (self.panMax.y === 0) {
 					self.container.imagesLoaded(function() {
 						self.panMax.y = self.items.last().height / self.zoomMultiplier;
-						self.panMaxOriginal.y = this.panMax.y;
+						self.panMaxOriginal.y = self.panMax.y;
 					});
 				}
 			}
