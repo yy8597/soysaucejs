@@ -6,52 +6,53 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	</head>
 	<body class="autodetect-cc">
-		<h1>Credit Card Validation</h1>
-		<ul class="cards">
-			<li class="visa"></li>
-			<li class="mastercard"></li>
-			<li class="amex"></li>
-			<li class="discover"></li>
-			<li class="dinersclub"></li>
-			<li class="jcb"></li>
-		</ul>
-		<div class="container">
-			<input id="cc-input" data-ss-widget="autodetect-cc" data-ss-options="format" placeholder="Credit Card Number">
-			<div>
-				<label>Prediction:</label>
-				<span id="prediction"></span>
+		<div class="wrapper">
+			<header></header>
+			<div class="content">
+				<h1>Credit Card Validation</h1>
+				<ul class="cards">
+					<li class="visa"></li>
+					<li class="mastercard"></li>
+					<li class="amex"></li>
+					<li class="discover"></li>
+					<li class="dinersclub"></li>
+					<li class="jcb"></li>
+				</ul>
+				<input type="tel" id="cc-input" data-ss-widget="autodetect-cc" data-ss-options="format" placeholder="Credit Card Number">
+				<div>
+					<label>Prediction:</label>
+					<span id="prediction"></span>
+				</div>
+				<div>
+					<label>Result:</label>
+					<span id="result"></span>
+				</div>
+				<div class="code">
+					&lt;input data-ss-widget="autodetect-cc" data-ss-options="format" type="tel"&gt;
+				</div>
+				<h2>Test Credit Card Numbers</h2>
+				<ul class="testCards">
+					<li>MasterCard:5431111111111111                             </li>
+					<li>Amex:341111111111111                                    </li>
+					<li>Discover:6011601160116611                               </li>
+					<li>American Express (15 digits):378282246310005            </li>
+					<li>American Express (15 digits):371449635398431            </li>
+					<li>American Express Corporate (15 digits):378734493671000  </li>
+					<li>Diners Club (14 digits):30569309025904                  </li>
+					<li>Diners Club (14 digits):38520000023237                  </li>
+					<li>Discover (16 digits):6011111111111117                   </li>
+					<li>Discover (16 digits):6011000990139424                   </li>
+					<li>JCB (16 digits):3530111333300000                        </li>
+					<li>JCB (16 digits):3566002020360505                        </li>
+					<li>Mastercard (16 digits):5555555555554444                 </li>
+					<li>Mastercard (16 digits):5105105105105100                 </li>
+					<li>Visa (16 digits):4111111111111111                       </li>
+					<li>Visa (16 digits):4012888888881881                       </li>
+					<li>Visa (13 digits):4222222222222                          </li>
+				</ul>
 			</div>
-			<div>
-				<label>Result:</label>
-				<span id="result"></span>
-			</div>
+			<footer></footer>
 		</div>
-		<div class="code">
-			&lt;div&gt;<br />
-							&lt;label&gt;Prediction:&lt;/label&gt;<br />
-							&lt;span id="prediction"&gt;&lt;/span&gt;<br />
-						&lt;/div&gt;
-		</div>
-		<h2>Test Credit Card Numbers</h2>
-		<ul class="testCards">
-			<li>MasterCard:5431111111111111                             </li>
-			<li>Amex:341111111111111                                    </li>
-			<li>Discover:6011601160116611                               </li>
-			<li>American Express (15 digits):378282246310005            </li>
-			<li>American Express (15 digits):371449635398431            </li>
-			<li>American Express Corporate (15 digits):378734493671000  </li>
-			<li>Diners Club (14 digits):30569309025904                  </li>
-			<li>Diners Club (14 digits):38520000023237                  </li>
-			<li>Discover (16 digits):6011111111111117                   </li>
-			<li>Discover (16 digits):6011000990139424                   </li>
-			<li>JCB (16 digits):3530111333300000                        </li>
-			<li>JCB (16 digits):3566002020360505                        </li>
-			<li>Mastercard (16 digits):5555555555554444                 </li>
-			<li>Mastercard (16 digits):5105105105105100                 </li>
-			<li>Visa (16 digits):4111111111111111                       </li>
-			<li>Visa (16 digits):4012888888881881                       </li>
-			<li>Visa (13 digits):4222222222222                          </li>
-		</ul>
 		<script src="//code.jquery.com/jquery-1.9.0.min.js"></script>
 		<script src="../assets/soysauce.min.js"></script>
 		<script src="../assets/site.js"></script>

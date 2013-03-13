@@ -11,15 +11,6 @@
 		margin: 10px 0px;
 		width: 100%;
 	}
-	.container {
-		padding: 0 10px;
-		> div {
-			margin: 10px 0;
-		}
-		label {
-			font-weight: bold;
-		}
-	}
 	.testCards {
 		@include border-radius(3px);
 		margin: 10px;
@@ -39,10 +30,9 @@
 		border-top: 2px solid #777;
 	}
 	.cards {
-		padding: 0 10px;
 		li {
 			@include transition(all 0.2s);
-			background-image: url("../assets/images/sprite-cards.png");;
+			background-image: url("../assets/images/sprite-cards.png");
 			display: inline-block;
 			width: 51px;
 			height: 32px;
