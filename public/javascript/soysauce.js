@@ -693,6 +693,9 @@ soysauce.init = function(selector) {
 			case "autofill-zip":
 				widget = soysauce.autofillZip.init(this);
 				break;
+			case "autodetect-cc":
+				widget = soysauce.autodetectCC.init(this);
+				break;
 		}
 
 		if (widget !== undefined) {
@@ -769,83 +772,179 @@ soysauce.overlay = function(cmd) {
 
 soysauce.overlay("init");
 
-soysauce.ccValidators = (function() {
-	var validators = new Array();
+soysauce.autodetectCC = (function() {
 	
-	function ccValidator(input) {
+	function autodetectCC(selector) {
+		var options = soysauce.getOptions(selector);
 		var self = this;
 		
-		this.id = parseInt($(input).attr("data-ss-id"));
-		this.input = $(input);
-		this.state1;
-		this.state2;
+		this.widget = $(this);
+		this.id = parseInt($(selector).attr("data-ss-id"));
+		this.input = $(selector);
+		this.prediction;
+		this.result;
+		this.format = false;
+		
+		if (options) options.forEach(function(option) {
+			switch(option) {
+				case "format":
+					self.format = true;
+					break;
+			}
+		});
+		
+		this.input.attr("maxlength", "19");
 		
 		this.input.on("keyup change", function(e) {
-			var card_num = e.target.value.replace(/-/g, "");
+			var card_num = e.target.value.replace(/[-\s]+/g, "");
+			var keycode = e.keyCode ? e.keyCode : e.which;
 			
-			// State 1
-			if (card_num.length === 1) {
-				$(e.target).trigger("state1");
+			// State 1 - Prediction
+			if (card_num.length < 4) {
 				if (card_num.match(/^4/)) {
-					self.state1 = "visa";
-				} else if (card_num.match(/^5/)) {
-					self.state1 = "mastercard";
-				} else if (card_num.match(/^3/)) {
-					self.state1 = "amex dinersclub";
-				} else if (card_num.match(/^6(?:011|5[0-9]{2})/)) {
-					self.state1 = "discover";
-				} else if (card_num.match(/^(?:2131|1800|35\d{3})/)) {
-					self.state1 = "jcb";
-				} else {
-					self.state1 = undefined;
+					self.prediction = "visa";
+				} 
+				else if (card_num.match(/^5/)) {
+					self.prediction = "mastercard";
+				} 
+				else if (card_num.match(/^6/)) {
+					self.prediction = "discover";
+				} 
+				else if (card_num.match(/^3/)) {
+					if (card_num.length === 1) {
+						self.prediction = "amex dinersclub jcb";
+					}
+					else {
+						if (card_num.match(/^3(4|7)/)) {
+							self.prediction = "amex";
+						}
+						else if (card_num.match(/^3(0|8)/)) {
+							self.prediction = "dinersclub";
+						}
+						else if (card_num.match(/^35/)) {
+							self.prediction = "jcb";
+						}
+					}
 				}
-			} else if (card_num.length === 0) {
-				self.state1 = undefined;
+				else {
+					self.prediction = undefined;
+				}
+				$(e.target).trigger("SSPrediction");
+			} 
+			else if (card_num.length === 0) {
+				self.prediction = undefined;
 			}
 
-			// State 2
-			if (card_num.match(/^4[0-9]{12}(?:[0-9]{3})?$/)) {
-				self.state2 = "visa";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^5[1-5][0-9]{14}$/)) {
-				self.state2 = "mastercard";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^3[47][0-9]{13}$/)) {
-				self.state2 = "amex";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/)) {
-				self.state2 = "dinersclub";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^6(?:011|5[0-9]{2})[0-9]{12}$/)) {
-				self.state2 = "discover";
-				$(e.target).trigger("state2");
-			} else if (card_num.match(/^(?:2131|1800|35\d{3})\d{11}$/)) {
-				self.state2 = "jcb";
-				$(e.target).trigger("state2");
-			} else {
-				self.state2 = undefined;
+			// State 2 - Result
+			if (card_num.length > 12 && validCC(card_num)) {
+				if (card_num.match(/^4[0-9]{12}(?:[0-9]{3})?$/)) {
+					self.result = "visa";
+					$(e.target).trigger("SSResult");
+				} else if (card_num.match(/^5[1-5][0-9]{14}$/)) {
+					self.result = "mastercard";
+					$(e.target).trigger("SSResult");
+				} else if (card_num.match(/^3[47][0-9]{13}$/)) {
+					self.result = "amex";
+					$(e.target).trigger("SSResult");
+				} else if (card_num.match(/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/)) {
+					self.result = "dinersclub";
+					$(e.target).trigger("SSResult");
+				} else if (card_num.match(/^6(?:011|5[0-9]{2})[0-9]{12}$/)) {
+					self.result = "discover";
+					$(e.target).trigger("SSResult");
+				} else if (card_num.match(/^(?:2131|1800|35\d{3})\d{11}$/)) {
+					self.result = "jcb";
+					$(e.target).trigger("SSResult");
+				} else {
+					self.result = undefined;
+					$(e.target).trigger("SSResult");
+				}
 			}
-				
+			else {
+				var resultChanged = (self.result !== undefined) ? true : false;
+				self.result = undefined;
+				if (self.prediction === "visa" && card_num.length === 16 ||
+						self.prediction === "mastercard" && card_num.length === 16 ||
+						self.prediction === "amex" && card_num.length === 15 ||
+						self.prediction === "dinersclub" && card_num.length === 16 ||
+						self.prediction === "discover" && card_num.length === 14 ||
+						self.prediction === "jcb" && card_num.length === 16 ||
+						!self.prediction && card_num.length === 16 || resultChanged) {
+					$(e.target).trigger("SSResult");
+				}
+			}
+			
+			// keycodes: 8 = backspace, 46 = delete, 91 = command, 17 = ctrl, 189 = dash
+			if (self.format && card_num.length > 3 && 
+				keycode !== 8 && keycode !== 46 && keycode !== 91 && keycode !== 17 && keycode !== 189) {
+				self.formatInput();
+			}
+			
 		});
 	}
 	
-	// Init
-	(function() {
-		$("[data-ss-widget='cc_validator']").each(function() {
-			var validator = new ccValidator(this);
-			validators.push(validator);
-		});
+	autodetectCC.prototype.formatInput = function() {
+		var val = this.input.val().replace(/[\s]+/g, "");
+		var isAmex = (/^3[47]/.test(val.replace(/[-\s]+/g, ""))) ? true : false;
+		var isDC = (/^3(?:0[0-5]|[68][0-9])/.test(val.replace(/[-\s]+/g, "")) && !isAmex) ? true : false;
 		
-	})(); // end init
+		if (isAmex || isDC) {
+			if (val[4] !== undefined && val[4] !== "-") {
+				val = insertStringAt("-", 4, val);
+				this.input.val(val);
+			}
+			if (val[11] !== undefined && val[11] !== "-") {
+				val = insertStringAt("-", 11, val);
+				this.input.val(val);
+			}
+		}
+		else {
+			if (val[4] !== undefined && val[4] !== "-") {
+				val = insertStringAt("-", 4, val);
+				this.input.val(val);
+			}
+			if (val[9] !== undefined && val[9] !== "-") {
+				val = insertStringAt("-", 9, val);
+				this.input.val(val);
+			}
+			if (val[14] !== undefined && val[14] !== "-") {
+				val = insertStringAt("-", 14, val)
+				this.input.val(val);
+			}
+		}
+		
+		function insertStringAt(content, index, dest) {
+			if (index > 0) {
+				return dest.substring(0, index) + content + dest.substring(index, dest.length);
+			}
+			else {
+				return content + dest;
+			}
+		}
+	};
 	
+	autodetectCC.prototype.handleResize = function() {
+		// Placeholder - required soysauce function
+	};
 	
-	return validators;
+	// Luhn Algorithm, Copyright (c) 2011 Thomas Fuchs, http://mir.aculo.us
+	// https://gist.github.com/madrobby/976805
+	function validCC(a,b,c,d,e){for(d=+a[b=a.length-1],e=0;b--;)c=+a[b],d+=++e%2?2*c%10+(c>4):c;return!(d%10)};
+	
+	return {
+		init: function(selector) {
+			return new autodetectCC(selector);
+		}
+	};
+	
 })();
 
 soysauce.autofillZip = (function() {
 	var BASE_URL = "//jeocoder.herokuapp.com/zips/";
+	var AOL_URL = "//www.mapquestapi.com/geocoding/v1/reverse?key=Fmjtd%7Cluub2l6tnu%2Ca5%3Do5-96tw0f";
 	
 	function autofillZip(selector) {
+		var options = soysauce.getOptions(selector);
 		var self = this;
 		
 		this.widget = $(selector);
@@ -855,10 +954,41 @@ soysauce.autofillZip = (function() {
 		this.state = this.widget.find("[data-ss-component='state']");
 		this.lastRequestedData;
 		
-		this.zip.on("keyup change", function() {
-			self.getLocationData();
+		// Reverse Geocode Variables
+		this.reverse = false;
+		this.reverseGeocodeButton = this.widget.find("[data-ss-component='reverse-geocode']");
+		
+		if (options) options.forEach(function(option) {
+			switch(option) {
+				case "reverse":
+					self.reverse = true;
+					break;
+			}
 		});
+		
+		if (this.reverse) {
+			this.reverseGeocodeButton.on("click", function() {
+				self.reverseGeocode();
+			});
+		}
+		else {
+			this.zip.on("keyup change", function() {
+				self.getLocationData();
+			});
+		}
 	}
+	
+	autofillZip.prototype.reverseGeocode = function() {
+		var self = this;
+		if (!navigator.geolocation) return;
+		
+		self.widget.trigger("SSDataFetch");
+		
+		navigator.geolocation.getCurrentPosition(function(data) {
+			var src = AOL_URL + "&lat=" + data.coords.latitude + "&lng=" + data.coords.longitude + "&callback=soysauce.fetch(" + self.id + ").setLocationData";
+			$("body").append("<script src='" + src + "'></script>");
+		});
+	};
 	
 	autofillZip.prototype.setLocationData = function(data) {
 		var self = this;
@@ -866,9 +996,15 @@ soysauce.autofillZip = (function() {
 		var state = data.state;
 		
 		this.lastRequestedData = data;
+		this.widget.trigger("SSDataReady");
 
-		self.city.val(city);
-		self.state.val(state);
+		if (this.reverse) {
+			this.zip.val(data.results[0].locations[0].postalCode);
+		}
+		else {
+			this.city.val(city);
+			this.state.val(state);
+		}
 	};
 	
 	autofillZip.prototype.getLocationData = function() {
@@ -876,6 +1012,7 @@ soysauce.autofillZip = (function() {
 		var value = this.zip[0].value;
 		
 		if ((value.length === 5) && (parseFloat(value) == parseInt(value)) && !isNaN(value))  {
+			this.widget.trigger("SSDataFetch");
 			$.ajax({
 				dataType: "json",
 				url: BASE_URL + value,
@@ -883,6 +1020,7 @@ soysauce.autofillZip = (function() {
 					self.setLocationData(data);
 				},
 				error: function() {
+					self.widget.trigger("SSDataError");
 					console.warn("Soysauce: Could not fetch zip code " + value);
 				}
 			});
@@ -1078,7 +1216,12 @@ soysauce.carousels = (function() {
 			}
 		}
 		
-		wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='disabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
+		if (this.infinite) {
+			wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='enabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
+		}
+		else {
+			wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='disabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
+		}
 		wrapper.after("<div data-ss-component='dots'></div>")
 		this.dots = this.widget.find("[data-ss-component='dots']");
 
@@ -1257,7 +1400,7 @@ soysauce.carousels = (function() {
 				if (self.panMax.y === 0) {
 					self.container.imagesLoaded(function() {
 						self.panMax.y = self.items.last().height / self.zoomMultiplier;
-						self.panMaxOriginal.y = this.panMax.y;
+						self.panMaxOriginal.y = self.panMax.y;
 					});
 				}
 			}
@@ -1316,7 +1459,7 @@ soysauce.carousels = (function() {
 					self.container.attr("data-ss-state", "ready");
 				}, 0);
 				if (self.autoheight) {
-					var height = $(this.items[this.index]).outerHeight();
+					var height = $(self.items[self.index]).outerHeight();
 					self.widget.css("height", height);
 					window.setTimeout(function() {
 						self.widget.css("min-height", "0px");

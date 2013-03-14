@@ -662,6 +662,9 @@ soysauce.init = function(selector) {
 			case "autofill-zip":
 				widget = soysauce.autofillZip.init(this);
 				break;
+			case "autodetect-cc":
+				widget = soysauce.autodetectCC.init(this);
+				break;
 		}
 
 		if (widget !== undefined) {
@@ -883,7 +886,12 @@ soysauce.carousels = (function() {
 			}
 		}
 		
-		wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='disabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
+		if (this.infinite) {
+			wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='enabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
+		}
+		else {
+			wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='disabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
+		}
 		wrapper.after("<div data-ss-component='dots'></div>")
 		this.dots = this.widget.find("[data-ss-component='dots']");
 
@@ -1062,7 +1070,7 @@ soysauce.carousels = (function() {
 				if (self.panMax.y === 0) {
 					self.container.imagesLoaded(function() {
 						self.panMax.y = self.items.last().height / self.zoomMultiplier;
-						self.panMaxOriginal.y = this.panMax.y;
+						self.panMaxOriginal.y = self.panMax.y;
 					});
 				}
 			}
@@ -1121,7 +1129,7 @@ soysauce.carousels = (function() {
 					self.container.attr("data-ss-state", "ready");
 				}, 0);
 				if (self.autoheight) {
-					var height = $(this.items[this.index]).outerHeight();
+					var height = $(self.items[self.index]).outerHeight();
 					self.widget.css("height", height);
 					window.setTimeout(function() {
 						self.widget.css("min-height", "0px");

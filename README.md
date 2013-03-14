@@ -1,14 +1,14 @@
-# Soysauce (v1.1.24)
+# Soysauce (v1.1.34)
 Original Author: Edward Gaba
 
 Soysauce is a customizable javascript widget library. Popular widgets included are carousels and accordions. Please file any issues you find in Github.
 
 ## Current CDN URLs
-* Compressed Lite (40.05 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.24/soysauce.lite.min.js
-* Uncompressed Lite (61.71 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.24/soysauce.lite.js
-* Compressed (44.61 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.24/soysauce.min.js
-* Uncompressed (68.54 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.24/soysauce.js
-* CSS (4.33 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.24/soysauce.css
+* Compressed Lite (40.29 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.34/soysauce.lite.min.js
+* Uncompressed Lite (62.01 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.34/soysauce.lite.js
+* Compressed (47.34 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.34/soysauce.min.js
+* Uncompressed (73.00 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.34/soysauce.js
+* CSS (6.08 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.34/soysauce.css
 
 Note: Lite contains only the bare essentials (which will later help with scaling as the number of widgets increase):
 * Fastclick
@@ -25,7 +25,11 @@ If you would like to contribute, fork the repo (git@github.com:brandingbrand/soy
 	gem install bundle
 	bundle
 
-To create a build, run this command in the main directory. This compiles the CSS/JS, places the assets in the "build" directory, pushes it up to the CDN, and updates the readme. After you run this command, you must sync the files manually (bug in the rakefile at the moment).
+Note: If you have trouble installing gems, make sure you have XCode with Command Line Tools and RVM. RVM can be installed via:
+
+	curl -L https://get.rvm.io | bash -s stable
+
+To create a build, run this command in the main directory. This compiles the CSS/JS, places the assets in the "build" directory, pushes it up to the CDN, and updates the readme. You must have cdn.yml located in the assets folder.
 
 	rake v=[VERSION_NUMBER]
 	(ex. rake v=1.0.5)
@@ -33,13 +37,20 @@ To create a build, run this command in the main directory. This compiles the CSS
 To compile the css, run this command in the main directory:
 
 	compass watch
-		 -OR-
+		-OR-
 	compass compile
 
 To bundle the javascript, run this command in the main directory:
 
 	jammit
-	
+
+## Examples
+
+Please see the Soysauce website for usage and examples:
+http://soysauce.s3.amazonaws.com/site/home.html
+
+Stuff below will be delete soon...
+
 ### 1) Carousel
 
 Carousels allow for "slideshow" effects for images. Every carousel is pre-built with dots, infinite scrolling, buttons, and swipe.

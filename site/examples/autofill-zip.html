@@ -7,9 +7,10 @@
 	</head>
 	<body class="zip">
 		<h1>Autofill Zipcode</h1>
-		<h2>Basic Carousel - fullscreen, infinite, swipe, dots, and buttons are standard for all carousels</h2>
+		<h2>Autofill City/State (ideal for forms)</h2>
 		<div data-ss-widget="autofill-zip">
 			<input data-ss-component="zip" type="tel" placeholder="Zip Code">
+			<img class="ajaxLoader" src="../assets/images/ajax-loader.gif">
 			<input data-ss-component="city" type="text" placeholder="City">
 			<select data-ss-component="state">
 				<option value="">Please Select</option>
@@ -90,7 +91,14 @@
 				<option value="Other">Other</option>
 			</select>
 		</div>
+		<h2 class="reverseHeader">Autofill Zip from Current Location</h2>
+		<div data-ss-widget="autofill-zip" data-ss-options="reverse">
+			<button data-ss-component="reverse-geocode">Use Current Location</button>
+			<input data-ss-component="zip" type="tel" placeholder="Zip Code">
+			<img class="ajaxLoader" src="../assets/images/ajax-loader.gif">
+		</div>
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script src="../assets/soysauce.min.js"></script>
+		<script src="../assets/site.js"></script>
 	</body>
 </html>
