@@ -12,6 +12,7 @@ soysauce.autofillZip = (function() {
 		this.city = this.widget.find("[data-ss-component='city']");
 		this.state = this.widget.find("[data-ss-component='state']");
 		this.lastRequestedData;
+		this.freeze = false;
 		
 		// Reverse Geocode Variables
 		this.reverse = false;
@@ -39,7 +40,7 @@ soysauce.autofillZip = (function() {
 	
 	autofillZip.prototype.reverseGeocode = function() {
 		var self = this;
-		if (!navigator.geolocation) return;
+		if (!navigator.geolocation || this.freeze) return;
 		
 		self.widget.trigger("SSDataFetch");
 		
@@ -53,6 +54,8 @@ soysauce.autofillZip = (function() {
 		var self = this;
 		var city = data.city;
 		var state = data.state;
+		
+		if (this.freeze) return;
 		
 		this.lastRequestedData = data;
 		this.widget.trigger("SSDataReady");
@@ -69,6 +72,8 @@ soysauce.autofillZip = (function() {
 	autofillZip.prototype.getLocationData = function() {
 		var self = this;
 		var value = this.zip[0].value;
+		
+		if (this.freeze) return;
 		
 		if ((value.length === 5) && (parseFloat(value) == parseInt(value)) && !isNaN(value))  {
 			this.widget.trigger("SSDataFetch");
@@ -88,6 +93,14 @@ soysauce.autofillZip = (function() {
 	
 	autofillZip.prototype.handleResize = function() {
 		// Placeholder - required soysauce function
+	};
+	
+	autofillZip.prototype.handleFreeze = function() {
+		this.freeze = true;
+	};
+	
+	autofillZip.prototype.handleUnfreeze = function() {
+		this.freeze = false;
 	};
 	
 	return {
