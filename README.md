@@ -20,7 +20,7 @@ Note: Lite contains only the bare essentials (which will later help with scaling
 These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include both the CSS and JS file (use the CDN links above).
 
 ## Contribute
-If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have the bundle, compass, jammit, rake, and aws-sdk gems. All you have to run is:
+If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have Java and the gems bundle, compass, jammit, rake, and aws-sdk. Just run these two simple commands to obtain the gems (Java is separate):
 
 	gem install bundle
 	bundle
