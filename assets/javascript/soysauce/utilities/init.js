@@ -10,7 +10,7 @@ soysauce.init = function(selector) {
 		set = $(selector);
 	}
 	
-	if ($(selector).attr("data-ss-id") !== undefined) return ret;
+	if (!$(selector) || $(selector).attr("data-ss-id") !== undefined) return ret;
 	
 	numItems = set.length;
 	
