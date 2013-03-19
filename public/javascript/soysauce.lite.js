@@ -730,6 +730,7 @@ soysauce.lateload = function(selector) {
 			});
 		});
 		$(window).on("load", function() {
+			if (!$("[data-ss-ll-src][data-ss-options='load']")) return;
 			$("[data-ss-ll-src][data-ss-options='load']").each(function(i, e) {
 				loadItem(e);
 			});
@@ -1116,9 +1117,9 @@ soysauce.carousels = (function() {
 				}
 			}
 
-			if (self.jumping || self.freeze || targetComponent === "button" || 
-					targetComponent === "zoom_icon" || targetComponent === "dot" || 
-					targetComponent === "dots" || targetComponent === "thumbnail") {
+			if (self.jumping || self.freeze || targetComponent === "button" ||
+			 		targetComponent === "dot" || targetComponent === "dots" || 
+					targetComponent === "thumbnail") {
 				return;
 			}
 
@@ -1538,6 +1539,8 @@ soysauce.carousels = (function() {
 				var dragOffset;
 				coords2 = soysauce.getCoords(e2);
 				
+				if ($(e2.target).attr("data-ss-component") === "zoom_icon") return;
+				
 				if (self.lockScroll === undefined) {
 					if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2) {
 						self.lockScroll = "y";
@@ -1562,15 +1565,18 @@ soysauce.carousels = (function() {
 
 		// Decides whether to zoom or move to next/prev item
 		this.widget.one("touchend mouseup", function(e2) {
+			var forceZoom;
+			var targetComponent = $(e2.target).attr("data-ss-component");
+			
 			if (self.jumping) return;
 			
 			soysauce.stifle(e2);
 			
-			var targetComponent = $(e2.target).attr("data-ss-component");
-			
 			if (targetComponent === "button") {
 				return;
 			}
+			
+			forceZoom = (targetComponent === "zoom_icon") ? true : false;
 			
 			coords2 = soysauce.getCoords(e2);
 			
@@ -1598,7 +1604,7 @@ soysauce.carousels = (function() {
 				}
 				
 			}
-			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed)) {
+			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed || forceZoom)) {
 				soysauce.stifle(e1);
 				self.toggleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
 			}
