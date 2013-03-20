@@ -1053,6 +1053,9 @@ soysauce.carousels = (function() {
 			$(items[1]).attr("data-ss-state", "active");
 			this.index++;
 		}
+		else {
+			$(items[0]).attr("data-ss-state", "active");
+		}
 
 		this.container.imagesLoaded(function(items) {
 			var firstItem = self.items.first();
@@ -1408,10 +1411,10 @@ soysauce.carousels = (function() {
 			self.infiniteID = undefined;
 			
 			if (self.index === self.numChildren - 2) {
-				self.offset = -self.index*self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
+				self.offset = -self.index*self.itemWidth + (self.peekWidth) + self.spacingOffset;
 			}
 			else if (self.index === 1) {
-				self.offset = -self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
+				self.offset = -self.itemWidth + (self.peekWidth) + self.spacingOffset;
 			}
 			
 			window.setTimeout(function() {
@@ -1626,7 +1629,7 @@ soysauce.carousels = (function() {
 				if (xDist > 0) {
 					if (!self.infinite && self.index === self.numChildren - 1 ||
 						(self.multi && !self.infinite && self.index === self.numChildren - self.multiVars.numItems)) {
-						self.gotoPos(self.index * -self.itemWidth + (self.peekWidth/2) + self.spacingOffset);
+						self.gotoPos(self.index * -self.itemWidth + (self.peekWidth) + self.spacingOffset);
 					}
 					else {
 						self.slideForward(fast);
@@ -1634,7 +1637,7 @@ soysauce.carousels = (function() {
 				}
 				else {
 					if (!self.infinite && self.index === 0) {
-						self.gotoPos((self.peekWidth/2) + self.spacingOffset);
+						self.gotoPos((self.peekWidth) + self.spacingOffset);
 					}
 					else {
 						self.slideBackward(fast);
