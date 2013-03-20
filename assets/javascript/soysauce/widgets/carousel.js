@@ -311,6 +311,9 @@ soysauce.carousels = (function() {
 			$(items[1]).attr("data-ss-state", "active");
 			this.index++;
 		}
+		else {
+			$(items[0]).attr("data-ss-state", "active");
+		}
 
 		this.container.imagesLoaded(function(items) {
 			var firstItem = self.items.first();
