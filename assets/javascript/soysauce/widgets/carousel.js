@@ -949,8 +949,6 @@ soysauce.carousels = (function() {
 		if (!this.isZoomed) {
 			var offset = 0;
 			
-			soysauce.overlay.on();
-
 			if ($(e2.target).attr("data-ss-component") === "zoom_icon") {
 				self.panCoords = {x: 0, y: 0};
 				self.panCoordsStart = {x: 0, y: 0};
