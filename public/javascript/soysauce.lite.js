@@ -1097,7 +1097,7 @@ soysauce.carousels = (function() {
 			if (self.zoom) {
 				var zoomMultiplier = self.widget.attr("data-ss-zoom-multiplier");
 				self.zoomMultiplier = (!zoomMultiplier) ? ZOOM_MULTIPLIER : parseInt(zoomMultiplier);
-				self.panMax.x = (self.itemWidth - self.peekWidth) / self.zoomMultiplier;				
+				self.panMax.x = (self.itemWidth - self.peekWidth*2) / self.zoomMultiplier;				
 				self.panMax.y = self.items.first().height() / self.zoomMultiplier;
 				self.panMaxOriginal.x = self.panMax.x;
 				self.panMaxOriginal.y = self.panMax.y;
@@ -1690,7 +1690,7 @@ soysauce.carousels = (function() {
 		// Zoom In
 		if (!this.isZoomed) {
 			var offset = 0;
-
+			
 			if ($(e2.target).attr("data-ss-component") === "zoom_icon") {
 				self.panCoords = {x: 0, y: 0};
 				self.panCoordsStart = {x: 0, y: 0};
