@@ -5,7 +5,6 @@ $(document).ready(function() {
 		
 		autofill.widget.on("SSDataFetch", function() {
 			showLoader(autofill);
-			$(".message").css("opacity", "1");
 		});
 
 		autofill.widget.on("SSDataReady SSDataError", function() {
@@ -17,6 +16,7 @@ $(document).ready(function() {
 		});
 		
 		autofill.widget.on("SSDataReady", function() {
+			$(".message").css("opacity", "1");
 			autofill.zip.removeClass("error");
 		});
 		

@@ -40,20 +40,19 @@
 					</article>
 				</section>
 				<section class="demo">
-					<h1>Try a Quick Demo - It's easy, just add tags!</h1>
+					<h1>"How To" demo - It's easy, just add tags!</h1>
 					<article>
 						<div class="step1">
 							<p>In this demo, we will be creating a widget that autofills the city and state (pretend you're working on a form). This is your HTML without tags. Click the button when you're ready to add the required tags.</p>
 							<div class="example">
-								<div class="code">
-									&lt;div&gt;<br />
-										&nbsp;&lt;input type="tel" placeholder="Zip Code"&gt;<br />
-										&nbsp;&lt;input type="text" placeholder="City"&gt;<br />
-										&nbsp;&lt;select&gt;<br />
-										&nbsp;&nbsp;...<br/>
-										&nbsp;&lt;/select&gt;<br />
-									&lt;/div&gt;
-								</div>
+<pre class="prettyprint"><xmp><div>
+  <input type="tel" placeholder="Zip Code">
+  <input type="text" placeholder="City">
+  <select>
+    ...
+  </select>
+</div>
+</xmp></pre>
 								<div class="output">
 									<div>
 										<input class="zip" type="tel" placeholder="Zip Code">
@@ -146,15 +145,14 @@
 						<div class="step2">
 							<p>Boom. That's it! Now, type in a zip code and wait for the city/state to populate.</p>
 							<div class="example">
-								<div class="code">
-									&lt;div data-ss-widget="autofill-zip"&gt;<br />
-										&nbsp;&lt;input data-ss-component="zip" type="tel" placeholder="Zip Code"&gt;<br />
-										&nbsp;&lt;input data-ss-component="city" type="text" placeholder="City"&gt;<br />
-										&nbsp;&lt;select data-ss-component="state"&gt;<br />
-										&nbsp;&nbsp;...<br/>
-										&nbsp;&lt;/select&gt;<br />
-									&lt;/div&gt;
-								</div>
+<pre class="prettyprint"><xmp><div data-ss-widget="autofill-zip">
+  <input data-ss-component="zip" type="tel" placeholder="Zip Code">
+  <input data-ss-component="city" type="text" placeholder="City">
+  <select data-ss-component="state">
+    ...
+  </select>
+</div>
+</xmp></pre>
 								<div class="output">
 									<div data-ss-widget="autofill-zip">
 										<input data-ss-component="zip" class="zip" type="tel" placeholder="Zip Code">
@@ -241,7 +239,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="message">For this widget, the required attributes are the "data-ss-" prefixed attributes. If you'd like to see more, please checkout the <a>widgets</a> section!</div>
+							<div class="message">For this widget, the required attributes are the "data-ss-" prefixed attributes. If you'd like to see more, please checkout the <a href="/site/widgets.html">widgets</a> section!</div>
 						</div>
 					</article>
 				</section>

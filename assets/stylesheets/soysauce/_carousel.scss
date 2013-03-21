@@ -66,13 +66,13 @@
 		}
 		[data-ss-component="item"] {
 			@include transition(opacity 0.7s);
-			float: right;
 			visibility: hidden;
+			height: 0;
 			opacity: 0;
 			&[data-ss-state="active"] {
 				opacity: 1;
-				float: left;
 				visibility: visible;
+				height: auto;
 			}
 		}
 	}
