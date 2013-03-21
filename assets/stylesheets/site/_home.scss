@@ -1,8 +1,40 @@
 .home {
-	section {
+	.example {
+		@include display-box;
+	}
+	.code {
+		@include box-flex(1);
+		width: 100%;
+	}
+	.output {
+		@include border-radius(5px);
+		@include box-flex(2);
+		width: 100%;
+		border: 1px solid #CCC;
+		padding: 10px;
 		margin: 10px;
 	}
-	.widgets div {
-		margin-bottom: 10px;
+	.step2 {
+		display: none;
+		.zip {
+			float: left;
+		}
+	}
+	.zip {
+		width: 100px;
+	}
+	.city {
+		width: 70%;
+		margin: 10px 0;
+	}
+	.ajaxLoader {
+		visibility: hidden;
+	}
+	.proceed button {
+		max-width: 185px;
+	}
+	.message {
+		@include transition(opacity 0.5s);
+		opacity: 0;
 	}
 }

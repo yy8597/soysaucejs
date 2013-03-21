@@ -1,0 +1,25 @@
+.widgets {
+	.api article {
+		@include display-box;
+		.apiCarousel {
+			@include box-flex(1);
+			width: 100%;
+		}
+		aside {
+			min-width: 200px;
+			border: 1px solid black;
+			li {
+				padding: 10px;
+				&:not(:last-of-type) {
+					border-bottom: 1px solid black;
+				}
+			}
+		}
+	}
+}
+
+@import "site/widgets/_carousels.scss";
+@import "site/widgets/_togglers.scss";
+@import "site/widgets/_lazyloader.scss";
+@import "site/widgets/_autofill-zip.scss";
+@import "site/widgets/_autodetect-cc.scss";

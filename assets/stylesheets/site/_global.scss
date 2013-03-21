@@ -1,3 +1,5 @@
+$background: white;
+
 * {
 	@include box-sizing(border-box);
 }
@@ -7,13 +9,61 @@ html {
 }
 
 body {
+	background: #2f2f2f;
 	position: relative;
 	font-size: 13px;
 	font-family: 'Open Sans', sans-serif;
+	line-height: 16px;
+}
+
+header {
+	background: $background;
+	position: relative;
+	border-bottom: 1px solid black;
+	.title {
+		display: inline-block;
+		font-size: 24px;
+		padding: 20px 15px;
+	}
+	.github {
+		font-size: 16px;
+		position: absolute;
+		right: 10px;
+		top: 20px;
+	}
 }
 
 .wrapper {
-	margin: 10px 10%;
+	background: $background;
+	margin: 0 10%;
+	> nav {
+		@include display-box;
+		a {
+			@include box-flex(1);
+			display: block;
+			text-align: center;
+			border: 1px solid black;
+			padding: 10px 0;
+			&.active {
+				background: yellow;
+			}
+		}
+	}
+}
+
+.content {
+	background: #EEE;
+	overflow: hidden;
+	border: solid black;
+	border-width: 0 1px 1px;
+}
+
+section {
+	@include border-radius(3px);
+	margin: 10px;
+	background: $background;
+	border: 1px solid #AAA;
+	padding: 5px 10px;
 }
 
 img {
@@ -34,60 +84,48 @@ h2 {
 	margin: 10px 5px 5px;
 }
 
-body > header {
-	position: relative;
-	border-bottom: 1px solid black;
-	margin-bottom: 10px;
-	.title {
-		display: inline-block;
-		font-size: 24px;
-		padding: 10px;
-	}
-	.github {
-		font-size: 16px;
-		position: absolute;
-		right: 10px;
-		top: 15px;
-	}
-}
-
-.options {
+input[type="text"], input[type="tel"], input[type="email"], input[type="password"] {
+	@include appearance(none);
+	@include box-shadow(0px 1px 10px -3px #999 inset);
 	@include border-radius(3px);
-	background: #eee;
-	border: 1px solid #777;
-	margin: 10px 5px;
-	padding: 10px;
-	h3 {
-		font-weight: bold;
-		padding-bottom: 5px;
-		border-bottom: 1px solid #aaa;
-		margin-bottom: 5px;
-	}
-	li:not(:last-of-type) {
-		margin: 3px 0;
-		padding-bottom: 3px;
-		border-bottom: 1px dotted #AAA;
-	}
-	li:hover {
-		color: #cd0000;
-		text-shadow: 0 1px 0 white;
-	}
+	@include background(linear-gradient(top,#fafafa 0%,white 100%));
+	display: block;
+	padding: 7px;
+	border: 1px solid #9c9c9c;
+	color: #666;
+	font-size: 13px;
+	text-shadow: 0 1px #fff;
+	font-weight: bold;
 }
 
-.breadcrumbs {
-	margin: 10px;
-	li {
-		display: inline-block;
-	}
+button {
+	@include background(linear-gradient(top,#b7312c 0%,#962622 100%));
+	@include border-radius(3px);
+	@include box-shadow(0px 1px 0px 0px rgba(255,255,255,0.5) inset);
+	position: relative;
+	font-size: 16px;
+	font-weight: bold;
+	color: #fff !important;
+	padding: 7px;
+	border: 1px solid #85211e;
+	text-shadow: 0px 1px #6b1b19;
+	width: 100%;
+	text-transform: uppercase;
+	display: inline-block;
+	text-align: center;
+	margin: 5px 0px 10px 0px;
 }
 
 .code {
 	font-family: Consolas, 'Liberation Mono', Courier, monospace;
-	border: 1px solid #ccc;
-	background: #eee;
+	background: #202020;
 	margin: 10px 0;
 	border-radius: 5px;
 	padding: 10px;
+	color: #d0d181;
+	text-shadow: 0 1px 1px black;
 }
 
-
+.error {
+	border: 2px solid #CD0000 !important;
+}

@@ -3,26 +3,253 @@
 		<title>Soysauce - Home</title>
 		<link rel="stylesheet" href="assets/soysauce.css">
 		<link rel="stylesheet" href="assets/main.css">
+		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	</head>
 	<body class="home">
 		<header>
-			<div class="title">Soysauce (v1.1.38)</div>
-			<a class="github" target="_blank" href="https://github.com/brandingbrand/soysauce">Github</a>
+			<a class="title" href="/site/home.html">Soysauce</a>
+			<a class="github" target="_blank" href="https://github.com/brandingbrand/soysauce/issues?state=open">Report an Issue</a>
 		</header>
-		<section class="latest">
-			<div>Compressed Lite (40.67 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.38/soysauce.lite.min.js  </div>
-			<div>Uncompressed Lite (62.77 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.38/soysauce.lite.js    </div>
-			<div>Compressed (47.91 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.38/soysauce.min.js            </div>
-			<div>Uncompressed (74.01 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.38/soysauce.js              </div>
-			<div>CSS (6.08 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.38/soysauce.css                       </div>
-		</section>
-		<section class="widgets">
-			<div><a href="examples/carousels.html">Carousels</a></div>
-			<div><a href="examples/togglers.html">Togglers</a></div>
-			<div><a href="examples/lazyloader.html">Lazyloader</a></div>
-			<div><a href="examples/autofill-zip.html">Autofill Zip</a></div>
-			<div><a href="examples/autodetect-cc.html">Autodetect CC</a></div>
-		</section>
+		<div class="wrapper">
+			<nav>
+				<a class="active">Home</a>
+				<a href="/site/widgets.html">Widgets</a>
+				<a href="/site/contribute.html">Contribute</a>
+				<a href="/site/about.html">About</a>
+			</nav>
+			<div class="content">
+				<section>
+					<h1>What is Soysauce?</h1>
+					<article>
+						<p>Soysauce is a customizable widget library made to ease the life of a developer. If a widget is difficult to implement, Soysauce is doing something wrong! (Psst... just report an issue if you want something changed)</p>
+					</article>
+				</section>
+				<section>
+					<h1>Grab the latest!</h1>
+					<article>
+						<div>Soysauce requires jQuery. To install, just add the CSS and a JS file to your site</div>
+						<ul>
+							<li>Compressed Lite (40.86 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.41/soysauce.lite.min.js</li>
+							<li>Uncompressed Lite (63.03 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.41/soysauce.lite.js</li>
+							<li>Compressed (48.40 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.41/soysauce.min.js</li>
+							<li>Uncompressed (74.97 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.41/soysauce.js</li>
+							<li>CSS (6.08 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.41/soysauce.css</li>
+						</ul>
+						<div class="">The lite version includes only the bare essential widgets for building a site: Carousel, Toggler, and Lateloader.</div>
+					</article>
+				</section>
+				<section class="demo">
+					<h1>Try a Quick Demo - It's easy, just add tags!</h1>
+					<article>
+						<div class="step1">
+							<p>In this demo, we will be creating a widget that autofills the city and state (pretend you're working on a form). This is your HTML without tags. Click the button when you're ready to add the required tags.</p>
+							<div class="example">
+								<div class="code">
+									&lt;div&gt;<br />
+										&nbsp;&lt;input type="tel" placeholder="Zip Code"&gt;<br />
+										&nbsp;&lt;input type="text" placeholder="City"&gt;<br />
+										&nbsp;&lt;select&gt;<br />
+										&nbsp;&nbsp;...<br/>
+										&nbsp;&lt;/select&gt;<br />
+									&lt;/div&gt;
+								</div>
+								<div class="output">
+									<div>
+										<input class="zip" type="tel" placeholder="Zip Code">
+										<input class="city" type="text" placeholder="City">
+										<select>
+											<option value="">Please Select</option>
+											<option value="AA">AA</option>
+											<option value="AE">AE</option>
+											<option value="AK">AK</option>
+											<option value="AL">AL</option>
+											<option value="AP">AP</option>
+											<option value="AR">AR</option>
+											<option value="AS">AS</option>
+											<option value="AZ">AZ</option>
+											<option value="CA">CA</option>
+											<option value="CO">CO</option>
+											<option value="CT">CT</option>
+											<option value="DC">DC</option>
+											<option value="DE">DE</option>
+											<option value="FL">FL</option>
+											<option value="FM">FM</option>
+											<option value="GA">GA</option>
+											<option value="GU">GU</option>
+											<option value="HI">HI</option>
+											<option value="IA">IA</option>
+											<option value="ID">ID</option>
+											<option value="IL">IL</option>
+											<option value="IN">IN</option>
+											<option value="KS">KS</option>
+											<option value="KY">KY</option>
+											<option value="LA">LA</option>
+											<option value="MA">MA</option>
+											<option value="MD">MD</option>
+											<option value="ME">ME</option>
+											<option value="MH">MH</option>
+											<option value="MI">MI</option>
+											<option value="MN">MN</option>
+											<option value="MO">MO</option>
+											<option value="MP">MP</option>
+											<option value="MS">MS</option>
+											<option value="MT">MT</option>
+											<option value="NC">NC</option>
+											<option value="ND">ND</option>
+											<option value="NE">NE</option>
+											<option value="NH">NH</option>
+											<option value="NJ">NJ</option>
+											<option value="NM">NM</option>
+											<option value="NV">NV</option>
+											<option value="NY">NY</option>
+											<option value="OH">OH</option>
+											<option value="OK">OK</option>
+											<option value="OR">OR</option>
+											<option value="PA">PA</option>
+											<option value="PR">PR</option>
+											<option value="RI">RI</option>
+											<option value="SC">SC</option>
+											<option value="SD">SD</option>
+											<option value="TN">TN</option>
+											<option value="TX">TX</option>
+											<option value="UT">UT</option>
+											<option value="VA">VA</option>
+											<option value="VI">VI</option>
+											<option value="VT">VT</option>
+											<option value="WA">WA</option>
+											<option value="WI">WI</option>
+											<option value="WV">WV</option>
+											<option value="WY">WY</option>
+											<option value="AB">AB</option>
+											<option value="BC">BC</option>
+											<option value="MB">MB</option>
+											<option value="NB">NB</option>
+											<option value="NL">NL</option>
+											<option value="NS">NS</option>
+											<option value="NT">NT</option>
+											<option value="NU">NU</option>
+											<option value="ON">ON</option>
+											<option value="PE">PE</option>
+											<option value="QC">QC</option>
+											<option value="SK">SK</option>
+											<option value="YT">YT</option>
+											<option value="Other">Other</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="proceed">
+								<button>Add the Tags</button>
+							</div>
+						</div>
+						<div class="step2">
+							<p>Boom. That's it! Now, type in a zip code and wait for the city/state to populate.</p>
+							<div class="example">
+								<div class="code">
+									&lt;div data-ss-widget="autofill-zip"&gt;<br />
+										&nbsp;&lt;input data-ss-component="zip" type="tel" placeholder="Zip Code"&gt;<br />
+										&nbsp;&lt;input data-ss-component="city" type="text" placeholder="City"&gt;<br />
+										&nbsp;&lt;select data-ss-component="state"&gt;<br />
+										&nbsp;&nbsp;...<br/>
+										&nbsp;&lt;/select&gt;<br />
+									&lt;/div&gt;
+								</div>
+								<div class="output">
+									<div data-ss-widget="autofill-zip">
+										<input data-ss-component="zip" class="zip" type="tel" placeholder="Zip Code">
+										<img class="ajaxLoader" src="assets/images/ajax-loader.gif">
+										<input data-ss-component="city" class="city" type="text" placeholder="City">
+										<select data-ss-component="state">
+											<option value="">Please Select</option>
+											<option value="AA">AA</option>
+											<option value="AE">AE</option>
+											<option value="AK">AK</option>
+											<option value="AL">AL</option>
+											<option value="AP">AP</option>
+											<option value="AR">AR</option>
+											<option value="AS">AS</option>
+											<option value="AZ">AZ</option>
+											<option value="CA">CA</option>
+											<option value="CO">CO</option>
+											<option value="CT">CT</option>
+											<option value="DC">DC</option>
+											<option value="DE">DE</option>
+											<option value="FL">FL</option>
+											<option value="FM">FM</option>
+											<option value="GA">GA</option>
+											<option value="GU">GU</option>
+											<option value="HI">HI</option>
+											<option value="IA">IA</option>
+											<option value="ID">ID</option>
+											<option value="IL">IL</option>
+											<option value="IN">IN</option>
+											<option value="KS">KS</option>
+											<option value="KY">KY</option>
+											<option value="LA">LA</option>
+											<option value="MA">MA</option>
+											<option value="MD">MD</option>
+											<option value="ME">ME</option>
+											<option value="MH">MH</option>
+											<option value="MI">MI</option>
+											<option value="MN">MN</option>
+											<option value="MO">MO</option>
+											<option value="MP">MP</option>
+											<option value="MS">MS</option>
+											<option value="MT">MT</option>
+											<option value="NC">NC</option>
+											<option value="ND">ND</option>
+											<option value="NE">NE</option>
+											<option value="NH">NH</option>
+											<option value="NJ">NJ</option>
+											<option value="NM">NM</option>
+											<option value="NV">NV</option>
+											<option value="NY">NY</option>
+											<option value="OH">OH</option>
+											<option value="OK">OK</option>
+											<option value="OR">OR</option>
+											<option value="PA">PA</option>
+											<option value="PR">PR</option>
+											<option value="RI">RI</option>
+											<option value="SC">SC</option>
+											<option value="SD">SD</option>
+											<option value="TN">TN</option>
+											<option value="TX">TX</option>
+											<option value="UT">UT</option>
+											<option value="VA">VA</option>
+											<option value="VI">VI</option>
+											<option value="VT">VT</option>
+											<option value="WA">WA</option>
+											<option value="WI">WI</option>
+											<option value="WV">WV</option>
+											<option value="WY">WY</option>
+											<option value="AB">AB</option>
+											<option value="BC">BC</option>
+											<option value="MB">MB</option>
+											<option value="NB">NB</option>
+											<option value="NL">NL</option>
+											<option value="NS">NS</option>
+											<option value="NT">NT</option>
+											<option value="NU">NU</option>
+											<option value="ON">ON</option>
+											<option value="PE">PE</option>
+											<option value="QC">QC</option>
+											<option value="SK">SK</option>
+											<option value="YT">YT</option>
+											<option value="Other">Other</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="message">For this widget, the required attributes are the "data-ss-" prefixed attributes. If you'd like to see more, please checkout the <a>widgets</a> section!</div>
+						</div>
+					</article>
+				</section>
+			</div>
+		</div>
+		<footer></footer>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="assets/soysauce.min.js"></script>
+		<script src="assets/site.js"></script>
 	</body>
 </html>
