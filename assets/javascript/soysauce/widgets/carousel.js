@@ -93,6 +93,9 @@ soysauce.carousels = (function() {
 		// Autoheight Variables
 		this.autoheight = false;
 		
+		// Fade Variables
+		this.fade = false;
+		
 		if (options) options.forEach(function(option) {
 			switch(option) {
 				case "cms":
@@ -130,6 +133,9 @@ soysauce.carousels = (function() {
 					break;
 				case "autoheight":
 					self.autoheight = true;
+					break;
+				case "fade":
+					self.fade = true;
 					break;
 			}
 		});
@@ -342,8 +348,10 @@ soysauce.carousels = (function() {
 				}
 			}
 			
-			self.container.width((self.itemWidth + margin) * self.numChildren);
-			self.items.css("width", self.itemWidth + "px");
+			if (!self.fade) {
+				self.container.width((self.itemWidth + margin) * self.numChildren);
+				self.items.css("width", self.itemWidth + "px");
+			}
 		
 			if (self.infinite) {
 				self.offset -= self.itemWidth;
@@ -560,6 +568,10 @@ soysauce.carousels = (function() {
 	Carousel.prototype.handleResize = function() {
 		var self = this;
 		var widgetWidth = this.widget.width();
+		
+		if (this.fade) {
+			return;
+		}
 		
 		if (this.multi) {
 			this.itemWidth = widgetWidth / this.multiVars.numItems;
@@ -1086,6 +1098,11 @@ soysauce.carousels = (function() {
 			$(this.items[index]).attr("data-ss-state", "active");
 			$(this.dots[this.index]).attr("data-ss-state", "inactive");
 			$(this.dots[index]).attr("data-ss-state", "active");
+		}
+
+		if (this.fade) {
+			this.index = index;
+			return true;
 		}
 
 		if (this.autoheight) {

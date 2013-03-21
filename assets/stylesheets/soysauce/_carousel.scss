@@ -60,4 +60,20 @@
 	&[data-ss-options*="autoheight"] {
 		@include transition(height 0.2s);
 	}
+	&[data-ss-options*="fade"] {
+		[data-ss-component="container_wrapper"] {
+			overflow: visible;
+		}
+		[data-ss-component="item"] {
+			@include transition(opacity 0.7s);
+			float: right;
+			visibility: hidden;
+			opacity: 0;
+			&[data-ss-state="active"] {
+				opacity: 1;
+				float: left;
+				visibility: visible;
+			}
+		}
+	}
 }

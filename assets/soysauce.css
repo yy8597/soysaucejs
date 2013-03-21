@@ -221,3 +221,20 @@
   -o-transition: height 0.2s;
   transition: height 0.2s;
 }
+[data-ss-widget="carousel"][data-ss-options*="fade"] [data-ss-component="container_wrapper"] {
+  overflow: visible;
+}
+[data-ss-widget="carousel"][data-ss-options*="fade"] [data-ss-component="item"] {
+  -webkit-transition: opacity 0.7s;
+  -moz-transition: opacity 0.7s;
+  -o-transition: opacity 0.7s;
+  transition: opacity 0.7s;
+  float: right;
+  visibility: hidden;
+  opacity: 0;
+}
+[data-ss-widget="carousel"][data-ss-options*="fade"] [data-ss-component="item"][data-ss-state="active"] {
+  opacity: 1;
+  float: left;
+  visibility: visible;
+}
