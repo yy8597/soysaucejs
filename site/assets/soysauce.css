@@ -224,7 +224,7 @@
   -o-transition: height 0.2s;
   transition: height 0.2s;
 }
-[data-ss-widget="carousel"][data-ss-options*="fade"] [data-ss-component="container_wrapper"] {
+[data-ss-widget="carousel"][data-ss-options*="fade"] [data-ss-component="container_wrapper"], [data-ss-widget="carousel"][data-ss-options*="fade"] [data-ss-component="container"] {
   overflow: visible;
 }
 [data-ss-widget="carousel"][data-ss-options*="fade"] [data-ss-component="item"] {
