@@ -409,6 +409,36 @@ $.fn.imagesLoaded = function( callback ) {
 if(typeof(soysauce) === "undefined") {
 "use strict";
 
+if (!jQuery.fn.find) {
+	jQuery.fn.extend({
+		find: function( selector ) {
+			var i, ret, self,
+			len = this.length;
+
+			if ( typeof selector !== "string" ) {
+				self = this;
+				return this.pushStack( jQuery( selector ).filter(function() {
+					for ( i = 0; i < len; i++ ) {
+						if ( jQuery.contains( self[ i ], this ) ) {
+							return true;
+						}
+					}
+				}));
+			}
+
+			ret = [];
+			for ( i = 0; i < len; i++ ) {
+				jQuery.find( selector, this[ i ], ret );
+			}
+        
+			// Needed because $( selector, context ) becomes $( context ).find( selector )
+			ret = this.pushStack( len > 1 ? jQuery.unique( ret ) : ret );
+			ret.selector = ( this.selector ? this.selector + " " : "" ) + selector;
+			return ret;
+		}
+	});
+}
+
 if (!jQuery.fn.on) {
 	jQuery.fn.extend({
 		on: function( types, selector, data, fn, /*INTERNAL*/ one ) {
@@ -664,7 +694,7 @@ soysauce.init = function(selector) {
 		set = $(selector);
 	}
 	
-	if ($(selector).attr("data-ss-id") !== undefined) return ret;
+	if ((!$(selector) && !set) || $(selector).attr("data-ss-id") !== undefined) return ret;
 	
 	numItems = set.length;
 	
@@ -731,6 +761,7 @@ soysauce.lateload = function(selector) {
 			});
 		});
 		$(window).on("load", function() {
+			if (!$("[data-ss-ll-src][data-ss-options='load']")) return;
 			$("[data-ss-ll-src][data-ss-options='load']").each(function(i, e) {
 				loadItem(e);
 			});
@@ -740,38 +771,82 @@ soysauce.lateload = function(selector) {
 
 soysauce.lateload();
 
-soysauce.overlay = function(cmd) {
-	switch(cmd) {
-		case "init":
-			if (!$("[data-ss-utility='overlay']")) break;
+soysauce.overlay = (function() {
+	var overlay, done, caption;
+	var init = true;
+	var isOn = false;
+
+	return {
+		init: function(selector) {
 			var div = document.createElement("div");
+			
+			if (!init) return false;
+			
 			div.setAttribute("data-ss-utility", "overlay");
 			div.setAttribute("data-ss-state", "inactive");
 			document.body.appendChild(div);
-			break;
-		case "on":
-			$("[data-ss-utility='overlay']").show();
+			
+			overlay = $("[data-ss-utility='overlay']");
+			
+			overlay.append("<span class='done'>Done</span>");
+			done = overlay.find(".done");
+			
+			overlay.append("<div class='caption'></span>");
+			caption = overlay.find(".caption");
+			
+			done.on("click", function() {
+				soysauce.overlay.off();
+			});
+			
+			init = false;
+		},
+		on: function() {
+			if (isOn) return;
+			overlay.show();
 			window.setTimeout(function() {
-				$("[data-ss-utility='overlay']").attr("data-ss-state","active");
+				overlay.attr("data-ss-state","active");
+				overlay.trigger("SSOverlayOn");
+				isOn = true;
 			}, 0);
-			break;
-		case "off":
-			$("[data-ss-utility='overlay']").attr("data-ss-state","inactive");
+		},
+		off: function() {
+			if (!isOn) return;
+			overlay.attr("data-ss-state","inactive");
 			window.setTimeout(function() {
-				$("[data-ss-widget='overlay']").hide();
+				overlay.hide();
+				overlay.trigger("SSOverlayOff");
+				isOn = false;
 			}, 400);
-			break;
-		case undefined:
-			console.warn("Soysauce: Please provide a command.");
-			break;
-		default:
-			console.warn("Soysauce: Unrecognized command.");
-			break;
-	}
-};
+		},
+		toggle: function() {
+			if (isOn) {
+				soysauce.overlay.off();
+			}
+			else {
+				soysauce.overlay.on();
+			}
+		},
+		state: function() {
+			if (isOn) {
+				return "on";
+			}
+			else {
+				return "off";
+			}
+		},
+		caption: function(text) {
+			if (!text) {
+				caption.html("");
+			}
+			else {
+				caption.html(text);
+			}
+		}
+	};
 
-soysauce.overlay("init");
+})();
 
+soysauce.overlay.init();
 soysauce.autodetectCC = (function() {
 	
 	function autodetectCC(selector) {
@@ -793,7 +868,12 @@ soysauce.autodetectCC = (function() {
 			}
 		});
 		
-		this.input.attr("maxlength", "19");
+		if (this.format) {
+			this.input.attr("maxlength", "19");
+		}
+		else {
+			this.input.attr("maxlength", "16");
+		}
 		
 		this.input.on("keyup change", function(e) {
 			var card_num = e.target.value.replace(/[-\s]+/g, "");
@@ -953,6 +1033,7 @@ soysauce.autofillZip = (function() {
 		this.city = this.widget.find("[data-ss-component='city']");
 		this.state = this.widget.find("[data-ss-component='state']");
 		this.lastRequestedData;
+		this.freeze = false;
 		
 		// Reverse Geocode Variables
 		this.reverse = false;
@@ -980,7 +1061,7 @@ soysauce.autofillZip = (function() {
 	
 	autofillZip.prototype.reverseGeocode = function() {
 		var self = this;
-		if (!navigator.geolocation) return;
+		if (!navigator.geolocation || this.freeze) return;
 		
 		self.widget.trigger("SSDataFetch");
 		
@@ -994,6 +1075,8 @@ soysauce.autofillZip = (function() {
 		var self = this;
 		var city = data.city;
 		var state = data.state;
+		
+		if (this.freeze) return;
 		
 		this.lastRequestedData = data;
 		this.widget.trigger("SSDataReady");
@@ -1010,6 +1093,8 @@ soysauce.autofillZip = (function() {
 	autofillZip.prototype.getLocationData = function() {
 		var self = this;
 		var value = this.zip[0].value;
+		
+		if (this.freeze) return;
 		
 		if ((value.length === 5) && (parseFloat(value) == parseInt(value)) && !isNaN(value))  {
 			this.widget.trigger("SSDataFetch");
@@ -1029,6 +1114,14 @@ soysauce.autofillZip = (function() {
 	
 	autofillZip.prototype.handleResize = function() {
 		// Placeholder - required soysauce function
+	};
+	
+	autofillZip.prototype.handleFreeze = function() {
+		this.freeze = true;
+	};
+	
+	autofillZip.prototype.handleUnfreeze = function() {
+		this.freeze = false;
 	};
 	
 	return {
@@ -1134,6 +1227,9 @@ soysauce.carousels = (function() {
 		// Autoheight Variables
 		this.autoheight = false;
 		
+		// Fade Variables
+		this.fade = false;
+		
 		if (options) options.forEach(function(option) {
 			switch(option) {
 				case "cms":
@@ -1171,6 +1267,9 @@ soysauce.carousels = (function() {
 					break;
 				case "autoheight":
 					self.autoheight = true;
+					break;
+				case "fade":
+					self.fade = true;
 					break;
 			}
 		});
@@ -1352,6 +1451,9 @@ soysauce.carousels = (function() {
 			$(items[1]).attr("data-ss-state", "active");
 			this.index++;
 		}
+		else {
+			$(items[0]).attr("data-ss-state", "active");
+		}
 
 		this.container.imagesLoaded(function(items) {
 			var firstItem = self.items.first();
@@ -1380,8 +1482,10 @@ soysauce.carousels = (function() {
 				}
 			}
 			
-			self.container.width((self.itemWidth + margin) * self.numChildren);
-			self.items.css("width", self.itemWidth + "px");
+			if (!self.fade) {
+				self.container.width((self.itemWidth + margin) * self.numChildren);
+				self.items.css("width", self.itemWidth + "px");
+			}
 		
 			if (self.infinite) {
 				self.offset -= self.itemWidth;
@@ -1393,7 +1497,7 @@ soysauce.carousels = (function() {
 			if (self.zoom) {
 				var zoomMultiplier = self.widget.attr("data-ss-zoom-multiplier");
 				self.zoomMultiplier = (!zoomMultiplier) ? ZOOM_MULTIPLIER : parseInt(zoomMultiplier);
-				self.panMax.x = (self.itemWidth - self.peekWidth) / self.zoomMultiplier;				
+				self.panMax.x = (self.itemWidth - self.peekWidth*2) / self.zoomMultiplier;				
 				self.panMax.y = self.items.first().height() / self.zoomMultiplier;
 				self.panMaxOriginal.x = self.panMax.x;
 				self.panMaxOriginal.y = self.panMax.y;
@@ -1416,9 +1520,9 @@ soysauce.carousels = (function() {
 				}
 			}
 
-			if (self.jumping || self.freeze || targetComponent === "button" || 
-					targetComponent === "zoom_icon" || targetComponent === "dot" || 
-					targetComponent === "dots" || targetComponent === "thumbnail") {
+			if (self.jumping || self.freeze || targetComponent === "button" ||
+			 		targetComponent === "dot" || targetComponent === "dots" || 
+					targetComponent === "thumbnail") {
 				return;
 			}
 
@@ -1599,6 +1703,10 @@ soysauce.carousels = (function() {
 		var self = this;
 		var widgetWidth = this.widget.width();
 		
+		if (this.fade) {
+			return;
+		}
+		
 		if (this.multi) {
 			this.itemWidth = widgetWidth / this.multiVars.numItems;
 		}
@@ -1707,10 +1815,10 @@ soysauce.carousels = (function() {
 			self.infiniteID = undefined;
 			
 			if (self.index === self.numChildren - 2) {
-				self.offset = -self.index*self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
+				self.offset = -self.index*self.itemWidth + (self.peekWidth) + self.spacingOffset;
 			}
 			else if (self.index === 1) {
-				self.offset = -self.itemWidth + (self.peekWidth/2) + self.spacingOffset;
+				self.offset = -self.itemWidth + (self.peekWidth) + self.spacingOffset;
 			}
 			
 			window.setTimeout(function() {
@@ -1838,6 +1946,8 @@ soysauce.carousels = (function() {
 				var dragOffset;
 				coords2 = soysauce.getCoords(e2);
 				
+				if ($(e2.target).attr("data-ss-component") === "zoom_icon") return;
+				
 				if (self.lockScroll === undefined) {
 					if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2) {
 						self.lockScroll = "y";
@@ -1862,15 +1972,18 @@ soysauce.carousels = (function() {
 
 		// Decides whether to zoom or move to next/prev item
 		this.widget.one("touchend mouseup", function(e2) {
+			var forceZoom;
+			var targetComponent = $(e2.target).attr("data-ss-component");
+			
 			if (self.jumping) return;
 			
 			soysauce.stifle(e2);
 			
-			var targetComponent = $(e2.target).attr("data-ss-component");
-			
 			if (targetComponent === "button") {
 				return;
 			}
+			
+			forceZoom = (targetComponent === "zoom_icon") ? true : false;
 			
 			coords2 = soysauce.getCoords(e2);
 			
@@ -1898,7 +2011,7 @@ soysauce.carousels = (function() {
 				}
 				
 			}
-			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed)) {
+			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed || forceZoom)) {
 				soysauce.stifle(e1);
 				self.toggleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
 			}
@@ -1920,7 +2033,7 @@ soysauce.carousels = (function() {
 				if (xDist > 0) {
 					if (!self.infinite && self.index === self.numChildren - 1 ||
 						(self.multi && !self.infinite && self.index === self.numChildren - self.multiVars.numItems)) {
-						self.gotoPos(self.index * -self.itemWidth + (self.peekWidth/2) + self.spacingOffset);
+						self.gotoPos(self.index * -self.itemWidth + (self.peekWidth) + self.spacingOffset);
 					}
 					else {
 						self.slideForward(fast);
@@ -1928,7 +2041,7 @@ soysauce.carousels = (function() {
 				}
 				else {
 					if (!self.infinite && self.index === 0) {
-						self.gotoPos((self.peekWidth/2) + self.spacingOffset);
+						self.gotoPos((self.peekWidth) + self.spacingOffset);
 					}
 					else {
 						self.slideBackward(fast);
@@ -1981,7 +2094,7 @@ soysauce.carousels = (function() {
 		// Zoom In
 		if (!this.isZoomed) {
 			var offset = 0;
-
+			
 			if ($(e2.target).attr("data-ss-component") === "zoom_icon") {
 				self.panCoords = {x: 0, y: 0};
 				self.panCoordsStart = {x: 0, y: 0};
@@ -2119,6 +2232,11 @@ soysauce.carousels = (function() {
 			$(this.items[index]).attr("data-ss-state", "active");
 			$(this.dots[this.index]).attr("data-ss-state", "inactive");
 			$(this.dots[index]).attr("data-ss-state", "active");
+		}
+
+		if (this.fade) {
+			this.index = index;
+			return true;
 		}
 
 		if (this.autoheight) {

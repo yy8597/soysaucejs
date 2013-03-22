@@ -1,3 +1,5 @@
+$background: white;
+
 * {
 	@include box-sizing(border-box);
 }
@@ -7,13 +9,60 @@ html {
 }
 
 body {
+	background: #2f2f2f;
 	position: relative;
 	font-size: 13px;
 	font-family: 'Open Sans', sans-serif;
+	line-height: 16px;
+}
+
+header {
+	background: $background;
+	position: relative;
+	border-bottom: 1px solid black;
+	.title {
+		display: inline-block;
+		font-size: 24px;
+		padding: 20px 15px;
+	}
+	.github {
+		font-size: 16px;
+		position: absolute;
+		right: 10px;
+		top: 20px;
+	}
 }
 
 .wrapper {
-	margin: 10px 10%;
+	background: $background;
+	margin: 0 10%;
+	> nav {
+		@include display-box;
+		a {
+			@include box-flex(1);
+			display: block;
+			text-align: center;
+			border: 1px solid black;
+			padding: 10px 0;
+			&.active {
+				background: yellow;
+			}
+		}
+	}
+}
+
+.content {
+	background: #EEE;
+	overflow: hidden;
+	border: solid black;
+	border-width: 0 1px 1px;
+	> section {
+		@include border-radius(3px);
+		margin: 10px;
+		background: $background;
+		border: 1px solid #AAA;
+		padding: 5px 10px;
+	}
 }
 
 img {
@@ -31,63 +80,122 @@ h1 {
 }
 
 h2 {
-	margin: 10px 5px 5px;
+	font-weight: bold;
+	font-size: 18px;
 }
 
-body > header {
-	position: relative;
-	border-bottom: 1px solid black;
-	margin-bottom: 10px;
-	.title {
-		display: inline-block;
-		font-size: 24px;
-		padding: 10px;
-	}
-	.github {
-		font-size: 16px;
-		position: absolute;
-		right: 10px;
-		top: 15px;
-	}
+h3 {
+	font-size: 14px;
 }
 
-.options {
+input[type="text"], input[type="tel"], input[type="email"], input[type="password"] {
+	@include appearance(none);
+	@include box-shadow(0px 1px 10px -3px #999 inset);
 	@include border-radius(3px);
-	background: #eee;
-	border: 1px solid #777;
-	margin: 10px 5px;
-	padding: 10px;
-	h3 {
-		font-weight: bold;
-		padding-bottom: 5px;
-		border-bottom: 1px solid #aaa;
-		margin-bottom: 5px;
-	}
-	li:not(:last-of-type) {
-		margin: 3px 0;
-		padding-bottom: 3px;
-		border-bottom: 1px dotted #AAA;
-	}
-	li:hover {
-		color: #cd0000;
-		text-shadow: 0 1px 0 white;
-	}
+	@include background(linear-gradient(top,#fafafa 0%,white 100%));
+	display: block;
+	padding: 7px;
+	border: 1px solid #9c9c9c;
+	color: #666;
+	font-size: 13px;
+	text-shadow: 0 1px #fff;
+	font-weight: bold;
 }
 
-.breadcrumbs {
+button {
+	@include background(linear-gradient(top,#b7312c 0%,#962622 100%));
+	@include border-radius(3px);
+	@include box-shadow(0px 1px 0px 0px rgba(255,255,255,0.5) inset);
+	position: relative;
+	font-size: 16px;
+	font-weight: bold;
+	color: #fff !important;
+	padding: 7px;
+	border: 1px solid #85211e;
+	text-shadow: 0px 1px #6b1b19;
+	width: 100%;
+	text-transform: uppercase;
+	display: inline-block;
+	text-align: center;
+	margin: 5px 0px 10px 0px;
+}
+
+.error {
+	border: 2px solid #CD0000 !important;
+}
+
+xmp {
 	margin: 10px;
-	li {
-		display: inline-block;
+}
+
+/* Pretty printing styles. Used with prettify.js. */
+/* Vim sunburst theme by David Leibovic */
+
+pre .str, code .str { color: #65B042; } /* string  - green */
+pre .kwd, code .kwd { color: #E28964; } /* keyword - dark pink */
+pre .com, code .com { color: #AEAEAE; font-style: italic; } /* comment - gray */
+pre .typ, code .typ { color: #89bdff; } /* type - light blue */
+pre .lit, code .lit { color: #3387CC; } /* literal - blue */
+pre .pun, code .pun { color: #fff; } /* punctuation - white */
+pre .pln, code .pln { color: #fff; } /* plaintext - white */
+pre .tag, code .tag { color: #89bdff; } /* html/xml tag    - light blue */
+pre .atn, code .atn { color: #bdb76b; } /* html/xml attribute name  - khaki */
+pre .atv, code .atv { color: #65B042; } /* html/xml attribute value - green */
+pre .dec, code .dec { color: #3387CC; } /* decimal - blue */
+
+pre.prettyprint, code.prettyprint {
+	background-color: #000;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	-o-border-radius: 8px;
+	-ms-border-radius: 8px;
+	-khtml-border-radius: 8px;
+	border-radius: 8px;
+}
+
+pre.prettyprint {
+	width: 95%;
+	margin: 1em auto;
+	padding: 1em;
+	white-space: pre-wrap;
+}
+
+/* Specify class=linenums on a pre to get line numbering */
+ol.linenums { margin-top: 0; margin-bottom: 0; color: #AEAEAE; } /* IE indents via margin-left */
+li.L0,li.L1,li.L2,li.L3,li.L5,li.L6,li.L7,li.L8 { list-style-type: none }
+/* Alternate shading for lines */
+li.L1,li.L3,li.L5,li.L7,li.L9 { }
+
+@media print {
+  pre .str, code .str { color: #060; }
+  pre .kwd, code .kwd { color: #006; font-weight: bold; }
+  pre .com, code .com { color: #600; font-style: italic; }
+  pre .typ, code .typ { color: #404; font-weight: bold; }
+  pre .lit, code .lit { color: #044; }
+  pre .pun, code .pun { color: #440; }
+  pre .pln, code .pln { color: #000; }
+  pre .tag, code .tag { color: #006; font-weight: bold; }
+  pre .atn, code .atn { color: #404; }
+  pre .atv, code .atv { color: #060; }
+}
+
+.snippet {
+	font-size: 11px;
+	font-family: menlo, monaco, "andale mono", "courier new", fixed;
+	color: #FFEC8B;
+	background: #202020;
+	padding: 3px 5px;
+	border-radius: 3px;
+	border: 1px solid #BBB;
+	> em {
+		color: #89BDFF;
 	}
 }
 
-.code {
-	font-family: Consolas, 'Liberation Mono', Courier, monospace;
-	border: 1px solid #ccc;
-	background: #eee;
-	margin: 10px 0;
-	border-radius: 5px;
-	padding: 10px;
+.warn {
+	color: #E87600;
 }
 
-
+.alert {
+	color: #CD0000;
+}

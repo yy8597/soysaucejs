@@ -1,0 +1,29 @@
+.widgets {
+	.api > article {
+		@include display-box;
+		.apiCarousel {
+			@include box-flex(1);
+			width: 100%;
+			section {
+				padding: 0 10px;
+			}
+			h3 {
+				margin: 10px 0;
+			}
+			li {
+				line-height: 24px;
+				padding-bottom: 5px;
+				margin-bottom: 5px;
+				border-bottom: 1px solid #DDD;
+			}
+		}
+		aside {
+			min-width: 200px;
+			border: 1px solid black;
+			li {
+				padding: 10px;
+				border-bottom: 1px solid black;
+			}
+		}
+	}
+}

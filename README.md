@@ -1,14 +1,14 @@
-# Soysauce (v1.1.34)
+# Soysauce (v1.1.42)
 Original Author: Edward Gaba
 
 Soysauce is a customizable javascript widget library. Popular widgets included are carousels and accordions. Please file any issues you find in Github.
 
 ## Current CDN URLs
-* Compressed Lite (40.29 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.34/soysauce.lite.min.js
-* Uncompressed Lite (62.01 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.34/soysauce.lite.js
-* Compressed (47.34 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.34/soysauce.min.js
-* Uncompressed (73.00 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.34/soysauce.js
-* CSS (6.08 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.34/soysauce.css
+* Compressed Lite (40.98 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.42/soysauce.lite.min.js
+* Uncompressed Lite (63.26 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.42/soysauce.lite.js
+* Compressed (48.51 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.42/soysauce.min.js
+* Uncompressed (75.19 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.42/soysauce.js
+* CSS (6.70 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.42/soysauce.css
 
 Note: Lite contains only the bare essentials (which will later help with scaling as the number of widgets increase):
 * Fastclick
@@ -20,7 +20,7 @@ Note: Lite contains only the bare essentials (which will later help with scaling
 These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include both the CSS and JS file (use the CDN links above).
 
 ## Contribute
-If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have the bundle, compass, jammit, rake, and aws-sdk gems. All you have to run is:
+If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have Java and the gems bundle, compass, jammit, rake, and aws-sdk. Just run these two simple commands to obtain the gems (Java is separate):
 
 	gem install bundle
 	bundle

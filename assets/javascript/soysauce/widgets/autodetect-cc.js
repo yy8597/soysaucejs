@@ -19,7 +19,12 @@ soysauce.autodetectCC = (function() {
 			}
 		});
 		
-		this.input.attr("maxlength", "19");
+		if (this.format) {
+			this.input.attr("maxlength", "19");
+		}
+		else {
+			this.input.attr("maxlength", "16");
+		}
 		
 		this.input.on("keyup change", function(e) {
 			var card_num = e.target.value.replace(/[-\s]+/g, "");

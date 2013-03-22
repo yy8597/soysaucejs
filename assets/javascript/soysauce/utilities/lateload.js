@@ -20,6 +20,7 @@ soysauce.lateload = function(selector) {
 			});
 		});
 		$(window).on("load", function() {
+			if (!$("[data-ss-ll-src][data-ss-options='load']")) return;
 			$("[data-ss-ll-src][data-ss-options='load']").each(function(i, e) {
 				loadItem(e);
 			});

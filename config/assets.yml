@@ -19,3 +19,5 @@ javascripts:
       - assets/javascript/soysauce/utilities/lateload.js
       - assets/javascript/soysauce/widgets/carousel.js
       - assets/javascript/soysauce/widgets/toggler.js
+  site.min:
+      - assets/javascript/site/*.js

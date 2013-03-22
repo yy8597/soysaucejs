@@ -1,0 +1,204 @@
+<html>
+	<head>
+		<title>Soysauce - Widgets</title>
+		<link rel="stylesheet" href="assets/soysauce.css">
+		<link rel="stylesheet" href="assets/main.css">
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	</head>
+	<body class="widgets">
+		<header>
+			<a class="title" href="/site/home.html">Soysauce</a>
+			<a class="github" target="_blank" href="https://github.com/brandingbrand/soysauce/issues?state=open">Report an Issue</a>
+		</header>
+		<div class="wrapper">
+			<nav>
+				<a href="/site/home.html">Home</a>
+				<a class="active">Widgets</a>
+				<a href="/site/contribute.html">Contribute</a>
+				<a href="/site/about.html">About</a>
+			</nav>
+			<div class="content">
+				<section>
+					<h1>Widgets</h1>
+					<article>
+						<p>Widgets should be both easy to use and easy to debug. There should be very little to no JS required to get them to work. Below is the complete API for each widget along with examples and demos.</p>
+					</article>
+				</section>
+				<section class="api">
+					<h1>API</h1>
+					<article>
+						<aside>
+							<ul>
+								<li>Basics</li>
+								<li>Carousel</li>
+								<li>Toggler</li>
+								<li>Lazyloader</li>
+								<li>Auto-detect CC</li>
+								<li>Auto-fill Zip</li>
+							</ul>
+						</aside>
+						<div class="apiCarousel" data-ss-widget="carousel" data-ss-options="finite noswipe fade">
+							<div class="basics" data-ss-component="item">
+								<section>
+									<h2>The Basics</h2>
+									<div class="description">
+										<h3>Description</h3>
+										<article>
+											<p>This section will expose a few common function calls between all widgets.</p>
+										</article>
+									</div>
+									<div class="functions">
+										<h3>Functions</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">soysauce.fetch(id or CSS selector)</span> - Use this function to obtain information about a widget; An ID is placed on every widget that contains the [data-ss-widget] attribute</li>
+												<li><span class="snippet">soysauce.init(CSS selector or Element)</span> - Use this function on an element containing the [data-ss-widget] attribute to initialize the widget; Soysauce will initialize it depending on the value</li>
+												<li><span class="snippet">soysauce.widgets</span> - Returns an object that contains all the initialized widgets</li>
+												<li><span class="snippet">soysauce.browserInfo</span> - Returns an object that contains helpful browser information such as the userAgent, local/session storage support, and SVG support</li>
+											</ul>
+										</article>
+									</div>
+									<div class="events">
+										<h3>Callback Events</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">SSWidgetReady</span> - Called on the element after the widget has been initialized</li>
+											</ul>
+										</article>
+									</div>
+									<div class="example">
+										<h3>Example</h3>
+										<article>
+											<p>Open up your inspector and try a function for yourself. Ex. <span class="snippet">soysauce.fetch("<em>.apiCarousel</em>")</span>. This function call returns a carousel object (this API section).</p>
+										</article>
+									</div>
+								</section>
+							</div>
+							<div class="carousel" data-ss-component="item">
+								<section>
+									<h2>Carousel</h2>
+									<div class="description">
+										<h3>Description</h3>
+										<article>Carousels are simply fancy display containers. They usually hold images, but can be used for content (such as this API section).</article>
+									</div>
+									<div class="required">
+										<h3>Required Attributes</h3>
+										<article>
+<pre class="prettyprint"><xmp>1) data-ss-widget="carousel"
+   Specifies the widget type, add to the container
+2) data-ss-component="item"
+   Specifies the component type, add to each item</xmp></pre>
+										</article>
+									</div>
+									<div class="optional">
+										<h3>Optional Attributes</h3>
+										<article>
+<pre class="prettyprint"><xmp>1) data-ss-options="option1 option2 option3"
+   Provides different widget variations
+2) data-ss-autoscroll-interval="x"
+   Autoscroll timing delay; default is "5000"
+3) data-ss-peek-width="x"
+   Peek Width pixels (per side); default is "20"
+4) data-ss-zoom-multiplier="x"
+   Zoom Multiplier; default is "2" (before the user pinch zooms)</xmp></pre>
+											<p class="note">Note: Optional attributes are always placed on the widget container</p>
+										</article>
+									</div>
+									<div class="options">
+										<h3>Options</h3>
+										<article>
+											<p>Options add variation to the widget; it can vary styling, animation, or functionality.</p>
+											<ul>
+												<li><span class="snippet">peek</span> - Allows the carousel to show a preview of the previous/next item</li>
+												<li><span class="snippet">finite</span> - Carousel will not loop</li>
+												<li><span class="snippet">autoscroll</span> - Timer-based scrolling; default is 5000ms</li>
+												<li><span class="snippet">zoom</span> - Allows the carousel to zoom the item</li>
+												<li><span class="snippet">pinch</span> - Must be paired with the zoom option; allows for the user to adjust the zoom modifier <span class="warn">(buggy)</span></li>
+												<li><span class="snippet">noswipe</span> - User cannot perform swipe gestures on the carousel</li>
+												<li><span class="snippet">cms</span> - Processes a CMS carousel <span class="warn">(soon to be deprecated)</span></li>
+												<li><span class="snippet">thumbs</span> - Carousel will use images as thumbnails for navigation <span class="alert">(untested)</span></li>
+												<li><span class="snippet">3d</span> - Forces 3d accelerated CSS on the carousel; applies to androids and opera browsers</li>
+												<li><span class="snippet">multi</span> - Allows for the carousel to show multiple items per screen <span class="alert">(untested)</span></li>
+												<li><span class="snippet">nofullscreen</span> - Halts resizing of items <span class="alert">(untested)</span></li>
+												<li><span class="snippet">autoheight</span> - Automatically adjusts height of carousel</li>
+												<li><span class="snippet">fade</span> - Carousel uses fade animation instead of sliding <span class="alert">(untested)</span></li>
+											</ul>
+										</article>
+									</div>
+									<div class="functions">
+										<h3>Functions</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">carousel.slideForward()</span> - Use this function to slide to the next item in the carousel</li>
+												<li><span class="snippet">carousel.slideBackward()</span> - Use this function to slide to the previous item in the carousel</li>
+												<li><span class="snippet">carousel.jumpTo(<em>index</em>)</span> - Use this function to slide to the specified, zero-based index in the carousel</li>
+											</ul>
+										</article>
+									</div>
+									<div class="events">
+										<h3>Callback Events</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">slideEnd</span> - This event is fired on the carousel after a transition to another item has occurred</li>
+											</ul>											
+										</article>
+									</div>
+									<div class="example">
+										<h3>Example</h3>
+										<article>
+<pre class="prettyprint"><xmp><div data-ss-widget="carousel" data-ss-options="peek">
+  <div data-ss-component="item">
+    <img src='image1.jpg'>
+  </div>
+  <div data-ss-component="item">
+    <img src='image2.jpg'>
+  </div>
+  <div data-ss-component="item">
+    <img src='image3.jpg'>
+  </div>
+</div></xmp></pre>
+										</article>
+									</div>
+									<div class="demo">
+										<h3>Demo</h3>
+										<article>
+											<!--
+												CAROUSEL GOES HERE
+											-->
+										</article>
+									</div>
+								</section>
+							</div>
+							<div class="toggler" data-ss-component="item">
+								<section>
+									<h2>Toggler</h2>
+								</section>
+							</div>
+							<div class="lazyloader" data-ss-component="item">
+								<section>
+									<h2>Lazyloader</h2>
+								</section>
+							</div>
+							<div class="autodetect-cc" data-ss-component="item">
+								<section>
+									<h2>Auto-detect CC</h2>
+								</section>
+							</div>
+							<div class="autofill-zip" data-ss-component="item">
+								<section>
+									<h2>Auto-fill Zip</h2>
+								</section>
+							</div>
+						</div>
+					</article>
+				</section>
+			</div>
+		</div>
+		<footer></footer>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="//google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
+		<script src="assets/soysauce.min.js"></script>
+		<script src="assets/site.js"></script>
+	</body>
+</html>
