@@ -80,7 +80,12 @@ h1 {
 }
 
 h2 {
-	margin: 10px 5px 5px;
+	font-weight: bold;
+	font-size: 18px;
+}
+
+h3 {
+	font-size: 14px;
 }
 
 input[type="text"], input[type="tel"], input[type="email"], input[type="password"] {
@@ -139,20 +144,20 @@ pre .atv, code .atv { color: #65B042; } /* html/xml attribute value - green */
 pre .dec, code .dec { color: #3387CC; } /* decimal - blue */
 
 pre.prettyprint, code.prettyprint {
-        background-color: #000;
-        -moz-border-radius: 8px;
-        -webkit-border-radius: 8px;
-        -o-border-radius: 8px;
-        -ms-border-radius: 8px;
-        -khtml-border-radius: 8px;
-        border-radius: 8px;
+	background-color: #000;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	-o-border-radius: 8px;
+	-ms-border-radius: 8px;
+	-khtml-border-radius: 8px;
+	border-radius: 8px;
 }
 
 pre.prettyprint {
-        width: 95%;
-        margin: 1em auto;
-        padding: 1em;
-        white-space: pre-wrap;
+	width: 95%;
+	margin: 1em auto;
+	padding: 1em;
+	white-space: pre-wrap;
 }
 
 /* Specify class=linenums on a pre to get line numbering */
@@ -172,4 +177,25 @@ li.L1,li.L3,li.L5,li.L7,li.L9 { }
   pre .tag, code .tag { color: #006; font-weight: bold; }
   pre .atn, code .atn { color: #404; }
   pre .atv, code .atv { color: #060; }
+}
+
+.snippet {
+	font-size: 11px;
+	font-family: menlo, monaco, "andale mono", "courier new", fixed;
+	color: #FFEC8B;
+	background: #202020;
+	padding: 3px 5px;
+	border-radius: 3px;
+	border: 1px solid #BBB;
+	> em {
+		color: #89BDFF;
+	}
+}
+
+.warn {
+	color: #E87600;
+}
+
+.alert {
+	color: #CD0000;
 }
