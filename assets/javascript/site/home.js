@@ -59,32 +59,7 @@ $(document).ready(function() {
 	// 		soysauce.init("#carousel [data-ss-widget]");
 	// 	}
 	// 	else if ($("body").hasClass("zip")) {
-	// 		var autofill1 = soysauce.fetch(1);
-	// 		var autofill2 = soysauce.fetch(2);
-	// 		
-	// 		autofill1.widget.on("SSDataFetch", function() {
-	// 			showLoader(autofill1);
-	// 		});
-	// 		
-	// 		autofill2.widget.on("SSDataFetch", function() {
-	// 			showLoader(autofill2);
-	// 		});
-	// 		
-	// 		autofill1.widget.on("SSDataReady SSDataError", function() {
-	// 			hideLoader(autofill1);
-	// 		});
-	// 		
-	// 		autofill2.widget.on("SSDataReady SSDataError", function() {
-	// 			hideLoader(autofill2);
-	// 		});
-	// 		
-	// 		function showLoader(widget) {
-	// 			widget.zip.find("+ img").show();
-	// 		}
-	// 		
-	// 		function hideLoader(widget) {
-	// 			widget.zip.find("+ img").hide();
-	// 		}
+
 	// 	}
 	// 	else if ($("body").hasClass("home")) {
 	// 		

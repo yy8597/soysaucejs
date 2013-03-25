@@ -1,9 +1,12 @@
 .demos {
 	.widget {
 		max-width: 500px;
-		margin: 0 auto 30px;
+		margin: 0 auto 20px;
 	}
 	.carousel {
+		.widget {
+			margin-bottom: 30px;
+		}
 		[data-ss-component="button"] {
 			border: 1px solid #CCC;
 			height: 90px;
@@ -91,7 +94,7 @@
 			padding: 10px;
 		}
 	}
-	.autodetect-cc {
+	.autodetect-cc, .reverseGeocode {
 		input {
 			@include appearance(none);
 			@include border-radius(3px);
@@ -105,6 +108,8 @@
 			width: 100%;
 			max-width: 300px;
 		}
+	}
+	.autodetect-cc {
 		h3 {
 			border-top: 1px solid #333;
 			padding-top: 10px;
@@ -153,6 +158,20 @@
 			label {
 				font-weight: bold;
 			}
+		}
+	}
+	.reverseGeocode {
+		[data-ss-component="zip"] {
+			max-width: 140px;
+			display: inline;
+			+ .ajaxLoader {
+				display: none;
+				position: relative;
+				top: 13px;
+			}
+		}
+		.code {
+			clear: both;
 		}
 	}
 }

@@ -54,5 +54,24 @@ $(document).ready(function() {
 				}
 			});
 		});
+		$(".reverseGeocode").each(function() {
+			var input = soysauce.fetch(".reverseGeocode [data-ss-widget='autofill-zip']");
+
+			input.widget.on("SSDataFetch", function() {
+				showLoader(input);
+			});
+
+			input.widget.on("SSDataReady SSDataError", function() {
+				hideLoader(input);
+			});
+
+			function showLoader(widget) {
+				widget.zip.find("+ img").show();
+			}
+
+			function hideLoader(widget) {
+				widget.zip.find("+ img").hide();
+			}
+		});
 	});
 });

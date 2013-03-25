@@ -466,7 +466,10 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 
 .demos .widget {
   max-width: 500px;
-  margin: 0 auto 30px;
+  margin: 0 auto 20px;
+}
+.demos .carousel .widget {
+  margin-bottom: 30px;
 }
 .demos .carousel [data-ss-component="button"] {
   border: 1px solid #CCC;
@@ -577,7 +580,7 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 .demos .toggler [data-ss-component="wrapper"] {
   padding: 10px;
 }
-.demos .autodetect-cc input {
+.demos .autodetect-cc input, .demos .reverseGeocode input {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -643,4 +646,16 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 }
 .demos .autodetect-cc .widget > div label {
   font-weight: bold;
+}
+.demos .reverseGeocode [data-ss-component="zip"] {
+  max-width: 140px;
+  display: inline;
+}
+.demos .reverseGeocode [data-ss-component="zip"] + .ajaxLoader {
+  display: none;
+  position: relative;
+  top: 13px;
+}
+.demos .reverseGeocode .code {
+  clear: both;
 }
