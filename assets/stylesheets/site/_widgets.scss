@@ -11,10 +11,12 @@
 				margin: 10px 0;
 			}
 			li {
-				line-height: 24px;
-				padding-bottom: 5px;
-				margin-bottom: 5px;
-				border-bottom: 1px solid #DDD;
+				line-height: 20px;
+				&:not(:last-of-type) {
+					padding-bottom: 5px;
+					margin-bottom: 5px;
+					border-bottom: 1px dotted #CCC;
+				}
 			}
 		}
 		aside {
@@ -25,8 +27,5 @@
 				border-bottom: 1px solid black;
 			}
 		}
-	}
-	.demo {
-		display: none;
 	}
 }
