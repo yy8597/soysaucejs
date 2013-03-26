@@ -38,8 +38,10 @@ header {
 	margin: 0 10%;
 	> nav {
 		@include display-box;
+		-webkit-user-select: none;
 		a {
 			@include box-flex(1);
+			-webkit-user-drag: none;
 			display: block;
 			text-align: center;
 			padding: 10px 0;

@@ -98,12 +98,14 @@ header .github {
   display: -moz-box;
   display: -ms-box;
   display: box;
+  -webkit-user-select: none;
 }
 .wrapper > nav a {
   -webkit-box-flex: 1;
   -moz-box-flex: 1;
   -ms-box-flex: 1;
   box-flex: 1;
+  -webkit-user-drag: none;
   display: block;
   text-align: center;
   padding: 10px 0;
@@ -455,7 +457,11 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   margin-bottom: 5px;
   border-bottom: 1px dotted #CCC;
 }
+.widgets .api > article .apiCarousel [data-ss-component="item"] {
+  width: 100%;
+}
 .widgets .api > article aside {
+  -webkit-user-select: none;
   min-width: 200px;
   border: 1px solid black;
 }

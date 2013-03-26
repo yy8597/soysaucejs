@@ -18,8 +18,12 @@
 					border-bottom: 1px dotted #CCC;
 				}
 			}
+			[data-ss-component="item"] {
+				width: 100%;
+			}
 		}
 		aside {
+			-webkit-user-select: none;
 			min-width: 200px;
 			border: 1px solid black;
 			li {
