@@ -279,8 +279,10 @@ soysauce.togglers = (function() {
 				});
 			}
 			else {
-				this.height = parseInt(this.content.attr("data-ss-slide-height"));
-				this.content.css("height", this.height + "px");
+				$(this.content).imagesLoaded(function() {
+					self.height = parseInt(self.content.attr("data-ss-slide-height"));
+					self.content.css("height", self.height + "px");
+				});
 			}
 		}
 
