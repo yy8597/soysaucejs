@@ -87,10 +87,8 @@
 				@include transform(rotate(90deg));
 			}
 		}
-		[data-ss-component="content"][data-ss-state="open"] {
-			border-top: 1px solid black;
-		}
 		[data-ss-component="wrapper"] {
+			border-top: 1px solid black;
 			padding: 10px;
 		}
 	}

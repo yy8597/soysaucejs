@@ -38,4 +38,12 @@
 		@include transition(opacity 0.5s);
 		opacity: 0;
 	}
+	.latest {
+		ul {
+			margin: 10px;
+		}
+		.note {
+			font-style: italic;
+		}
+	}
 }

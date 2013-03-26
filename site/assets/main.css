@@ -429,6 +429,12 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   transition: opacity 0.5s;
   opacity: 0;
 }
+.home .latest ul {
+  margin: 10px;
+}
+.home .latest .note {
+  font-style: italic;
+}
 
 .widgets .api > article {
   display: -webkit-box;
@@ -580,10 +586,8 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   -o-transform: rotate(90deg);
   transform: rotate(90deg);
 }
-.demos .toggler [data-ss-component="content"][data-ss-state="open"] {
-  border-top: 1px solid black;
-}
 .demos .toggler [data-ss-component="wrapper"] {
+  border-top: 1px solid black;
   padding: 10px;
 }
 .demos .autodetect-cc input, .demos .reverseGeocode input {
