@@ -452,6 +452,14 @@ soysauce.carousels = (function() {
 			this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
 		}
 		
+		if (self.autoscroll) {
+			self.autoscrollOff();
+			if (self.autoscrollRestartID !== undefined) {
+				window.clearInterval(self.autoscrollRestartID);
+				self.autoscrollRestartID = undefined;
+			}
+		}
+		
 		if (this.infinite) {
 			var duration = 0, xcoord = 0;
 			
