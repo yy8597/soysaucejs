@@ -98,16 +98,18 @@ header .github {
   display: -moz-box;
   display: -ms-box;
   display: box;
+  -webkit-user-select: none;
 }
 .wrapper > nav a {
   -webkit-box-flex: 1;
   -moz-box-flex: 1;
   -ms-box-flex: 1;
   box-flex: 1;
+  -webkit-user-drag: none;
   display: block;
   text-align: center;
-  border: 1px solid black;
   padding: 10px 0;
+  border: 1px solid black;
 }
 .wrapper > nav a.active {
   background: yellow;
@@ -137,16 +139,18 @@ img {
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
 
+h1, h2, h3 {
+  font-weight: bold;
+}
+
 h1 {
   margin: 10px 0;
   padding-bottom: 10px;
   border-bottom: 2px solid #AAA;
   font-size: 18px;
-  font-weight: bold;
 }
 
 h2 {
-  font-weight: bold;
   font-size: 18px;
 }
 
@@ -415,7 +419,7 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 .home .ajaxLoader {
   visibility: hidden;
 }
-.home .proceed button {
+.home .demo button {
   max-width: 185px;
 }
 .home .message {
@@ -424,6 +428,12 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   -o-transition: opacity 0.5s;
   transition: opacity 0.5s;
   opacity: 0;
+}
+.home .latest ul {
+  margin: 10px;
+}
+.home .latest .note {
+  font-style: italic;
 }
 
 .widgets .api > article {
@@ -446,16 +456,216 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   margin: 10px 0;
 }
 .widgets .api > article .apiCarousel li {
-  line-height: 24px;
+  line-height: 20px;
+}
+.widgets .api > article .apiCarousel li:not(:last-of-type) {
   padding-bottom: 5px;
   margin-bottom: 5px;
-  border-bottom: 1px solid #DDD;
+  border-bottom: 1px dotted #CCC;
+}
+.widgets .api > article .apiCarousel [data-ss-component="item"] {
+  width: 100%;
 }
 .widgets .api > article aside {
+  -webkit-user-select: none;
   min-width: 200px;
   border: 1px solid black;
 }
 .widgets .api > article aside li {
   padding: 10px;
   border-bottom: 1px solid black;
+}
+
+.demos .widget {
+  max-width: 500px;
+  margin: 0 auto 20px;
+}
+.demos .carousel .widget {
+  margin-bottom: 30px;
+}
+.demos .carousel [data-ss-component="button"] {
+  border: 1px solid #CCC;
+  height: 90px;
+  width: 50px;
+  background: #eee;
+  position: absolute;
+  top: 50%;
+  margin-top: -40px;
+}
+.demos .carousel [data-ss-component="button"]:after {
+  position: absolute;
+  top: 50%;
+  margin-top: -10px;
+  left: 50%;
+  margin-left: -7px;
+  font-size: 28px;
+  color: white;
+  text-shadow: 0 1px 0 black;
+}
+.demos .carousel [data-ss-component="button"][data-ss-button-type="prev"] {
+  -webkit-border-radius: 10px 0 0 10px;
+  -moz-border-radius: 10px 0 0 10px;
+  -ms-border-radius: 10px 0 0 10px;
+  -o-border-radius: 10px 0 0 10px;
+  border-radius: 10px 0 0 10px;
+  left: -70px;
+}
+.demos .carousel [data-ss-component="button"][data-ss-button-type="prev"]:after {
+  content: "<";
+}
+.demos .carousel [data-ss-component="button"][data-ss-button-type="next"] {
+  -webkit-border-radius: 0 10px 10px 0;
+  -moz-border-radius: 0 10px 10px 0;
+  -ms-border-radius: 0 10px 10px 0;
+  -o-border-radius: 0 10px 10px 0;
+  border-radius: 0 10px 10px 0;
+  right: -70px;
+}
+.demos .carousel [data-ss-component="button"][data-ss-button-type="next"]:after {
+  content: ">";
+}
+.demos .carousel [data-ss-component="dots"] {
+  position: absolute;
+  bottom: -15px;
+  right: 0;
+}
+.demos .carousel [data-ss-component="dot"] {
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-transition: opacity 0.3s;
+  -moz-transition: opacity 0.3s;
+  -o-transition: opacity 0.3s;
+  transition: opacity 0.3s;
+  display: inline-block;
+  margin-left: 5px;
+  background: black;
+  height: 12px;
+  width: 12px;
+  opacity: 0.5;
+}
+.demos .carousel [data-ss-component="dot"][data-ss-state="active"] {
+  opacity: 1;
+}
+.demos .toggler [data-ss-widget="toggler"] {
+  border: solid black;
+  border-width: 0 1px 1px;
+}
+.demos .toggler [data-ss-component="button"] {
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #c9de96), color-stop(0%, #8ab66b), color-stop(100%, #398235));
+  background: -webkit-linear-gradient(#c9de96 0%, #8ab66b 0%, #398235 100%);
+  background: -moz-linear-gradient(#c9de96 0%, #8ab66b 0%, #398235 100%);
+  background: -o-linear-gradient(#c9de96 0%, #8ab66b 0%, #398235 100%);
+  background: linear-gradient(#c9de96 0%, #8ab66b 0%, #398235 100%);
+  -webkit-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  -moz-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  -webkit-user-select: none;
+  background-color: #398235;
+  padding: 10px 14px;
+  font-size: 16px;
+  color: white;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+  border-top: 1px solid black;
+}
+.demos .toggler [data-ss-component="button"] .icon:before, .demos .toggler [data-ss-component="button"] .icon:after {
+  content: "";
+  border-top: 2px solid white;
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  margin-top: -1px;
+  width: 12px;
+}
+.demos .toggler [data-ss-component="button"][data-ss-state="closed"] .icon:after {
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+.demos .toggler [data-ss-component="wrapper"] {
+  border-top: 1px solid black;
+  padding: 10px;
+}
+.demos .autodetect-cc input, .demos .reverseGeocode input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
+  display: block;
+  min-height: 40px;
+  border: 1px solid #333;
+  text-indent: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 10px 0px;
+  width: 100%;
+  max-width: 300px;
+}
+.demos .autodetect-cc h3 {
+  border-top: 1px solid #333;
+  padding-top: 10px;
+  margin-bottom: 10px;
+}
+.demos .autodetect-cc .testCards li {
+  padding-bottom: 3px;
+  margin-bottom: 3px;
+  border-bottom: 1px dotted #ddd;
+  text-align: right;
+}
+.demos .autodetect-cc .testCards span {
+  float: left;
+}
+.demos .autodetect-cc .cards li {
+  -webkit-transition: all 0.2s;
+  -moz-transition: all 0.2s;
+  -o-transition: all 0.2s;
+  transition: all 0.2s;
+  background-image: url("../assets/images/sprite-cards.png");
+  display: inline-block;
+  width: 51px;
+  height: 32px;
+}
+.demos .autodetect-cc .cards .mastercard {
+  background-position-x: -51px;
+}
+.demos .autodetect-cc .cards .amex {
+  background-position-x: -102px;
+}
+.demos .autodetect-cc .cards .discover {
+  background-position-x: -153px;
+}
+.demos .autodetect-cc .cards .dinersclub {
+  background-position-x: -204px;
+}
+.demos .autodetect-cc .cards .jcb {
+  background-position-x: -306px;
+}
+.demos .autodetect-cc .cards .inactive {
+  background-position-y: 32px;
+}
+.demos .autodetect-cc .widget > div {
+  margin: 10px 0;
+}
+.demos .autodetect-cc .widget > div label {
+  font-weight: bold;
+}
+.demos .reverseGeocode [data-ss-component="zip"] {
+  max-width: 140px;
+  display: inline;
+}
+.demos .reverseGeocode [data-ss-component="zip"] + .ajaxLoader {
+  display: none;
+  position: relative;
+  top: 13px;
+}
+.demos .reverseGeocode .code {
+  clear: both;
 }

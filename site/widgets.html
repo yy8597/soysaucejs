@@ -15,8 +15,8 @@
 			<nav>
 				<a href="/site/home.html">Home</a>
 				<a class="active">Widgets</a>
+				<a href="/site/demos.html">Demos</a>
 				<a href="/site/contribute.html">Contribute</a>
-				<a href="/site/about.html">About</a>
 			</nav>
 			<div class="content">
 				<section>
@@ -33,7 +33,7 @@
 								<li>Basics</li>
 								<li>Carousel</li>
 								<li>Toggler</li>
-								<li>Lazyloader</li>
+								<li>Lazyloader / Lateloading</li>
 								<li>Auto-detect CC</li>
 								<li>Auto-fill Zip</li>
 							</ul>
@@ -55,7 +55,7 @@
 												<li><span class="snippet">soysauce.fetch(id or CSS selector)</span> - Use this function to obtain information about a widget; An ID is placed on every widget that contains the [data-ss-widget] attribute</li>
 												<li><span class="snippet">soysauce.init(CSS selector or Element)</span> - Use this function on an element containing the [data-ss-widget] attribute to initialize the widget; Soysauce will initialize it depending on the value</li>
 												<li><span class="snippet">soysauce.widgets</span> - Returns an object that contains all the initialized widgets</li>
-												<li><span class="snippet">soysauce.browserInfo</span> - Returns an object that contains helpful browser information such as the userAgent, local/session storage support, and SVG support</li>
+												<li><span class="snippet">soysauce.browserInfo</span> - Returns an object that contains helpful browser information such as the user agent, local/session storage support, and SVG support</li>
 											</ul>
 										</article>
 									</div>
@@ -80,12 +80,13 @@
 									<h2>Carousel</h2>
 									<div class="description">
 										<h3>Description</h3>
-										<article>Carousels are simply fancy display containers. They usually hold images, but can be used for content (such as this API section).</article>
+										<article>
+											<p>Carousels are simply fancy display containers. They usually hold images, but can be used for content (such as this API section).</p>
+										</article>
 									</div>
 									<div class="required">
 										<h3>Required Attributes</h3>
-										<article>
-<pre class="prettyprint"><xmp>1) data-ss-widget="carousel"
+										<article><pre class="prettyprint"><xmp>1) data-ss-widget="carousel"
    Specifies the widget type, add to the container
 2) data-ss-component="item"
    Specifies the component type, add to each item</xmp></pre>
@@ -102,7 +103,7 @@
    Peek Width pixels (per side); default is "20"
 4) data-ss-zoom-multiplier="x"
    Zoom Multiplier; default is "2" (before the user pinch zooms)</xmp></pre>
-											<p class="note">Note: Optional attributes are always placed on the widget container</p>
+											<p class="note">Note: Carousel optional attributes are placed on the widget container</p>
 										</article>
 									</div>
 									<div class="options">
@@ -145,27 +146,19 @@
 										</article>
 									</div>
 									<div class="example">
-										<h3>Example</h3>
+										<h3>Example 1 - Peek Carousel</h3>
 										<article>
 <pre class="prettyprint"><xmp><div data-ss-widget="carousel" data-ss-options="peek">
   <div data-ss-component="item">
-    <img src='image1.jpg'>
+    <img src="image1.jpg">
   </div>
   <div data-ss-component="item">
-    <img src='image2.jpg'>
+    <img src="image2.jpg">
   </div>
   <div data-ss-component="item">
-    <img src='image3.jpg'>
+    <img src="image3.jpg">
   </div>
 </div></xmp></pre>
-										</article>
-									</div>
-									<div class="demo">
-										<h3>Demo</h3>
-										<article>
-											<!--
-												CAROUSEL GOES HERE
-											-->
 										</article>
 									</div>
 								</section>
@@ -173,21 +166,269 @@
 							<div class="toggler" data-ss-component="item">
 								<section>
 									<h2>Toggler</h2>
+									<div class="description">
+										<h3>Description</h3>
+										<article>
+											<p>There are two main parts to a toggler: the button and its associated content. When a button is clicked/tapped, this changes the state of the content. Generally, we use togglers to show/hide content.</p>
+										</article>
+									</div>
+									<div class="required">
+										<h3>Required Attributes</h3>
+										<article>
+<pre class="prettyprint"><xmp>1) data-ss-widget="toggler"
+   Specifies the widget type, add to the container
+2) data-ss-component="button"
+   Specifies the button component of the widget
+3) data-ss-component="content"
+   Specifies the button content of the widget</xmp></pre>
+										</article>
+									</div>
+									<div class="optional">
+										<h3>Optional Attributes</h3>
+										<article>
+<pre class="prettyprint"><xmp>1) data-ss-options="option1 option2 option3"
+   Provides different widget variations
+2) data-ss-ajax-url="x"
+   Used with the ajax option; place this on the "content" component
+3) data-ss-responsive-width="x"
+   Used with the responsive option; threshold that toggles the 
+   [data-ss-responsive-type] attribute from "accordion" to "tabs"</xmp></pre>
+										</article>
+									</div>
+									<div class="options">
+										<h3>Options</h3>
+										<article>
+											<p>Options add variation to the widget; it can vary styling, animation, or functionality.</p>
+											<ul>
+												<li><span class="snippet">tabs</span> - Only one content component can be open at a time per group</li>
+												<li><span class="snippet">slide</span> - Toggler will use a slide open animation</li>
+												<li><span class="snippet">ajax</span> - Information is ajax'ed into the content with the [data-ss-ajax-url] attribute</li>
+												<li><span class="snippet">responsive</span> - Allows for the developer to account for both mobile and tablet/desktop with accordions and tabs using the same data</li>
+											</ul>
+										</article>
+									</div>
+									<div class="functions">
+										<h3>Functions</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">toggler.open()</span> - Use this function to open the toggler</li>
+												<li><span class="snippet">toggler.close()</span> - Use this function to close the toggler</li>
+												<li><span class="snippet">toggler.toggle()</span> - Use this function to toggle the toggler open or closed</li>
+											</ul>
+										</article>
+									</div>
+									<div class="events">
+										<h3>Callback Events</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">SSAjaxComplete</span> - This event is fired on the toggler after the ajax call returns (success or failure)</li>
+											</ul>											
+										</article>
+									</div>
+									<div class="example">
+										<h3>Example 1 - Slide-animated Toggler (with one open at a time)</h3>
+										<article>
+<pre class="prettyprint"><xmp><div data-ss-widget="toggler" data-ss-options="tabs slide">
+  <div data-ss-component="button">Button1</div>
+  <div data-ss-component="content">
+   ...	
+  </div>
+  <div data-ss-component="button">Button2</div>
+  <div data-ss-component="content">
+   ...	
+  </div>
+  <div data-ss-component="button">Button3</div>
+  <div data-ss-component="content">
+   ...	
+  </div>
+</div></xmp></pre>
+										<h3>Example 2 - Orphan Toggler (no parent container)</h3>
+										<article>
+<pre class="prettyprint"><xmp><div data-ss-component="button" data-ss-toggler-id="menu">...</div>
+<div data-ss-component="content" data-ss-toggler-id="menu">
+ ...
+</div></xmp></pre>
+										</article>
+									</div>
 								</section>
 							</div>
 							<div class="lazyloader" data-ss-component="item">
 								<section>
-									<h2>Lazyloader</h2>
+									<h2>Lazyloader / Lateloading</h2>
+									<div class="description">
+										<h3>Description</h3>
+										<article>
+											<p>The lazyloader widget allows for images to actively be requested. It's primary use is for optimization so that the page does not request these images on page load. As the image enters the window's threshold, the image will be loaded.</p>
+										</article>
+									</div>
+									<div class="required">
+										<h3>Required Attributes</h3>
+										<article>
+<pre class="prettyprint"><xmp>1) data-ss-widget="lazyloader"
+   Specifies the widget type, add to the container
+2) data-ss-component="item"
+   Specifies the button component of the widget
+3) data-ss-ll-src="SRC"
+   Use this attribute instead of the "src" attribute</xmp></pre>
+										</article>
+									</div>
+									<div class="optional">
+										<h3>Optional Attributes</h3>
+										<article>
+<pre class="prettyprint"><xmp>1) data-ss-options="option1 option2 option3"
+   Provides different widget variations</xmp></pre>
+										</article>
+									</div>
+									<div class="options">
+										<h3>Options</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">load</span> - This loads the image on the window's "load" event; place on the image</li>
+												<li><span class="snippet">dom</span> - This loads the image on the document's "DOMContentLoaded" event; place on the image</li>
+											</ul>											
+										</article>
+									</div>
+									<div class="functions">
+										<h3>Functions</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">soysauce.lateload(Element or CSS Selector)</span> - Use this function to explicitly load an image that has the [data-ss-ll-src] attribute</li>
+											</ul>
+										</article>
+									</div>
+									<div class="example">
+										<h3>Example 1 - Basic Lazyloader</h3>
+										<article>
+<pre class="prettyprint"><xmp><div data-ss-widget="lazyloader">
+  <img data-ss-component="item" data-ss-ll-src="image1.jpg">
+  <img data-ss-component="item" data-ss-ll-src="image2.jpg">
+  <img data-ss-component="item" data-ss-ll-src="image3.jpg">
+</div></xmp></pre>
+										</article>
+										<h3>Example 2 - Image loaded on window's "load" event</h3>
+										<article>
+<pre class="prettyprint"><xmp><img data-ss-ll-src="image1.jpg" data-ss-options="load"></xmp></pre>
+										</article>
+									</div>
 								</section>
 							</div>
 							<div class="autodetect-cc" data-ss-component="item">
 								<section>
-									<h2>Auto-detect CC</h2>
+									<h2>Auto-detect Credit Card Type</h2>
+									<div class="description">
+										<h3>Description</h3>
+										<article>
+											<p>This widget is used to auto-select the card type. It combines both regex and Luhn's algorithm to determine the card number's validity and type.</p>
+										</article>
+									</div>
+									<div class="required">
+										<h3>Required Attributes</h3>
+										<article>
+<pre class="prettyprint"><xmp>1) data-ss-widget="autodetect-cc"
+   Specifies the widget type, add to the input</xmp></pre>
+										</article>
+									</div>
+									<div class="optional">
+										<h3>Optional Attributes</h3>
+										<article>
+<pre class="prettyprint"><xmp>1) data-ss-options="option1 option2 option3"
+   Provides different widget variations</xmp></pre>
+										</article>
+									</div>
+									<div class="options">
+										<h3>Options</h3>
+										<article>
+											<p>Options add variation to the widget; it can vary styling, animation, or functionality.</p>
+											<ul>
+												<li><span class="snippet">format</span> - Auto-formats the credit card number as the user types <span class="warn">(buggy with old androids)</span></li>
+											</ul>
+										</article>
+									</div>
+									<div class="events">
+										<h3>Callback Events</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">SSPrediction</span> - This event is fired on the input when a prediction is ready</li>
+												<li><span class="snippet">SSResult</span> - This event is fired on the input the final result is ready</li>
+											</ul>
+										</article>
+									</div>
+									<div class="example">
+										<h3>Example 1 - Basic Autodetect CC Type</h3>
+										<article>
+<pre class="prettyprint"><xmp><input type="tel" data-ss-widget="autodetect-cc"></xmp></pre>
+									</div>
 								</section>
 							</div>
 							<div class="autofill-zip" data-ss-component="item">
 								<section>
 									<h2>Auto-fill Zip</h2>
+									<div class="description">
+										<h3>Description</h3>
+										<article>
+											<p>This widget auto-completes a city/state input from zip and can also reverse geocode a user's location (such as a store-locator implementation)</p>
+										</article>
+									</div>
+									<div class="required">
+										<h3>Required Attributes</h3>
+										<article>
+<pre class="prettyprint"><xmp>1) data-ss-widget="autofill-zip"
+   Specifies the widget type, add to the container</xmp></pre>
+										</article>
+									</div>
+									<div class="optional">
+										<h3>Optional Attributes</h3>
+										<article>
+<pre class="prettyprint"><xmp>1) data-ss-options="option1 option2 option3"
+   Provides different widget variations
+2) data-ss-component="zip"
+   Place on the zipcode input
+3) data-ss-component="city"
+   Place on the city input (not reverse)
+3) data-ss-component="state"
+   Place on state element (not reverse)
+4) data-ss-component="reverse-geocode"
+   Use this if you are reverse geocoding; the geocoding button</xmp></pre>
+										</article>
+									</div>
+									<div class="options">
+										<h3>Options</h3>
+										<article>
+											<p>Options add variation to the widget; it can vary styling, animation, or functionality.</p>
+											<ul>
+												<li><span class="snippet">reverse</span> - Use this if you're reverse geocoding</li>
+											</ul>
+										</article>
+									</div>
+									<div class="events">
+										<h3>Callback Events</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">SSDataFetch</span> - This event is fired when the widget is fetching data; generally after a user clicks a button (if reverse) or enters a 5-digit zip code</li>
+												<li><span class="snippet">SSDataReady</span> - This event is fired after the widget retrieves the data</li>
+												<li><span class="snippet">SSDataError</span> - This event is fired if the widget could not retrieve successful data or an error occurs (such as invalid zip)
+											</ul>											
+										</article>
+									</div>
+									<div class="example">
+										<h3>Example 1 - Autofill City/State from Zip</h3>
+										<article>
+<pre class="prettyprint"><xmp><div data-ss-widget="autofill-zip">
+  <input data-ss-component="zip" type="tel" placeholder="Zip Code">
+  <input data-ss-component="city" type="text" placeholder="City">
+  <select data-ss-component="state">
+    ...
+  </select>
+</div>
+</xmp></pre>
+										<h3>Example 2 - Reverse Geocoding</h3>
+										<article>
+<pre class="prettyprint"><xmp><div data-ss-widget="autofill-zip" data-ss-options="reverse">
+  <div data-ss-component="reverse-geocode">Use Current Location</div>
+  <input data-ss-component="zip" type="tel" placeholder="Zip Code">
+</div></xmp></pre>
+										</article>
+									</div>
 								</section>
 							</div>
 						</div>
@@ -200,5 +441,18 @@
 		<script src="//google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
 		<script src="assets/soysauce.min.js"></script>
 		<script src="assets/site.js"></script>
+		<script type="text/javascript">
+
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-37029859-1']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+
+		</script>
 	</body>
 </html>

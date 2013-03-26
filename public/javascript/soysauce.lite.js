@@ -409,138 +409,6 @@ $.fn.imagesLoaded = function( callback ) {
 if(typeof(soysauce) === "undefined") {
 "use strict";
 
-if (!jQuery.fn.find) {
-	jQuery.fn.extend({
-		find: function( selector ) {
-			var i, ret, self,
-			len = this.length;
-
-			if ( typeof selector !== "string" ) {
-				self = this;
-				return this.pushStack( jQuery( selector ).filter(function() {
-					for ( i = 0; i < len; i++ ) {
-						if ( jQuery.contains( self[ i ], this ) ) {
-							return true;
-						}
-					}
-				}));
-			}
-
-			ret = [];
-			for ( i = 0; i < len; i++ ) {
-				jQuery.find( selector, this[ i ], ret );
-			}
-        
-			// Needed because $( selector, context ) becomes $( context ).find( selector )
-			ret = this.pushStack( len > 1 ? jQuery.unique( ret ) : ret );
-			ret.selector = ( this.selector ? this.selector + " " : "" ) + selector;
-			return ret;
-		}
-	});
-}
-
-if (!jQuery.fn.on) {
-	jQuery.fn.extend({
-		on: function( types, selector, data, fn, /*INTERNAL*/ one ) {
-			var type, origFn;
-
-			// Types can be a map of types/handlers
-			if ( typeof types === "object" ) {
-				// ( types-Object, selector, data )
-				if ( typeof selector !== "string" ) {
-					// ( types-Object, data )
-					data = data || selector;
-					selector = undefined;
-				}
-				for ( type in types ) {
-					this.on( type, selector, data, types[ type ], one );
-				}
-				return this;
-			}
-
-			if ( data == null && fn == null ) {
-				// ( types, fn )
-				fn = selector;
-				data = selector = undefined;
-			} else if ( fn == null ) {
-				if ( typeof selector === "string" ) {
-					// ( types, selector, fn )
-					fn = data;
-					data = undefined;
-				} else {
-					// ( types, data, fn )
-					fn = data;
-					data = selector;
-					selector = undefined;
-				}
-			}
-			if ( fn === false ) {
-				fn = returnFalse;
-			} else if ( !fn ) {
-				return this;
-			}
-
-			if ( one === 1 ) {
-				origFn = fn;
-				fn = function( event ) {
-					// Can use an empty set, since event contains the info
-					jQuery().off( event );
-					return origFn.apply( this, arguments );
-				};
-				// Use same guid so caller can remove using origFn
-				fn.guid = origFn.guid || ( origFn.guid = jQuery.guid++ );
-			}
-			return this.each( function() {
-				jQuery.event.add( this, types, fn, data, selector );
-			});
-		}
-	});
-}
-
-if (!jQuery.fn.one) {
-	jQuery.fn.extend({
-		one: function( types, selector, data, fn ) {
-			return this.on( types, selector, data, fn, 1 );
-		}
-	});
-}
-
-if (!jQuery.fn.off) {
-	jQuery.fn.extend({
-		off: function( types, selector, fn ) {
-			var handleObj, type;
-			if ( types && types.preventDefault && types.handleObj ) {
-				// ( event )  dispatched jQuery.Event
-				handleObj = types.handleObj;
-				jQuery( types.delegateTarget ).off(
-					handleObj.namespace ? handleObj.origType + "." + handleObj.namespace : handleObj.origType,
-					handleObj.selector,
-					handleObj.handler
-				);
-				return this;
-			}
-			if ( typeof types === "object" ) {
-				// ( types-object [, selector] )
-				for ( type in types ) {
-					this.off( type, selector, types[ type ] );
-				}
-				return this;
-			}
-			if ( selector === false || typeof selector === "function" ) {
-				// ( types [, fn] )
-				fn = selector;
-				selector = undefined;
-			}
-			if ( fn === false ) {
-				fn = returnFalse;
-			}
-			return this.each(function() {
-				jQuery.event.remove( this, types, fn, selector );
-			});
-		}
-	});
-}
-
 soysauce = {
 	widgets: new Array(),
 	vars: {
@@ -1192,6 +1060,14 @@ soysauce.carousels = (function() {
 		}
 		else {
 			this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
+		}
+		
+		if (self.autoscroll) {
+			self.autoscrollOff();
+			if (self.autoscrollRestartID !== undefined) {
+				window.clearInterval(self.autoscrollRestartID);
+				self.autoscrollRestartID = undefined;
+			}
 		}
 		
 		if (this.infinite) {
@@ -1852,6 +1728,24 @@ soysauce.carousels = (function() {
 			this.widget.height(newHeight);
 		}
 
+		if (this.isZoomed) {
+			var zoomImg = this.items[this.index];
+			zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
+			this.dots.first().parent().css("visibility", "visible");
+			this.nextBtn.show();
+			this.prevBtn.show();
+			this.isZooming = true;
+			this.ready = false;
+			this.widget.attr("data-ss-state", "ready");
+			this.zoomIcon.attr("data-ss-state", "out");
+			setTranslate(zoomImg, 0, 0);
+			setScale(zoomImg, 1);
+			$(zoomImg).on(TRANSITION_END, function() {
+				self.isZoomed = false;
+				self.isZooming = false;
+			});
+		}
+
 		this.gotoPos(newOffset, false, true);
 		this.index = index;
 		
@@ -2038,15 +1932,19 @@ soysauce.togglers = (function() {
 					height += self.widget.height();
 				});
 				this.height = height;
+				this.allContent.css("height", "0px");
+				this.allContent.attr("data-ss-state", "closed");
 			}
 			else {
 				this.allContent.each(function() {
-					$(this).attr("data-ss-slide-height", $(this).height());
+					var content = $(this);
+					content.imagesLoaded(function() {
+						content.attr("data-ss-slide-height", content.height());
+						content.css("height", "0px");
+						content.attr("data-ss-state", "closed");
+					});
 				});
 			}
-
-			this.allContent.css("height", "0px");
-			this.allContent.attr("data-ss-state", "closed");
 			this.allContent.on(TRANSITION_END, function() {
 				self.ready = true;
 			});
@@ -2185,8 +2083,8 @@ soysauce.togglers = (function() {
 				});
 			}
 			else {
-				this.height = parseInt(this.content.attr("data-ss-slide-height"));
-				this.content.css("height", this.height + "px");
+				self.height = parseInt(self.content.attr("data-ss-slide-height"));
+				self.content.css("height", self.height + "px");
 			}
 		}
 
@@ -2240,6 +2138,8 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.toggle = function(e) {
+		var self = this;
+		
 		if (this.freeze || this.ajaxing) return;
 
 		if (this.orphan) {
@@ -2266,7 +2166,7 @@ soysauce.togglers = (function() {
 			this.content = $(e.target).find("+ [data-ss-component='content']");
 
 			if (this.slide) {
-				this.height = parseInt(this.content.attr("data-ss-slide-height"));
+				self.height = parseInt(self.content.attr("data-ss-slide-height"));
 			}
 
 			if (collapse) {

@@ -15,8 +15,8 @@
 			<nav>
 				<a class="active">Home</a>
 				<a href="/site/widgets.html">Widgets</a>
+				<a href="/site/demos.html">Demos</a>
 				<a href="/site/contribute.html">Contribute</a>
-				<a href="/site/about.html">About</a>
 			</nav>
 			<div class="content">
 				<section>
@@ -25,18 +25,21 @@
 						<p>Soysauce is a customizable widget library made to ease the life of a developer. If a widget is difficult to implement, Soysauce is doing something wrong! (Psst... just report an issue if you want something changed)</p>
 					</article>
 				</section>
-				<section>
-					<h1>Grab the latest!</h1>
+				<section class="latest">
+					<h1>Grab the latest! (v1.1.46)</h1>
 					<article>
-						<div>Soysauce requires jQuery. To install, just add the CSS and a JS file to your site</div>
+						<div>Soysauce requires jQuery. To install, just add the CSS and a JS file to your site. Soysauce supports both http and https protocols.</div>
 						<ul>
-							<li>Compressed Lite (40.86 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.41/soysauce.lite.min.js</li>
-							<li>Uncompressed Lite (63.03 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.41/soysauce.lite.js</li>
-							<li>Compressed (48.40 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.41/soysauce.min.js</li>
-							<li>Uncompressed (74.97 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.41/soysauce.js</li>
-							<li>CSS (6.08 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.41/soysauce.css</li>
+							<li>Compressed Lite (40.15 KB) - divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.lite.min.js</li>
+							<li>Uncompressed Lite (61.00 KB) - divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.lite.js</li>
+							<li>Compressed (47.69 KB) - divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.min.js</li>
+							<li>Uncompressed (72.93 KB) - divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.js</li>
+							<li>Compressed Legacy (49.13 KB) - divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.legacy.min.js</li>
+							<li>Uncompressed Legacy (76.15 KB) - divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.legacy.js</li>
+							<li>CSS (6.79 KB) - divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.css</li>
 						</ul>
-						<div class="">The lite version includes only the bare essential widgets for building a site: Carousel, Toggler, and Lateloader.</div>
+						<div class="note">* The lite version includes only the bare essential widgets for building a site: Carousel, Toggler, and Lateloader.</div>
+						<div class="note">* The legacy version supports older versions of jQuery (pre 1.6)</div>
 					</article>
 				</section>
 				<section class="demo">
@@ -239,7 +242,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="message">For this widget, the required attributes are the "data-ss-" prefixed attributes. If you'd like to see more, please checkout the <a href="/site/widgets.html">widgets</a> section!</div>
+							<div class="message">For this widget, the required attributes are the "data-ss-" prefixed attributes. If you'd like to see more demos, please checkout the <a href="/site/demos.html">demos</a> section!</div>
 						</div>
 					</article>
 				</section>
@@ -249,5 +252,18 @@
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script src="assets/soysauce.min.js"></script>
 		<script src="assets/site.js"></script>
+		<script type="text/javascript">
+
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-37029859-1']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+
+		</script>
 	</body>
 </html>

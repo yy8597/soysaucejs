@@ -132,15 +132,19 @@ soysauce.togglers = (function() {
 					height += self.widget.height();
 				});
 				this.height = height;
+				this.allContent.css("height", "0px");
+				this.allContent.attr("data-ss-state", "closed");
 			}
 			else {
 				this.allContent.each(function() {
-					$(this).attr("data-ss-slide-height", $(this).height());
+					var content = $(this);
+					content.imagesLoaded(function() {
+						content.attr("data-ss-slide-height", content.height());
+						content.css("height", "0px");
+						content.attr("data-ss-state", "closed");
+					});
 				});
 			}
-
-			this.allContent.css("height", "0px");
-			this.allContent.attr("data-ss-state", "closed");
 			this.allContent.on(TRANSITION_END, function() {
 				self.ready = true;
 			});
@@ -279,8 +283,8 @@ soysauce.togglers = (function() {
 				});
 			}
 			else {
-				this.height = parseInt(this.content.attr("data-ss-slide-height"));
-				this.content.css("height", this.height + "px");
+				self.height = parseInt(self.content.attr("data-ss-slide-height"));
+				self.content.css("height", self.height + "px");
 			}
 		}
 
@@ -334,6 +338,8 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.toggle = function(e) {
+		var self = this;
+		
 		if (this.freeze || this.ajaxing) return;
 
 		if (this.orphan) {
@@ -360,7 +366,7 @@ soysauce.togglers = (function() {
 			this.content = $(e.target).find("+ [data-ss-component='content']");
 
 			if (this.slide) {
-				this.height = parseInt(this.content.attr("data-ss-slide-height"));
+				self.height = parseInt(self.content.attr("data-ss-slide-height"));
 			}
 
 			if (collapse) {

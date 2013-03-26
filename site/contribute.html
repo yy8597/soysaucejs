@@ -15,16 +15,47 @@
 			<nav>
 				<a href="/site/home.html">Home</a>
 				<a href="/site/widgets.html">Widgets</a>
+				<a href="/site/demos.html">Demos</a>
 				<a class="active">Contribute</a>
-				<a href="/site/about.html">About</a>
 			</nav>
 			<div class="content">
-				
+				<section>
+					<h1>Contribute</h1>
+					<article>
+						<p>If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have Java and the gems bundle, compass, jammit, rake, and aws-sdk. Just run these two simple commands in the main directory to obtain the gems (Java is separate)</p>
+						<pre class="prettyprint"><xmp>gem install bundle
+bundle</xmp></pre>
+						<p>NOTE- If you have trouble installing gems, make sure you have XCode with Command Line Tools and RVM. RVM can be installed via:</p>
+<pre class="prettyprint"><xmp>curl -L https://get.rvm.io | bash -s stable</xmp></pre>
+						<p>To create a build, run this command in the main directory. This compiles the CSS/JS, places the assets in the "build" directory, pushes it up to the CDN, and updates the readme. You must have cdn.yml located in the assets folder.</p>
+<pre class="prettyprint"><xmp>rake v=[VERSION_NUMBER]
+(ex. rake v=1.0.5)</xmp></pre>
+						<p>To compile the css, run this command in the main directory:</p>
+<pre class="prettyprint"><xmp>compass watch
+  -OR-
+compass compile</xmp></pre>
+						<p>To bundle the javascript, run this command in the main directory:</p>
+<pre class="prettyprint"><xmp>jammit</xmp></pre>
+					</article>
+				</section>
 			</div>
 		</div>
 		<footer></footer>
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script src="assets/soysauce.min.js"></script>
 		<script src="assets/site.js"></script>
+		<script type="text/javascript">
+
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-37029859-1']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+
+		</script>
 	</body>
 </html>

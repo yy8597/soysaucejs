@@ -64,7 +64,7 @@
 		@include transition(height 0.2s);
 	}
 	&[data-ss-options*="fade"] {
-		[data-ss-component="container_wrapper"] {
+		[data-ss-component="container_wrapper"], [data-ss-component="container"] {
 			overflow: visible;
 		}
 		[data-ss-component="item"] {

@@ -11,13 +11,19 @@
 				margin: 10px 0;
 			}
 			li {
-				line-height: 24px;
-				padding-bottom: 5px;
-				margin-bottom: 5px;
-				border-bottom: 1px solid #DDD;
+				line-height: 20px;
+				&:not(:last-of-type) {
+					padding-bottom: 5px;
+					margin-bottom: 5px;
+					border-bottom: 1px dotted #CCC;
+				}
+			}
+			[data-ss-component="item"] {
+				width: 100%;
 			}
 		}
 		aside {
+			-webkit-user-select: none;
 			min-width: 200px;
 			border: 1px solid black;
 			li {

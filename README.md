@@ -1,4 +1,4 @@
-# Soysauce (v1.1.42)
+# Soysauce (v1.1.46)
 Original Author: Edward Gaba
 
 Soysauce is a customizable javascript widget library. Popular widgets included are carousels and accordions. Please file any issues you find in Github. Please see the Soysauce website for full documentation of the widgets:
@@ -6,17 +6,21 @@ Soysauce is a customizable javascript widget library. Popular widgets included a
 http://soysauce.s3.amazonaws.com/site/home.html
 
 ## Current CDN URLs
-* Compressed Lite (40.98 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.42/soysauce.lite.min.js
-* Uncompressed Lite (63.26 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.42/soysauce.lite.js
-* Compressed (48.51 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.42/soysauce.min.js
-* Uncompressed (75.19 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.42/soysauce.js
-* CSS (6.70 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.42/soysauce.css
+* Compressed Lite (40.15 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.lite.min.js
+* Uncompressed Lite (61.00 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.lite.js
+* Compressed (47.69 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.min.js
+* Uncompressed (72.93 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.js
+* Compressed Legacy (49.13 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.legacy.min.js
+* Uncompressed Legacy (76.15 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.legacy.js
+* CSS (6.79 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.css
 
 Note: Lite contains only the bare essentials (which will later help with scaling as the number of widgets increase):
 * Fastclick
 * Carousel
 * Toggler
 * Lateload
+
+Note2: Legacy contains support for older versions of jQuery (< 1.6)
 
 ## Widgets
 These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include both the CSS and JS file (use the CDN links above).
