@@ -163,6 +163,29 @@ task :build do
     |file| file.write(readme)
   }
 
+  # Update Homepage
+  home = File.read("site/home.html")
+
+  home = home.gsub(/v[\d\.]+/, version)
+  size = '%.2f' % (File.size("public/javascript/soysauce.lite.min.js").to_f / 1000)
+  home = home.gsub(/(Compressed Lite \()[\d\.]+/, "\\1" + size)
+  size = '%.2f' % (File.size("public/javascript/soysauce.legacy.min.js").to_f / 1000)
+  home = home.gsub(/(Compressed Legacy \()[\d\.]+/, "\\1" + size)
+  size = '%.2f' % (File.size("public/javascript/soysauce.min.js").to_f / 1000)
+  home = home.gsub(/(Compressed \()[\d\.]+/, "\\1" + size)
+  size = '%.2f' % (File.size("public/javascript/soysauce.lite.js").to_f / 1000)
+  home = home.gsub(/(Uncompressed Lite \()[\d\.]+/, "\\1" + size)
+  size = '%.2f' % (File.size("public/javascript/soysauce.legacy.js").to_f / 1000)
+  home = home.gsub(/(Uncompressed Legacy \()[\d\.]+/, "\\1" + size)
+  size = '%.2f' % (File.size("public/javascript/soysauce.js").to_f / 1000)
+  home = home.gsub(/(Uncompressed \()[\d\.]+/, "\\1" + size)
+  size = '%.2f' % (File.size("assets/soysauce.css").to_f / 1000)
+  home = home.gsub(/(CSS \()[\d\.]+/, "\\1" + size)
+
+  File.open("site/home.html", "w") {
+    |file| file.write(home)
+  }
+
   # Create build tag
   pushTag = Thread.new {
     puts "Soysauce: Pushing tag to github..."
