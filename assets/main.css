@@ -435,6 +435,9 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 .home .latest .note {
   font-style: italic;
 }
+.home .latest h3 {
+  margin: 10px 0;
+}
 
 .widgets .api > article {
   display: -webkit-box;

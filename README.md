@@ -6,10 +6,10 @@ Soysauce is a customizable javascript widget library. Popular widgets included a
 http://soysauce.s3.amazonaws.com/site/home.html
 
 ## Current CDN URLs
-* Compressed Lite (40.15 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.lite.min.js
-* Uncompressed Lite (61.00 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.lite.js
 * Compressed (47.69 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.min.js
 * Uncompressed (72.93 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.js
+* Compressed Lite (40.15 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.lite.min.js
+* Uncompressed Lite (61.00 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.lite.js
 * Compressed Legacy (49.13 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.legacy.min.js
 * Uncompressed Legacy (76.15 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.legacy.js
 * CSS (6.79 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.46/soysauce.css
