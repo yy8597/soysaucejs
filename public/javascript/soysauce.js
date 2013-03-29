@@ -2314,6 +2314,7 @@ soysauce.togglers = (function() {
 		// Slide
 		this.slide = false;
 		this.height = 0;
+		this.prevChildHeight = 0;
 		
 		// Ajax
 		this.ajax = false;
@@ -2362,7 +2363,7 @@ soysauce.togglers = (function() {
 		if (this.isChildToggler) {
 			var parent = this.widget.parents("[data-ss-widget='toggler']");
 			this.parentID = parseInt(parent.attr("data-ss-id"));
-			this.parent = parent;
+			this.parent = soysauce.fetch(this.parentID);
 		}
 
 		if (this.widget.attr("data-ss-state") !== undefined && this.widget.attr("data-ss-state") === "open") {
@@ -2381,19 +2382,25 @@ soysauce.togglers = (function() {
 			this.allContent.attr("data-ss-state", "open");
 
 			if (this.hasTogglers) {
-				var height = 0;
-				this.content.find("[data-ss-component='button']").each(function() {
-					height += self.widget.height();
+				this.allContent.each(function() {
+					var content = $(this);
+					content.imagesLoaded(function() {
+						var height;
+						content.find("[data-ss-component='content']").attr("data-ss-state", "closed");
+						height = content.outerHeight();
+						self.height = height;
+						content.attr("data-ss-slide-height", height);
+						content.css("height", "0px");
+						content.attr("data-ss-state", "closed");
+						content.find("[data-ss-component='content']").removeAttr("data-ss-state");
+					});
 				});
-				this.height = height;
-				this.allContent.css("height", "0px");
-				this.allContent.attr("data-ss-state", "closed");
 			}
 			else {
 				this.allContent.each(function() {
 					var content = $(this);
 					content.imagesLoaded(function() {
-						content.attr("data-ss-slide-height", content.height());
+						content.attr("data-ss-slide-height", content.outerHeight());
 						content.css("height", "0px");
 						content.attr("data-ss-state", "closed");
 					});
@@ -2515,18 +2522,12 @@ soysauce.togglers = (function() {
 
 			if (this.isChildToggler && this.parent.slide) {
 				if (this.tab) {
-					if (!this.parent.childTabOpen) {
-						this.parent.addHeight(this.height);
-						this.parent.childTabOpen = true;
-					}
-					else {
-						var offset = this.height - prevHeight;
-						this.parent.addHeight(offset);
-					}
+					this.parent.setHeight(this.parent.height + this.height - this.parent.prevChildHeight);
 				}
 				else {
 					this.parent.addHeight(this.height);
 				}
+				this.parent.prevChildHeight = this.height;
 			}
 
 			if (this.ajax && this.height === 0) {
@@ -2546,14 +2547,14 @@ soysauce.togglers = (function() {
 		this.setState("open");
 	};
 	
-	Toggler.prototype.close = function() {
+	Toggler.prototype.close = function(collapse) {
 		var self = this;
 
 		if (!this.ready) return;
 
 		if (this.slide) {
 			this.ready = false;
-			if (this.isChildToggler && this.parent.slide && !this.tab) {
+			if (this.isChildToggler && this.parent.slide && collapse) {
 				this.parent.addHeight(-this.height);
 			}
 			this.content.css("height", "0px");
@@ -2581,6 +2582,9 @@ soysauce.togglers = (function() {
 		if (!height===+height || !height===(height|0)) return;
 		this.height += height;
 		this.height = (this.height < 0) ? 0 : this.height;
+		if (this.slide) {
+			this.content.attr("data-ss-slide-height", this.height);
+		}
 		this.content.css("height", this.height + "px");
 	};
 
@@ -2588,7 +2592,10 @@ soysauce.togglers = (function() {
 		if (!height===+height || !height===(height|0)) return;
 		this.height = height;
 		this.height = (this.height < 0) ? 0 : this.height;
-		this.content.css("height", height + "px");
+		if (this.slide) {
+			this.content.attr("data-ss-slide-height", this.height);
+		}
+		this.content.css("height", this.height + "px");
 	};
 
 	Toggler.prototype.toggle = function(e) {
@@ -2614,7 +2621,14 @@ soysauce.togglers = (function() {
 
 			if (this.responsive && !this.responsiveVars.accordions && (this.button[0] === e.target)) return;
 
-			this.close();
+			if (this.isChildToggler && this.tab) {
+				this.parent.childTabOpen = !collapse;
+				if (collapse) {
+					this.parent.prevChildHeight = 0;
+				}
+			}
+
+			this.close(collapse);
 
 			this.button = $(e.target);
 			this.content = $(e.target).find("+ [data-ss-component='content']");
