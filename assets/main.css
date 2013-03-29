@@ -549,9 +549,9 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   -moz-transition: opacity 0.3s;
   -o-transition: opacity 0.3s;
   transition: opacity 0.3s;
-  -webkit-box-shadow: inset 1px 1px 7px rgba(255, 255, 255, 0.6);
-  -moz-box-shadow: inset 1px 1px 7px rgba(255, 255, 255, 0.6);
-  box-shadow: inset 1px 1px 7px rgba(255, 255, 255, 0.6);
+  -webkit-box-shadow: inset 1px 1px 7px rgba(255, 255, 255, 0.5);
+  -moz-box-shadow: inset 1px 1px 7px rgba(255, 255, 255, 0.5);
+  box-shadow: inset 1px 1px 7px rgba(255, 255, 255, 0.5);
   border: 1px solid #666;
   display: inline-block;
   margin-left: 5px;
