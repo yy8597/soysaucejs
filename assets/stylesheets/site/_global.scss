@@ -1,4 +1,6 @@
-$background: white;
+$background: #2f2f2f;
+$green: #32CD32;
+$red: #CD0000;
 
 * {
 	@include box-sizing(border-box);
@@ -9,48 +11,68 @@ html {
 }
 
 body {
+	color: white;
 	background: #2f2f2f;
 	position: relative;
 	font-size: 13px;
-	font-family: 'Open Sans', sans-serif;
+	font-family: Helvetica, 'Open Sans', sans-serif;
 	line-height: 16px;
 }
 
 header {
+	@include box-shadow(0 1px 2px rgba(0,0,0,0.3));
 	background: $background;
 	position: relative;
 	border-bottom: 1px solid black;
+	min-height: 65px;
+	z-index: 10;
 	.title {
 		display: inline-block;
-		font-size: 24px;
-		padding: 20px 15px;
+		width: 170px;
+		text-decoration: none;
+		margin: 10px 20px;
+		img {
+			width: 31px;
+			float: left;
+		}
+		span {
+			color: white;
+			text-decoration: none;
+			text-transform: uppercase;
+			font-size: 26px;
+			position: relative;
+			top: 22px;
+			text-shadow: 3px 2px 0 black;
+			left: -3px;
+			letter-spacing: -1px;
+		}
 	}
 	.github {
 		font-size: 16px;
 		position: absolute;
-		right: 10px;
-		top: 20px;
+		right: 15px;
+		top: 35px;
+	}
+	nav {
+		text-transform: uppercase;
+		display: inline-block;
+		position: relative;
+		top: 21px;
+		left: 55px;
+		font-size: 14px;
+		a {
+			display: inline-block;
+			padding: 15px;
+			&.active {
+				color: $green;
+			}
+		}
 	}
 }
 
 .wrapper {
 	background: $background;
 	margin: 0 10%;
-	> nav {
-		@include display-box;
-		-webkit-user-select: none;
-		a {
-			@include box-flex(1);
-			-webkit-user-drag: none;
-			display: block;
-			text-align: center;
-			padding: 10px 0;
-			border: 1px solid black;
-			&.active {
-				background: yellow;
-			}
-		}
-	}
 }
 
 .content {
@@ -75,6 +97,8 @@ img {
 
 h1, h2, h3 {
 	font-weight: bold;
+	text-shadow: 1px 2px 0 rgba(0,0,0,0.3);
+	letter-spacing: 1px;
 }
 
 h1 {
@@ -90,6 +114,15 @@ h2 {
 
 h3 {
 	font-size: 14px;
+}
+
+a {
+	color: white;
+	text-decoration: none;
+	text-shadow: 2px 1px 0 black;
+	&:hover {
+		color: $red;
+	}
 }
 
 input[type="text"], input[type="tel"], input[type="email"], input[type="password"] {
