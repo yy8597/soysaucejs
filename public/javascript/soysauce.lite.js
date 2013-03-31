@@ -1871,6 +1871,7 @@ soysauce.togglers = (function() {
 		// Tab
 		this.tab = false;
 		this.childTabOpen = false;
+		this.nocollapse = false;
 		
 		// Responsive
 		this.responsive = false;
@@ -1887,6 +1888,9 @@ soysauce.togglers = (function() {
 					break;
 				case "tabs":
 					self.tab = true;
+					break;
+				case "nocollapse":
+					self.nocollapse = true;
 					break;
 				case "slide":
 					self.slide = true;
@@ -1913,8 +1917,13 @@ soysauce.togglers = (function() {
 		}
 
 		if (this.widget.attr("data-ss-state") !== undefined && this.widget.attr("data-ss-state") === "open") {
-			this.allButtons.attr("data-ss-state", "open");
-			this.allContent.attr("data-ss-state", "open");
+			this.allButtons.each(function() {
+				var button = $(this);
+				if (!button.attr("data-ss-state"))  {
+					button.attr("data-ss-state", "closed");
+					button.find("+ [data-ss-component='content']").attr("data-ss-state", "closed");
+				}
+			});
 			this.opened = true;
 		}
 		else {
@@ -2165,7 +2174,7 @@ soysauce.togglers = (function() {
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
 											this.button[0] === e.target) ? true : false;
 
-			if (this.responsive && !this.responsiveVars.accordions && (this.button[0] === e.target)) return;
+			if ((this.responsive && !this.responsiveVars.accordions || this.nocollapse) && (this.button[0] === e.target)) return;
 
 			if (this.isChildToggler && this.tab) {
 				this.parent.childTabOpen = !collapse;
