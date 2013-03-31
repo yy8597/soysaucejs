@@ -1,6 +1,10 @@
-$background: #2f2f2f;
-$green: #32CD32;
+$background: #2c2c2c;
+$background2: #171717;
+$green: #42EA00;
 $red: #CD0000;
+$orange: #FFC405;
+$yellow: #FBFF3A;
+$blue: #04C0F4;
 
 * {
 	@include box-sizing(border-box);
@@ -12,7 +16,7 @@ html {
 
 body {
 	color: white;
-	background: #2f2f2f;
+	background: $background;
 	position: relative;
 	font-size: 13px;
 	font-family: Helvetica, 'Open Sans', sans-serif;
@@ -20,28 +24,30 @@ body {
 }
 
 header {
-	@include box-shadow(0 1px 2px rgba(0,0,0,0.3));
+	@include box-shadow(0 1px 3px rgba(0,0,0,0.5));
 	background: $background;
-	position: relative;
+	position: fixed;
 	border-bottom: 1px solid black;
-	min-height: 65px;
+	width: 100%;
 	z-index: 10;
 	.title {
 		display: inline-block;
 		width: 170px;
 		text-decoration: none;
-		margin: 10px 20px;
+		margin: 0 25px;
 		img {
 			width: 31px;
 			float: left;
+			position: relative;
+			bottom: 6px;
 		}
 		span {
 			color: white;
 			text-decoration: none;
 			text-transform: uppercase;
-			font-size: 26px;
+			font-size: 24px;
 			position: relative;
-			top: 22px;
+			top: 17px;
 			text-shadow: 3px 2px 0 black;
 			left: -3px;
 			letter-spacing: -1px;
@@ -51,18 +57,19 @@ header {
 		font-size: 16px;
 		position: absolute;
 		right: 15px;
-		top: 35px;
+		top: 25px;
 	}
 	nav {
 		text-transform: uppercase;
 		display: inline-block;
 		position: relative;
-		top: 21px;
-		left: 55px;
+		top: 11px;
+		left: 30px;
 		font-size: 14px;
 		a {
 			display: inline-block;
 			padding: 15px;
+			margin: 0 10px;
 			&.active {
 				color: $green;
 			}
@@ -76,15 +83,17 @@ header {
 }
 
 .content {
-	background: #EEE;
+	@include box-shadow(0 0 3px black);
+	padding-top: 60px;
+	background: #090909;
 	overflow: hidden;
 	border: solid black;
 	border-width: 0 1px 1px;
 	> section {
-		@include border-radius(3px);
+		@include box-shadow(inset 0px 1px 0 rgba(255,255,255,0.1));
 		margin: 10px;
-		background: $background;
-		border: 1px solid #AAA;
+		background: $background2;
+		border: 1px solid black;
 		padding: 5px 10px;
 	}
 }
@@ -104,16 +113,22 @@ h1, h2, h3 {
 h1 {
 	margin: 10px 0;
 	padding-bottom: 10px;
-	border-bottom: 2px solid #AAA;
 	font-size: 18px;
+	color: $orange;
 }
 
 h2 {
+	@include box-shadow(0px 1px 0 rgba(255,255,255,0.1));
 	font-size: 18px;
+	color: $orange;
+	text-transform: uppercase;
+	padding-bottom: 10px;
+	border-bottom: 1px solid black;
 }
 
 h3 {
 	font-size: 14px;
+	color: $yellow;
 }
 
 a {
@@ -121,7 +136,7 @@ a {
 	text-decoration: none;
 	text-shadow: 2px 1px 0 black;
 	&:hover {
-		color: $red;
+		color: $orange;
 	}
 }
 

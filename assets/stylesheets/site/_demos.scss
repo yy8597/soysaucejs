@@ -3,10 +3,6 @@
 		max-width: 500px;
 		margin: 0 auto 20px;
 	}
-	section {
-		color: #333;
-		background: white;
-	}
 	.carousel {
 		.widget {
 			margin-bottom: 30px;
@@ -53,14 +49,14 @@
 		[data-ss-component="dot"] {
 			@include border-radius(10px);
 			@include transition(opacity 0.3s);
-			@include box-shadow(inset 1px 1px 7px rgba(255,255,255,0.5));
-			border: 1px solid #666;
+			@include box-shadow(inset 1px 1px 7px rgba(0,0,0,0.5));
+			border: 1px solid #CCC;
 			display: inline-block;
 			margin-left: 5px;
-			background: black;
+			background: white;
 			height: 12px;
 			width: 12px;
-			opacity: 0.5;
+			opacity: 0.4;
 			&[data-ss-state="active"] {
 				opacity: 1;
 			}

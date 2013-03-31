@@ -66,7 +66,7 @@ html {
 
 body {
   color: white;
-  background: #2f2f2f;
+  background: #2c2c2c;
   position: relative;
   font-size: 13px;
   font-family: Helvetica, 'Open Sans', sans-serif;
@@ -74,32 +74,34 @@ body {
 }
 
 header {
-  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  background: #2f2f2f;
-  position: relative;
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  background: #2c2c2c;
+  position: fixed;
   border-bottom: 1px solid black;
-  min-height: 65px;
+  width: 100%;
   z-index: 10;
 }
 header .title {
   display: inline-block;
   width: 170px;
   text-decoration: none;
-  margin: 10px 20px;
+  margin: 0 25px;
 }
 header .title img {
   width: 31px;
   float: left;
+  position: relative;
+  bottom: 6px;
 }
 header .title span {
   color: white;
   text-decoration: none;
   text-transform: uppercase;
-  font-size: 26px;
+  font-size: 24px;
   position: relative;
-  top: 22px;
+  top: 17px;
   text-shadow: 3px 2px 0 black;
   left: -3px;
   letter-spacing: -1px;
@@ -108,44 +110,47 @@ header .github {
   font-size: 16px;
   position: absolute;
   right: 15px;
-  top: 35px;
+  top: 25px;
 }
 header nav {
   text-transform: uppercase;
   display: inline-block;
   position: relative;
-  top: 21px;
-  left: 55px;
+  top: 11px;
+  left: 30px;
   font-size: 14px;
 }
 header nav a {
   display: inline-block;
   padding: 15px;
+  margin: 0 10px;
 }
 header nav a.active {
-  color: limegreen;
+  color: #42ea00;
 }
 
 .wrapper {
-  background: #2f2f2f;
+  background: #2c2c2c;
   margin: 0 10%;
 }
 
 .content {
-  background: #EEE;
+  -webkit-box-shadow: 0 0 3px black;
+  -moz-box-shadow: 0 0 3px black;
+  box-shadow: 0 0 3px black;
+  padding-top: 60px;
+  background: #090909;
   overflow: hidden;
   border: solid black;
   border-width: 0 1px 1px;
 }
 .content > section {
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  -ms-border-radius: 3px;
-  -o-border-radius: 3px;
-  border-radius: 3px;
+  -webkit-box-shadow: inset 0px 1px 0 rgba(255, 255, 255, 0.1);
+  -moz-box-shadow: inset 0px 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0px 1px 0 rgba(255, 255, 255, 0.1);
   margin: 10px;
-  background: #2f2f2f;
-  border: 1px solid #AAA;
+  background: #171717;
+  border: 1px solid black;
   padding: 5px 10px;
 }
 
@@ -164,16 +169,24 @@ h1, h2, h3 {
 h1 {
   margin: 10px 0;
   padding-bottom: 10px;
-  border-bottom: 2px solid #AAA;
   font-size: 18px;
+  color: #ffc405;
 }
 
 h2 {
+  -webkit-box-shadow: 0px 1px 0 rgba(255, 255, 255, 0.1);
+  -moz-box-shadow: 0px 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0px 1px 0 rgba(255, 255, 255, 0.1);
   font-size: 18px;
+  color: #ffc405;
+  text-transform: uppercase;
+  padding-bottom: 10px;
+  border-bottom: 1px solid black;
 }
 
 h3 {
   font-size: 14px;
+  color: #fbff3a;
 }
 
 a {
@@ -182,7 +195,7 @@ a {
   text-shadow: 2px 1px 0 black;
 }
 a:hover {
-  color: #cd0000;
+  color: #ffc405;
 }
 
 input[type="text"], input[type="tel"], input[type="email"], input[type="password"] {
@@ -465,6 +478,15 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 .home .latest h3 {
   margin: 10px 0;
 }
+.home .recommended label {
+  display: block;
+  font-weight: bold;
+  margin-top: 15px;
+}
+.home .recommended input {
+  display: block;
+  width: 500px;
+}
 
 .widgets .api > article {
   display: -webkit-box;
@@ -480,17 +502,22 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   width: 100%;
 }
 .widgets .api > article .apiCarousel section {
-  padding: 0 10px;
+  -webkit-box-shadow: inset 0px 1px 0 rgba(255, 255, 255, 0.1);
+  -moz-box-shadow: inset 0px 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0px 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border: solid black;
+  border-width: 1px 1px 1px 0;
 }
-.widgets .api > article .apiCarousel h3 {
+.widgets .api > article .apiCarousel h3, .widgets .api > article .apiCarousel ul {
   margin: 10px 0;
 }
 .widgets .api > article .apiCarousel li {
   line-height: 20px;
+  margin: 10px 20px;
 }
 .widgets .api > article .apiCarousel li:not(:last-of-type) {
-  padding-bottom: 5px;
-  margin-bottom: 5px;
+  padding-bottom: 10px;
   border-bottom: 1px dotted #CCC;
 }
 .widgets .api > article .apiCarousel [data-ss-component="item"] {
@@ -502,17 +529,33 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   border: 1px solid black;
 }
 .widgets .api > article aside li {
+  -webkit-box-shadow: inset 0px 1px 0 rgba(255, 255, 255, 0.1);
+  -moz-box-shadow: inset 0px 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0px 1px 0 rgba(255, 255, 255, 0.1);
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #2a2a2a), color-stop(100%, #1a1a1a));
+  background: -webkit-linear-gradient(#2a2a2a 0%, #1a1a1a 100%);
+  background: -moz-linear-gradient(#2a2a2a 0%, #1a1a1a 100%);
+  background: -o-linear-gradient(#2a2a2a 0%, #1a1a1a 100%);
+  background: linear-gradient(#2a2a2a 0%, #1a1a1a 100%);
   padding: 10px;
   border-bottom: 1px solid black;
+}
+.widgets .api > article aside li[data-ss-state="open"] {
+  -webkit-box-shadow: inset 0px 1px 0 rgba(255, 255, 255, 0.3);
+  -moz-box-shadow: inset 0px 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0px 1px 0 rgba(255, 255, 255, 0.3);
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #0071aa), color-stop(100%, #003882));
+  background: -webkit-linear-gradient(#0071aa 0%, #003882 100%);
+  background: -moz-linear-gradient(#0071aa 0%, #003882 100%);
+  background: -o-linear-gradient(#0071aa 0%, #003882 100%);
+  background: linear-gradient(#0071aa 0%, #003882 100%);
+  text-shadow: 1px 1px 0px black;
+  font-weight: bold;
 }
 
 .demos .widget {
   max-width: 500px;
   margin: 0 auto 20px;
-}
-.demos section {
-  color: #333;
-  background: white;
 }
 .demos .carousel .widget {
   margin-bottom: 30px;
@@ -580,16 +623,16 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   -moz-transition: opacity 0.3s;
   -o-transition: opacity 0.3s;
   transition: opacity 0.3s;
-  -webkit-box-shadow: inset 1px 1px 7px rgba(255, 255, 255, 0.5);
-  -moz-box-shadow: inset 1px 1px 7px rgba(255, 255, 255, 0.5);
-  box-shadow: inset 1px 1px 7px rgba(255, 255, 255, 0.5);
-  border: 1px solid #666;
+  -webkit-box-shadow: inset 1px 1px 7px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: inset 1px 1px 7px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 1px 1px 7px rgba(0, 0, 0, 0.5);
+  border: 1px solid #CCC;
   display: inline-block;
   margin-left: 5px;
-  background: black;
+  background: white;
   height: 12px;
   width: 12px;
-  opacity: 0.5;
+  opacity: 0.4;
 }
 .demos .carousel [data-ss-component="dot"][data-ss-state="active"] {
   opacity: 1;

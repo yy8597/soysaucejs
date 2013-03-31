@@ -49,4 +49,15 @@
 			margin: 10px 0;
 		}
 	}
+	.recommended {
+		label {
+			display: block;
+			font-weight: bold;
+			margin-top: 15px;
+		}
+		input {
+			display: block;
+			width: 500px;
+		}
+	}
 }
