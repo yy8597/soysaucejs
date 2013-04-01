@@ -408,9 +408,11 @@
 										<h3>Example 2 - Basic Callback Usage</h3>
 										<article>
 <pre class="prettyprint"><xmp>var input = soysauce.fetch(".cc-input");
+	
 input.widget.on("SSPrediction", function() {
   console.log("The prediction is: " + input.prediction);
 });
+
 input.widget.on("SSResult", function() {
   console.log("The final result is: " + input.result);
 });
@@ -500,19 +502,21 @@ input.widget.on("SSResult", function() {
 										</article>
 										<h3>Example 3 - Basic Callback Usage</h3>
 										<article>
-<pre class="prettyprint"><xmp>
-	var autofill = soysauce.fetch(".autofill");
-	autofill.widget.on("SSDataFetch", function() {
-		console.log("here I can show some ajax image...");
-	});
-	autofill.widget.on("SSDataReady", function() {
-		console.log("here I can hide the ajax image and post the results");
-		console.log("the result city is: " + autofill.city);
-		console.log("the result state is: " + autofill.state);
-	});
-	autofill.widget.on("SSDataError", function() {
-		console.log("here I can hide the ajax image and post an error");
-	});
+<pre class="prettyprint"><xmp>var autofill = soysauce.fetch(".autofill");
+	
+autofill.widget.on("SSDataFetch", function() {
+  console.log("here I can show some ajax image...");
+});
+
+autofill.widget.on("SSDataReady", function() {
+  console.log("here I can hide the ajax image and post the results");
+  console.log("the result city is: " + autofill.city);
+  console.log("the result state is: " + autofill.state);
+});
+
+autofill.widget.on("SSDataError", function() {
+  console.log("here I can hide the ajax image and post an error");
+});
 </xmp></pre>
 										</article>
 									</div>

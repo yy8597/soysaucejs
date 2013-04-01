@@ -25,6 +25,10 @@ $(document).ready(function() {
 			$(".step2").show();
 		});
 		
+		$(".latest input[type=text]").click(function() {
+		   $(this).select();
+		});
+		
 		function showLoader(widget) {
 			loader.css("visibility", "visible");
 		}
