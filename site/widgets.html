@@ -8,16 +8,16 @@
 	</head>
 	<body class="widgets">
 		<header>
-			<a class="title" href="/site/home.html">Soysauce</a>
-			<a class="github" target="_blank" href="https://github.com/brandingbrand/soysauce/issues?state=open">Report an Issue</a>
-		</header>
-		<div class="wrapper">
+			<a class="title" href="/site/home.html"><img src="assets/images/icon.png"><span>Soysauce</span></a>
 			<nav>
 				<a href="/site/home.html">Home</a>
 				<a class="active">Widgets</a>
 				<a href="/site/demos.html">Demos</a>
 				<a href="/site/contribute.html">Contribute</a>
 			</nav>
+			<a class="github" target="_blank" href="https://github.com/brandingbrand/soysauce/issues?state=open">Report an Issue</a>
+		</header>
+		<div class="wrapper">
 			<div class="content">
 				<section>
 					<h1>Widgets</h1>
@@ -29,19 +29,19 @@
 					<h1>API</h1>
 					<article>
 						<aside>
-							<ul>
-								<li>Basics</li>
-								<li>Carousel</li>
-								<li>Toggler</li>
-								<li>Lazyloader / Lateloading</li>
-								<li>Auto-detect CC</li>
-								<li>Auto-fill Zip</li>
+							<ul data-ss-widget="toggler" data-ss-options="tabs nocollapse" data-ss-state="open">
+								<li data-ss-component="button" data-ss-state="open">Basics</li>
+								<li data-ss-component="button">Carousel</li>
+								<li data-ss-component="button">Toggler</li>
+								<li data-ss-component="button">Lazyloader / Lateloading</li>
+								<li data-ss-component="button">Auto-detect CC</li>
+								<li data-ss-component="button">Auto-fill Zip</li>
 							</ul>
 						</aside>
 						<div class="apiCarousel" data-ss-widget="carousel" data-ss-options="finite noswipe fade">
 							<div class="basics" data-ss-component="item">
 								<section>
-									<h2>The Basics</h2>
+									<h2>Basics</h2>
 									<div class="description">
 										<h3>Description</h3>
 										<article>
@@ -65,6 +65,15 @@
 											<ul>
 												<li><span class="snippet">SSWidgetReady</span> - Called on the element after the widget has been initialized</li>
 											</ul>
+										</article>
+									</div>
+									<div class="variables">
+										<h3>Useful Variables</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">id</span> - The ID of the widget; used for fetching and exists on every widget (even orphan togglers)</li>
+												<li><span class="snippet">widget</span> - The widget selector; widget events are usually fired on this jQuery object (not the DOM object)</li>
+											</ul>											
 										</article>
 									</div>
 									<div class="example">
@@ -101,8 +110,14 @@
    Autoscroll timing delay; default is "5000"
 3) data-ss-peek-width="x"
    Peek Width pixels (per side); default is "20"
-4) data-ss-zoom-multiplier="x"
-   Zoom Multiplier; default is "2" (before the user pinch zooms)</xmp></pre>
+4) data-ss-multi-set="x"
+   Defines the num. of items with the 'multi' option; default is 2
+5) data-ss-zoom-multiplier="x"
+   Zoom Multiplier; default is "2" (before the user pinch zooms)
+6) data-ss-zoom-min="x"
+   Defines the minimum zoom multiplier; default is 1.2
+7) data-ss-zoom-max="x"
+   Defines the maxmimum zoom multiplier; default is 4</xmp></pre>
 											<p class="note">Note: Carousel optional attributes are placed on the widget container</p>
 										</article>
 									</div>
@@ -145,6 +160,14 @@
 											</ul>											
 										</article>
 									</div>
+									<div class="variables">
+										<h3>Useful Variables</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">index</span> - The current index of the carousel (zero-based); will be offset +1 if the carousel is infinite</li>
+											</ul>											
+										</article>
+									</div>
 									<div class="example">
 										<h3>Example 1 - Peek Carousel</h3>
 										<article>
@@ -180,7 +203,10 @@
 2) data-ss-component="button"
    Specifies the button component of the widget
 3) data-ss-component="content"
-   Specifies the button content of the widget</xmp></pre>
+   Specifies the button content of the widget
+4) data-ss-toggler-id="ID"
+   Creates an association between the button and content
+   Replaces the container attribute requirement (see example below)</xmp></pre>
 										</article>
 									</div>
 									<div class="optional">
@@ -192,7 +218,10 @@
    Used with the ajax option; place this on the "content" component
 3) data-ss-responsive-width="x"
    Used with the responsive option; threshold that toggles the 
-   [data-ss-responsive-type] attribute from "accordion" to "tabs"</xmp></pre>
+   [data-ss-responsive-type] attribute from "accordion" to "tabs"
+4) data-ss-state="open"
+   If placed on the widget and a button, the toggler will know
+   to keep the button/content opened on initialization</xmp></pre>
 										</article>
 									</div>
 									<div class="options">
@@ -201,6 +230,7 @@
 											<p>Options add variation to the widget; it can vary styling, animation, or functionality.</p>
 											<ul>
 												<li><span class="snippet">tabs</span> - Only one content component can be open at a time per group</li>
+												<li><span class="snippet">nocollapse</span> - Used with tabs; allows for the button/content group to not collapse if a tab is opened</li>
 												<li><span class="snippet">slide</span> - Toggler will use a slide open animation</li>
 												<li><span class="snippet">ajax</span> - Information is ajax'ed into the content with the [data-ss-ajax-url] attribute</li>
 												<li><span class="snippet">responsive</span> - Allows for the developer to account for both mobile and tablet/desktop with accordions and tabs using the same data</li>
@@ -222,6 +252,14 @@
 										<article>
 											<ul>
 												<li><span class="snippet">SSAjaxComplete</span> - This event is fired on the toggler after the ajax call returns (success or failure)</li>
+											</ul>
+										</article>
+									</div>
+									<div class="variables">
+										<h3>Useful Variables</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">opened</span> - A boolean which tells you if the toggler is opened</li>
 											</ul>											
 										</article>
 									</div>
@@ -353,10 +391,33 @@
 											</ul>
 										</article>
 									</div>
+									<div class="variables">
+										<h3>Useful Variables</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">prediction</span> - The widget's current prediction</li>
+												<li><span class="snippet">result</span> - The widget's final result</li>
+											</ul>											
+										</article>
+									</div>
 									<div class="example">
 										<h3>Example 1 - Basic Autodetect CC Type</h3>
 										<article>
 <pre class="prettyprint"><xmp><input type="tel" data-ss-widget="autodetect-cc"></xmp></pre>
+										</article>
+										<h3>Example 2 - Basic Callback Usage</h3>
+										<article>
+<pre class="prettyprint"><xmp>var input = soysauce.fetch(".cc-input");
+	
+input.widget.on("SSPrediction", function() {
+  console.log("The prediction is: " + input.prediction);
+});
+
+input.widget.on("SSResult", function() {
+  console.log("The final result is: " + input.result);
+});
+</xmp></pre>
+										</article>
 									</div>
 								</section>
 							</div>
@@ -410,6 +471,17 @@
 											</ul>											
 										</article>
 									</div>
+									<div class="variables">
+										<h3>Useful Variables</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">city</span> - The city after "SSDataReady" has fired (regular geocoding)</li>
+												<li><span class="snippet">state</span> - The state after "SSDataReady" has fired (regular geocoding)</li>
+												<li><span class="snippet">zip</span> - The zip after "SSDataReady" has fired (reverse geocoding)</li>
+												<li><span class="snippet">lastRequestedData</span> - After "SSDataReady" is fired, this is the variable where it gets stored</li>
+											</ul>											
+										</article>
+									</div>
 									<div class="example">
 										<h3>Example 1 - Autofill City/State from Zip</h3>
 										<article>
@@ -427,6 +499,25 @@
   <div data-ss-component="reverse-geocode">Use Current Location</div>
   <input data-ss-component="zip" type="tel" placeholder="Zip Code">
 </div></xmp></pre>
+										</article>
+										<h3>Example 3 - Basic Callback Usage</h3>
+										<article>
+<pre class="prettyprint"><xmp>var autofill = soysauce.fetch(".autofill");
+	
+autofill.widget.on("SSDataFetch", function() {
+  console.log("here I can show some ajax image...");
+});
+
+autofill.widget.on("SSDataReady", function() {
+  console.log("here I can hide the ajax image and post the results");
+  console.log("the result city is: " + autofill.city);
+  console.log("the result state is: " + autofill.state);
+});
+
+autofill.widget.on("SSDataError", function() {
+  console.log("here I can hide the ajax image and post an error");
+});
+</xmp></pre>
 										</article>
 									</div>
 								</section>
