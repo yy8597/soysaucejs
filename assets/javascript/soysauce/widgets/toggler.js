@@ -328,7 +328,7 @@ soysauce.togglers = (function() {
 	
 	Toggler.prototype.handleResize = function() {
 		this.adjustFlag = true;
-		if (this.state === "open") {
+		if (this.opened) {
 			this.adjustHeight();
 		}
 		if (this.responsive) {
@@ -336,9 +336,12 @@ soysauce.togglers = (function() {
 		}
 	};
 	
-	// TODO: this needs improvement; get new height and set it so that it animates on close after a resize/orientation change
 	Toggler.prototype.adjustHeight = function() {
-		this.adjustFlag = false;
+		if (!this.slide) return;
+		if (this.opened) {
+			this.height = this.content.find("> [data-ss-component='wrapper']").outerHeight();
+			this.content.attr("data-ss-slide-height", this.height).height(this.height);
+		}
 	};
 
 	Toggler.prototype.addHeight = function(height) {
