@@ -217,7 +217,7 @@ soysauce.togglers = (function() {
 										sessionStorage.setItem(url, JSON.stringify(data));
 									}
 									catch(e) {
-										if (e === QUOTA_EXCEEDED_ERR) {
+										if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
 											soysauce.browserInfo.sessionStorageFull = true;
 											console.warn("Soysauce: SessionStorage full. Unable to store item.")
 										}
