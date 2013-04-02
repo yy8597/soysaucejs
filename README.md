@@ -15,10 +15,8 @@ http://soysauce.s3.amazonaws.com/site/home.html
 * CSS (5.04 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.50/soysauce.css
 
 Note: Lite contains only the bare essentials (which will later help with scaling as the number of widgets increase):
-* Fastclick
 * Carousel
 * Toggler
-* Lateload
 
 Note2: Legacy contains support for older versions of jQuery (< 1.6)
 
