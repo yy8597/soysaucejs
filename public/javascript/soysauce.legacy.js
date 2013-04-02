@@ -623,7 +623,8 @@ soysauce = {
 		userAgent: navigator.userAgent,
 		supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,
 		supportsLocalStorage: (typeof(window.localStorage) !== "undefined") ? true : false,
-		supportsSessionStorage: (typeof(window.sessionStorage) !== "undefined") ? true : false
+		supportsSessionStorage: (typeof(window.sessionStorage) !== "undefined") ? true : false,
+		sessionStorageFull: false
 	},
 	scrollTop: function() {
 		window.setTimeout(function(){
@@ -2584,7 +2585,7 @@ soysauce.togglers = (function() {
 
 					url = $(contentItem).attr("data-ss-ajax-url");
 
-					if (soysauce.browserInfo.supportsSessionStorage) {
+					if (soysauce.browserInfo.supportsSessionStorage && !soysauce.browserInfo.sessionStorageFull) {
 						self.ajaxing = true;
 						if (!sessionStorage.getItem(url)) {
 							firstTime = true;
@@ -2592,12 +2593,20 @@ soysauce.togglers = (function() {
 								url: url,
 								type: "GET",
 								success: function(data) {
-									sessionStorage.setItem(url, JSON.stringify(data));
 									if (typeof(data) === "object") {
 										self.ajaxData = data;
 									}
 									else {
 										self.ajaxData = JSON.parse(data);
+									}
+									try {
+										sessionStorage.setItem(url, JSON.stringify(data));
+									}
+									catch(e) {
+										if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
+											soysauce.browserInfo.sessionStorageFull = true;
+											console.warn("Soysauce: SessionStorage full. Unable to store item.")
+										}
 									}
 									obj.trigger("SSAjaxComplete");
 									self.setAjaxComplete();
@@ -2705,7 +2714,7 @@ soysauce.togglers = (function() {
 	
 	Toggler.prototype.handleResize = function() {
 		this.adjustFlag = true;
-		if (this.state === "open") {
+		if (this.opened) {
 			this.adjustHeight();
 		}
 		if (this.responsive) {
@@ -2713,9 +2722,12 @@ soysauce.togglers = (function() {
 		}
 	};
 	
-	// TODO: this needs improvement; get new height and set it so that it animates on close after a resize/orientation change
 	Toggler.prototype.adjustHeight = function() {
-		this.adjustFlag = false;
+		if (!this.slide) return;
+		if (this.opened) {
+			this.height = this.content.find("> [data-ss-component='wrapper']").outerHeight();
+			this.content.attr("data-ss-slide-height", this.height).height(this.height);
+		}
 	};
 
 	Toggler.prototype.addHeight = function(height) {

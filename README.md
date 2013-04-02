@@ -1,4 +1,4 @@
-# Soysauce (v1.1.49)
+# Soysauce (v1.1.50)
 Original Author: Edward Gaba
 
 Soysauce is a customizable javascript widget library. Popular widgets included are carousels and accordions. Please file any issues you find in Github. Please see the Soysauce website for full documentation of the widgets:
@@ -6,19 +6,17 @@ Soysauce is a customizable javascript widget library. Popular widgets included a
 http://soysauce.s3.amazonaws.com/site/home.html
 
 ## Current CDN URLs
-* Compressed (48.28 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.49/soysauce.min.js
-* Uncompressed (73.75 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.49/soysauce.js
-* Compressed Lite (40.75 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.49/soysauce.lite.min.js
-* Uncompressed Lite (61.81 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.49/soysauce.lite.js
-* Compressed Legacy (49.72 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.49/soysauce.legacy.min.js
-* Uncompressed Legacy (76.97 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.49/soysauce.legacy.js
-* CSS (5.04 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.49/soysauce.css
+* Compressed (48.68 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.50/soysauce.min.js
+* Uncompressed (74.14 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.50/soysauce.js
+* Compressed Lite (36.16 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.50/soysauce.lite.min.js
+* Uncompressed Lite (54.61 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.50/soysauce.lite.js
+* Compressed Legacy (50.12 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.50/soysauce.legacy.min.js
+* Uncompressed Legacy (77.36 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.50/soysauce.legacy.js
+* CSS (5.04 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.50/soysauce.css
 
 Note: Lite contains only the bare essentials (which will later help with scaling as the number of widgets increase):
-* Fastclick
 * Carousel
 * Toggler
-* Lateload
 
 Note2: Legacy contains support for older versions of jQuery (< 1.6)
 

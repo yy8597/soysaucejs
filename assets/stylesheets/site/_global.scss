@@ -74,12 +74,21 @@ header {
 				color: $green;
 			}
 		}
+		@media screen and (max-width: 949px) {
+			a {
+				padding: 15px 10px;
+				margin: 0;
+			}
+		}
 	}
 }
 
 .wrapper {
 	background: $background;
-	margin: 0 10%;
+	margin: 0;
+	@media screen and (min-width: 950px) {
+		margin: 0 7%;
+	}
 }
 
 .content {
