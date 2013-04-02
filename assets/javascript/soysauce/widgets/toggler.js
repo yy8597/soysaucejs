@@ -199,7 +199,7 @@ soysauce.togglers = (function() {
 
 					url = $(contentItem).attr("data-ss-ajax-url");
 
-					if (soysauce.browserInfo.supportsSessionStorage) {
+					if (soysauce.browserInfo.supportsSessionStorage && !soysauce.browserInfo.sessionStorageFull) {
 						self.ajaxing = true;
 						if (!sessionStorage.getItem(url)) {
 							firstTime = true;
@@ -207,12 +207,20 @@ soysauce.togglers = (function() {
 								url: url,
 								type: "GET",
 								success: function(data) {
-									sessionStorage.setItem(url, JSON.stringify(data));
 									if (typeof(data) === "object") {
 										self.ajaxData = data;
 									}
 									else {
 										self.ajaxData = JSON.parse(data);
+									}
+									try {
+										sessionStorage.setItem(url, JSON.stringify(data));
+									}
+									catch(e) {
+										if (e === QUOTA_EXCEEDED_ERR) {
+											soysauce.browserInfo.sessionStorageFull = true;
+											console.warn("Soysauce: SessionStorage full. Unable to store item.")
+										}
 									}
 									obj.trigger("SSAjaxComplete");
 									self.setAjaxComplete();
