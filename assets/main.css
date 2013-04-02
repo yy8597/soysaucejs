@@ -128,10 +128,21 @@ header nav a {
 header nav a.active {
   color: #42ea00;
 }
+@media screen and (max-width: 949px) {
+  header nav a {
+    padding: 15px 10px;
+    margin: 0;
+  }
+}
 
 .wrapper {
   background: #2c2c2c;
-  margin: 0 10%;
+  margin: 0;
+}
+@media screen and (min-width: 950px) {
+  .wrapper {
+    margin: 0 7%;
+  }
 }
 
 .content {
