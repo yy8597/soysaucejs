@@ -1649,6 +1649,7 @@ soysauce.togglers = (function() {
 				});
 			}
 			this.allContent.on(TRANSITION_END, function() {
+				self.widget.trigger("slideEnd");
 				self.ready = true;
 			});
 		}
