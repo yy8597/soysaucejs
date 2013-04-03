@@ -102,7 +102,13 @@ soysauce.togglers = (function() {
 			}
 		});
 
-		if (this.orphan) return this;
+		if (this.orphan) {
+			this.content.on(TRANSITION_END, function() {
+				self.content.trigger("slideEnd");
+				self.ready = true;
+			});
+			return this;
+		}
 
 		this.allButtons.append("<span class='icon'></span>");
 		this.allContent.wrapInner("<div data-ss-component='wrapper'/>");
@@ -162,11 +168,13 @@ soysauce.togglers = (function() {
 				});
 			}
 			this.allContent.on(TRANSITION_END, function() {
-				self.widget.trigger("slideEnd");
+				if (!self.orphan) {
+					self.widget.trigger("slideEnd");
+				}
 				self.ready = true;
 			});
 		}
-
+		
 		this.allButtons.click(function(e) {
 			self.toggle(e);
 		});
