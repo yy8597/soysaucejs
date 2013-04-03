@@ -1522,6 +1522,8 @@ soysauce.togglers = (function() {
 			});
 			
 			this.setState("closed");
+			this.id = parseInt(this.button.attr("data-ss-id"));
+			this.content.attr("data-ss-id", this.id);
 		}
 		else {
 			this.widget = $(selector);
@@ -1530,9 +1532,9 @@ soysauce.togglers = (function() {
 			this.button = this.allButtons.first();
 			this.allContent = this.widget.find("> [data-ss-component='content']");
 			this.content = this.allContent.first();
+			this.id = parseInt(this.widget.attr("data-ss-id"));
 		}
 		
-		this.id = parseInt(this.widget.attr("data-ss-id"));
 		this.parentID = 0;
 		this.tabID;
 		this.state = "closed";
@@ -1589,7 +1591,13 @@ soysauce.togglers = (function() {
 			}
 		});
 
-		if (this.orphan) return this;
+		if (this.orphan) {
+			this.content.on(TRANSITION_END, function() {
+				self.content.trigger("slideEnd");
+				self.ready = true;
+			});
+			return this;
+		}
 
 		this.allButtons.append("<span class='icon'></span>");
 		this.allContent.wrapInner("<div data-ss-component='wrapper'/>");
@@ -1649,11 +1657,13 @@ soysauce.togglers = (function() {
 				});
 			}
 			this.allContent.on(TRANSITION_END, function() {
-				self.widget.trigger("slideEnd");
+				if (!self.orphan) {
+					self.widget.trigger("slideEnd");
+				}
 				self.ready = true;
 			});
 		}
-
+		
 		this.allButtons.click(function(e) {
 			self.toggle(e);
 		});
