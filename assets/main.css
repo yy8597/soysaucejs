@@ -425,44 +425,6 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   color: #CD0000;
 }
 
-.seminar .demo1.styled article {
-  position: relative;
-  min-height: 300px;
-  overflow: hidden;
-}
-.seminar .demo1.styled nav {
-  width: 100%;
-  height: 100%;
-  background: orange;
-  position: absolute;
-  z-index: 1;
-}
-.seminar .demo1.styled [data-ss-component="content"] {
-  -webkit-transition: all 0.6s;
-  -moz-transition: all 0.6s;
-  -o-transition: all 0.6s;
-  transition: all 0.6s;
-  width: 100%;
-  height: 100%;
-  background: gray;
-  position: absolute;
-  z-index: 10;
-  left: 0;
-}
-.seminar .demo1.styled [data-ss-component="content"][data-ss-state="open"] {
-  left: 200px;
-}
-.seminar .demo1.styled [data-ss-component="button"] {
-  z-index: 15;
-  margin: 10px;
-  padding: 20px;
-  background: blue;
-  max-width: 140px;
-}
-.seminar .demo2 [data-ss-options*="peek"] [data-ss-component="item"], .seminar .demo2 [data-ss-options*="multi"] [data-ss-component="item"] {
-  padding: 0 5px;
-}
-
 .home .example {
   display: -webkit-box;
   display: -moz-box;
