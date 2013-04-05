@@ -131,6 +131,10 @@ soysauce.togglers = (function() {
 					button.attr("data-ss-state", "closed");
 					button.find("+ [data-ss-component='content']").attr("data-ss-state", "closed");
 				}
+				else if (button.attr("data-ss-state") === "open") {
+					this.button = button;
+					this.content = button.find("+ [data-ss-component='content']");
+				}
 			});
 			this.opened = true;
 		}
@@ -275,6 +279,11 @@ soysauce.togglers = (function() {
 			});
 		}
 		
+		if (this.tab && this.nocollapse) {
+			this.content.imagesLoaded(function() {
+				self.widget.css("min-height", self.button.outerHeight() + self.content.outerHeight());
+			});
+		}
 	} // End constructor
 	
 	Toggler.prototype.open = function() {
@@ -315,6 +324,10 @@ soysauce.togglers = (function() {
 				self.height = parseInt(self.content.attr("data-ss-slide-height"));
 				self.content.css("height", self.height + "px");
 			}
+		}
+		
+		if (this.tab && this.nocollapse) {
+			this.widget.css("min-height", this.button.outerHeight() + this.content.outerHeight());
 		}
 
 		this.opened = true;
