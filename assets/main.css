@@ -784,3 +784,58 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 .demos .reverseGeocode .code {
   clear: both;
 }
+.demos .folderTabs {
+  color: black;
+}
+.demos .folderTabs img {
+  -webkit-box-shadow: 0 1px 3px;
+  -moz-box-shadow: 0 1px 3px;
+  box-shadow: 0 1px 3px;
+  float: left;
+  max-width: 120px;
+  margin: 0 20px 100px 0;
+}
+.demos .folderTabs h4 {
+  font-weight: bold;
+  margin: 10px 0;
+}
+.demos .folderTabs h5 {
+  clear: both;
+  font-size: 20px;
+  margin: 5px 0 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #AAA;
+}
+.demos .folderTabs [data-ss-component="button"] {
+  -webkit-border-radius: 5px 5px 0 0;
+  -moz-border-radius: 5px 5px 0 0;
+  -ms-border-radius: 5px 5px 0 0;
+  -o-border-radius: 5px 5px 0 0;
+  border-radius: 5px 5px 0 0;
+  font-weight: bold;
+  float: left;
+  background: #F8F5E1;
+  border: solid #bc6700;
+  border-width: 1px 1px 0 1px;
+  z-index: 6;
+  padding: 10px;
+}
+.demos .folderTabs [data-ss-component="button"][data-ss-state="closed"] {
+  opacity: 0.6;
+}
+.demos .folderTabs [data-ss-component="content"] {
+  -webkit-border-radius: 0 5px 0 0;
+  -moz-border-radius: 0 5px 0 0;
+  -ms-border-radius: 0 5px 0 0;
+  -o-border-radius: 0 5px 0 0;
+  border-radius: 0 5px 0 0;
+  background: #F8F5E1;
+  position: absolute;
+  left: 0;
+  top: 36px;
+  width: 100%;
+  border: 1px solid #bc6700;
+}
+.demos .folderTabs [data-ss-component="content"] [data-ss-component="wrapper"] {
+  padding: 10px;
+}

@@ -1,3 +1,5 @@
+$folderBorder: #BC6700;
+
 .demos {
 	.widget {
 		max-width: 500px;
@@ -180,6 +182,51 @@
 		}
 		.code {
 			clear: both;
+		}
+	}
+	.folderTabs {
+		color: black;
+		img {
+			@include box-shadow(0 1px 3px);
+			float: left;
+			max-width: 120px;
+			margin: 0 20px 100px 0;
+		}
+		h4 {
+			font-weight: bold;
+			margin: 10px 0;
+		}
+		h5 {
+			clear: both;
+			font-size: 20px;
+			margin: 5px 0 10px;
+			padding-bottom: 10px;
+			border-bottom: 1px solid #AAA;
+		}
+		[data-ss-component="button"] {
+			@include border-radius(5px 5px 0 0);
+			font-weight: bold;
+			float: left;
+			background: #F8F5E1;
+			border: solid $folderBorder;
+			border-width: 1px 1px 0 1px;
+			z-index: 6;
+			padding: 10px;
+			&[data-ss-state="closed"] {
+				opacity: 0.6;
+			}
+		}
+		[data-ss-component="content"] {
+			@include border-radius(0 5px 0 0);
+			background: #F8F5E1;
+			position: absolute;
+			left: 0;
+			top: 36px;
+			width: 100%;
+			border: 1px solid $folderBorder;
+			[data-ss-component="wrapper"] {
+				padding: 10px;
+			}
 		}
 	}
 }
