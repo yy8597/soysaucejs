@@ -559,6 +559,8 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   background: linear-gradient(#2a2a2a 0%, #1a1a1a 100%);
   padding: 10px;
   border-bottom: 1px solid black;
+  cursor: pointer;
+  cursor: hand;
 }
 .widgets .api > article aside li[data-ss-state="open"] {
   -webkit-box-shadow: inset 0px 1px 0 rgba(255, 255, 255, 0.3);
