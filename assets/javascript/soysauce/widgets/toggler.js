@@ -390,8 +390,13 @@ soysauce.togglers = (function() {
 
 	Toggler.prototype.toggle = function(e) {
 		var self = this;
+		var target = e.target;
 		
 		if (this.freeze || this.ajaxing) return;
+
+		if (!$(e.target).attr("data-ss-component")) {
+			target = $(target).closest("[data-ss-component='button']")[0];
+		}
 
 		if (this.orphan) {
 			if (this.opened) {
@@ -409,7 +414,7 @@ soysauce.togglers = (function() {
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
 											this.button[0] === e.target) ? true : false;
 
-			if ((this.responsive && !this.responsiveVars.accordions || this.nocollapse) && (this.button[0] === e.target)) return;
+			if ((this.responsive && !this.responsiveVars.accordions || this.nocollapse) && (this.button[0] === target)) return;
 
 			if (this.isChildToggler && this.tab) {
 				this.parent.childTabOpen = !collapse;
@@ -420,8 +425,8 @@ soysauce.togglers = (function() {
 
 			this.close(collapse);
 
-			this.button = $(e.target);
-			this.content = $(e.target).find("+ [data-ss-component='content']");
+			this.button = $(target);
+			this.content = $(target).find("+ [data-ss-component='content']");
 
 			if (this.slide) {
 				self.height = parseInt(self.content.attr("data-ss-slide-height"));
@@ -436,8 +441,8 @@ soysauce.togglers = (function() {
 			this.open();
 		}
 		else {
-			this.button = $(e.target);
-			this.content = $(e.target).find("+ [data-ss-component='content']");
+			this.button = $(target);
+			this.content = $(target).find("+ [data-ss-component='content']");
 
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
 											this.button[0] === e.target &&
