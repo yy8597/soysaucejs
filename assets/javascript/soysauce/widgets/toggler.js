@@ -369,7 +369,6 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.addHeight = function(height) {
-		if (!height===+height || !height===(height|0)) return;
 		this.height += height;
 		this.height = (this.height < 0) ? 0 : this.height;
 		if (this.slide) {
@@ -379,7 +378,6 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.setHeight = function(height) {
-		if (!height===+height || !height===(height|0)) return;
 		this.height = height;
 		this.height = (this.height < 0) ? 0 : this.height;
 		if (this.slide) {
