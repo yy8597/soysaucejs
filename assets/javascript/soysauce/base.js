@@ -234,6 +234,7 @@ $(window).on("resize orientationchange", function(e) {
 $(document).ready(function() {
 	soysauce.scrollTop();
 	soysauce.init();
+	$(window).trigger("SSReady");
 });
 
 }
