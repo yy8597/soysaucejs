@@ -467,7 +467,8 @@ soysauce.togglers = (function() {
 		this.content.attr("data-ss-state", state);
 
 		if (this.orphan) {
-			this.opened = (this.opened) ? false : true;
+			// this.opened = (this.opened) ? false : true;
+			console.log(this.opened);
 			return;
 		}
 		
