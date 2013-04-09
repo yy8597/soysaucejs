@@ -414,7 +414,7 @@ soysauce = {
 	vars: {
 		idCount: 0,
 		currentViewportWidth: window.innerWidth,
-		SUPPORTS3D: (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true
+		degrade: (/Android [12]|Opera/.test(navigator.userAgent)) ? true : false
 	},
 	getOptions: function(selector) {
 		if(!$(selector).attr("data-ss-options")) return false;
@@ -516,6 +516,7 @@ $(window).on("resize orientationchange", function(e) {
 $(document).ready(function() {
 	soysauce.scrollTop();
 	soysauce.init();
+	$(window).trigger("SSReady");
 });
 
 }
@@ -568,13 +569,14 @@ soysauce.init = function(selector) {
 	numItems = set.length;
 	
 	set.each(function(i) {
+		var $this = $(this);
 		var type = $(this).attr("data-ss-widget");
 		var widget;
 		var orphan = false;
 		
-		$(this).attr("data-ss-id", ++soysauce.vars.idCount);
+		$this.attr("data-ss-id", ++soysauce.vars.idCount);
 		
-		if (!type && $(this).attr("data-ss-toggler-id") !== undefined) {
+		if (!type && $this.attr("data-ss-toggler-id") !== undefined) {
 			type = "toggler";
 			orphan = true;
 		}
@@ -598,8 +600,11 @@ soysauce.init = function(selector) {
 		}
 
 		if (widget !== undefined) {
+			if (soysauce.vars.degrade) {
+				$this.attr("data-ss-degrade", "true")
+			}
 			soysauce.widgets.push(widget);
-			$(this).trigger("SSWidgetReady");
+			$this.trigger("SSWidgetReady");
 			ret = true;
 		}
 		
@@ -657,7 +662,7 @@ soysauce.overlay = (function() {
 			
 			overlay = $("[data-ss-utility='overlay']");
 			
-			overlay.append("<span class='done'>Done</span>");
+			overlay.append("<span class='done'></span>");
 			done = overlay.find(".done");
 			
 			overlay.append("<div class='caption'></span>");
@@ -1038,7 +1043,7 @@ soysauce.carousels = (function() {
 		this.prevBtn;
 		this.freeze = false;
 		this.jumping = false;
-		this.use3D = soysauce.vars.SUPPORTS3D;
+		this.use3D = !soysauce.vars.degrade;
 		
 		// Infinite Variables
 		this.infinite = true;
@@ -1154,7 +1159,7 @@ soysauce.carousels = (function() {
 
 				styleTag.closest("li").attr("data-ss-component", "item")
 
-				styleTag.find("+ div").remove();
+				styleTag.find("+ *").remove();
 				styleTag.remove();
 			});
 		}
@@ -2154,7 +2159,7 @@ soysauce.carousels = (function() {
 		element.style.OTransform = 
 		element.style.MozTransform = 
 		element.style.transform = 
-			"translate" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
+			"translate" + ((!soysauce.vars.degrade) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
 	}
 	
 	function setScale(element, multiplier) {
@@ -2165,7 +2170,7 @@ soysauce.carousels = (function() {
 		element.style.OTransform = 
 		element.style.MozTransform = 
 		element.style.transform = 
-			currTransform + " scale" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
+			currTransform + " scale" + ((!soysauce.vars.degrade) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
 	}
 	
 	function createClones(carousel, cloneDepth) {
@@ -2386,6 +2391,10 @@ soysauce.togglers = (function() {
 					button.attr("data-ss-state", "closed");
 					button.find("+ [data-ss-component='content']").attr("data-ss-state", "closed");
 				}
+				else if (button.attr("data-ss-state") === "open") {
+					this.button = button;
+					this.content = button.find("+ [data-ss-component='content']");
+				}
 			});
 			this.opened = true;
 		}
@@ -2530,6 +2539,11 @@ soysauce.togglers = (function() {
 			});
 		}
 		
+		if (this.tab && this.nocollapse) {
+			this.content.imagesLoaded(function() {
+				self.widget.css("min-height", self.button.outerHeight() + self.content.outerHeight());
+			});
+		}
 	} // End constructor
 	
 	Toggler.prototype.open = function() {
@@ -2571,6 +2585,10 @@ soysauce.togglers = (function() {
 				self.content.css("height", self.height + "px");
 			}
 		}
+		
+		if (this.tab && this.nocollapse) {
+			this.widget.css("min-height", this.button.outerHeight() + this.content.outerHeight());
+		}
 
 		this.opened = true;
 		this.setState("open");
@@ -2611,7 +2629,6 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.addHeight = function(height) {
-		if (!height===+height || !height===(height|0)) return;
 		this.height += height;
 		this.height = (this.height < 0) ? 0 : this.height;
 		if (this.slide) {
@@ -2621,7 +2638,6 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.setHeight = function(height) {
-		if (!height===+height || !height===(height|0)) return;
 		this.height = height;
 		this.height = (this.height < 0) ? 0 : this.height;
 		if (this.slide) {
@@ -2632,8 +2648,20 @@ soysauce.togglers = (function() {
 
 	Toggler.prototype.toggle = function(e) {
 		var self = this;
+		var target;
 		
 		if (this.freeze || this.ajaxing) return;
+
+		if (!e) {
+			target = this.button[0];
+		}
+		else {
+			target = e.target;
+		}
+
+		if (!$(target).attr("data-ss-component")) {
+			target = $(target).closest("[data-ss-component='button']")[0];
+		}
 
 		if (this.orphan) {
 			if (this.opened) {
@@ -2651,7 +2679,7 @@ soysauce.togglers = (function() {
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
 											this.button[0] === e.target) ? true : false;
 
-			if ((this.responsive && !this.responsiveVars.accordions || this.nocollapse) && (this.button[0] === e.target)) return;
+			if ((this.responsive && !this.responsiveVars.accordions || this.nocollapse) && (this.button[0] === target)) return;
 
 			if (this.isChildToggler && this.tab) {
 				this.parent.childTabOpen = !collapse;
@@ -2662,8 +2690,8 @@ soysauce.togglers = (function() {
 
 			this.close(collapse);
 
-			this.button = $(e.target);
-			this.content = $(e.target).find("+ [data-ss-component='content']");
+			this.button = $(target);
+			this.content = $(target).find("+ [data-ss-component='content']");
 
 			if (this.slide) {
 				self.height = parseInt(self.content.attr("data-ss-slide-height"));
@@ -2678,8 +2706,8 @@ soysauce.togglers = (function() {
 			this.open();
 		}
 		else {
-			this.button = $(e.target);
-			this.content = $(e.target).find("+ [data-ss-component='content']");
+			this.button = $(target);
+			this.content = $(target).find("+ [data-ss-component='content']");
 
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
 											this.button[0] === e.target &&
@@ -2699,7 +2727,7 @@ soysauce.togglers = (function() {
 		this.content.attr("data-ss-state", state);
 
 		if (this.orphan) return;
-
+		
 		if (this.opened) {
 			this.widget.attr("data-ss-state", "open");
 		}
