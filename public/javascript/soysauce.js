@@ -1366,7 +1366,7 @@ soysauce.carousels = (function() {
 			}
 			
 			self.container.attr("data-ss-state", "notransition");
-			setTranslate(self.container[0], self.offset - (margin*2) + (margin/2));
+			setTranslate(self.container[0], self.offset);
 
 			if (self.zoom) {
 				var zoomMultiplier = self.widget.attr("data-ss-zoom-multiplier");
@@ -1388,7 +1388,7 @@ soysauce.carousels = (function() {
 			var targetComponent = $(e.target).attr("data-ss-component");
 
 			if ((targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "thumbnail") && self.interrupted) {
-				var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+				var currXPos = (soysauce.vars.degrade) ? parseInt(soysauce.fetch(2).container[0].style.left) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
 				if (currXPos === self.offset) {
 					self.interrupted = false;
 				}
@@ -1478,7 +1478,7 @@ soysauce.carousels = (function() {
 			// Slide Backward
 			if (!resettingPosition && !jumping && this.index === this.numChildren - 2 && !this.forward) {
 				this.infiniteID = window.setTimeout(function() {
-					xcoord = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+					xcoord = (soysauce.vars.degrade) ? parseInt(soysauce.fetch(2).container[0].style.left) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
 					setTranslate(self.container[0], self.offset);
@@ -1492,7 +1492,7 @@ soysauce.carousels = (function() {
 			// Slide Forward
 			else if (!resettingPosition && !jumping && this.index === 1 && this.forward) {
 				this.infiniteID = window.setTimeout(function() {
-					xcoord = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+					xcoord = (soysauce.vars.degrade) ? parseInt(soysauce.fetch(2).container[0].style.left) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = self.itemWidth*(self.numChildren - 2) + xcoord;
 					setTranslate(self.container[0], self.offset);
@@ -1636,7 +1636,7 @@ soysauce.carousels = (function() {
 		
 		var self = this;
 		var coords1, coords2, ret;
-		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css(PREFIX + "transform"))[4]);
+		var xcoord = (soysauce.vars.degrade) ? parseInt(soysauce.fetch(2).container[0].style.left) : parseInt(soysauce.getArrayFromMatrix(this.container.css(PREFIX + "transform"))[4]);
 		
 		this.interrupted = true;
 		
@@ -2152,14 +2152,19 @@ soysauce.carousels = (function() {
 	
 	// Helper Functions
 	function setTranslate(element, x, y) {
-		x = (!x) ? 0 : x;
-		y =  (!y) ? 0 : y;
-		element.style.webkitTransform = 
-		element.style.msTransform = 
-		element.style.OTransform = 
-		element.style.MozTransform = 
-		element.style.transform = 
-			"translate" + ((!soysauce.vars.degrade) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
+		x = x || 0;
+		y = y || 0;
+		if (soysauce.vars.degrade) {
+			element.style.left = x + "px";
+		}
+		else {
+			element.style.webkitTransform = 
+			element.style.msTransform = 
+			element.style.OTransform = 
+			element.style.MozTransform = 
+			element.style.transform =
+				"translate3d(" + x + "px," + y + "px,0)";
+		}
 	}
 	
 	function setScale(element, multiplier) {
