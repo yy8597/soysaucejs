@@ -15,13 +15,14 @@ soysauce.init = function(selector) {
 	numItems = set.length;
 	
 	set.each(function(i) {
+		var $this = $(this);
 		var type = $(this).attr("data-ss-widget");
 		var widget;
 		var orphan = false;
 		
-		$(this).attr("data-ss-id", ++soysauce.vars.idCount);
+		$this.attr("data-ss-id", ++soysauce.vars.idCount);
 		
-		if (!type && $(this).attr("data-ss-toggler-id") !== undefined) {
+		if (!type && $this.attr("data-ss-toggler-id") !== undefined) {
 			type = "toggler";
 			orphan = true;
 		}
@@ -45,8 +46,11 @@ soysauce.init = function(selector) {
 		}
 
 		if (widget !== undefined) {
+			if (soysauce.vars.degrade) {
+				$this.attr("data-ss-degrade", "true")
+			}
 			soysauce.widgets.push(widget);
-			$(this).trigger("SSWidgetReady");
+			$this.trigger("SSWidgetReady");
 			ret = true;
 		}
 		

@@ -132,7 +132,7 @@ soysauce = {
 	vars: {
 		idCount: 0,
 		currentViewportWidth: window.innerWidth,
-		SUPPORTS3D: (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true
+		degrade: (/Android [12]|Opera/.test(navigator.userAgent)) ? true : false
 	},
 	getOptions: function(selector) {
 		if(!$(selector).attr("data-ss-options")) return false;

@@ -35,7 +35,7 @@ soysauce.carousels = (function() {
 		this.prevBtn;
 		this.freeze = false;
 		this.jumping = false;
-		this.use3D = soysauce.vars.SUPPORTS3D;
+		this.use3D = !soysauce.vars.degrade;
 		
 		// Infinite Variables
 		this.infinite = true;
@@ -151,7 +151,7 @@ soysauce.carousels = (function() {
 
 				styleTag.closest("li").attr("data-ss-component", "item")
 
-				styleTag.find("+ div").remove();
+				styleTag.find("+ *").remove();
 				styleTag.remove();
 			});
 		}
@@ -1151,7 +1151,7 @@ soysauce.carousels = (function() {
 		element.style.OTransform = 
 		element.style.MozTransform = 
 		element.style.transform = 
-			"translate" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
+			"translate" + ((!soysauce.vars.degrade) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
 	}
 	
 	function setScale(element, multiplier) {
@@ -1162,7 +1162,7 @@ soysauce.carousels = (function() {
 		element.style.OTransform = 
 		element.style.MozTransform = 
 		element.style.transform = 
-			currTransform + " scale" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
+			currTransform + " scale" + ((!soysauce.vars.degrade) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
 	}
 	
 	function createClones(carousel, cloneDepth) {

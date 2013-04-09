@@ -6,6 +6,12 @@
 	-webkit-backface-visibility: hidden;
 	position: relative;
 	z-index: 5;
+	&[data-ss-degrade] {
+		-webkit-backface-visibility: visible;
+		* {
+			-webkit-backface-visibility: visible;
+		}
+	}
 	&:not([data-ss-widget="autofill-cc"],[data-ss-widget="autofill-zip"]) {
 		-webkit-user-select: none;
 	}
