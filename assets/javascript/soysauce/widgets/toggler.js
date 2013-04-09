@@ -388,11 +388,18 @@ soysauce.togglers = (function() {
 
 	Toggler.prototype.toggle = function(e) {
 		var self = this;
-		var target = e.target;
+		var target;
 		
 		if (this.freeze || this.ajaxing) return;
 
-		if (!$(e.target).attr("data-ss-component")) {
+		if (!e) {
+			target = this.button[0];
+		}
+		else {
+			target = e.target;
+		}
+
+		if (!$(target).attr("data-ss-component")) {
 			target = $(target).closest("[data-ss-component='button']")[0];
 		}
 
