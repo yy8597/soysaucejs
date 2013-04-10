@@ -1055,6 +1055,9 @@ soysauce.carousels = (function() {
 		
 		if (!this.autoscrollID) {
 			this.autoscrollID = window.setInterval(function() {
+				if (soysauce.vars.degrade) {
+					self.rewindCoord = -self.itemWidth*3 - self.peekWidth;
+				}
 				self.slideForward();
 			}, self.autoscrollInterval);
 			return true;

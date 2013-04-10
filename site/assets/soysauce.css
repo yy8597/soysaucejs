@@ -5,10 +5,14 @@
   z-index: 5;
 }
 [data-ss-widget][data-ss-degrade], [data-ss-component][data-ss-degrade] {
-  -webkit-backface-visibility: visible;
+  -webkit-backface-visibility: visible !important;
+  -webkit-animation: none 0 ease 0 1 normal !important;
+  animation: none 0 ease 0 1 normal !important;
 }
 [data-ss-widget][data-ss-degrade] *, [data-ss-component][data-ss-degrade] * {
-  -webkit-backface-visibility: visible;
+  -webkit-backface-visibility: visible !important;
+  -webkit-animation: none 0 ease 0 1 normal !important;
+  animation: none 0 ease 0 1 normal !important;
 }
 [data-ss-widget]:not([data-ss-widget="autofill-cc"],[data-ss-widget="autofill-zip"]), [data-ss-component]:not([data-ss-widget="autofill-cc"],[data-ss-widget="autofill-zip"]) {
   -webkit-user-select: none;
