@@ -516,6 +516,9 @@ $(window).on("resize orientationchange", function(e) {
 $(document).ready(function() {
 	soysauce.scrollTop();
 	soysauce.init();
+	if (soysauce.vars.degrade) {
+		$("body").attr("data-ss-degrade", "true");
+	}
 	$(window).trigger("SSReady");
 });
 
@@ -600,9 +603,6 @@ soysauce.init = function(selector) {
 		}
 
 		if (widget !== undefined) {
-			if (soysauce.vars.degrade) {
-				$this.attr("data-ss-degrade", "true")
-			}
 			soysauce.widgets.push(widget);
 			$this.trigger("SSWidgetReady");
 			ret = true;

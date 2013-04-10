@@ -46,9 +46,6 @@ soysauce.init = function(selector) {
 		}
 
 		if (widget !== undefined) {
-			if (soysauce.vars.degrade) {
-				$this.attr("data-ss-degrade", "true")
-			}
 			soysauce.widgets.push(widget);
 			$this.trigger("SSWidgetReady");
 			ret = true;
