@@ -2439,6 +2439,11 @@ soysauce.togglers = (function() {
 			this.setState("closed");
 			this.id = parseInt(this.button.attr("data-ss-id"));
 			this.content.attr("data-ss-id", this.id);
+			
+			if (soysauce.vars.degrade) {
+				this.content.attr("data-ss-degrade", "true");
+				this.button.attr("data-ss-degrade", "true");
+			}
 		}
 		else {
 			this.widget = $(selector);
