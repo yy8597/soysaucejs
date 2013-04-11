@@ -225,6 +225,7 @@ $(window).on("resize orientationchange", function(e) {
 	if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
 		soysauce.vars.currentViewportWidth = window.innerWidth;
 		soysauce.widgets.forEach(function(widget) {
+			if (!widget.handleResize) return;
 			widget.handleResize();
 		});
 	}
