@@ -225,6 +225,7 @@ $(window).on("resize orientationchange", function(e) {
 	if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
 		soysauce.vars.currentViewportWidth = window.innerWidth;
 		soysauce.widgets.forEach(function(widget) {
+			if (!widget.handleResize) return;
 			widget.handleResize();
 		});
 	}
@@ -1357,6 +1358,9 @@ soysauce.carousels = (function() {
 		
 		if (!this.autoscrollID) {
 			this.autoscrollID = window.setInterval(function() {
+				if (soysauce.vars.degrade) {
+					self.rewindCoord = -self.itemWidth*3 - self.peekWidth;
+				}
 				self.slideForward();
 			}, self.autoscrollInterval);
 			return true;

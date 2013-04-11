@@ -638,6 +638,7 @@ $(window).on("resize orientationchange", function(e) {
 	if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
 		soysauce.vars.currentViewportWidth = window.innerWidth;
 		soysauce.widgets.forEach(function(widget) {
+			if (!widget.handleResize) return;
 			widget.handleResize();
 		});
 	}
@@ -880,6 +881,16 @@ soysauce.autodetectCC = (function() {
 			this.input.attr("maxlength", "16");
 		}
 		
+		if (this.format && soysauce.vars.degrade) {
+			this.input.on("keydown", function(e) {
+				var keycode = e.keyCode ? e.keyCode : e.which;
+				if (keycode !== 8 && keycode !== 46 && keycode !== 91 && keycode !== 17 && keycode !== 189) {
+					soysauce.stifle(e);
+					self.input.val(this.value + String.fromCharCode(e.keyCode));
+				}
+			});
+		}
+		
 		this.input.on("keyup change", function(e) {
 			var card_num = e.target.value.replace(/[-\s]+/g, "");
 			var keycode = e.keyCode ? e.keyCode : e.which;
@@ -962,16 +973,20 @@ soysauce.autodetectCC = (function() {
 			// keycodes: 8 = backspace, 46 = delete, 91 = command, 17 = ctrl, 189 = dash
 			if (self.format && card_num.length > 3 && 
 				keycode !== 8 && keycode !== 46 && keycode !== 91 && keycode !== 17 && keycode !== 189) {
-				self.formatInput();
+				self.formatInput(e);
 			}
 			
 		});
 	}
 	
-	autodetectCC.prototype.formatInput = function() {
+	autodetectCC.prototype.formatInput = function(e) {
 		var val = this.input.val().replace(/[\s]+/g, "");
 		var isAmex = (/^3[47]/.test(val.replace(/[-\s]+/g, ""))) ? true : false;
 		var isDC = (/^3(?:0[0-5]|[68][0-9])/.test(val.replace(/[-\s]+/g, "")) && !isAmex) ? true : false;
+		
+		if (soysauce.vars.degrade) {
+			setCursorToEnd(this.input[0]);
+		}
 		
 		if (isAmex || isDC) {
 			if (val[4] !== undefined && val[4] !== "-") {
@@ -1008,9 +1023,10 @@ soysauce.autodetectCC = (function() {
 		}
 	};
 	
-	autodetectCC.prototype.handleResize = function() {
-		// Placeholder - required soysauce function
-	};
+	function setCursorToEnd(input) {
+		var index = input.length;
+		input.setSelectionRange(19, 19);
+	}
 	
 	// Luhn Algorithm, Copyright (c) 2011 Thomas Fuchs, http://mir.aculo.us
 	// https://gist.github.com/madrobby/976805
@@ -1115,10 +1131,6 @@ soysauce.autofillZip = (function() {
 				}
 			});
 		}
-	};
-	
-	autofillZip.prototype.handleResize = function() {
-		// Placeholder - required soysauce function
 	};
 	
 	autofillZip.prototype.handleFreeze = function() {
@@ -2194,6 +2206,9 @@ soysauce.carousels = (function() {
 		
 		if (!this.autoscrollID) {
 			this.autoscrollID = window.setInterval(function() {
+				if (soysauce.vars.degrade) {
+					self.rewindCoord = -self.itemWidth*3 - self.peekWidth;
+				}
 				self.slideForward();
 			}, self.autoscrollInterval);
 			return true;
@@ -2386,10 +2401,6 @@ soysauce.lazyloader = (function() {
 			}
 		});
 		this.images = this.widget.find("[data-ss-ll-src]");
-	};
-	
-	Lazyloader.prototype.handleResize = function() {
-		// Placeholder - required soysauce function
 	};
 	
 	return {
