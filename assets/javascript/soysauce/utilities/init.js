@@ -47,7 +47,6 @@ soysauce.init = function(selector) {
 
 		if (widget !== undefined) {
 			soysauce.widgets.push(widget);
-			$this.trigger("SSWidgetReady");
 			ret = true;
 		}
 		
