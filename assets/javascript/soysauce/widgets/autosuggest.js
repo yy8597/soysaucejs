@@ -21,7 +21,7 @@ soysauce.autosuggest = (function() {
 			});
 
 		var defaults = {  
-			url: 'http://joey.jan.speedousa.dev.becho.me/static/searchTerms.json',
+			url: undefined,
 			data: undefined,
 			minCharacters: 1,
 			maxResults: 10,
@@ -65,7 +65,6 @@ soysauce.autosuggest = (function() {
 		
 		this.obj.after(this.results).
 			keyup(function (e){
-				console.log('ac key: ' + e.keyCode);
 				switch (e.keyCode) {
 					case 13: // return key
 						$(self.currentSelection).trigger('click');
@@ -143,6 +142,17 @@ soysauce.autosuggest = (function() {
 		// Escape the not character if present so that it doesn't act in the regular expression
 		this.acSettings.notCharacter = self.regexEscape(this.acSettings.notCharacter || '');
 
+		//if we have a url for json, grab it and parse
+		if (this.widget.attr("data-ss-suggest-json-file"))
+		$.ajax({
+			url: this.widget.attr("data-ss-suggest-json-file"),
+			dataType: 'json',
+			async: false,
+			success: function(data) {
+				self.acSettings.data = data;
+			}
+		});
+
 		// Make sure the JSON data is a JavaScript object if given as a string.
 		if (this.acSettings.data && typeof this.acSettings.data === 'string') {
 			this.acSettings.data = $.parseJSON(this.acSettings.data);
@@ -179,7 +189,9 @@ soysauce.autosuggest = (function() {
 	*/
 	AutoSuggest.prototype.selectResultItem = function(item) {
 		this.obj.val(item[this.acSettings.property]);
-		$(this.obj).trigger("SSAutoSuggested");
+		this.widget.trigger("SSAutoSuggested", {
+			suggestion: item
+		});
 		$(this.results).html('').hide();
 
 		if (typeof this.acSettings.onSelect === 'function') {

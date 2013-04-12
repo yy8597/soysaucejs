@@ -146,7 +146,19 @@
 						</div>
 					</article>
 				</section>
-
+				
+				<section class="reverseGeocode">
+					<h1>Search Auto Suggest</h1>
+					<article>
+						<div class="widget">
+							<input id="aswidget" data-ss-widget="autosuggest" data-ss-suggest-json-file="assets/suggestTerms.json">
+						</div>
+						<div class ="code">
+<pre class="prettyprint"><xmp><input data-ss-widget="autosuggest" data-ss-suggest-json-file="assets/suggestTerms.json"></xmp></pre>
+						</div>
+					</article>
+				</section>
+				
 				<section class="folderTabs">
 					<h1>Folder-tab Toggler</h1>
 					<article>
@@ -247,6 +259,12 @@
 		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 		  })();
+		  
+		  $(document).ready(function() {
+			$(soysauce.fetch('[data-ss-widget="autosuggest"]').widget).on('SSAutoSuggested', function (e,d) {
+				alert('Suggestion selected: ' + JSON.stringify(d.suggestion))
+			})
+		  });
 
 		</script>
 	</body>
