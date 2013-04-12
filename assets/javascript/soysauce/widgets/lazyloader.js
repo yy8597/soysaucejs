@@ -48,10 +48,6 @@ soysauce.lazyloader = (function() {
 		this.images = this.widget.find("[data-ss-ll-src]");
 	};
 	
-	Lazyloader.prototype.handleResize = function() {
-		// Placeholder - required soysauce function
-	};
-	
 	return {
 		init: function(selector) {
 			return new Lazyloader(selector);

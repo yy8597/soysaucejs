@@ -34,6 +34,8 @@
 				@include background(linear-gradient(#2a2a2a 0%, #1a1a1a 100%));
 				padding: 10px;
 				border-bottom: 1px solid black;
+				cursor: pointer;
+				cursor: hand;
 				&[data-ss-state="open"] {
 					@include box-shadow(inset 0px 1px 0 rgba(255,255,255,0.3));
 					@include background(linear-gradient(#0071aa 0%,#003882 100%));

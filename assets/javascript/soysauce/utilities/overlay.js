@@ -15,7 +15,7 @@ soysauce.overlay = (function() {
 			
 			overlay = $("[data-ss-utility='overlay']");
 			
-			overlay.append("<span class='done'>Done</span>");
+			overlay.append("<span class='done'></span>");
 			done = overlay.find(".done");
 			
 			overlay.append("<div class='caption'></span>");

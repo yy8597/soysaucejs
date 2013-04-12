@@ -35,7 +35,7 @@ soysauce.carousels = (function() {
 		this.prevBtn;
 		this.freeze = false;
 		this.jumping = false;
-		this.use3D = soysauce.vars.SUPPORTS3D;
+		this.use3D = !soysauce.vars.degrade;
 		
 		// Infinite Variables
 		this.infinite = true;
@@ -48,6 +48,7 @@ soysauce.carousels = (function() {
 		this.lastSlideTime;
 		this.cloneDepth = 0;
 		this.looping = false;
+		this.rewindCoord = 0;
 		
 		// Fullscreen & Peek Variables
 		this.fullscreen = true;
@@ -152,7 +153,7 @@ soysauce.carousels = (function() {
 
 				styleTag.closest("li").attr("data-ss-component", "item")
 
-				styleTag.find("+ div").remove();
+				styleTag.find("+ *").remove();
 				styleTag.remove();
 			});
 		}
@@ -366,7 +367,7 @@ soysauce.carousels = (function() {
 			}
 			
 			self.container.attr("data-ss-state", "notransition");
-			setTranslate(self.container[0], self.offset - (margin*2) + (margin/2));
+			setTranslate(self.container[0], self.offset);
 
 			if (self.zoom) {
 				var zoomMultiplier = self.widget.attr("data-ss-zoom-multiplier");
@@ -389,7 +390,7 @@ soysauce.carousels = (function() {
 			var targetComponent = $(e.target).attr("data-ss-component");
 
 			if ((targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "thumbnail") && self.interrupted) {
-				var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+				var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
 				if (currXPos === self.offset) {
 					self.interrupted = false;
 				}
@@ -475,11 +476,10 @@ soysauce.carousels = (function() {
 			duration = parseFloat(this.container.css(PREFIX + "transition-duration").replace(/s$/,"")) * 1000;
 			
 			duration = (!duration) ? 650 : duration;
-			
-			// Slide Backward
+			// Slide Backward Rewind
 			if (!resettingPosition && !jumping && this.index === this.numChildren - 2 && !this.forward) {
 				this.infiniteID = window.setTimeout(function() {
-					xcoord = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+					xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
 					setTranslate(self.container[0], self.offset);
@@ -490,10 +490,10 @@ soysauce.carousels = (function() {
 					}, 0);
 				}, 0);
 			}
-			// Slide Forward
+			// Slide Forward Rewind
 			else if (!resettingPosition && !jumping && this.index === 1 && this.forward) {
 				this.infiniteID = window.setTimeout(function() {
-					xcoord = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+					xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = self.itemWidth*(self.numChildren - 2) + xcoord;
 					setTranslate(self.container[0], self.offset);
@@ -645,7 +645,7 @@ soysauce.carousels = (function() {
 		
 		var self = this;
 		var coords1, coords2, ret;
-		var xcoord = parseInt(soysauce.getArrayFromMatrix(this.container.css(PREFIX + "transform"))[4]);
+		var xcoord = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left) : parseInt(soysauce.getArrayFromMatrix(this.container.css(PREFIX + "transform"))[4]);
 		
 		this.interrupted = true;
 		
@@ -924,17 +924,23 @@ soysauce.carousels = (function() {
 				if (xDist > 0) {
 					if (!self.infinite && self.index === self.numChildren - 1 ||
 						(self.multi && !self.infinite && self.index === self.numChildren - self.multiVars.numItems)) {
-						self.gotoPos(self.index * -self.itemWidth + (self.peekWidth) + self.spacingOffset);
+						self.gotoPos(self.index * -self.itemWidth + self.peekWidth + self.spacingOffset);
 					}
 					else {
+						if (soysauce.vars.degrade) {
+							self.rewindCoord = parseInt(self.container.css("left"));
+						}
 						self.slideForward(fast);
 					}
 				}
 				else {
 					if (!self.infinite && self.index === 0) {
-						self.gotoPos((self.peekWidth) + self.spacingOffset);
+						self.gotoPos(self.peekWidth + self.spacingOffset);
 					}
 					else {
+						if (soysauce.vars.degrade) {
+							self.rewindCoord = parseInt(self.container.css("left"));
+						}
 						self.slideBackward(fast);
 					}
 				}
@@ -1066,6 +1072,9 @@ soysauce.carousels = (function() {
 		
 		if (!this.autoscrollID) {
 			this.autoscrollID = window.setInterval(function() {
+				if (soysauce.vars.degrade) {
+					self.rewindCoord = -self.itemWidth*3 - self.peekWidth;
+				}
 				self.slideForward();
 			}, self.autoscrollInterval);
 			return true;
@@ -1161,14 +1170,19 @@ soysauce.carousels = (function() {
 	
 	// Helper Functions
 	function setTranslate(element, x, y) {
-		x = (!x) ? 0 : x;
-		y =  (!y) ? 0 : y;
-		element.style.webkitTransform = 
-		element.style.msTransform = 
-		element.style.OTransform = 
-		element.style.MozTransform = 
-		element.style.transform = 
-			"translate" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + x + "px," + y + "px,0)": "(" + x + "px," + y + "px)");
+		x = x || 0;
+		y = y || 0;
+		if (soysauce.vars.degrade) {
+			element.style.left = x + "px";
+		}
+		else {
+			element.style.webkitTransform = 
+			element.style.msTransform = 
+			element.style.OTransform = 
+			element.style.MozTransform = 
+			element.style.transform =
+				"translate3d(" + x + "px," + y + "px,0)";
+		}
 	}
 	
 	function setScale(element, multiplier) {
@@ -1179,7 +1193,7 @@ soysauce.carousels = (function() {
 		element.style.OTransform = 
 		element.style.MozTransform = 
 		element.style.transform = 
-			currTransform + " scale" + ((soysauce.vars.SUPPORTS3D) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
+			currTransform + " scale" + ((!soysauce.vars.degrade) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
 	}
 	
 	function createClones(carousel, cloneDepth) {
