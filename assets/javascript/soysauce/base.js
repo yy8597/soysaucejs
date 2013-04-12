@@ -132,7 +132,7 @@ soysauce = {
 	vars: {
 		idCount: 0,
 		currentViewportWidth: window.innerWidth,
-		SUPPORTS3D: (/Android [12]|Opera/.test(navigator.userAgent)) ? false : true
+		degrade: (/Android [12]|Opera/.test(navigator.userAgent)) ? true : false
 	},
 	getOptions: function(selector) {
 		if(!$(selector).attr("data-ss-options")) return false;
@@ -225,6 +225,7 @@ $(window).on("resize orientationchange", function(e) {
 	if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
 		soysauce.vars.currentViewportWidth = window.innerWidth;
 		soysauce.widgets.forEach(function(widget) {
+			if (!widget.handleResize) return;
 			widget.handleResize();
 		});
 	}
@@ -234,6 +235,10 @@ $(window).on("resize orientationchange", function(e) {
 $(document).ready(function() {
 	soysauce.scrollTop();
 	soysauce.init();
+	if (soysauce.vars.degrade) {
+		$("body").attr("data-ss-degrade", "true");
+	}
+	$(window).trigger("SSReady");
 });
 
 }

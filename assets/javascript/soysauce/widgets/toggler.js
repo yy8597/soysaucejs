@@ -37,6 +37,11 @@ soysauce.togglers = (function() {
 			this.setState("closed");
 			this.id = parseInt(this.button.attr("data-ss-id"));
 			this.content.attr("data-ss-id", this.id);
+			
+			if (soysauce.vars.degrade) {
+				this.content.attr("data-ss-degrade", "true");
+				this.button.attr("data-ss-degrade", "true");
+			}
 		}
 		else {
 			this.widget = $(selector);
@@ -130,6 +135,10 @@ soysauce.togglers = (function() {
 				if (!button.attr("data-ss-state"))  {
 					button.attr("data-ss-state", "closed");
 					button.find("+ [data-ss-component='content']").attr("data-ss-state", "closed");
+				}
+				else if (button.attr("data-ss-state") === "open") {
+					this.button = button;
+					this.content = button.find("+ [data-ss-component='content']");
 				}
 			});
 			this.opened = true;
@@ -275,6 +284,11 @@ soysauce.togglers = (function() {
 			});
 		}
 		
+		if (this.tab && this.nocollapse) {
+			this.content.imagesLoaded(function() {
+				self.widget.css("min-height", self.button.outerHeight() + self.content.outerHeight());
+			});
+		}
 	} // End constructor
 	
 	Toggler.prototype.open = function() {
@@ -316,6 +330,10 @@ soysauce.togglers = (function() {
 				self.content.css("height", self.height + "px");
 			}
 		}
+		
+		if (this.tab && this.nocollapse) {
+			this.widget.css("min-height", this.button.outerHeight() + this.content.outerHeight());
+		}
 
 		this.opened = true;
 		this.setState("open");
@@ -356,7 +374,6 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.addHeight = function(height) {
-		if (!height===+height || !height===(height|0)) return;
 		this.height += height;
 		this.height = (this.height < 0) ? 0 : this.height;
 		if (this.slide) {
@@ -366,7 +383,6 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.setHeight = function(height) {
-		if (!height===+height || !height===(height|0)) return;
 		this.height = height;
 		this.height = (this.height < 0) ? 0 : this.height;
 		if (this.slide) {
@@ -377,8 +393,20 @@ soysauce.togglers = (function() {
 
 	Toggler.prototype.toggle = function(e) {
 		var self = this;
+		var target;
 		
 		if (this.freeze || this.ajaxing) return;
+
+		if (!e) {
+			target = this.button[0];
+		}
+		else {
+			target = e.target;
+		}
+
+		if (!$(target).attr("data-ss-component")) {
+			target = $(target).closest("[data-ss-component='button']")[0];
+		}
 
 		if (this.orphan) {
 			if (this.opened) {
@@ -396,7 +424,7 @@ soysauce.togglers = (function() {
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
 											this.button[0] === e.target) ? true : false;
 
-			if ((this.responsive && !this.responsiveVars.accordions || this.nocollapse) && (this.button[0] === e.target)) return;
+			if ((this.responsive && !this.responsiveVars.accordions || this.nocollapse) && (this.button[0] === target)) return;
 
 			if (this.isChildToggler && this.tab) {
 				this.parent.childTabOpen = !collapse;
@@ -407,8 +435,8 @@ soysauce.togglers = (function() {
 
 			this.close(collapse);
 
-			this.button = $(e.target);
-			this.content = $(e.target).find("+ [data-ss-component='content']");
+			this.button = $(target);
+			this.content = $(target).find("+ [data-ss-component='content']");
 
 			if (this.slide) {
 				self.height = parseInt(self.content.attr("data-ss-slide-height"));
@@ -423,8 +451,8 @@ soysauce.togglers = (function() {
 			this.open();
 		}
 		else {
-			this.button = $(e.target);
-			this.content = $(e.target).find("+ [data-ss-component='content']");
+			this.button = $(target);
+			this.content = $(target).find("+ [data-ss-component='content']");
 
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
 											this.button[0] === e.target &&
@@ -444,7 +472,7 @@ soysauce.togglers = (function() {
 		this.content.attr("data-ss-state", state);
 
 		if (this.orphan) return;
-
+		
 		if (this.opened) {
 			this.widget.attr("data-ss-state", "open");
 		}

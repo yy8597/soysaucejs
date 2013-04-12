@@ -91,10 +91,6 @@ soysauce.autofillZip = (function() {
 		}
 	};
 	
-	autofillZip.prototype.handleResize = function() {
-		// Placeholder - required soysauce function
-	};
-	
 	autofillZip.prototype.handleFreeze = function() {
 		this.freeze = true;
 	};

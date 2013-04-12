@@ -4,6 +4,16 @@
   position: relative;
   z-index: 5;
 }
+[data-ss-widget][data-ss-degrade], [data-ss-component][data-ss-degrade] {
+  -webkit-backface-visibility: visible !important;
+  -webkit-animation: none 0 ease 0 1 normal !important;
+  animation: none 0 ease 0 1 normal !important;
+}
+[data-ss-widget][data-ss-degrade] *, [data-ss-component][data-ss-degrade] * {
+  -webkit-backface-visibility: visible !important;
+  -webkit-animation: none 0 ease 0 1 normal !important;
+  animation: none 0 ease 0 1 normal !important;
+}
 [data-ss-widget]:not([data-ss-widget="autofill-cc"],[data-ss-widget="autofill-zip"]), [data-ss-component]:not([data-ss-widget="autofill-cc"],[data-ss-widget="autofill-zip"]) {
   -webkit-user-select: none;
 }
@@ -26,15 +36,11 @@
   height: 0 !important;
 }
 
-[data-ss-widget="toggler"]:not([data-ss-options*="slide"]) [data-ss-component="content"] {
-  display: none;
-}
-
 [data-ss-utility="overlay"] {
-  -webkit-transition: opacity 0.4s ease-in-out;
-  -moz-transition: opacity 0.4s ease-in-out;
-  -o-transition: opacity 0.4s ease-in-out;
-  transition: opacity 0.4s ease-in-out;
+  -webkit-transition: opacity 0.3s ease-in-out;
+  -moz-transition: opacity 0.3s ease-in-out;
+  -o-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
   display: none;
   position: absolute;
   top: 0;
@@ -88,16 +94,16 @@
   overflow: hidden;
 }
 [data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"]) {
-  -webkit-transition: -webkit-transform 0.65s;
-  -moz-transition: -moz-transform 0.65s;
-  -o-transition: -o-transform 0.65s;
-  transition: transform 0.65s;
+  -webkit-transition: -webkit-transform 0.65s, left 0.65s;
+  -moz-transition: -moz-transform 0.65s, left 0.65s;
+  -o-transition: -o-transform 0.65s, left 0.65s;
+  transition: transform 0.65s, left 0.65s;
 }
 [data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"])[data-ss-state="intransit-fast"] {
-  -webkit-transition: -webkit-transform 0.4s;
-  -moz-transition: -moz-transform 0.4s;
-  -o-transition: -o-transform 0.4s;
-  transition: transform 0.4s;
+  -webkit-transition: -webkit-transform 0.4s, left 0.4s;
+  -moz-transition: -moz-transform 0.4s, left 0.4s;
+  -o-transition: -o-transform 0.4s, left 0.4s;
+  transition: transform 0.4s, left 0.4s;
 }
 [data-ss-widget="carousel"][data-ss-options*="zoom"] img[data-ss-state="ready"] {
   -webkit-transition: -webkit-transform 0.5s;
