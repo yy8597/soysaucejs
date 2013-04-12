@@ -46,7 +46,14 @@ soysauce.init = function(selector) {
 		}
 
 		if (widget !== undefined) {
+			if ($this.attr("data-ss-defer") !== undefined) {
+				widget.defer = true;
+			}
 			soysauce.widgets.push(widget);
+			$this.imagesLoaded(function() {
+				widget.initialized = true;
+				$this.trigger("SSWidgetReady");
+			});
 			ret = true;
 		}
 		
