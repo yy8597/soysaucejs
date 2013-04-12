@@ -239,6 +239,12 @@ $(document).ready(function() {
 		$("body").attr("data-ss-degrade", "true");
 	}
 	$(window).trigger("SSReady");
+	soysauce.widgets.forEach(function(obj) {
+		obj.initialized = true;
+		obj.widget.imagesLoaded(function() {
+			obj.widget.trigger("SSWidgetReady");
+		});
+	});
 });
 
 }
