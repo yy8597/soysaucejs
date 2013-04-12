@@ -326,7 +326,6 @@ soysauce.carousels = (function() {
 		}
 
 		this.container.imagesLoaded(function(items) {
-			console.log(items);
 			var firstItem = self.items.first();
 			var padding = parseInt(firstItem.css("padding-left")) + parseInt(firstItem.css("padding-right"));
 			var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
@@ -383,7 +382,6 @@ soysauce.carousels = (function() {
 					});
 				}
 			}
-			console.log("images loaded");
 		});
 
 		if (this.swipe || this.zoom) this.widget.on("touchstart mousedown", function(e) {
@@ -583,8 +581,6 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleResize = function() {
-		console.log('resize called');
-		
 		var self = this;
 		var widgetWidth = $(this.widget).find('[data-ss-component="container_wrapper"]').innerWidth();
 		
@@ -593,12 +589,9 @@ soysauce.carousels = (function() {
 		}
 		
 		if (this.multi) {
-			
 			if (this.multiVars.minWidth>0) {
 				this.multiVars.numItems = Math.floor(widgetWidth / this.multiVars.minWidth)
-				console.log ('setting numItems to ' + this.multiVars.numItems, 'container width: ' + widgetWidth);
 			}
-			
 			this.itemWidth = widgetWidth / this.multiVars.numItems;
 		}
 
