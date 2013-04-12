@@ -35,7 +35,6 @@ soysauce.carousels = (function() {
 		this.prevBtn;
 		this.freeze = false;
 		this.jumping = false;
-		this.use3D = !soysauce.vars.degrade;
 		
 		// Infinite Variables
 		this.infinite = true;
@@ -123,9 +122,6 @@ soysauce.carousels = (function() {
 				case "pinch":
 					self.pinch = true;
 					break
-				case "3d":
-					self.use3D = true;
-					break;
 				case "thumbs":
 					self.thumbs = true;
 					break;
