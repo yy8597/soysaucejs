@@ -69,7 +69,7 @@ body {
   background: #2c2c2c;
   position: relative;
   font-size: 13px;
-  font-family: Helvetica, 'Open Sans', sans-serif;
+  font-family: Helvetica, "Open Sans", sans-serif;
   line-height: 16px;
 }
 
@@ -231,7 +231,7 @@ input[type="text"], input[type="tel"], input[type="email"], input[type="password
   border: 1px solid #9c9c9c;
   color: #666;
   font-size: 13px;
-  text-shadow: 0 1px #fff;
+  text-shadow: 0 1px white;
   font-weight: bold;
 }
 
@@ -252,7 +252,7 @@ button {
   position: relative;
   font-size: 16px;
   font-weight: bold;
-  color: #fff !important;
+  color: white !important;
   padding: 7px;
   border: 1px solid #85211e;
   text-shadow: 0px 1px #6b1b19;
@@ -264,7 +264,7 @@ button {
 }
 
 .error {
-  border: 2px solid #CD0000 !important;
+  border: 2px solid #cd0000 !important;
 }
 
 xmp {
@@ -411,7 +411,7 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   background: #202020;
   padding: 3px 5px;
   border-radius: 3px;
-  border: 1px solid #BBB;
+  border: 1px solid #bbbbbb;
 }
 .snippet > em {
   color: #89BDFF;
@@ -450,7 +450,7 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   -ms-box-flex: 3;
   box-flex: 3;
   width: 100%;
-  border: 1px solid #CCC;
+  border: 1px solid #cccccc;
   padding: 10px;
   margin: 10px;
 }
@@ -538,7 +538,7 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 }
 .widgets .api > article .apiCarousel li:not(:last-of-type) {
   padding-bottom: 10px;
-  border-bottom: 1px dotted #CCC;
+  border-bottom: 1px dotted #cccccc;
 }
 .widgets .api > article .apiCarousel [data-ss-component="item"] {
   width: 100%;
@@ -646,7 +646,7 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   -webkit-box-shadow: inset 1px 1px 7px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: inset 1px 1px 7px rgba(0, 0, 0, 0.5);
   box-shadow: inset 1px 1px 7px rgba(0, 0, 0, 0.5);
-  border: 1px solid #CCC;
+  border: 1px solid #cccccc;
   display: inline-block;
   margin-left: 5px;
   background: white;
@@ -703,7 +703,7 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   margin-bottom: 10px;
 }
 .demos .toggler [data-ss-component="wrapper"] img {
-  border: 1px solid #777;
+  border: 1px solid #777777;
 }
 .demos .autodetect-cc input, .demos .reverseGeocode input {
   -webkit-appearance: none;
@@ -716,7 +716,7 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   border-radius: 3px;
   display: block;
   min-height: 40px;
-  border: 1px solid #333;
+  border: 1px solid #333333;
   text-indent: 5px;
   font-size: 14px;
   font-weight: bold;
@@ -725,14 +725,14 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   max-width: 300px;
 }
 .demos .autodetect-cc h3 {
-  border-top: 1px solid #333;
+  border-top: 1px solid #333333;
   padding-top: 10px;
   margin-bottom: 10px;
 }
 .demos .autodetect-cc .testCards li {
   padding-bottom: 3px;
   margin-bottom: 3px;
-  border-bottom: 1px dotted #ddd;
+  border-bottom: 1px dotted #dddddd;
   text-align: right;
 }
 .demos .autodetect-cc .testCards span {

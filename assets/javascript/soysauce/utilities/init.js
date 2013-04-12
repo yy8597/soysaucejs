@@ -42,6 +42,9 @@ soysauce.init = function(selector) {
 			case "autodetect-cc":
 				widget = soysauce.autodetectCC.init(this);
 				break;
+			case "autosuggest":
+				widget = soysauce.autosuggest.init(this);
+				break;
 		}
 
 		if (widget !== undefined) {

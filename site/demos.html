@@ -146,6 +146,20 @@
 						</div>
 					</article>
 				</section>
+				
+				
+				<section class="reverseGeocode">
+					<h1>Search Auto Suggest</h1>
+					<article>
+						<div class="widget">
+							<input id="aswidget" data-ss-widget="autosuggest" data-ss-options="id:test, test">
+						</div>
+						<div class ="code">
+<pre class="prettyprint"><xmp><input data-ss-widget="autosuggest" data-ss-options="test, test"></xmp></pre>
+						</div>
+					</article>
+				</section>
+				
 			</div>
 		</div>
 		<footer></footer>
@@ -163,6 +177,12 @@
 		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 		  })();
+		  
+			$(function () {
+				$('#aswidget').on('SSWidgetReady SSAutoSuggested SSLoaded', function (e, d) {
+					console.log('got SSWidgetReady or SSAutoSuggested SSLoaded')
+				})
+			})
 
 		</script>
 	</body>

@@ -87,7 +87,8 @@ soysauce.carousels = (function() {
 		this.multi = false;
 		this.multiVars = {
 			numItems: 2,
-			stepSize: 1
+			stepSize: 1,
+			minWidth: 0
 		};
 		
 		// Autoheight Variables
@@ -212,6 +213,8 @@ soysauce.carousels = (function() {
 		if (this.multi) {
 			var numItems = parseInt(this.widget.attr("data-ss-multi-set"));
 			this.multiVars.numItems = (!numItems) ? 2 : numItems;
+			var minWidth = parseInt(this.widget.attr("data-ss-multi-min-width"));
+			this.multiVars.minWidth = (!minWidth) ? 0 : minWidth;
 		}
 		
 		if (this.infinite) {
@@ -322,6 +325,7 @@ soysauce.carousels = (function() {
 		}
 
 		this.container.imagesLoaded(function(items) {
+			console.log(items);
 			var firstItem = self.items.first();
 			var padding = parseInt(firstItem.css("padding-left")) + parseInt(firstItem.css("padding-right"));
 			var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
@@ -329,7 +333,11 @@ soysauce.carousels = (function() {
 			self.spacingOffset = 0; // remove this for now
 			
 			if (self.multi) {
-				self.itemWidth = self.widget.width() / self.multiVars.numItems;
+				var widgetWidth = $(self.widget).find('[data-ss-component="container_wrapper"]').innerWidth();
+				if (self.multiVars.minWidth>0) {
+					self.multiVars.numItems = Math.floor(widgetWidth / self.multiVars.minWidth);
+				}
+				self.itemWidth = widgetWidth / self.multiVars.numItems;
 			}
 			else {
 				self.itemWidth = self.widget.width();
@@ -374,6 +382,7 @@ soysauce.carousels = (function() {
 					});
 				}
 			}
+			console.log("images loaded");
 		});
 
 		if (this.swipe || this.zoom) this.widget.on("touchstart mousedown", function(e) {
@@ -574,14 +583,22 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleResize = function() {
+		console.log('resize called');
+		
 		var self = this;
-		var widgetWidth = this.widget.width();
+		var widgetWidth = $(this.widget).find('[data-ss-component="container_wrapper"]').innerWidth();
 		
 		if (this.fade) {
 			return;
 		}
 		
 		if (this.multi) {
+			
+			if (this.multiVars.minWidth>0) {
+				this.multiVars.numItems = Math.floor(widgetWidth / this.multiVars.minWidth)
+				console.log ('setting numItems to ' + this.multiVars.numItems, 'container width: ' + widgetWidth);
+			}
+			
 			this.itemWidth = widgetWidth / this.multiVars.numItems;
 		}
 
