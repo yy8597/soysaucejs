@@ -238,13 +238,27 @@ $(document).ready(function() {
 	if (soysauce.vars.degrade) {
 		$("body").attr("data-ss-degrade", "true");
 	}
-	$(window).trigger("SSReady");
 	soysauce.widgets.forEach(function(obj) {
-		obj.initialized = true;
-		obj.widget.imagesLoaded(function() {
-			obj.widget.trigger("SSWidgetReady");
-		});
+		if (!obj.defer) return;
+		var deferCount = 0;
+		var innerWidgets = obj.widget.find("[data-ss-widget]");
+		innerWidgets.each(function() {
+			var widget = soysauce.fetch(this);
+			if (widget.initialized) {
+				if (++deferCount === innerWidgets.length) {
+					$(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
+				}
+			}
+			else {
+				widget.widget.on("SSWidgetReady", function() {
+					if (++deferCount === innerWidgets.length) {
+						$(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
+					}
+				});
+			}
+		})
 	});
+	$(window).trigger("SSReady");
 });
 
 }
