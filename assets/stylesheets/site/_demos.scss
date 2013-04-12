@@ -229,4 +229,29 @@ $folderBorder: #BC6700;
 			}
 		}
 	}
+	.togglerCarousel {
+		[data-ss-widget="toggler"] > [data-ss-component="button"] {
+			@include background(linear-gradient(#0b78aa 0%,#1e5799 80%));
+			@include box-shadow(inset 0 1px 1px rgba(255,255,255,0.6));
+			color: white;
+			-webkit-user-select: none;
+			background-color: #398235;
+			padding: 10px 14px;
+			font-size: 16px;
+			text-shadow: 0 1px 0 rgba(0,0,0,0.3);
+			border-top: 1px solid black;
+			.icon:before, .icon:after {
+				content: "";
+				border-top: 2px solid white;
+				position: absolute;
+				right: 5px;
+				top: 50%;
+				margin-top: -1px;
+				width: 12px;
+			}
+			&[data-ss-state="closed"] .icon:after {
+				@include transform(rotate(90deg));
+			}
+		}
+	}
 }

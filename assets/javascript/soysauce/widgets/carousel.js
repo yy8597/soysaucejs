@@ -419,20 +419,18 @@ soysauce.carousels = (function() {
 		}
 		
 		this.widget.one("SSWidgetReady", function() {
-			self.container.imagesLoaded(function() {
-				self.widget.attr("data-ss-state", "ready");
-				self.ready = true;
+			self.widget.attr("data-ss-state", "ready");
+			self.ready = true;
+			window.setTimeout(function() {
+				self.container.attr("data-ss-state", "ready");
+			}, 0);
+			if (self.autoheight) {
+				var height = $(self.items[self.index]).outerHeight();
+				self.widget.css("height", height);
 				window.setTimeout(function() {
-					self.container.attr("data-ss-state", "ready");
-				}, 0);
-				if (self.autoheight) {
-					var height = $(self.items[self.index]).outerHeight();
-					self.widget.css("height", height);
-					window.setTimeout(function() {
-						self.widget.css("min-height", "0px");
-					}, 300);
-				}
-			});
+					self.widget.css("min-height", "0px");
+				}, 300);
+			}
 		});
 	} // End Constructor
 	

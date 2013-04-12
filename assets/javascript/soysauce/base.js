@@ -247,6 +247,7 @@ $(document).ready(function() {
 			if (widget.initialized) {
 				if (++deferCount === innerWidgets.length) {
 					$(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
+					return;
 				}
 			}
 			else {
@@ -256,7 +257,7 @@ $(document).ready(function() {
 					}
 				});
 			}
-		})
+		});
 	});
 	$(window).trigger("SSReady");
 });

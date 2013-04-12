@@ -7,6 +7,10 @@
 	}
 }
 
+[data-ss-widget="toggler"][data-ss-defer] > [data-ss-component="content"] {
+	display: block !important;
+}
+
 [data-ss-widget="toggler"][data-ss-options*="slide"] {
 	[data-ss-component="content"] {
 		@include transition(height 0.25s ease-in-out);

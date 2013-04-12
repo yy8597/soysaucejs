@@ -46,15 +46,17 @@ soysauce.init = function(selector) {
 		}
 
 		if (widget !== undefined) {
+			soysauce.widgets.push(widget);
 			if ($this.attr("data-ss-defer") !== undefined) {
 				widget.defer = true;
 			}
-			soysauce.widgets.push(widget);
-			$this.imagesLoaded(function() {
-				widget.initialized = true;
-				$this.trigger("SSWidgetReady");
-			});
-			ret = true;
+			else {
+				$this.imagesLoaded(function() {
+					widget.initialized = true;
+					$this.trigger("SSWidgetReady");
+				});
+				ret = true;
+			}
 		}
 		
 	});
