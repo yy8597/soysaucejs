@@ -43,12 +43,30 @@ soysauce.init = function(selector) {
 			case "autodetect-cc":
 				widget = soysauce.autodetectCC.init(this);
 				break;
+			case "autosuggest":
+				widget = soysauce.autosuggest.init(this);
+				break;
+			case "input-clear":
+				widget = soysauce.inputClear.init(this);
+				break;
 		}
 
 		if (widget !== undefined) {
 			soysauce.widgets.push(widget);
-			$this.trigger("SSWidgetReady");
-			ret = true;
+			if ($this.attr("data-ss-defer") !== undefined) {
+				widget.defer = true;
+			}
+			else {
+				$this.imagesLoaded(function() {
+					widget.initialized = true;
+					$this.trigger("SSWidgetReady");
+				});
+				ret = true;
+			}
+		}
+		else {
+			$this.removeAttr("data-ss-id");
+			--soysauce.vars.idCount;
 		}
 		
 	});

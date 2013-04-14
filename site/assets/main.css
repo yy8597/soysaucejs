@@ -73,6 +73,10 @@ body {
   line-height: 16px;
 }
 
+[data-ss-degrade] header {
+  position: relative;
+}
+
 header {
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
@@ -707,7 +711,7 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 .demos .toggler [data-ss-component="wrapper"] img {
   border: 1px solid #777;
 }
-.demos .autodetect-cc input, .demos .reverseGeocode input {
+.demos .autodetect-cc input, .demos .reverseGeocode input, .demos .autoSuggest input, .demos .inputClear input {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -840,4 +844,41 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 }
 .demos .folderTabs [data-ss-component="content"] [data-ss-component="wrapper"] {
   padding: 10px;
+}
+.demos .togglerCarousel [data-ss-widget="toggler"] > [data-ss-component="button"] {
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #0b78aa), color-stop(80%, #1e5799));
+  background: -webkit-linear-gradient(#0b78aa 0%, #1e5799 80%);
+  background: -moz-linear-gradient(#0b78aa 0%, #1e5799 80%);
+  background: -o-linear-gradient(#0b78aa 0%, #1e5799 80%);
+  background: linear-gradient(#0b78aa 0%, #1e5799 80%);
+  -webkit-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  -moz-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  color: white;
+  -webkit-user-select: none;
+  background-color: #398235;
+  padding: 10px 14px;
+  font-size: 16px;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+  border-top: 1px solid black;
+}
+.demos .togglerCarousel [data-ss-widget="toggler"] > [data-ss-component="button"] .icon:before, .demos .togglerCarousel [data-ss-widget="toggler"] > [data-ss-component="button"] .icon:after {
+  content: "";
+  border-top: 2px solid white;
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  margin-top: -1px;
+  width: 12px;
+}
+.demos .togglerCarousel [data-ss-widget="toggler"] > [data-ss-component="button"][data-ss-state="closed"] .icon:after {
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+.demos .inputClear [data-ss-widget="input-clear"] {
+  margin: 0;
+  min-width: 300px;
 }

@@ -238,6 +238,27 @@ $(document).ready(function() {
 	if (soysauce.vars.degrade) {
 		$("body").attr("data-ss-degrade", "true");
 	}
+	soysauce.widgets.forEach(function(obj) {
+		if (!obj.defer) return;
+		var deferCount = 0;
+		var innerWidgets = obj.widget.find("[data-ss-widget]");
+		innerWidgets.each(function() {
+			var widget = soysauce.fetch(this);
+			if (widget.initialized) {
+				if (++deferCount === innerWidgets.length) {
+					$(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
+					return;
+				}
+			}
+			else {
+				widget.widget.on("SSWidgetReady", function() {
+					if (++deferCount === innerWidgets.length) {
+						$(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
+					}
+				});
+			}
+		});
+	});
 	$(window).trigger("SSReady");
 });
 

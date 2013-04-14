@@ -520,6 +520,27 @@ $(document).ready(function() {
 	if (soysauce.vars.degrade) {
 		$("body").attr("data-ss-degrade", "true");
 	}
+	soysauce.widgets.forEach(function(obj) {
+		if (!obj.defer) return;
+		var deferCount = 0;
+		var innerWidgets = obj.widget.find("[data-ss-widget]");
+		innerWidgets.each(function() {
+			var widget = soysauce.fetch(this);
+			if (widget.initialized) {
+				if (++deferCount === innerWidgets.length) {
+					$(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
+					return;
+				}
+			}
+			else {
+				widget.widget.on("SSWidgetReady", function() {
+					if (++deferCount === innerWidgets.length) {
+						$(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
+					}
+				});
+			}
+		});
+	});
 	$(window).trigger("SSReady");
 });
 
@@ -601,12 +622,30 @@ soysauce.init = function(selector) {
 			case "autodetect-cc":
 				widget = soysauce.autodetectCC.init(this);
 				break;
+			case "autosuggest":
+				widget = soysauce.autosuggest.init(this);
+				break;
+			case "input-clear":
+				widget = soysauce.inputClear.init(this);
+				break;
 		}
 
 		if (widget !== undefined) {
 			soysauce.widgets.push(widget);
-			$this.trigger("SSWidgetReady");
-			ret = true;
+			if ($this.attr("data-ss-defer") !== undefined) {
+				widget.defer = true;
+			}
+			else {
+				$this.imagesLoaded(function() {
+					widget.initialized = true;
+					$this.trigger("SSWidgetReady");
+				});
+				ret = true;
+			}
+		}
+		else {
+			$this.removeAttr("data-ss-id");
+			--soysauce.vars.idCount;
 		}
 		
 	});
@@ -1018,6 +1057,355 @@ soysauce.autofillZip = (function() {
 	
 })();
 
+soysauce.autosuggest = (function() {
+
+	function AutoSuggest(selector) {
+		var options = soysauce.getOptions(selector);
+		var self = this;
+
+		this.widget = $(selector);
+		this.id = parseInt(this.widget.attr("data-ss-id"));
+		this.input = $(selector);
+		
+		if (options)
+			options.forEach(function(option) {
+				switch (option) {
+					case "option1":
+						break;
+				}
+			});
+
+		var defaults = {  
+			url: undefined,
+			data: undefined,
+			minCharacters: 1,
+			maxResults: 10,
+			wildCard: '',
+			caseSensitive: false,
+			notCharacter: '!',
+			maxHeight: 350,
+			highlightMatches: true,
+			onSelect: undefined,
+			width: undefined,
+			property: 'text'
+		};
+		this.acSettings = defaults//$.extend(defaults, options);  
+		
+		
+		this.obj = $(selector);
+		this.wildCardPatt = new RegExp(self.regexEscape(this.acSettings.wildCard || ''),'g')
+		this.results = $('<ul />');
+		this.currentSelection = undefined;
+		this.pageX =undefined;
+		this.pageY =undefined;
+		this.getJSONTimeout = 0;
+		
+		// Prepare the input box to show suggest results by adding in the events
+		// that will initiate the search and placing the element on the page
+		// that will show the results.
+		$(this.results).addClass('jsonSuggest ui-autocomplete ui-menu ui-widget ui-widget-content ui-corner-all').
+			attr('role', 'listbox').
+			css({
+				'xtop': (this.obj.position().top + this.obj.outerHeight()) + 'px',
+				'xleft': this.obj.position().left + 'px',
+				'width': this.acSettings.width || (this.obj.outerWidth() + 'px'),
+				'z-index': 1000000,
+				'position':'absolute',
+				'background-color': 'black'
+			}).hide();
+		
+		
+		this.obj.after(this.results).
+			keyup(function (e){
+				switch (e.keyCode) {
+					case 13: // return key
+						$(self.currentSelection).trigger('click');
+						return false;
+					case 40: // down key
+						if (typeof self.currentSelection === 'undefined') {
+							self.currentSelection = $('li:first', self.results).get(0);
+						}
+						else {
+							self.currentSelection = $(self.currentSelection).next().get(0);
+						}
+
+						self.setHoverClass(self.currentSelection);
+						if (self.currentSelection) {
+							$(self.results).scrollTop(self.currentSelection.offsetTop);
+						}
+
+						return false;
+					case 38: // up key
+						if (typeof self.currentSelection === 'undefined') {
+							self.currentSelection = $('li:last', self.results).get(0);
+						}
+						else {
+							self.currentSelection = $(self.currentSelection).prev().get(0);
+						}
+
+						self.setHoverClass(self.currentSelection);
+						if (self.currentSelection) {
+							$(self.results).scrollTop(self.currentSelection.offsetTop);
+						}
+
+						return false;
+					default:
+						self.runSuggest.apply(this, [e, self]);
+				}
+			}).
+			keydown(function(e) {
+				// for tab/enter key
+				if ((e.keyCode === 9 || e.keyCode === 13) && self.currentSelection) {
+					$(self.currentSelection).trigger('click');
+					return true;
+				}
+			}).
+			blur(function(e) {
+				// We need to make sure we don't hide the result set
+				// if the input blur event is called because of clicking on
+				// a result item.
+				var resPos = $(self.results).offset();
+				resPos.bottom = resPos.top + $(self.results).height();
+				resPos.right = resPos.left + $(self.results).width();
+
+				if (pageY < resPos.top || pageY > resPos.bottom || pageX < resPos.left || pageX > resPos.right) {
+					$(this.results).hide();
+				}
+			}).
+			focus(function(e) {
+				$(this.results).css({
+					'top': (self.obj.position().top + self.obj.outerHeight()) + 'px',
+					'left': self.obj.position().left + 'px'
+				});
+
+				if ($('li', self.results).length > 0) {
+					$(self.results).show();
+				}
+			}).
+			attr('autocomplete', 'off');
+		
+		
+		$(window).mousemove(function(e) {
+			this.pageX = e.pageX;
+			this.pageY = e.pageY;
+		});
+		
+		
+		// Escape the not character if present so that it doesn't act in the regular expression
+		this.acSettings.notCharacter = self.regexEscape(this.acSettings.notCharacter || '');
+
+		//if we have a url for json, grab it and parse
+		if (this.widget.attr("data-ss-suggest-json-file"))
+		$.ajax({
+			url: this.widget.attr("data-ss-suggest-json-file"),
+			dataType: 'json',
+			async: false,
+			success: function(data) {
+				self.acSettings.data = data;
+			}
+		});
+
+		// Make sure the JSON data is a JavaScript object if given as a string.
+		if (this.acSettings.data && typeof this.acSettings.data === 'string') {
+			this.acSettings.data = $.parseJSON(this.acSettings.data);
+		}
+		
+		$(this.obj).trigger("SSLoaded");
+	};
+
+	AutoSuggest.prototype.handleResize = function() {
+		// Placeholder - required soysauce function
+	};
+	
+	/**
+	* Escape some text so that it can be used inside a regular expression
+	* without implying regular expression rules iself. 
+	*/
+	AutoSuggest.prototype.regexEscape = function(txt, omit) {
+		var specials = ['/', '.', '*', '+', '?', '|',
+						'(', ')', '[', ']', '{', '}', '\\'];
+
+		if (omit) {
+			for (var i = 0; i < specials.length; i++) {
+				if (specials[i] === omit) { specials.splice(i,1); }
+			}
+		}
+
+		var escapePatt = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
+		return txt.replace(escapePatt, '\\$1');
+	}
+	
+	/**
+	* When an item has been selected then update the input box,
+	* hide the results again and if set, call the onSelect function.
+	*/
+	AutoSuggest.prototype.selectResultItem = function(item) {
+		this.obj.val(item[this.acSettings.property]);
+		this.widget.trigger("SSAutoSuggested", {
+			suggestion: item
+		});
+		$(this.results).html('').hide();
+
+		if (typeof this.acSettings.onSelect === 'function') {
+			this.acSettings.onSelect(item);
+		}
+	}
+	
+	/**
+	* Used to get rid of the hover class on all result item elements in the
+	* current set of results and add it only to the given element. We also
+	* need to set the current selection to the given element here.
+	*/
+	AutoSuggest.prototype.setHoverClass = function(el) {
+		$('li a', this.results).removeClass('ui-state-hover');
+		if (el) {
+			$('a', el).addClass('ui-state-hover');
+		}
+
+		this.currentSelection = el;
+	}
+	
+	/**
+	* Build the results HTML based on an array of objects that matched
+	* the search criteria, highlight the matches if that feature is turned 
+	* on in the settings.
+	*/
+	AutoSuggest.prototype.buildResults = function(resultObjects, filterTxt) {
+		filterTxt = '(' + filterTxt + ')';
+		
+		var saveSelf = this;
+
+		var bOddRow = true, i, iFound = 0,
+			filterPatt = this.acSettings.caseSensitive ? new RegExp(filterTxt, 'g') : new RegExp(filterTxt, 'ig');
+
+		$(this.results).html('').hide();
+
+		for (i = 0; i < resultObjects.length; i += 1) {
+			var item = $('<li />'),
+				text = resultObjects[i][this.acSettings.property];
+
+			if (this.acSettings.highlightMatches === true) {
+				text = text.replace(filterPatt, '<strong>$1</strong>');
+			}
+
+			$(item).append('<a class="ui-corner-all">' + text + '</a>');
+
+			if (typeof resultObjects[i].image === 'string') {
+				$('>a', item).prepend('<img src="' + resultObjects[i].image + '" />');
+			}
+
+			if (typeof resultObjects[i].extra === 'string') {
+				$('>a', item).append('<small>' + resultObjects[i].extra + '</small>');
+			}
+
+			
+			$(item).addClass('ui-menu-item').
+				addClass((bOddRow) ? 'odd' : 'even').
+				attr('role', 'menuitem').
+				click((function(n) { return function() {
+					saveSelf.selectResultItem(resultObjects[n]);						
+				};})(i)).
+				mouseover((function(el) { return function() { 
+					saveSelf.setHoverClass(el); 
+				};})(item));
+
+			$(this.results).append(item);
+
+			bOddRow = !bOddRow;
+
+			iFound += 1;
+			if (typeof this.acSettings.maxResults === 'number' && iFound >= this.acSettings.maxResults) {
+				break;
+			}
+		}
+
+		if ($('li', this.results).length > 0) {
+			this.currentSelection = undefined;
+			$(this.results).show().css('height', 'auto');
+
+			if ($(this.results).height() > this.acSettings.maxHeight) {
+				$(this.results).css({'overflow': 'auto', 'height': this.acSettings.maxHeight + 'px'});
+			}
+		}
+	}
+	
+	/**
+	* Prepare the search data based on the settings for this plugin,
+	* run a match against each item in the possible results and display any 
+	* results on the page allowing selection by the user.
+	*/
+	AutoSuggest.prototype.runSuggest = function(e, self) {	
+		var search = function(searchData) {
+			if (this.value.length < self.acSettings.minCharacters) {
+				clearAndHideResults();
+				return false;
+			}
+
+			var resultObjects = [],
+				filterTxt = (!self.acSettings.wildCard) ? self.regexEscape(this.value) : self.regexEscape(this.value, self.acSettings.wildCard).replace(wildCardPatt, '.*'),
+				bMatch = true, 
+				filterPatt, i;
+
+			if (self.acSettings.notCharacter && filterTxt.indexOf(self.acSettings.notCharacter) === 0) {
+				filterTxt = filterTxt.substr(self.acSettings.notCharacter.length,filterTxt.length);
+				if (filterTxt.length > 0) { bMatch = false; }
+			}
+			filterTxt = filterTxt || '.*';
+			filterTxt = self.acSettings.wildCard ? '^' + filterTxt : filterTxt;
+			filterPatt = self.acSettings.caseSensitive ? new RegExp(filterTxt) : new RegExp(filterTxt, 'i');
+
+			// Look for the required match against each single search data item. When the not
+			// character is used we are looking for a false match. 
+			for (i = 0; i < searchData.length; i += 1) {
+				if (filterPatt.test(searchData[i][self.acSettings.property]) === bMatch) {
+					resultObjects.push(searchData[i]);
+				}
+			}
+
+			self.buildResults(resultObjects, filterTxt);
+		};
+
+		if (self.acSettings.data && self.acSettings.data.length) {
+			search.apply(this, [self.acSettings.data, self]);
+		}
+		else if (self.acSettings.url && typeof self.acSettings.url === 'string') {
+			var text = this.value;
+			if (text.length < self.acSettings.minCharacters) {
+				self.clearAndHideResults();
+				return false;
+			}
+
+			$(self.results).html('<li class="ui-menu-item ajaxSearching"><a class="ui-corner-all">Searching...</a></li>').
+				show().css('height', 'auto');
+
+			self.getJSONTimeout = window.clearTimeout(self.getJSONTimeout);
+			self.getJSONTimeout = window.setTimeout(function() {
+				$.getJSON(self.acSettings.url, {search: text}, function(data) {
+					if (data) {
+						self.buildResults(data, text);
+					}
+					else {
+						self.clearAndHideResults();
+					}
+				});
+			}, 500);
+		}
+	}
+	
+	/**
+	* Clears any previous results and hides the result list
+	*/
+	AutoSuggest.prototype.clearAndHideResults = function() {
+		$(this.results).html('').hide();
+	}
+
+	return {
+		init: function(selector) {
+			return new AutoSuggest(selector);
+		}
+	};
+
+})();
 soysauce.carousels = (function() {
 	// Shared Default Globals
 	var AUTOSCROLL_INTERVAL = 5000;
@@ -1055,7 +1443,6 @@ soysauce.carousels = (function() {
 		this.prevBtn;
 		this.freeze = false;
 		this.jumping = false;
-		this.use3D = !soysauce.vars.degrade;
 		
 		// Infinite Variables
 		this.infinite = true;
@@ -1108,7 +1495,8 @@ soysauce.carousels = (function() {
 		this.multi = false;
 		this.multiVars = {
 			numItems: 2,
-			stepSize: 1
+			stepSize: 1,
+			minWidth: 0
 		};
 		
 		// Autoheight Variables
@@ -1143,9 +1531,6 @@ soysauce.carousels = (function() {
 				case "pinch":
 					self.pinch = true;
 					break
-				case "3d":
-					self.use3D = true;
-					break;
 				case "thumbs":
 					self.thumbs = true;
 					break;
@@ -1233,6 +1618,8 @@ soysauce.carousels = (function() {
 		if (this.multi) {
 			var numItems = parseInt(this.widget.attr("data-ss-multi-set"));
 			this.multiVars.numItems = (!numItems) ? 2 : numItems;
+			var minWidth = parseInt(this.widget.attr("data-ss-multi-min-width"));
+			this.multiVars.minWidth = (!minWidth) ? 0 : minWidth;
 		}
 		
 		if (this.infinite) {
@@ -1350,7 +1737,11 @@ soysauce.carousels = (function() {
 			self.spacingOffset = 0; // remove this for now
 			
 			if (self.multi) {
-				self.itemWidth = self.widget.width() / self.multiVars.numItems;
+				var widgetWidth = $(self.widget).find('[data-ss-component="container_wrapper"]').innerWidth();
+				if (self.multiVars.minWidth>0) {
+					self.multiVars.numItems = Math.floor(widgetWidth / self.multiVars.minWidth);
+				}
+				self.itemWidth = widgetWidth / self.multiVars.numItems;
 			}
 			else {
 				self.itemWidth = self.widget.width();
@@ -1443,20 +1834,18 @@ soysauce.carousels = (function() {
 		}
 		
 		this.widget.one("SSWidgetReady", function() {
-			self.container.imagesLoaded(function() {
-				self.widget.attr("data-ss-state", "ready");
-				self.ready = true;
+			self.widget.attr("data-ss-state", "ready");
+			self.ready = true;
+			window.setTimeout(function() {
+				self.container.attr("data-ss-state", "ready");
+			}, 0);
+			if (self.autoheight) {
+				var height = $(self.items[self.index]).outerHeight();
+				self.widget.css("height", height);
 				window.setTimeout(function() {
-					self.container.attr("data-ss-state", "ready");
-				}, 0);
-				if (self.autoheight) {
-					var height = $(self.items[self.index]).outerHeight();
-					self.widget.css("height", height);
-					window.setTimeout(function() {
-						self.widget.css("min-height", "0px");
-					}, 300);
-				}
-			});
+					self.widget.css("min-height", "0px");
+				}, 300);
+			}
 		});
 	} // End Constructor
 	
@@ -1595,13 +1984,16 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.handleResize = function() {
 		var self = this;
-		var widgetWidth = this.widget.width();
+		var widgetWidth = $(this.widget).find('[data-ss-component="container_wrapper"]').innerWidth();
 		
 		if (this.fade) {
 			return;
 		}
 		
 		if (this.multi) {
+			if (this.multiVars.minWidth>0) {
+				this.multiVars.numItems = Math.floor(widgetWidth / this.multiVars.minWidth)
+			}
 			this.itemWidth = widgetWidth / this.multiVars.numItems;
 		}
 
@@ -2217,6 +2609,51 @@ soysauce.carousels = (function() {
 	return {
 		init: function(selector) {
 			return new Carousel(selector);
+		}
+	};
+	
+})();
+
+soysauce.inputClear = (function() {
+	
+	function inputClear(selector) {
+		var options = soysauce.getOptions(selector);
+		var self = this;
+		
+		this.widget = $(selector);
+		this.id = parseInt($(selector).attr("data-ss-id"));
+		
+		this.widget.on("focus keyup", function() {
+			self.handleIcon();
+		});
+		
+		this.widget.wrap("<span data-ss-component='input-wrapper'></span>").attr("data-ss-clear", "off");
+		this.widget.after("<span data-ss-component='icon'></span>");
+		this.widget.find("+ [data-ss-component='icon']").on("click", function() {
+			self.clear();
+		});
+	}
+	
+	inputClear.prototype.clear = function() {
+		this.widget.val("").attr("data-ss-clear", "off");
+	};
+	
+	inputClear.prototype.handleIcon = function() {
+		var self = this;
+		var value = this.widget.val();
+		
+		if (!value.length) {
+			this.widget.attr("data-ss-clear", "off");
+			return;
+		}
+		else {
+			this.widget.attr("data-ss-clear", "on");
+		}
+	};
+	
+	return {
+		init: function(selector) {
+			return new inputClear(selector);
 		}
 	};
 	

@@ -35,7 +35,6 @@ soysauce.carousels = (function() {
 		this.prevBtn;
 		this.freeze = false;
 		this.jumping = false;
-		this.use3D = !soysauce.vars.degrade;
 		
 		// Infinite Variables
 		this.infinite = true;
@@ -88,7 +87,8 @@ soysauce.carousels = (function() {
 		this.multi = false;
 		this.multiVars = {
 			numItems: 2,
-			stepSize: 1
+			stepSize: 1,
+			minWidth: 0
 		};
 		
 		// Autoheight Variables
@@ -123,9 +123,6 @@ soysauce.carousels = (function() {
 				case "pinch":
 					self.pinch = true;
 					break
-				case "3d":
-					self.use3D = true;
-					break;
 				case "thumbs":
 					self.thumbs = true;
 					break;
@@ -213,6 +210,8 @@ soysauce.carousels = (function() {
 		if (this.multi) {
 			var numItems = parseInt(this.widget.attr("data-ss-multi-set"));
 			this.multiVars.numItems = (!numItems) ? 2 : numItems;
+			var minWidth = parseInt(this.widget.attr("data-ss-multi-min-width"));
+			this.multiVars.minWidth = (!minWidth) ? 0 : minWidth;
 		}
 		
 		if (this.infinite) {
@@ -330,7 +329,11 @@ soysauce.carousels = (function() {
 			self.spacingOffset = 0; // remove this for now
 			
 			if (self.multi) {
-				self.itemWidth = self.widget.width() / self.multiVars.numItems;
+				var widgetWidth = $(self.widget).find('[data-ss-component="container_wrapper"]').innerWidth();
+				if (self.multiVars.minWidth>0) {
+					self.multiVars.numItems = Math.floor(widgetWidth / self.multiVars.minWidth);
+				}
+				self.itemWidth = widgetWidth / self.multiVars.numItems;
 			}
 			else {
 				self.itemWidth = self.widget.width();
@@ -423,20 +426,18 @@ soysauce.carousels = (function() {
 		}
 		
 		this.widget.one("SSWidgetReady", function() {
-			self.container.imagesLoaded(function() {
-				self.widget.attr("data-ss-state", "ready");
-				self.ready = true;
+			self.widget.attr("data-ss-state", "ready");
+			self.ready = true;
+			window.setTimeout(function() {
+				self.container.attr("data-ss-state", "ready");
+			}, 0);
+			if (self.autoheight) {
+				var height = $(self.items[self.index]).outerHeight();
+				self.widget.css("height", height);
 				window.setTimeout(function() {
-					self.container.attr("data-ss-state", "ready");
-				}, 0);
-				if (self.autoheight) {
-					var height = $(self.items[self.index]).outerHeight();
-					self.widget.css("height", height);
-					window.setTimeout(function() {
-						self.widget.css("min-height", "0px");
-					}, 300);
-				}
-			});
+					self.widget.css("min-height", "0px");
+				}, 300);
+			}
 		});
 	} // End Constructor
 	
@@ -575,13 +576,16 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.handleResize = function() {
 		var self = this;
-		var widgetWidth = this.widget.width();
+		var widgetWidth = $(this.widget).find('[data-ss-component="container_wrapper"]').innerWidth();
 		
 		if (this.fade) {
 			return;
 		}
 		
 		if (this.multi) {
+			if (this.multiVars.minWidth>0) {
+				this.multiVars.numItems = Math.floor(widgetWidth / this.multiVars.minWidth)
+			}
 			this.itemWidth = widgetWidth / this.multiVars.numItems;
 		}
 

@@ -146,6 +146,17 @@
 						</div>
 					</article>
 				</section>
+				<section class="autoSuggest">
+					<h1>Search Auto Suggest</h1>
+					<article>
+						<div class="widget">
+							<input placeholder="Pick a word, any word" id="aswidget" data-ss-widget="autosuggest" data-ss-suggest-json-file="assets/suggestTerms.json">
+						</div>
+						<div class ="code">
+<pre class="prettyprint"><xmp><input data-ss-widget="autosuggest" data-ss-suggest-json-file="assets/suggestTerms.json"></xmp></pre>
+						</div>
+					</article>
+				</section>
 				<section class="folderTabs">
 					<h1>Folder-tab Toggler</h1>
 					<article>
@@ -229,6 +240,46 @@
 						</div>
 					</article>
 				</section>
+				<section class="togglerCarousel" style="display:none;">
+					<h1>Carousel inside of a toggler</h1>
+					<article>
+						<div class="widget">
+							<div data-ss-widget="toggler" data-ss-defer>
+								<div data-ss-component="button">There's a carousel inside - Click me</div>
+								<div data-ss-component="content">
+									<div data-ss-widget="carousel">
+										<div data-ss-component="item"><img src="http://cdn.shopify.com/s/files/1/0115/3742/t/10/assets/slideshow_1.jpg?365"></div>
+										<div data-ss-component="item"><img src="http://cdn.shopify.com/s/files/1/0115/3742/t/10/assets/slideshow_3.jpg?365"></div>
+										<div data-ss-component="item"><img src="http://cdn.shopify.com/s/files/1/0115/3742/t/10/assets/slideshow_4.jpg?365"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class ="code">
+<pre class="prettyprint"><xmp><div data-ss-widget="toggler" data-ss-defer>
+  <div data-ss-component="button">There's a carousel inside - Click me</div>
+  <div data-ss-component="content">
+    <div data-ss-widget="carousel">
+      <div data-ss-component="item"><img src="1.jpg"></div>
+      <div data-ss-component="item"><img src="2.jpg"></div>
+      <div data-ss-component="item"><img src="3.jpg"></div>
+    </div>
+  </div>
+</div></xmp></pre>
+						</div>
+					</article>
+				</section>
+				<section class="inputClear">
+					<h1>Input Clear</h1>
+					<article>
+						<div class="widget">
+							<input placeholder="Just start typing" data-ss-widget="input-clear" type="text">
+						</div>
+						<div class ="code">
+<pre class="prettyprint"><xmp><input placeholder="Just start typing" data-ss-widget="input-clear" type="text"></xmp></pre>
+						</div>
+					</article>
+				</section>
 			</div>
 		</div>
 		<footer></footer>
@@ -246,6 +297,12 @@
 		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 		  })();
+		  
+		  $(document).ready(function() {
+			$(soysauce.fetch('[data-ss-widget="autosuggest"]').widget).on('SSAutoSuggested', function (e,d) {
+				alert('Suggestion selected: ' + JSON.stringify(d.suggestion))
+			})
+		  });
 
 		</script>
 	</body>
