@@ -46,6 +46,9 @@ soysauce.init = function(selector) {
 			case "autosuggest":
 				widget = soysauce.autosuggest.init(this);
 				break;
+			case "input-clear":
+				widget = soysauce.inputClear.init(this);
+				break;
 		}
 
 		if (widget !== undefined) {
@@ -60,6 +63,10 @@ soysauce.init = function(selector) {
 				});
 				ret = true;
 			}
+		}
+		else {
+			$this.removeAttr("data-ss-id");
+			--soysauce.vars.idCount;
 		}
 		
 	});

@@ -73,6 +73,10 @@ body {
   line-height: 16px;
 }
 
+[data-ss-degrade] header {
+  position: relative;
+}
+
 header {
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
@@ -707,7 +711,7 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 .demos .toggler [data-ss-component="wrapper"] img {
   border: 1px solid #777;
 }
-.demos .autodetect-cc input, .demos .reverseGeocode input, .demos .autoSuggest input {
+.demos .autodetect-cc input, .demos .reverseGeocode input, .demos .autoSuggest input, .demos .inputClear input {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -873,4 +877,8 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   -ms-transform: rotate(90deg);
   -o-transform: rotate(90deg);
   transform: rotate(90deg);
+}
+.demos .inputClear [data-ss-widget="input-clear"] {
+  margin: 0;
+  min-width: 300px;
 }

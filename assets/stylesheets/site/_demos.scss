@@ -104,7 +104,7 @@ $folderBorder: #BC6700;
 			}
 		}
 	}
-	.autodetect-cc, .reverseGeocode, .autoSuggest {
+	.autodetect-cc, .reverseGeocode, .autoSuggest, .inputClear {
 		input {
 			@include appearance(none);
 			@include border-radius(3px);
@@ -252,6 +252,12 @@ $folderBorder: #BC6700;
 			&[data-ss-state="closed"] .icon:after {
 				@include transform(rotate(90deg));
 			}
+		}
+	}
+	.inputClear {
+		[data-ss-widget="input-clear"] {
+			margin: 0;
+			min-width: 300px;
 		}
 	}
 }
