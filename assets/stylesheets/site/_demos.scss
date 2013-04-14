@@ -104,7 +104,7 @@ $folderBorder: #BC6700;
 			}
 		}
 	}
-	.autodetect-cc, .reverseGeocode {
+	.autodetect-cc, .reverseGeocode, .autoSuggest {
 		input {
 			@include appearance(none);
 			@include border-radius(3px);

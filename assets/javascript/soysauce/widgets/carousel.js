@@ -87,7 +87,8 @@ soysauce.carousels = (function() {
 		this.multi = false;
 		this.multiVars = {
 			numItems: 2,
-			stepSize: 1
+			stepSize: 1,
+			minWidth: 0
 		};
 		
 		// Autoheight Variables
@@ -209,6 +210,8 @@ soysauce.carousels = (function() {
 		if (this.multi) {
 			var numItems = parseInt(this.widget.attr("data-ss-multi-set"));
 			this.multiVars.numItems = (!numItems) ? 2 : numItems;
+			var minWidth = parseInt(this.widget.attr("data-ss-multi-min-width"));
+			this.multiVars.minWidth = (!minWidth) ? 0 : minWidth;
 		}
 		
 		if (this.infinite) {
@@ -326,7 +329,11 @@ soysauce.carousels = (function() {
 			self.spacingOffset = 0; // remove this for now
 			
 			if (self.multi) {
-				self.itemWidth = self.widget.width() / self.multiVars.numItems;
+				var widgetWidth = $(self.widget).find('[data-ss-component="container_wrapper"]').innerWidth();
+				if (self.multiVars.minWidth>0) {
+					self.multiVars.numItems = Math.floor(widgetWidth / self.multiVars.minWidth);
+				}
+				self.itemWidth = widgetWidth / self.multiVars.numItems;
 			}
 			else {
 				self.itemWidth = self.widget.width();
@@ -569,13 +576,16 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.handleResize = function() {
 		var self = this;
-		var widgetWidth = this.widget.width();
+		var widgetWidth = $(this.widget).find('[data-ss-component="container_wrapper"]').innerWidth();
 		
 		if (this.fade) {
 			return;
 		}
 		
 		if (this.multi) {
+			if (this.multiVars.minWidth>0) {
+				this.multiVars.numItems = Math.floor(widgetWidth / this.multiVars.minWidth)
+			}
 			this.itemWidth = widgetWidth / this.multiVars.numItems;
 		}
 
