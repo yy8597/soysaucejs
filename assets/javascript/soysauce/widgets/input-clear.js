@@ -3,26 +3,33 @@ soysauce.inputClear = (function() {
 	function inputClear(selector) {
 		var options = soysauce.getOptions(selector);
 		var self = this;
+		var iconFocus = false;
 		
 		this.widget = $(selector);
 		this.id = parseInt($(selector).attr("data-ss-id"));
+		this.icon;
 		
 		this.widget.on("focus keyup", function() {
 			self.handleIcon();
 		});
 		
 		this.widget.on("blur", function() {
-			setTimeout(function() {
-				self.widget.attr("data-ss-clear", "off");
-			}, 120);
+			if (iconFocus) return;
+			self.widget.attr("data-ss-clear", "off");
 		});
 		
 		this.widget.wrap("<span data-ss-component='input-wrapper'></span>")
 		this.widget.attr("data-ss-clear", "off");
 		this.widget.after("<span data-ss-component='icon'></span>");
 		
-		this.widget.find("+ [data-ss-component='icon']").on("click", function() {
-			self.clear();
+		this.icon = this.widget.find("+ [data-ss-component='icon']");
+		
+		this.icon.on("mousedown touchstart", function() {
+			iconFocus = true;
+			self.icon.one("mouseup touchend", function() {
+				self.clear();
+				iconFocus = false;
+			});
 		});
 	}
 	

@@ -164,8 +164,8 @@
 [data-ss-component="input-wrapper"] {
   display: inline-block;
 }
-[data-ss-component="input-wrapper"] [data-ss-widget="input-clear"][data-ss-clear="off"] + [data-ss-component="icon"] {
-  display: none;
+[data-ss-component="input-wrapper"] [data-ss-widget="input-clear"][data-ss-clear="on"] + [data-ss-component="icon"] {
+  display: block;
 }
 [data-ss-component="input-wrapper"] [data-ss-widget="input-clear"] + [data-ss-component="icon"] {
   -webkit-transform: rotate(45deg);
@@ -173,6 +173,7 @@
   -ms-transform: rotate(45deg);
   -o-transform: rotate(45deg);
   transform: rotate(45deg);
+  display: none;
   position: absolute;
   z-index: 6;
   font-size: 12px !important;
