@@ -110,7 +110,7 @@ soysauce.autosuggest = (function() {
 				resPos.right = resPos.left + $(self.results).width();
 
 				if (pageY < resPos.top || pageY > resPos.bottom || pageX < resPos.left || pageX > resPos.right) {
-					$(this.results).hide();
+					$(self.results).hide();
 				}
 			}).
 			focus(function(e) {
@@ -278,7 +278,7 @@ soysauce.autosuggest = (function() {
 	AutoSuggest.prototype.runSuggest = function(e, self) {	
 		var search = function(searchData) {
 			if (this.value.length < self.acSettings.minCharacters) {
-				clearAndHideResults();
+				self.clearAndHideResults();
 				return false;
 			}
 
