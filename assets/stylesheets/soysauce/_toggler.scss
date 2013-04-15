@@ -2,7 +2,7 @@
 	&[data-ss-state="open"] {
 		display: block;
 	}
-	&[data-ss-state="closed"] {
+	&[data-ss-state="closed"], &:not([data-ss-state]) {
 		display: none;
 	}
 }
@@ -15,6 +15,9 @@
 	[data-ss-component="content"] {
 		@include transition(height 0.25s ease-in-out);
 		overflow: hidden;
+		&:not([data-ss-state]) {
+		  visibility: hidden;
+		}
 		&[data-ss-state="closed"] {
 			height: 0 !important;
 		}
