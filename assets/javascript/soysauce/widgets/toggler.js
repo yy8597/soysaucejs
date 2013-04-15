@@ -455,7 +455,6 @@ soysauce.togglers = (function() {
 			this.content = $(target).find("+ [data-ss-component='content']");
 
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
-											this.button[0] === e.target &&
 											this.widget.find("[data-ss-component='button'][data-ss-state='open']").length === 1) ? true : false;
 			
 			if (collapse) {
