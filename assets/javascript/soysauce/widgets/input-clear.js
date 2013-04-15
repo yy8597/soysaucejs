@@ -11,8 +11,16 @@ soysauce.inputClear = (function() {
 			self.handleIcon();
 		});
 		
-		this.widget.wrap("<span data-ss-component='input-wrapper'></span>").attr("data-ss-clear", "off");
+		this.widget.on("blur", function() {
+			setTimeout(function() {
+				self.widget.attr("data-ss-clear", "off");
+			}, 100);
+		});
+		
+		this.widget.wrap("<span data-ss-component='input-wrapper'></span>")
+		this.widget.attr("data-ss-clear", "off");
 		this.widget.after("<span data-ss-component='icon'></span>");
+		
 		this.widget.find("+ [data-ss-component='icon']").on("click", function() {
 			self.clear();
 		});
@@ -23,16 +31,7 @@ soysauce.inputClear = (function() {
 	};
 	
 	inputClear.prototype.handleIcon = function() {
-		var self = this;
-		var value = this.widget.val();
-		
-		if (!value.length) {
-			this.widget.attr("data-ss-clear", "off");
-			return;
-		}
-		else {
-			this.widget.attr("data-ss-clear", "on");
-		}
+		this.widget.attr("data-ss-clear", (!this.widget.val().length) ? "off" : "on");
 	};
 	
 	return {
