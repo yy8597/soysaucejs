@@ -1300,7 +1300,7 @@ soysauce.autosuggest = (function() {
 				resPos.right = resPos.left + $(self.results).width();
 
 				if (pageY < resPos.top || pageY > resPos.bottom || pageX < resPos.left || pageX > resPos.right) {
-					$(this.results).hide();
+					$(self.results).hide();
 				}
 			}).
 			focus(function(e) {
@@ -1468,7 +1468,7 @@ soysauce.autosuggest = (function() {
 	AutoSuggest.prototype.runSuggest = function(e, self) {	
 		var search = function(searchData) {
 			if (this.value.length < self.acSettings.minCharacters) {
-				clearAndHideResults();
+				self.clearAndHideResults();
 				return false;
 			}
 
@@ -2748,20 +2748,41 @@ soysauce.carousels = (function() {
 soysauce.inputClear = (function() {
 	
 	function inputClear(selector) {
-		var options = soysauce.getOptions(selector);
-		var self = this;
+		var options = soysauce.getOptions(selector),
+		    self = this,
+		    iconFocus = false;
 		
 		this.widget = $(selector);
 		this.id = parseInt($(selector).attr("data-ss-id"));
+		this.icon;
 		
 		this.widget.on("focus keyup", function() {
 			self.handleIcon();
 		});
 		
-		this.widget.wrap("<span data-ss-component='input-wrapper'></span>").attr("data-ss-clear", "off");
+		this.widget.on("blur", function() {
+			if (iconFocus) return;
+			self.widget.attr("data-ss-clear", "off");
+		});
+		
+		this.widget.wrap("<div data-ss-component='input-wrapper'></div>");
+		
+    this.widget.parent().css({
+      "display": self.widget.css("display"),
+      "width": self.widget.css("width")
+    });
+		
+		this.widget.attr("data-ss-clear", "off");
 		this.widget.after("<span data-ss-component='icon'></span>");
-		this.widget.find("+ [data-ss-component='icon']").on("click", function() {
-			self.clear();
+		
+		this.icon = this.widget.find("+ [data-ss-component='icon']");
+		
+		this.icon.on("mousedown touchstart", function() {
+			iconFocus = true;
+			self.icon.one("mouseup touchend", function() {
+				self.clear();
+				iconFocus = false;
+			});
 		});
 	}
 	
@@ -2770,16 +2791,7 @@ soysauce.inputClear = (function() {
 	};
 	
 	inputClear.prototype.handleIcon = function() {
-		var self = this;
-		var value = this.widget.val();
-		
-		if (!value.length) {
-			this.widget.attr("data-ss-clear", "off");
-			return;
-		}
-		else {
-			this.widget.attr("data-ss-clear", "on");
-		}
+		this.widget.attr("data-ss-clear", (!this.widget.val().length) ? "off" : "on");
 	};
 	
 	return {
@@ -3305,7 +3317,6 @@ soysauce.togglers = (function() {
 			this.content = $(target).find("+ [data-ss-component='content']");
 
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
-											this.button[0] === e.target &&
 											this.widget.find("[data-ss-component='button'][data-ss-state='open']").length === 1) ? true : false;
 			
 			if (collapse) {
