@@ -1,5 +1,4 @@
 [data-ss-component="input-wrapper"] {
-	display: inline-block;
 	[data-ss-widget="input-clear"] {
 		&[data-ss-clear="on"] + [data-ss-component="icon"] {
 			display: block;
@@ -36,4 +35,3 @@
 		}
 	}
 }
-

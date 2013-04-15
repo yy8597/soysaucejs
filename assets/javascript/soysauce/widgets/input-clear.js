@@ -1,9 +1,9 @@
 soysauce.inputClear = (function() {
 	
 	function inputClear(selector) {
-		var options = soysauce.getOptions(selector);
-		var self = this;
-		var iconFocus = false;
+		var options = soysauce.getOptions(selector),
+		    self = this,
+		    iconFocus = false;
 		
 		this.widget = $(selector);
 		this.id = parseInt($(selector).attr("data-ss-id"));
@@ -18,7 +18,13 @@ soysauce.inputClear = (function() {
 			self.widget.attr("data-ss-clear", "off");
 		});
 		
-		this.widget.wrap("<span data-ss-component='input-wrapper'></span>")
+		this.widget.wrap("<div data-ss-component='input-wrapper'></div>");
+		
+    this.widget.parent().css({
+      "display": self.widget.css("display"),
+      "width": self.widget.css("width")
+    });
+		
 		this.widget.attr("data-ss-clear", "off");
 		this.widget.after("<span data-ss-component='icon'></span>");
 		
