@@ -1,11 +1,11 @@
 [data-ss-component="input-wrapper"] {
-	display: inline-block;
 	[data-ss-widget="input-clear"] {
-		&[data-ss-clear="off"] + [data-ss-component="icon"] {
-			display: none;
+		&[data-ss-clear="on"] + [data-ss-component="icon"] {
+			display: block;
 		}
 		+ [data-ss-component="icon"] {
 			@include transform(rotate(45deg));
+			display: none;
 			position: absolute;
 			z-index: 6;
 			font-size: 12px !important;
@@ -35,4 +35,3 @@
 		}
 	}
 }
-

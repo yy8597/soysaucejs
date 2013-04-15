@@ -527,15 +527,62 @@ autofill.widget.on("SSDataError", function() {
 									<div class="description">
 										<h3>Description</h3>
 										<article>
-											<p>joey jan needs to put something here</p>
+											<p>As the user types into the input box, suggestions from the specified json file are shown.</p>
 										</article>
 									</div>
 									<div class="required">
 										<h3>Required Attributes</h3>
 										<article>
 <pre class="prettyprint"><xmp>1) data-ss-widget="autosuggest"
-   Specifies the widget type, add to the input</xmp></pre>
+   Specifies the widget type, add to the input
+
+2) data-ss-suggest-json-file="[path-to-terms.json]"
+   Specifies the json suggestion file</xmp></pre>
 										</article>
+									</div>
+									<div class="events">
+										<h3>Callback Events</h3>
+										<article>
+											<ul>
+												<li><span class="snippet">SSAutoSuggested</span> - Fired on the element after the user has selected a suggestion, data contains the selected row from the json file</li>
+											</ul>
+										</article>
+									</div>
+									<div class="required">
+										<h3>Suggestion JSON Format</h3>
+										<article>
+											<p>JSON Formatted array of terms, items can have any attributes as long as text is specified.<br>
+The whole row is sent to the event so you can use the id, or any other attributes from the suggestion.</p>
+<pre class="prettyprint"><xmp>
+[
+	{
+		id: 0,
+		text: "first term"
+	},
+	{
+		id: 1,
+		text: "second term",
+		extraKeys: true
+	}
+]
+</xmp></pre>
+										</article>
+									</div>
+									<div class="example">
+										<h3>Example</h3>
+										<article>
+<pre class="prettyprint"><xmp>
+<input data-ss-widget="autosuggest" data-ss-suggest-json-file="assets/suggestTerms.json">
+
+<script>
+$(document).ready(function() {
+    $(soysauce.fetch('#container [data-ss-widget="autosuggest"]').widget).on('SSAutoSuggested', function (e,d) {
+        alert('Suggestion selected: ' + JSON.stringify(d.suggestion));
+    });
+});
+</script></xmp></pre>
+											<p>Selecting the second option would produce this output:<br>
+											Suggestion selected: {"id":0,"text":"second term","extraKeys":true}</p>
 									</div>
 								</section>
 							</div>
