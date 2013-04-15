@@ -14,7 +14,7 @@ soysauce.inputClear = (function() {
 		this.widget.on("blur", function() {
 			setTimeout(function() {
 				self.widget.attr("data-ss-clear", "off");
-			}, 100);
+			}, 120);
 		});
 		
 		this.widget.wrap("<span data-ss-component='input-wrapper'></span>")
