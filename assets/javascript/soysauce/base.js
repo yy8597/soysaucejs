@@ -227,6 +227,7 @@ $(window).on("resize orientationchange", function(e) {
 		soysauce.widgets.forEach(function(widget) {
 			if (!widget.handleResize) return;
 			widget.handleResize();
+			$(widget.widget).trigger('SSWidgetResized');
 		});
 	}
 });

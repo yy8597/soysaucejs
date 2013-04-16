@@ -575,53 +575,54 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleResize = function() {
-		var self = this;
 		var widgetWidth = $(this.widget).find('[data-ss-component="container_wrapper"]').innerWidth();
 		
-		if (this.fade) {
-			return;
-		}
-		
-		if (this.multi) {
-			if (this.multiVars.minWidth>0) {
-				this.multiVars.numItems = Math.floor(widgetWidth / this.multiVars.minWidth)
+		//only resize if carousel is visible
+		if (widgetWidth > 0) {
+			if (this.fade) {
+				return;
 			}
-			this.itemWidth = widgetWidth / this.multiVars.numItems;
-		}
 
-		if (this.fullscreen) {
-			var diff;
-			var prevState = this.container.attr("data-ss-state");
-			
 			if (this.multi) {
-				diff = widgetWidth - (this.itemWidth * this.multiVars.numItems);
+				if (this.multiVars.minWidth>0) {
+					this.multiVars.numItems = Math.floor(widgetWidth / this.multiVars.minWidth)
+				}
+				this.itemWidth = widgetWidth / this.multiVars.numItems;
 			}
-			else {
-				diff = widgetWidth - this.itemWidth;
+
+			if (this.fullscreen) {
+				var diff;
+				var prevState = this.container.attr("data-ss-state");
+
+				if (this.multi) {
+					diff = widgetWidth - (this.itemWidth * this.multiVars.numItems);
+				}
+				else {
+					diff = widgetWidth - this.itemWidth;
+				}
+
+				if (this.peek) {
+					this.itemWidth -= this.peekWidth*2;
+				}
+
+				this.itemWidth += diff;
+
+				this.offset = -this.index * this.itemWidth + this.peekWidth;
+				this.container.attr("data-ss-state", "notransition");
+
+				this.items.css("width", this.itemWidth + "px");
+
+				setTranslate(this.container[0], this.offset);
 			}
-			
-			if (this.peek) {
-				this.itemWidth -= this.peekWidth*2;
+
+			this.container.css("width", (this.itemWidth * this.numChildren) + "px");
+
+			if (this.zoom) {
+				this.panMax.x = this.itemWidth / this.zoomMultiplier;	
+				this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
+				this.checkPanLimits();
 			}
-			
-			this.itemWidth += diff;
-			
-			this.offset = -this.index * this.itemWidth + this.peekWidth;
-			this.container.attr("data-ss-state", "notransition");
-			
-			this.items.css("width", this.itemWidth + "px");
-			
-			setTranslate(this.container[0], this.offset);
 		}
-
-		this.container.css("width", (this.itemWidth * this.numChildren) + "px");
-
-		if (this.zoom) {
-			this.panMax.x = this.itemWidth / this.zoomMultiplier;	
-			this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
-			this.checkPanLimits();
-		}
-
 	};
 	
 	Carousel.prototype.handleInterrupt = function(e) {
