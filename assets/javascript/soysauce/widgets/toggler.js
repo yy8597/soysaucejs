@@ -422,7 +422,7 @@ soysauce.togglers = (function() {
 
 		if (this.tab) {
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
-											this.button[0] === e.target) ? true : false;
+											this.button[0] === target) ? true : false;
 
 			if ((this.responsive && !this.responsiveVars.accordions || this.nocollapse) && (this.button[0] === target)) return;
 
