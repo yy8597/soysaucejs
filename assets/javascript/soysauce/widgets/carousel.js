@@ -575,9 +575,9 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleResize = function() {
-		var widgetWidth = $(this.widget).find('[data-ss-component="container_wrapper"]').innerWidth();
+		var widgetWidth = this.widget.find('[data-ss-component="container_wrapper"]').innerWidth();
 		
-		//only resize if carousel is visible
+		// only resize if carousel is visible
 		if (widgetWidth > 0) {
 			if (this.fade) {
 				return;
