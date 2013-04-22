@@ -16,6 +16,7 @@ soysauce.carousels = (function() {
 		var thumbnails;
 		
 		// Base Variables
+		this.type = "Carousel";
 		this.widget = $(selector);
 		this.id = parseInt($(selector).attr("data-ss-id"));
 		this.index = 0;
@@ -575,54 +576,60 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleResize = function() {
-		var widgetWidth = this.widget.find('[data-ss-component="container_wrapper"]').innerWidth();
-		
-		// only resize if carousel is visible
-		if (widgetWidth > 0) {
-			if (this.fade) {
-				return;
-			}
+	  var widgetWidth = this.widget.find('[data-ss-component="container_wrapper"]').innerWidth(),
+	      parentWidgetContainer;
+	  
+	  // Assumption: parent is a toggler
+	  if (!widgetWidth) parentWidgetContainer = this.widget.parents().closest("[data-ss-widget='toggler'] [data-ss-component='content']");
+	  
+    if (parentWidgetContainer) {
+      parentWidgetContainer.css("display", "block");
+      widgetWidth = widgetWidth || parentWidgetContainer.outerWidth();
+    }
+	  
+    if (this.fade) {
+      return;
+    }
 
-			if (this.multi) {
-				if (this.multiVars.minWidth>0) {
-					this.multiVars.numItems = Math.floor(widgetWidth / this.multiVars.minWidth)
-				}
-				this.itemWidth = widgetWidth / this.multiVars.numItems;
-			}
+    if (this.multi) {
+      if (this.multiVars.minWidth) {
+        this.multiVars.numItems = Math.floor(widgetWidth / this.multiVars.minWidth)
+      }
+      this.itemWidth = widgetWidth / this.multiVars.numItems;
+    }
 
-			if (this.fullscreen) {
-				var diff;
-				var prevState = this.container.attr("data-ss-state");
+    if (this.fullscreen) {
+      var diff;
+      var prevState = this.container.attr("data-ss-state");
 
-				if (this.multi) {
-					diff = widgetWidth - (this.itemWidth * this.multiVars.numItems);
-				}
-				else {
-					diff = widgetWidth - this.itemWidth;
-				}
+      if (this.multi) {
+        diff = widgetWidth - (this.itemWidth * this.multiVars.numItems);
+      }
+      else {
+        diff = widgetWidth - this.itemWidth;
+      }
 
-				if (this.peek) {
-					this.itemWidth -= this.peekWidth*2;
-				}
+      if (this.peek) {
+        this.itemWidth -= this.peekWidth*2;
+      }
 
-				this.itemWidth += diff;
+      this.itemWidth += diff;
 
-				this.offset = -this.index * this.itemWidth + this.peekWidth;
-				this.container.attr("data-ss-state", "notransition");
+      this.offset = -this.index * this.itemWidth + this.peekWidth;
+      this.container.attr("data-ss-state", "notransition");
 
-				this.items.css("width", this.itemWidth + "px");
+      this.items.css("width", this.itemWidth + "px");
 
-				setTranslate(this.container[0], this.offset);
-			}
+      setTranslate(this.container[0], this.offset);
+    }
 
-			this.container.css("width", (this.itemWidth * this.numChildren) + "px");
+    this.container.css("width", (this.itemWidth * this.numChildren) + "px");
 
-			if (this.zoom) {
-				this.panMax.x = this.itemWidth / this.zoomMultiplier;	
-				this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
-				this.checkPanLimits();
-			}
-		}
+    if (this.zoom) {
+      this.panMax.x = this.itemWidth / this.zoomMultiplier;	
+      this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
+      this.checkPanLimits();
+    }
 	};
 	
 	Carousel.prototype.handleInterrupt = function(e) {

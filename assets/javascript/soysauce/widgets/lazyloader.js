@@ -5,6 +5,7 @@ soysauce.lazyloader = (function() {
 		var options = soysauce.getOptions(selector);
 		var self = this;
 		
+		this.type = "Lazyloader";
 		this.widget = $(selector);
 		this.id = parseInt(this.widget.attr("data-ss-id"));
 		this.images = this.widget.find("[data-ss-ll-src]");

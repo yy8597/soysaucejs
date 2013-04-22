@@ -1,4 +1,4 @@
-# Soysauce (v1.1.61)
+# Soysauce (v1.1.62)
 Original Author: Edward Gaba
 
 Soysauce is a customizable javascript widget library. Popular widgets included are carousels and accordions. Please file any issues you find in Github. Please see the Soysauce website for full documentation of the widgets:
@@ -6,13 +6,13 @@ Soysauce is a customizable javascript widget library. Popular widgets included a
 http://soysauce.s3.amazonaws.com/site/home.html
 
 ## Current CDN URLs
-* Compressed (58.67 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.61/soysauce.min.js
-* Uncompressed (90.85 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.61/soysauce.js
-* Compressed Lite (39.01 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.61/soysauce.lite.min.js
-* Uncompressed Lite (59.34 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.61/soysauce.lite.js
-* Compressed Legacy (60.11 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.61/soysauce.legacy.min.js
-* Uncompressed Legacy (94.07 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.61/soysauce.legacy.js
-* CSS (7.15 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.61/soysauce.css
+* Compressed (59.20 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.62/soysauce.min.js
+* Uncompressed (91.26 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.62/soysauce.js
+* Compressed Lite (39.42 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.62/soysauce.lite.min.js
+* Uncompressed Lite (59.60 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.62/soysauce.lite.js
+* Compressed Legacy (60.64 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.62/soysauce.legacy.min.js
+* Uncompressed Legacy (94.48 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.62/soysauce.legacy.js
+* CSS (7.15 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.62/soysauce.css
 
 Note: Lite contains only the bare essentials (which will later help with scaling as the number of widgets increase):
 * Carousel

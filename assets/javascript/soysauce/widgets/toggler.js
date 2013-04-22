@@ -53,6 +53,7 @@ soysauce.togglers = (function() {
 			this.id = parseInt(this.widget.attr("data-ss-id"));
 		}
 		
+		this.type = "Toggler";
 		this.parentID = 0;
 		this.tabID;
 		this.state = "closed";
@@ -366,46 +367,37 @@ soysauce.togglers = (function() {
 	};
 	
 	Toggler.prototype.handleResize = function() {
+	  var self = this;
+	  
     if (this.defer) {
-      //style the content wrappers as expected to get width correctly
-      $(this.widget).find('[data-ss-component="content"]').css('clear', 'both').css('position','relative');
+      var subs = this.allContent.find('[data-ss-widget]');
+      
+      this.allContent.css('clear', 'both').css('position','relative');
 
-      //count how many subwidgets
-      var subs = $(this.widget).find('[data-ss-component="content"]').find('[data-ss-widget]');
-      if (subs.length > 0) {
-        var finished=0,
-        widget = this.widget,
-        self = this;
-
-        //this is called when each event finishes its resize and count incremented
-        //so that we know when all subwidgets have finished resizing
-        var finisher = function () {
-          if (finished === subs.length) {
-            //all widgets have finished resizing, reset styles on content divs
-            $(widget).find('[data-ss-component="content"]').css('clear', '').css('position','');
-
-            //call resize now that we know all subs are finished
-            self.doResize();
-          }
-        };
-
-        //bind to all subwidgets resize events
-        for(var x=0; x< subs.length; x++) {
-          $(subs[x]).on('SSWidgetResized', function (e, d) {
-            finished++;
-            finisher();
-          });
-        }
+      if (!subs.length) {
+        this.doResize();
       }
       else {
-        //defer option without subwidgets?
-        this.doResize();
+        subs.each(function(i, e) {
+          var widget = soysauce.fetch(e).widget;
+
+          if ((i + 1) !== subs.length) return;
+            
+          widget.one("SSWidgetResized", function () {
+            self.allContent.css({
+              "clear": "",
+              "position": "",
+              "display": ""
+            });
+            self.doResize();
+          });
+        });
       }
     }
     else {
       this.doResize();	
     }
-	};
+  };
 	
 	Toggler.prototype.adjustHeight = function() {
 		if (!this.slide) {

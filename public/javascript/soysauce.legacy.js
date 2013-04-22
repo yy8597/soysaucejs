@@ -545,7 +545,9 @@ soysauce = {
 	vars: {
 		idCount: 0,
 		currentViewportWidth: window.innerWidth,
-		degrade: (/Android [12]|Opera/.test(navigator.userAgent)) ? true : false
+		degrade: (/Android [12]|Opera/.test(navigator.userAgent)) ? true : false,
+		lastResizeTime: 0,
+		lastResizeTimerID: 0
 	},
 	getOptions: function(selector) {
 		if(!$(selector).attr("data-ss-options")) return false;
@@ -635,13 +637,25 @@ soysauce = {
 
 // Widget Resize Handler
 $(window).on("resize orientationchange", function(e) {
-	if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
-		soysauce.vars.currentViewportWidth = window.innerWidth;
-		soysauce.widgets.forEach(function(widget) {
-			if (!widget.handleResize) return;
-			widget.handleResize();
-			$(widget.widget).trigger('SSWidgetResized');
-		});
+	if ((e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) &&
+	    (e.timeStamp - soysauce.vars.lastResizeTime > 30)) {
+	  if (soysauce.vars.lastResizeID) clearTimeout(soysauce.vars.lastResizeID);
+	  soysauce.vars.lastResizeID = window.setTimeout(function() {
+	    soysauce.vars.lastResizeTime = e.timeStamp;
+  		soysauce.vars.currentViewportWidth = window.innerWidth;
+  		soysauce.widgets.forEach(function(widget) {
+  			if (!widget.handleResize) return;
+  			widget.handleResize();
+  			if (widget.type === "Carousel") {
+  			  if (widget.itemWidth) {
+  			    $(widget.widget).trigger("SSWidgetResized");
+  			  }
+  			}
+  			else {
+  			  $(widget.widget).trigger("SSWidgetResized");
+  			}
+  		});
+	  }, 250);
 	}
 });
 
@@ -899,6 +913,7 @@ soysauce.autodetectCC = (function() {
 		var options = soysauce.getOptions(selector);
 		var self = this;
 		
+		this.type = "Autodetect-CC";
 		this.widget = $(this);
 		this.id = parseInt($(selector).attr("data-ss-id"));
 		this.input = $(selector);
@@ -1088,6 +1103,7 @@ soysauce.autofillZip = (function() {
 		var options = soysauce.getOptions(selector);
 		var self = this;
 		
+		this.type = "Autofill-Zip";
 		this.widget = $(selector);
 		this.id = parseInt($(selector).attr("data-ss-id"));
 		this.zip = this.widget.find("[data-ss-component='zip']");
@@ -1195,6 +1211,7 @@ soysauce.autosuggest = (function() {
 		var options = soysauce.getOptions(selector);
 		var self = this;
 
+    this.type = "Autosuggest";
 		this.widget = $(selector);
 		this.id = parseInt(this.widget.attr("data-ss-id"));
 		this.input = $(selector);
@@ -1556,6 +1573,7 @@ soysauce.carousels = (function() {
 		var thumbnails;
 		
 		// Base Variables
+		this.type = "Carousel";
 		this.widget = $(selector);
 		this.id = parseInt($(selector).attr("data-ss-id"));
 		this.index = 0;
@@ -2115,54 +2133,60 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleResize = function() {
-		var widgetWidth = this.widget.find('[data-ss-component="container_wrapper"]').innerWidth();
-		
-		// only resize if carousel is visible
-		if (widgetWidth > 0) {
-			if (this.fade) {
-				return;
-			}
+	  var widgetWidth = this.widget.find('[data-ss-component="container_wrapper"]').innerWidth(),
+	      parentWidgetContainer;
+	  
+	  // Assumption: parent is a toggler
+	  if (!widgetWidth) parentWidgetContainer = this.widget.parents().closest("[data-ss-widget='toggler'] [data-ss-component='content']");
+	  
+    if (parentWidgetContainer) {
+      parentWidgetContainer.css("display", "block");
+      widgetWidth = widgetWidth || parentWidgetContainer.outerWidth();
+    }
+	  
+    if (this.fade) {
+      return;
+    }
 
-			if (this.multi) {
-				if (this.multiVars.minWidth>0) {
-					this.multiVars.numItems = Math.floor(widgetWidth / this.multiVars.minWidth)
-				}
-				this.itemWidth = widgetWidth / this.multiVars.numItems;
-			}
+    if (this.multi) {
+      if (this.multiVars.minWidth) {
+        this.multiVars.numItems = Math.floor(widgetWidth / this.multiVars.minWidth)
+      }
+      this.itemWidth = widgetWidth / this.multiVars.numItems;
+    }
 
-			if (this.fullscreen) {
-				var diff;
-				var prevState = this.container.attr("data-ss-state");
+    if (this.fullscreen) {
+      var diff;
+      var prevState = this.container.attr("data-ss-state");
 
-				if (this.multi) {
-					diff = widgetWidth - (this.itemWidth * this.multiVars.numItems);
-				}
-				else {
-					diff = widgetWidth - this.itemWidth;
-				}
+      if (this.multi) {
+        diff = widgetWidth - (this.itemWidth * this.multiVars.numItems);
+      }
+      else {
+        diff = widgetWidth - this.itemWidth;
+      }
 
-				if (this.peek) {
-					this.itemWidth -= this.peekWidth*2;
-				}
+      if (this.peek) {
+        this.itemWidth -= this.peekWidth*2;
+      }
 
-				this.itemWidth += diff;
+      this.itemWidth += diff;
 
-				this.offset = -this.index * this.itemWidth + this.peekWidth;
-				this.container.attr("data-ss-state", "notransition");
+      this.offset = -this.index * this.itemWidth + this.peekWidth;
+      this.container.attr("data-ss-state", "notransition");
 
-				this.items.css("width", this.itemWidth + "px");
+      this.items.css("width", this.itemWidth + "px");
 
-				setTranslate(this.container[0], this.offset);
-			}
+      setTranslate(this.container[0], this.offset);
+    }
 
-			this.container.css("width", (this.itemWidth * this.numChildren) + "px");
+    this.container.css("width", (this.itemWidth * this.numChildren) + "px");
 
-			if (this.zoom) {
-				this.panMax.x = this.itemWidth / this.zoomMultiplier;	
-				this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
-				this.checkPanLimits();
-			}
-		}
+    if (this.zoom) {
+      this.panMax.x = this.itemWidth / this.zoomMultiplier;	
+      this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
+      this.checkPanLimits();
+    }
 	};
 	
 	Carousel.prototype.handleInterrupt = function(e) {
@@ -2754,6 +2778,7 @@ soysauce.inputClear = (function() {
 		    self = this,
 		    iconFocus = false;
 		
+		this.type = "InputClear";
 		this.widget = $(selector);
 		this.id = parseInt($(selector).attr("data-ss-id"));
 		this.icon;
@@ -2811,6 +2836,7 @@ soysauce.lazyloader = (function() {
 		var options = soysauce.getOptions(selector);
 		var self = this;
 		
+		this.type = "Lazyloader";
 		this.widget = $(selector);
 		this.id = parseInt(this.widget.attr("data-ss-id"));
 		this.images = this.widget.find("[data-ss-ll-src]");
@@ -2917,6 +2943,7 @@ soysauce.togglers = (function() {
 			this.id = parseInt(this.widget.attr("data-ss-id"));
 		}
 		
+		this.type = "Toggler";
 		this.parentID = 0;
 		this.tabID;
 		this.state = "closed";
@@ -3230,46 +3257,37 @@ soysauce.togglers = (function() {
 	};
 	
 	Toggler.prototype.handleResize = function() {
+	  var self = this;
+	  
     if (this.defer) {
-      //style the content wrappers as expected to get width correctly
-      $(this.widget).find('[data-ss-component="content"]').css('clear', 'both').css('position','relative');
+      var subs = this.allContent.find('[data-ss-widget]');
+      
+      this.allContent.css('clear', 'both').css('position','relative');
 
-      //count how many subwidgets
-      var subs = $(this.widget).find('[data-ss-component="content"]').find('[data-ss-widget]');
-      if (subs.length > 0) {
-        var finished=0,
-        widget = this.widget,
-        self = this;
-
-        //this is called when each event finishes its resize and count incremented
-        //so that we know when all subwidgets have finished resizing
-        var finisher = function () {
-          if (finished === subs.length) {
-            //all widgets have finished resizing, reset styles on content divs
-            $(widget).find('[data-ss-component="content"]').css('clear', '').css('position','');
-
-            //call resize now that we know all subs are finished
-            self.doResize();
-          }
-        };
-
-        //bind to all subwidgets resize events
-        for(var x=0; x< subs.length; x++) {
-          $(subs[x]).on('SSWidgetResized', function (e, d) {
-            finished++;
-            finisher();
-          });
-        }
+      if (!subs.length) {
+        this.doResize();
       }
       else {
-        //defer option without subwidgets?
-        this.doResize();
+        subs.each(function(i, e) {
+          var widget = soysauce.fetch(e).widget;
+
+          if ((i + 1) !== subs.length) return;
+            
+          widget.one("SSWidgetResized", function () {
+            self.allContent.css({
+              "clear": "",
+              "position": "",
+              "display": ""
+            });
+            self.doResize();
+          });
+        });
       }
     }
     else {
       this.doResize();	
     }
-	};
+  };
 	
 	Toggler.prototype.adjustHeight = function() {
 		if (!this.slide) {
