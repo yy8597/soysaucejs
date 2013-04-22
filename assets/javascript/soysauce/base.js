@@ -132,7 +132,8 @@ soysauce = {
 	vars: {
 		idCount: 0,
 		currentViewportWidth: window.innerWidth,
-		degrade: (/Android [12]|Opera/.test(navigator.userAgent)) ? true : false
+		degrade: (/Android [12]|Opera/.test(navigator.userAgent)) ? true : false,
+		lastResizeTime: 0
 	},
 	getOptions: function(selector) {
 		if(!$(selector).attr("data-ss-options")) return false;
@@ -222,12 +223,14 @@ soysauce = {
 
 // Widget Resize Handler
 $(window).on("resize orientationchange", function(e) {
-	if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
+	if ((e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) &&
+	    (e.timeStamp - soysauce.vars.lastResizeTime > 30)) {
+	  soysauce.vars.lastResizeTime = e.timeStamp;
 		soysauce.vars.currentViewportWidth = window.innerWidth;
 		soysauce.widgets.forEach(function(widget) {
 			if (!widget.handleResize) return;
 			widget.handleResize();
-			$(widget.widget).trigger('SSWidgetResized');
+			$(widget.widget).trigger("SSWidgetResized");
 		});
 	}
 });
