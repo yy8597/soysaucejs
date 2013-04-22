@@ -53,6 +53,7 @@ soysauce.togglers = (function() {
 			this.id = parseInt(this.widget.attr("data-ss-id"));
 		}
 		
+		this.type = "Toggler";
 		this.parentID = 0;
 		this.tabID;
 		this.state = "closed";
@@ -355,7 +356,7 @@ soysauce.togglers = (function() {
 		this.setState("closed");
 	};
 	
-	Toggler.prototype.handleResize = function() {
+	Toggler.prototype.doResize = function() {
 		this.adjustFlag = true;
 		if (this.opened) {
 			this.adjustHeight();
@@ -365,8 +366,47 @@ soysauce.togglers = (function() {
 		}
 	};
 	
+	Toggler.prototype.handleResize = function() {
+	  var self = this;
+	  
+    if (this.defer) {
+      var subs = this.allContent.find('[data-ss-widget]');
+      
+      this.allContent.css('clear', 'both').css('position','relative');
+
+      if (!subs.length) {
+        this.doResize();
+      }
+      else {
+        subs.each(function(i, e) {
+          var widget = soysauce.fetch(e).widget;
+
+          if ((i + 1) !== subs.length) return;
+            
+          widget.one("SSWidgetResized", function () {
+            self.allContent.css({
+              "clear": "",
+              "position": "",
+              "display": ""
+            });
+            self.doResize();
+          });
+        });
+      }
+    }
+    else {
+      this.doResize();	
+    }
+  };
+	
 	Toggler.prototype.adjustHeight = function() {
-		if (!this.slide) return;
+		if (!this.slide) {
+			//readjust height on resize
+			if (this.tab && this.nocollapse) {
+				this.widget.css("min-height", this.button.outerHeight() + this.content.outerHeight());
+			}
+			return;
+		}
 		if (this.opened) {
 			this.height = this.content.find("> [data-ss-component='wrapper']").outerHeight();
 			this.content.attr("data-ss-slide-height", this.height).height(this.height);
@@ -422,7 +462,7 @@ soysauce.togglers = (function() {
 
 		if (this.tab) {
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
-											this.button[0] === e.target) ? true : false;
+											this.button[0] === target) ? true : false;
 
 			if ((this.responsive && !this.responsiveVars.accordions || this.nocollapse) && (this.button[0] === target)) return;
 

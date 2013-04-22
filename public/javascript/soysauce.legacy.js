@@ -545,7 +545,9 @@ soysauce = {
 	vars: {
 		idCount: 0,
 		currentViewportWidth: window.innerWidth,
-		degrade: (/Android [12]|Opera/.test(navigator.userAgent)) ? true : false
+		degrade: (/Android [12]|Opera/.test(navigator.userAgent)) ? true : false,
+		lastResizeTime: 0,
+		lastResizeTimerID: 0
 	},
 	getOptions: function(selector) {
 		if(!$(selector).attr("data-ss-options")) return false;
@@ -635,12 +637,25 @@ soysauce = {
 
 // Widget Resize Handler
 $(window).on("resize orientationchange", function(e) {
-	if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
-		soysauce.vars.currentViewportWidth = window.innerWidth;
-		soysauce.widgets.forEach(function(widget) {
-			if (!widget.handleResize) return;
-			widget.handleResize();
-		});
+	if ((e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) &&
+	    (e.timeStamp - soysauce.vars.lastResizeTime > 30)) {
+	  if (soysauce.vars.lastResizeID) clearTimeout(soysauce.vars.lastResizeID);
+	  soysauce.vars.lastResizeID = window.setTimeout(function() {
+	    soysauce.vars.lastResizeTime = e.timeStamp;
+  		soysauce.vars.currentViewportWidth = window.innerWidth;
+  		soysauce.widgets.forEach(function(widget) {
+  			if (!widget.handleResize) return;
+  			widget.handleResize();
+  			if (widget.type === "Carousel") {
+  			  if (widget.itemWidth) {
+  			    $(widget.widget).trigger("SSWidgetResized");
+  			  }
+  			}
+  			else {
+  			  $(widget.widget).trigger("SSWidgetResized");
+  			}
+  		});
+	  }, 250);
 	}
 });
 
@@ -898,6 +913,7 @@ soysauce.autodetectCC = (function() {
 		var options = soysauce.getOptions(selector);
 		var self = this;
 		
+		this.type = "Autodetect-CC";
 		this.widget = $(this);
 		this.id = parseInt($(selector).attr("data-ss-id"));
 		this.input = $(selector);
@@ -1087,6 +1103,7 @@ soysauce.autofillZip = (function() {
 		var options = soysauce.getOptions(selector);
 		var self = this;
 		
+		this.type = "Autofill-Zip";
 		this.widget = $(selector);
 		this.id = parseInt($(selector).attr("data-ss-id"));
 		this.zip = this.widget.find("[data-ss-component='zip']");
@@ -1194,6 +1211,7 @@ soysauce.autosuggest = (function() {
 		var options = soysauce.getOptions(selector);
 		var self = this;
 
+    this.type = "Autosuggest";
 		this.widget = $(selector);
 		this.id = parseInt(this.widget.attr("data-ss-id"));
 		this.input = $(selector);
@@ -1555,6 +1573,7 @@ soysauce.carousels = (function() {
 		var thumbnails;
 		
 		// Base Variables
+		this.type = "Carousel";
 		this.widget = $(selector);
 		this.id = parseInt($(selector).attr("data-ss-id"));
 		this.index = 0;
@@ -2114,53 +2133,60 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleResize = function() {
-		var self = this;
-		var widgetWidth = $(this.widget).find('[data-ss-component="container_wrapper"]').innerWidth();
-		
-		if (this.fade) {
-			return;
-		}
-		
-		if (this.multi) {
-			if (this.multiVars.minWidth>0) {
-				this.multiVars.numItems = Math.floor(widgetWidth / this.multiVars.minWidth)
-			}
-			this.itemWidth = widgetWidth / this.multiVars.numItems;
-		}
+	  var widgetWidth = this.widget.find('[data-ss-component="container_wrapper"]').innerWidth(),
+	      parentWidgetContainer;
+	  
+	  // Assumption: parent is a toggler
+	  if (!widgetWidth) parentWidgetContainer = this.widget.parents().closest("[data-ss-widget='toggler'] [data-ss-component='content']");
+	  
+    if (parentWidgetContainer) {
+      parentWidgetContainer.css("display", "block");
+      widgetWidth = widgetWidth || parentWidgetContainer.outerWidth();
+    }
+	  
+    if (this.fade) {
+      return;
+    }
 
-		if (this.fullscreen) {
-			var diff;
-			var prevState = this.container.attr("data-ss-state");
-			
-			if (this.multi) {
-				diff = widgetWidth - (this.itemWidth * this.multiVars.numItems);
-			}
-			else {
-				diff = widgetWidth - this.itemWidth;
-			}
-			
-			if (this.peek) {
-				this.itemWidth -= this.peekWidth*2;
-			}
-			
-			this.itemWidth += diff;
-			
-			this.offset = -this.index * this.itemWidth + this.peekWidth;
-			this.container.attr("data-ss-state", "notransition");
-			
-			this.items.css("width", this.itemWidth + "px");
-			
-			setTranslate(this.container[0], this.offset);
-		}
+    if (this.multi) {
+      if (this.multiVars.minWidth) {
+        this.multiVars.numItems = Math.floor(widgetWidth / this.multiVars.minWidth)
+      }
+      this.itemWidth = widgetWidth / this.multiVars.numItems;
+    }
 
-		this.container.css("width", (this.itemWidth * this.numChildren) + "px");
+    if (this.fullscreen) {
+      var diff;
+      var prevState = this.container.attr("data-ss-state");
 
-		if (this.zoom) {
-			this.panMax.x = this.itemWidth / this.zoomMultiplier;	
-			this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
-			this.checkPanLimits();
-		}
+      if (this.multi) {
+        diff = widgetWidth - (this.itemWidth * this.multiVars.numItems);
+      }
+      else {
+        diff = widgetWidth - this.itemWidth;
+      }
 
+      if (this.peek) {
+        this.itemWidth -= this.peekWidth*2;
+      }
+
+      this.itemWidth += diff;
+
+      this.offset = -this.index * this.itemWidth + this.peekWidth;
+      this.container.attr("data-ss-state", "notransition");
+
+      this.items.css("width", this.itemWidth + "px");
+
+      setTranslate(this.container[0], this.offset);
+    }
+
+    this.container.css("width", (this.itemWidth * this.numChildren) + "px");
+
+    if (this.zoom) {
+      this.panMax.x = this.itemWidth / this.zoomMultiplier;	
+      this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
+      this.checkPanLimits();
+    }
 	};
 	
 	Carousel.prototype.handleInterrupt = function(e) {
@@ -2752,6 +2778,7 @@ soysauce.inputClear = (function() {
 		    self = this,
 		    iconFocus = false;
 		
+		this.type = "InputClear";
 		this.widget = $(selector);
 		this.id = parseInt($(selector).attr("data-ss-id"));
 		this.icon;
@@ -2809,6 +2836,7 @@ soysauce.lazyloader = (function() {
 		var options = soysauce.getOptions(selector);
 		var self = this;
 		
+		this.type = "Lazyloader";
 		this.widget = $(selector);
 		this.id = parseInt(this.widget.attr("data-ss-id"));
 		this.images = this.widget.find("[data-ss-ll-src]");
@@ -2915,6 +2943,7 @@ soysauce.togglers = (function() {
 			this.id = parseInt(this.widget.attr("data-ss-id"));
 		}
 		
+		this.type = "Toggler";
 		this.parentID = 0;
 		this.tabID;
 		this.state = "closed";
@@ -3217,7 +3246,7 @@ soysauce.togglers = (function() {
 		this.setState("closed");
 	};
 	
-	Toggler.prototype.handleResize = function() {
+	Toggler.prototype.doResize = function() {
 		this.adjustFlag = true;
 		if (this.opened) {
 			this.adjustHeight();
@@ -3227,8 +3256,47 @@ soysauce.togglers = (function() {
 		}
 	};
 	
+	Toggler.prototype.handleResize = function() {
+	  var self = this;
+	  
+    if (this.defer) {
+      var subs = this.allContent.find('[data-ss-widget]');
+      
+      this.allContent.css('clear', 'both').css('position','relative');
+
+      if (!subs.length) {
+        this.doResize();
+      }
+      else {
+        subs.each(function(i, e) {
+          var widget = soysauce.fetch(e).widget;
+
+          if ((i + 1) !== subs.length) return;
+            
+          widget.one("SSWidgetResized", function () {
+            self.allContent.css({
+              "clear": "",
+              "position": "",
+              "display": ""
+            });
+            self.doResize();
+          });
+        });
+      }
+    }
+    else {
+      this.doResize();	
+    }
+  };
+	
 	Toggler.prototype.adjustHeight = function() {
-		if (!this.slide) return;
+		if (!this.slide) {
+			//readjust height on resize
+			if (this.tab && this.nocollapse) {
+				this.widget.css("min-height", this.button.outerHeight() + this.content.outerHeight());
+			}
+			return;
+		}
 		if (this.opened) {
 			this.height = this.content.find("> [data-ss-component='wrapper']").outerHeight();
 			this.content.attr("data-ss-slide-height", this.height).height(this.height);
@@ -3284,7 +3352,7 @@ soysauce.togglers = (function() {
 
 		if (this.tab) {
 			var collapse = (this.button.attr("data-ss-state") === "open" &&
-											this.button[0] === e.target) ? true : false;
+											this.button[0] === target) ? true : false;
 
 			if ((this.responsive && !this.responsiveVars.accordions || this.nocollapse) && (this.button[0] === target)) return;
 

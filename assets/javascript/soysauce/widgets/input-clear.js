@@ -5,6 +5,7 @@ soysauce.inputClear = (function() {
 		    self = this,
 		    iconFocus = false;
 		
+		this.type = "InputClear";
 		this.widget = $(selector);
 		this.id = parseInt($(selector).attr("data-ss-id"));
 		this.icon;

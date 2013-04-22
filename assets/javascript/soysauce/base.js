@@ -132,7 +132,9 @@ soysauce = {
 	vars: {
 		idCount: 0,
 		currentViewportWidth: window.innerWidth,
-		degrade: (/Android [12]|Opera/.test(navigator.userAgent)) ? true : false
+		degrade: (/Android [12]|Opera/.test(navigator.userAgent)) ? true : false,
+		lastResizeTime: 0,
+		lastResizeTimerID: 0
 	},
 	getOptions: function(selector) {
 		if(!$(selector).attr("data-ss-options")) return false;
@@ -222,12 +224,25 @@ soysauce = {
 
 // Widget Resize Handler
 $(window).on("resize orientationchange", function(e) {
-	if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
-		soysauce.vars.currentViewportWidth = window.innerWidth;
-		soysauce.widgets.forEach(function(widget) {
-			if (!widget.handleResize) return;
-			widget.handleResize();
-		});
+	if ((e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) &&
+	    (e.timeStamp - soysauce.vars.lastResizeTime > 30)) {
+	  if (soysauce.vars.lastResizeID) clearTimeout(soysauce.vars.lastResizeID);
+	  soysauce.vars.lastResizeID = window.setTimeout(function() {
+	    soysauce.vars.lastResizeTime = e.timeStamp;
+  		soysauce.vars.currentViewportWidth = window.innerWidth;
+  		soysauce.widgets.forEach(function(widget) {
+  			if (!widget.handleResize) return;
+  			widget.handleResize();
+  			if (widget.type === "Carousel") {
+  			  if (widget.itemWidth) {
+  			    $(widget.widget).trigger("SSWidgetResized");
+  			  }
+  			}
+  			else {
+  			  $(widget.widget).trigger("SSWidgetResized");
+  			}
+  		});
+	  }, 250);
 	}
 });
 
