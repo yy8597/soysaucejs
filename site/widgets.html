@@ -73,8 +73,10 @@
 										<h3>Useful Variables</h3>
 										<article>
 											<ul>
+											  <li><span class="snippet">type</span> - The type of widget; returns a string</li>
 												<li><span class="snippet">id</span> - The ID of the widget; used for fetching and exists on every widget (even orphan togglers)</li>
-												<li><span class="snippet">widget</span> - The widget selector; widget events are usually fired on this jQuery object (not the DOM object)</li>
+												<li><span class="snippet">widget</span> - The widget selector; widget events are usually fired on this; simply a cached jQuery selector for this widget</li>
+												<li><span class="snippet">initialized</span> - the first check to see if a widget is initialized; if not, you will need to wait on the "SSWidgetReady" event which is fired on the widget</li>
 											</ul>											
 										</article>
 									</div>

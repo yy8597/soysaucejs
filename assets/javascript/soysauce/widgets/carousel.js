@@ -421,7 +421,6 @@ soysauce.carousels = (function() {
 		}
 		
 		if (this.autoheight) {
-			var self = this;
 			var height = $(this.items[this.index]).outerHeight();
 			this.widget.css("min-height", height);
 		}
