@@ -600,7 +600,7 @@ soysauce.carousels = (function() {
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		}
 		
-		this.links = ((items[0].tagName.match(/^a$/i) !== null && items[0].tagName.match(/^a$/i) !== undefined) || items.find("a[href]").length > 0) ? true : false;
+		this.links = (!items[0].tagName.match(/^a$/i) && !items.find("a[href]").length) ? false : true;
 
 		if (this.thumbs) {
 			var c = 0;
@@ -866,10 +866,12 @@ soysauce.carousels = (function() {
 			(!this.infinite && this.index === this.numChildren - 1) ||
 			this.isZooming) return false;
 		
-		if (this.infinite)
-			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
-		else
-			$(this.dots[this.index]).attr("data-ss-state", "inactive");
+		if (this.infinite) {
+		  $(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
+		}
+		else {
+		  $(this.dots[this.index]).attr("data-ss-state", "inactive");
+		}
 			
 		$(this.items[this.index++]).attr("data-ss-state", "inactive");
 		
@@ -877,17 +879,21 @@ soysauce.carousels = (function() {
 			$(this.items[1]).attr("data-ss-state", "active");
 			this.index = 1;
 		}
-		else
-			$(this.items[this.index]).attr("data-ss-state", "active");
+		else {
+		  $(this.items[this.index]).attr("data-ss-state", "active");
+		}
 		
-		if (this.infinite)
-			$(this.dots[this.index - 1]).attr("data-ss-state", "active");
+		if (this.infinite) {
+		  $(this.dots[this.index - 1]).attr("data-ss-state", "active");
+		}
 		else {
 			$(this.dots[this.index]).attr("data-ss-state", "active");
-			if (this.index === this.numChildren - 1)
-				this.nextBtn.attr("data-ss-state", "disabled");
-			if (this.numChildren > 1)
-				this.prevBtn.attr("data-ss-state", "enabled");
+			if (this.index === this.numChildren - 1) {
+			  this.nextBtn.attr("data-ss-state", "disabled");
+			}
+			if (this.numChildren > 1) {
+			  this.prevBtn.attr("data-ss-state", "enabled");
+			}
 		}
 			
 		this.ready = false;
@@ -900,10 +906,12 @@ soysauce.carousels = (function() {
 	Carousel.prototype.slideBackward = function(fast) {
 		if (!this.ready || (!this.infinite && this.index === 0) || this.isZooming) return false;
 		
-		if (this.infinite)
-			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
-		else
-			$(this.dots[this.index]).attr("data-ss-state", "inactive");
+		if (this.infinite) {
+		  $(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
+		}
+		else {
+		  $(this.dots[this.index]).attr("data-ss-state", "inactive");
+		}
 			
 		$(this.items[this.index--]).attr("data-ss-state", "inactive");
 		
@@ -911,17 +919,21 @@ soysauce.carousels = (function() {
 			$(this.items[this.numChildren - 2]).attr("data-ss-state", "active");
 			this.index = this.numChildren - 2;
 		}
-		else
-			$(this.items[this.index]).attr("data-ss-state", "active");
+		else {
+		  $(this.items[this.index]).attr("data-ss-state", "active");
+		}
 		
-		if (this.infinite)
-			$(this.dots[this.index - 1]).attr("data-ss-state", "active");
+		if (this.infinite) {
+		  $(this.dots[this.index - 1]).attr("data-ss-state", "active");
+		}
 		else {
 			$(this.dots[this.index]).attr("data-ss-state", "active");
-			if (this.index === 0)
-				this.prevBtn.attr("data-ss-state", "disabled");
-			if (this.numChildren > 1)
-				this.nextBtn.attr("data-ss-state", "enabled");
+			if (this.index === 0) {
+			  this.prevBtn.attr("data-ss-state", "disabled");
+			}
+			if (this.numChildren > 1) {
+			  this.nextBtn.attr("data-ss-state", "enabled");
+			}
 		}
 			
 		this.ready = false;
