@@ -53,6 +53,7 @@ soysauce.init = function(selector) {
 
 		if (widget !== undefined) {
 			soysauce.widgets.push(widget);
+			ret = true;
 			if ($this.attr("data-ss-defer") !== undefined) {
 				widget.defer = true;
 			}
@@ -61,14 +62,12 @@ soysauce.init = function(selector) {
 					widget.initialized = true;
 					$this.trigger("SSWidgetReady");
 				});
-				ret = true;
 			}
 		}
 		else {
 			$this.removeAttr("data-ss-id");
 			--soysauce.vars.idCount;
 		}
-		
 	});
 	
 	return ret;
