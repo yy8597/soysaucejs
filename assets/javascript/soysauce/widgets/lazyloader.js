@@ -70,6 +70,9 @@ soysauce.lazyloader = (function() {
         $item.attr("data-ss-state", "loaded");
         if (++count === $items.length) {
           self.widget.trigger("SSBatchLoaded");
+          if ((batchSize || self.batchSize) > $items.length) {
+            self.widget.trigger("SSItemsEmpty");
+          }
         }
       });
     });

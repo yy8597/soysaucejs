@@ -209,8 +209,3 @@
 [data-ss-widget="lazyloader"] [data-ss-component="item"]:not([data-ss-state="loaded"]) {
   display: none;
 }
-[data-ss-widget="lazyloader"] > progress {
-  display: block;
-  margin: 10px auto;
-  clear: both;
-}
