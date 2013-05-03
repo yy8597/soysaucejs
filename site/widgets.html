@@ -307,7 +307,7 @@
    Specifies the widget type, add to the container
 2) data-ss-component="item"
    Specifies the button component of the widget
-3) data-ss-ll-src="SRC"
+3) data-ss-ll-src="src"
    Use this attribute instead of the "src" attribute</xmp></pre>
 										</article>
 									</div>
@@ -315,15 +315,21 @@
 										<h3>Optional Attributes</h3>
 										<article>
 <pre class="prettyprint"><xmp>1) data-ss-options="option1 option2 option3"
-   Provides different widget variations</xmp></pre>
+   Provides different widget variations
+2) data-ss-threshold="x"
+   Threshold from bottom of container to autoload new images;
+   Default is 100 (in pixels)
+3) data-ss-initial-load="x"
+   Number of images to load initially; default is 10
+4) data-ss-batch-size="x"
+   Number of images to load per batch; default is 5</xmp></pre>
 										</article>
 									</div>
 									<div class="options">
 										<h3>Options</h3>
 										<article>
 											<ul>
-												<li><span class="snippet">load</span> - This loads the image on the window's "load" event; place on the image</li>
-												<li><span class="snippet">dom</span> - This loads the image on the document's "DOMContentLoaded" event; place on the image</li>
+												<li><span class="snippet">autoload</span> - Auto-processes the next batch once the user reaches the threshold</li>
 											</ul>											
 										</article>
 									</div>
@@ -336,12 +342,18 @@
 										</article>
 									</div>
 									<div class="example">
-										<h3>Example 1 - Basic Lazyloader</h3>
+										<h3>Example 1 - Auto Lazyloader</h3>
 										<article>
-<pre class="prettyprint"><xmp><div data-ss-widget="lazyloader">
-  <img data-ss-component="item" data-ss-ll-src="image1.jpg">
-  <img data-ss-component="item" data-ss-ll-src="image2.jpg">
-  <img data-ss-component="item" data-ss-ll-src="image3.jpg">
+<pre class="prettyprint"><xmp><div data-ss-widget="lazyloader" data-ss-options="autoload">
+  <div data-ss-component="item">
+    <img data-ss-ll-src="image1.jpg">
+  </div>
+  <div data-ss-component="item">
+    <img data-ss-ll-src="image2.jpg">
+  </div>
+  <div data-ss-component="item">
+    <img data-ss-ll-src="image3.jpg">
+  </div>
 </div></xmp></pre>
 										</article>
 										<h3>Example 2 - Image loaded on window's "load" event</h3>

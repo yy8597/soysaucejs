@@ -13,12 +13,30 @@ soysauce.lazyloader = (function() {
 		this.timeStamp = 0; // for throttling
 		this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load")) || 10;
 		this.batchSize = parseInt(this.widget.attr("data-ss-batch-size")) || 5;
+		this.autoload = false;
+		this.button = this.widget.find("[data-ss-component='button']");
+		
+		if (options) options.forEach(function(option) {
+			switch(option) {
+				case "autoload":
+				  self.autoload = true;
+					break;
+			}
+		});
 		
 		this.processNextBatch(this.initialLoad);
 		
-    $(window).scroll(function(e) {
-      update(e, self);
-    });
+		if (this.button.length) {
+		  this.button.on("click", function() {
+		    self.processNextBatch();
+		  });
+		}
+		
+		if (this.autoload) {
+		  $(window).scroll(function(e) {
+        update(e, self);
+      });
+		}
 		
     function update(e, context) {
       if ((e.timeStamp - self.timeStamp) > THROTTLE) {
