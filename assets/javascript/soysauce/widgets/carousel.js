@@ -27,7 +27,6 @@ soysauce.carousels = (function() {
 		this.numChildren = 0;
 		this.itemWidth = 0;
 		this.offset = 0;
-		this.spacingOffset = 0;
 		this.ready = false;
 		this.interrupted = false;
 		this.links = false;
@@ -324,10 +323,7 @@ soysauce.carousels = (function() {
 		
 		this.container.imagesLoaded(function(items) {
 			var firstItem = self.items.first();
-			var padding = parseInt(firstItem.css("padding-left")) + parseInt(firstItem.css("padding-right"));
 			var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
-			
-			self.spacingOffset = 0; // remove this for now
 			
 			if (self.multi) {
 				var widgetWidth = self.widget.find('[data-ss-component="container_wrapper"]').innerWidth();
@@ -366,18 +362,7 @@ soysauce.carousels = (function() {
 			setTranslate(self.container[0], self.offset);
 
 			if (self.zoom) {
-				var zoomMultiplier = self.widget.attr("data-ss-zoom-multiplier");
-				self.zoomMultiplier = (!zoomMultiplier) ? ZOOM_MULTIPLIER : parseInt(zoomMultiplier);
-				self.panMax.x = (self.itemWidth - self.peekWidth*2) / self.zoomMultiplier;				
-				self.panMax.y = self.items.first().height() / self.zoomMultiplier;
-				self.panMaxOriginal.x = self.panMax.x;
-				self.panMaxOriginal.y = self.panMax.y;
-				if (self.panMax.y === 0) {
-					self.container.imagesLoaded(function() {
-						self.panMax.y = self.items.last().height / self.zoomMultiplier;
-						self.panMaxOriginal.y = self.panMax.y;
-					});
-				}
+				self.initPanLimits();
 			}
 		});
 
@@ -480,7 +465,7 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.index*self.itemWidth + self.peekWidth + self.spacingOffset;
+						self.offset = -self.index*self.itemWidth + self.peekWidth;
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -494,7 +479,7 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.itemWidth + self.peekWidth + self.spacingOffset;
+						self.offset = -self.itemWidth + self.peekWidth;
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -589,6 +574,23 @@ soysauce.carousels = (function() {
 		return true;
 	};
 	
+	Carousel.prototype.initPanLimits = function() {
+	  var zoomMultiplier = this.widget.attr("data-ss-zoom-multiplier"),
+	      padding = parseInt(this.items.first().css("padding-left")) + parseInt(this.items.first().css("padding-right")),
+	      self = this;
+	      
+		this.zoomMultiplier = parseInt(zoomMultiplier) || ZOOM_MULTIPLIER;
+		this.panMaxOriginal.x = this.panMax.x = (this.itemWidth - (this.peekWidth - padding)*2) / this.zoomMultiplier;				
+		this.panMaxOriginal.y = this.panMax.y = this.items.first().height() / this.zoomMultiplier;
+
+		if (this.panMax.y === 0) {
+			this.container.imagesLoaded(function() {
+				self.panMax.y = self.items.last().height / self.zoomMultiplier;
+				self.panMaxOriginal.y = self.panMax.y;
+			});
+		}
+	};
+	
 	Carousel.prototype.handleResize = function() {
 	  var widgetWidth = this.widget.find('[data-ss-component="container_wrapper"]').innerWidth(),
 	      parentWidgetContainer;
@@ -625,6 +627,7 @@ soysauce.carousels = (function() {
 
       if (this.peek) {
         this.itemWidth -= this.peekWidth*2;
+        this.checkPanLimits();
       }
 
       this.itemWidth += diff;
@@ -642,7 +645,7 @@ soysauce.carousels = (function() {
     if (this.zoom) {
       this.panMax.x = this.itemWidth / this.zoomMultiplier;	
       this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
-      this.checkPanLimits();
+      this.initPanLimits();
     }
 	};
 	
@@ -715,10 +718,10 @@ soysauce.carousels = (function() {
 			self.infiniteID = undefined;
 			
 			if (self.index === self.numChildren - 2) {
-				self.offset = -self.index*self.itemWidth + (self.peekWidth) + self.spacingOffset;
+				self.offset = -self.index*self.itemWidth + (self.peekWidth);
 			}
 			else if (self.index === 1) {
-				self.offset = -self.itemWidth + (self.peekWidth) + self.spacingOffset;
+				self.offset = -self.itemWidth + (self.peekWidth);
 			}
 			
 			window.setTimeout(function() {
@@ -933,7 +936,7 @@ soysauce.carousels = (function() {
 				if (xDist > 0) {
 					if (!self.infinite && self.index === self.numChildren - 1 ||
 						(self.multi && !self.infinite && self.index === self.numChildren - self.multiVars.numItems)) {
-						self.gotoPos(self.index * -self.itemWidth + self.peekWidth + self.spacingOffset);
+						self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
 					}
 					else {
 						if (soysauce.vars.degrade) {
@@ -944,7 +947,7 @@ soysauce.carousels = (function() {
 				}
 				else {
 					if (!self.infinite && self.index === 0) {
-						self.gotoPos(self.peekWidth + self.spacingOffset);
+						self.gotoPos(self.peekWidth);
 					}
 					else {
 						if (soysauce.vars.degrade) {
