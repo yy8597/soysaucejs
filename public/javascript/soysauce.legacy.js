@@ -1210,6 +1210,7 @@ soysauce.init = function(selector) {
 
 		if (widget !== undefined) {
 			soysauce.widgets.push(widget);
+			ret = true;
 			if ($this.attr("data-ss-defer") !== undefined) {
 				widget.defer = true;
 			}
@@ -1218,14 +1219,12 @@ soysauce.init = function(selector) {
 					widget.initialized = true;
 					$this.trigger("SSWidgetReady");
 				});
-				ret = true;
 			}
 		}
 		else {
 			$this.removeAttr("data-ss-id");
 			--soysauce.vars.idCount;
 		}
-		
 	});
 	
 	return ret;
@@ -1270,34 +1269,35 @@ soysauce.overlay = (function() {
 
 	return {
 		init: function(selector) {
-			var div = document.createElement("div");
-			
-			if (!init) return false;
-			
-			div.setAttribute("data-ss-utility", "overlay");
-			div.setAttribute("data-ss-state", "inactive");
-			document.body.appendChild(div);
-			
-			overlay = $("[data-ss-utility='overlay']");
-			
-			overlay.append("<span class='done'></span>");
-			done = overlay.find(".done");
-			
-			overlay.append("<div class='caption'></span>");
-			caption = overlay.find(".caption");
-			
-			done.on("click", function() {
-				soysauce.overlay.off();
+			document.addEventListener("DOMContentLoaded", function() {
+				var div = document.createElement("div");
+
+				if (!init) return false;
+
+				div.setAttribute("data-ss-utility", "overlay");
+				div.setAttribute("data-ss-state", "inactive");
+				document.body.appendChild(div);
+
+				overlay = $("[data-ss-utility='overlay']");
+
+				overlay.append("<span class='done'></span>");
+				done = overlay.find(".done");
+
+				overlay.append("<div class='caption'></span>");
+				caption = overlay.find(".caption");
+
+				done.on("click", function() {
+					soysauce.overlay.off();
+				});
+
+				init = false;
 			});
-			
-			init = false;
 		},
 		on: function() {
 			if (isOn) return;
 			overlay.show();
 			window.setTimeout(function() {
 				overlay.attr("data-ss-state","active");
-				overlay.trigger("SSOverlayOn");
 				isOn = true;
 			}, 0);
 		},
@@ -1306,7 +1306,6 @@ soysauce.overlay = (function() {
 			overlay.attr("data-ss-state","inactive");
 			window.setTimeout(function() {
 				overlay.hide();
-				overlay.trigger("SSOverlayOff");
 				isOn = false;
 			}, 400);
 		},
@@ -2232,7 +2231,7 @@ soysauce.carousels = (function() {
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		}
 		
-		this.links = ((items[0].tagName.match(/^a$/i) !== null && items[0].tagName.match(/^a$/i) !== undefined) || items.find("a[href]").length > 0) ? true : false;
+		this.links = (!items[0].tagName.match(/^a$/i) && !items.find("a[href]").length) ? false : true;
 
 		if (this.thumbs) {
 			var c = 0;
@@ -2498,10 +2497,12 @@ soysauce.carousels = (function() {
 			(!this.infinite && this.index === this.numChildren - 1) ||
 			this.isZooming) return false;
 		
-		if (this.infinite)
-			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
-		else
-			$(this.dots[this.index]).attr("data-ss-state", "inactive");
+		if (this.infinite) {
+		  $(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
+		}
+		else {
+		  $(this.dots[this.index]).attr("data-ss-state", "inactive");
+		}
 			
 		$(this.items[this.index++]).attr("data-ss-state", "inactive");
 		
@@ -2509,17 +2510,21 @@ soysauce.carousels = (function() {
 			$(this.items[1]).attr("data-ss-state", "active");
 			this.index = 1;
 		}
-		else
-			$(this.items[this.index]).attr("data-ss-state", "active");
+		else {
+		  $(this.items[this.index]).attr("data-ss-state", "active");
+		}
 		
-		if (this.infinite)
-			$(this.dots[this.index - 1]).attr("data-ss-state", "active");
+		if (this.infinite) {
+		  $(this.dots[this.index - 1]).attr("data-ss-state", "active");
+		}
 		else {
 			$(this.dots[this.index]).attr("data-ss-state", "active");
-			if (this.index === this.numChildren - 1)
-				this.nextBtn.attr("data-ss-state", "disabled");
-			if (this.numChildren > 1)
-				this.prevBtn.attr("data-ss-state", "enabled");
+			if (this.index === this.numChildren - 1) {
+			  this.nextBtn.attr("data-ss-state", "disabled");
+			}
+			if (this.numChildren > 1) {
+			  this.prevBtn.attr("data-ss-state", "enabled");
+			}
 		}
 			
 		this.ready = false;
@@ -2532,10 +2537,12 @@ soysauce.carousels = (function() {
 	Carousel.prototype.slideBackward = function(fast) {
 		if (!this.ready || (!this.infinite && this.index === 0) || this.isZooming) return false;
 		
-		if (this.infinite)
-			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
-		else
-			$(this.dots[this.index]).attr("data-ss-state", "inactive");
+		if (this.infinite) {
+		  $(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
+		}
+		else {
+		  $(this.dots[this.index]).attr("data-ss-state", "inactive");
+		}
 			
 		$(this.items[this.index--]).attr("data-ss-state", "inactive");
 		
@@ -2543,17 +2550,21 @@ soysauce.carousels = (function() {
 			$(this.items[this.numChildren - 2]).attr("data-ss-state", "active");
 			this.index = this.numChildren - 2;
 		}
-		else
-			$(this.items[this.index]).attr("data-ss-state", "active");
+		else {
+		  $(this.items[this.index]).attr("data-ss-state", "active");
+		}
 		
-		if (this.infinite)
-			$(this.dots[this.index - 1]).attr("data-ss-state", "active");
+		if (this.infinite) {
+		  $(this.dots[this.index - 1]).attr("data-ss-state", "active");
+		}
 		else {
 			$(this.dots[this.index]).attr("data-ss-state", "active");
-			if (this.index === 0)
-				this.prevBtn.attr("data-ss-state", "disabled");
-			if (this.numChildren > 1)
-				this.nextBtn.attr("data-ss-state", "enabled");
+			if (this.index === 0) {
+			  this.prevBtn.attr("data-ss-state", "disabled");
+			}
+			if (this.numChildren > 1) {
+			  this.nextBtn.attr("data-ss-state", "enabled");
+			}
 		}
 			
 		this.ready = false;
@@ -3270,45 +3281,70 @@ soysauce.lazyloader = (function() {
 		this.type = "Lazyloader";
 		this.widget = $(selector);
 		this.id = parseInt(this.widget.attr("data-ss-id"));
-		this.images = this.widget.find("[data-ss-ll-src]");
-		this.vertical = true;
-		this.horizontal = false; // Implement later for horizontal scrolling sites (i.e tablet)
-		this.context = window; // Perhaps later we'll want to change the context
-		this.threshold = (!this.widget.attr("data-ss-threshold")) ? 100 : parseInt(this.widget.attr("data-ss-threshold"));
+		this.items = this.widget.find("[data-ss-component='item']");
+		this.threshold = parseInt(this.widget.attr("data-ss-threshold")) || 100;
 		this.timeStamp = 0; // for throttling
+		this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load")) || 10;
+		this.batchSize = parseInt(this.widget.attr("data-ss-batch-size")) || 5;
+		this.autoload = false;
+		this.button = this.widget.find("[data-ss-component='button']");
 		
 		if (options) options.forEach(function(option) {
 			switch(option) {
-				case "option1":
+				case "autoload":
+				  self.autoload = true;
 					break;
 			}
 		});
 		
-		this.update(0);
+		this.processNextBatch(this.initialLoad);
 		
-		$(window).scroll(update);
-		
-		function update(e) {
-			if ((e.timeStamp - self.timeStamp) > THROTTLE) {
-				if (self.images.length === 0) {
-					$(window).unbind("scroll", update);
-					return;
-				}
-				self.timeStamp = e.timeStamp;
-				self.update($(document).scrollTop());
-			}
+		if (this.button.length) {
+		  this.button.on("click", function() {
+		    self.processNextBatch();
+		  });
 		}
+		
+		if (this.autoload) {
+		  $(window).scroll(function(e) {
+        update(e, self);
+      });
+		}
+		
+    function update(e, context) {
+      if ((e.timeStamp - self.timeStamp) > THROTTLE) {
+        var widgetPositionThreshold = context.widget.height() + context.widget.offset().top - context.threshold,
+            windowPosition = $(window).scrollTop() + $(window).height();
+        if (!self.items.length) {
+          $(window).unbind("scroll", update);
+          return;
+        }
+        self.timeStamp = e.timeStamp;
+        if (windowPosition > widgetPositionThreshold) {
+          self.widget.trigger("SSBatchStart");
+          self.processNextBatch();
+        }
+      }
+    }
 	};
 	
-	Lazyloader.prototype.update = function(top) {
-		var contextTop = top - this.threshold;
-		var contextBottom = top + this.threshold + this.context.innerHeight;
-		this.images.each(function(i, image) {
-			if ((image.offsetTop + image.height > contextTop) && (image.offsetTop < contextBottom)) {
-				soysauce.lateload(image);
-			}
-		});
-		this.images = this.widget.find("[data-ss-ll-src]");
+	Lazyloader.prototype.processNextBatch = function(batchSize) {
+	  var $items = $(this.items.splice(0, batchSize || this.batchSize)),
+	      self = this,
+	      count = 0;
+
+    $items.each(function(i, item) {
+      var $item = $(item);
+      $item.find("[data-ss-ll-src]").each(function() {
+        soysauce.lateload(this);
+      });
+      $item.imagesLoaded(function(e) {
+        $item.attr("data-ss-state", "loaded");
+        if (++count === $items.length) {
+          self.widget.trigger("SSBatchLoaded");
+        }
+      });
+    });
 	};
 	
 	return {
