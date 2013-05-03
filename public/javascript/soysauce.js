@@ -1079,6 +1079,7 @@ soysauce.init = function(selector) {
 
 		if (widget !== undefined) {
 			soysauce.widgets.push(widget);
+			ret = true;
 			if ($this.attr("data-ss-defer") !== undefined) {
 				widget.defer = true;
 			}
@@ -1087,14 +1088,12 @@ soysauce.init = function(selector) {
 					widget.initialized = true;
 					$this.trigger("SSWidgetReady");
 				});
-				ret = true;
 			}
 		}
 		else {
 			$this.removeAttr("data-ss-id");
 			--soysauce.vars.idCount;
 		}
-		
 	});
 	
 	return ret;
@@ -3151,45 +3150,52 @@ soysauce.lazyloader = (function() {
 		this.type = "Lazyloader";
 		this.widget = $(selector);
 		this.id = parseInt(this.widget.attr("data-ss-id"));
-		this.images = this.widget.find("[data-ss-ll-src]");
-		this.vertical = true;
-		this.horizontal = false; // Implement later for horizontal scrolling sites (i.e tablet)
-		this.context = window; // Perhaps later we'll want to change the context
-		this.threshold = (!this.widget.attr("data-ss-threshold")) ? 100 : parseInt(this.widget.attr("data-ss-threshold"));
+		this.items = this.widget.find("[data-ss-component='item']");
+		this.threshold = parseInt(this.widget.attr("data-ss-threshold")) || 100;
 		this.timeStamp = 0; // for throttling
+		this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load")) || 10;
+		this.batchSize = parseInt(this.widget.attr("data-ss-batch-size")) || 5;
 		
-		if (options) options.forEach(function(option) {
-			switch(option) {
-				case "option1":
-					break;
-			}
-		});
+		this.processNextBatch(this.initialLoad);
 		
-		this.update(0);
+    $(window).scroll(function(e) {
+      update(e, self);
+    });
 		
-		$(window).scroll(update);
-		
-		function update(e) {
-			if ((e.timeStamp - self.timeStamp) > THROTTLE) {
-				if (self.images.length === 0) {
-					$(window).unbind("scroll", update);
-					return;
-				}
-				self.timeStamp = e.timeStamp;
-				self.update($(document).scrollTop());
-			}
-		}
+    function update(e, context) {
+      if ((e.timeStamp - self.timeStamp) > THROTTLE) {
+        var widgetPositionThreshold = context.widget.height() + context.widget.offset().top - context.threshold,
+            windowPosition = $(window).scrollTop() + $(window).height();
+        if (!self.items.length) {
+          $(window).unbind("scroll", update);
+          return;
+        }
+        self.timeStamp = e.timeStamp;
+        if (windowPosition > widgetPositionThreshold) {
+          self.widget.trigger("SSBatchStart");
+          self.processNextBatch();
+        }
+      }
+    }
 	};
 	
-	Lazyloader.prototype.update = function(top) {
-		var contextTop = top - this.threshold;
-		var contextBottom = top + this.threshold + this.context.innerHeight;
-		this.images.each(function(i, image) {
-			if ((image.offsetTop + image.height > contextTop) && (image.offsetTop < contextBottom)) {
-				soysauce.lateload(image);
-			}
-		});
-		this.images = this.widget.find("[data-ss-ll-src]");
+	Lazyloader.prototype.processNextBatch = function(batchSize) {
+	  var $items = $(this.items.splice(0, batchSize || this.batchSize)),
+	      self = this,
+	      count = 0;
+
+    $items.each(function(i, item) {
+      var $item = $(item);
+      $item.find("[data-ss-ll-src]").each(function() {
+        soysauce.lateload(this);
+      });
+      $item.imagesLoaded(function(e) {
+        $item.attr("data-ss-state", "loaded");
+        if (++count === $items.length) {
+          self.widget.trigger("SSBatchLoaded");
+        }
+      });
+    });
 	};
 	
 	return {
