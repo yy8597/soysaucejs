@@ -3321,7 +3321,6 @@ soysauce.lazyloader = (function() {
         }
         self.timeStamp = e.timeStamp;
         if (windowPosition > widgetPositionThreshold) {
-          self.widget.trigger("SSBatchStart");
           self.processNextBatch();
         }
       }
@@ -3332,6 +3331,8 @@ soysauce.lazyloader = (function() {
 	  var $items = $(this.items.splice(0, batchSize || this.batchSize)),
 	      self = this,
 	      count = 0;
+	      
+	  self.widget.trigger("SSBatchStart");
 
     $items.each(function(i, item) {
       var $item = $(item);
@@ -3342,6 +3343,9 @@ soysauce.lazyloader = (function() {
         $item.attr("data-ss-state", "loaded");
         if (++count === $items.length) {
           self.widget.trigger("SSBatchLoaded");
+          if ((batchSize || self.batchSize) > $items.length) {
+            self.widget.trigger("SSItemsEmpty");
+          }
         }
       });
     });
