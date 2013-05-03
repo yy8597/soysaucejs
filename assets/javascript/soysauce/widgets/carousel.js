@@ -168,8 +168,8 @@ soysauce.carousels = (function() {
 		if (this.zoom) {
 			wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
 			this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
-			this.zoomMin = (!this.widget.attr("data-ss-zoom-min")) ? 1.2 : parseFloat(this.widget.attr("data-ss-zoom-min"));
-			this.zoomMax = (!this.widget.attr("data-ss-zoom-max")) ? 4 : parseFloat(this.widget.attr("data-ss-zoom-max"));
+			this.zoomMin = parseFloat(this.widget.attr("data-ss-zoom-min")) || 1.2;
+			this.zoomMax = parseFloat(this.widget.attr("data-ss-zoom-max")) || 4;
 			
 			if (this.zoomMin < 1.2) {
 				this.zoomMin = 1.2;
@@ -210,9 +210,9 @@ soysauce.carousels = (function() {
 		
 		if (this.multi) {
 			var numItems = parseInt(this.widget.attr("data-ss-multi-set"));
-			this.multiVars.numItems = (!numItems) ? 2 : numItems;
 			var minWidth = parseInt(this.widget.attr("data-ss-multi-min-width"));
-			this.multiVars.minWidth = (!minWidth) ? 0 : minWidth;
+			this.multiVars.numItems = numItems || 2;
+			this.multiVars.minWidth = minWidth || 0;
 		}
 		
 		if (this.infinite) {
@@ -305,8 +305,8 @@ soysauce.carousels = (function() {
 		});
 
 		if (this.peek) {
-			this.peekAlign = (!this.widget.attr("data-ss-peek-align")) ? "center" : this.widget.attr("data-ss-peek-align");
-			this.peekWidth = (!this.widget.attr("data-ss-peek-width")) ? PEEK_WIDTH : parseInt(this.widget.attr("data-ss-peek-width"));
+			this.peekAlign = this.widget.attr("data-ss-peek-align") || "center";
+			this.peekWidth = parseInt(this.widget.attr("data-ss-peek-width")) || PEEK_WIDTH;
 			if (this.peekWidth % 2) {
 				this.widget.attr("data-ss-peek-width", ++this.peekWidth);
 			}
@@ -321,7 +321,7 @@ soysauce.carousels = (function() {
 		else {
 			$(items[0]).attr("data-ss-state", "active");
 		}
-
+		
 		this.container.imagesLoaded(function(items) {
 			var firstItem = self.items.first();
 			var padding = parseInt(firstItem.css("padding-left")) + parseInt(firstItem.css("padding-right"));
@@ -330,14 +330,14 @@ soysauce.carousels = (function() {
 			self.spacingOffset = 0; // remove this for now
 			
 			if (self.multi) {
-				var widgetWidth = $(self.widget).find('[data-ss-component="container_wrapper"]').innerWidth();
-				if (self.multiVars.minWidth>0) {
+				var widgetWidth = self.widget.find('[data-ss-component="container_wrapper"]').innerWidth();
+				if (self.multiVars.minWidth > 0) {
 					self.multiVars.numItems = Math.floor(widgetWidth / self.multiVars.minWidth);
 				}
 				self.itemWidth = widgetWidth / self.multiVars.numItems;
 			}
 			else {
-				self.itemWidth = self.widget.width();
+				self.itemWidth = self.widget.outerWidth();
 			}
 			
 			if (self.peek) {
@@ -428,6 +428,9 @@ soysauce.carousels = (function() {
 		this.widget.one("SSWidgetReady", function() {
 			self.widget.attr("data-ss-state", "ready");
 			self.ready = true;
+			$(window).load(function() {
+			  self.handleResize();
+			});
 			window.setTimeout(function() {
 				self.container.attr("data-ss-state", "ready");
 			}, 0);
