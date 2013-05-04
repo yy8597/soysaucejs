@@ -226,7 +226,7 @@ soysauce.carousels = (function() {
 
 		this.items = items = this.widget.find("[data-ss-component='item']");
 		
-		if (items.length === 0) {
+		if (!items.length) {
 			console.warn("Soysauce: No [data-ss-component='item'] attributes found with widget id " + this.id);
 			return;
 		}
