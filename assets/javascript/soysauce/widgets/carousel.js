@@ -267,6 +267,7 @@ soysauce.carousels = (function() {
     }
 
     numDots = (this.infinite) ? this.numChildren - 2 : this.numChildren;
+    numDots = (this.multi) ? this.maxIndex : numDots;
     thumbnails = this.container.find("[data-ss-component='thumbnail']");
 
     if (thumbnails.length > 0) {
