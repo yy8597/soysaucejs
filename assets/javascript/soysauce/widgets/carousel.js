@@ -1,430 +1,430 @@
 soysauce.carousels = (function() {
-	// Shared Default Globals
-	var AUTOSCROLL_INTERVAL = 5000;
-	var ZOOM_MULTIPLIER = 2;
-	var PEEK_WIDTH = 20;
-	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
-	var PINCH_SENSITIVITY = 1500; // lower to increase sensitivity for pinch zoom
-	var PREFIX = soysauce.getPrefix();
+  // Shared Default Globals
+  var AUTOSCROLL_INTERVAL = 5000;
+  var ZOOM_MULTIPLIER = 2;
+  var PEEK_WIDTH = 20;
+  var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
+  var PINCH_SENSITIVITY = 1500; // lower to increase sensitivity for pinch zoom
+  var PREFIX = soysauce.getPrefix();
 	
 	function Carousel(selector) {
-		var options = soysauce.getOptions(selector);
-		var self = this;
-		var wrapper;
-		var dotsHtml = "";
-		var numDots;
-		var thumbnails;
-		
-		// Base Variables
-		this.widget = $(selector);
-		this.index = 0;
-		this.maxIndex;
-		this.container;
-		this.items;
-		this.dots;
-		this.numChildren = 0;
-		this.itemWidth = 0;
-		this.offset = 0;
-		this.ready = false;
-		this.interrupted = false;
-		this.links = false;
-		this.lockScroll = undefined;
-		this.nextBtn;
-		this.prevBtn;
-		this.freeze = false;
-		this.jumping = false;
-		
-		// Infinite Variables
-		this.infinite = true;
-		this.autoscroll = false;
-		this.autoscrollID;
-		this.autoscrollInterval;
-		this.autoscrollRestartID;
-		this.infiniteID;
-		this.forward;
-		this.lastSlideTime;
-		this.cloneDepth = 0;
-		this.looping = false;
-		this.rewindCoord = 0;
-		
-		// Fullscreen & Peek Variables
-		this.fullscreen = true;
-		this.peek = false;
-		this.peekWidth = 0;
-		this.peekAlign;
-		
-		// Swipe Variables
-		this.swipe = true;
-		
-		// Misc Variables
-		this.coords1x = 0;
-		this.coords1y = 0;
-		
-		// CMS Variables
-		this.cms = false;
-		
-		// Zoom Variables
-		this.zoom = false;
-		this.zoomMultiplier;
-		this.zoomMin;
-		this.zoomMax;
-		this.isZooming = false;
-		this.isZoomed = false;
-		this.panMax = {x:0, y:0};
-		this.panMaxOriginal = {x:0, y:0};
-		this.panCoords = {x:0, y:0};
-		this.panCoordsStart = {x:0, y:0};
-		this.panning = false;
-		this.zoomIcon;
-		this.pinch;
-		
-		// Thumbnail Variables
-		this.thumbs = false;
-		
-		// Multi Item Variables
-		this.multi = false;
-		this.multiVars = {
-			numItems: 2,
-			stepSize: 1,
-			minWidth: 0
-		};
-		
-		// Autoheight Variables
-		this.autoheight = false;
-		
-		// Fade Variables
-		this.fade = false;
-		
-		if (options) options.forEach(function(option) {
-			switch(option) {
-				case "cms":
-					self.cms = true;
-					break;
-				case "peek":
-					self.peek = true;
-					break;
-				case "finite":
-					self.infinite = false;
-					break;
-				case "autoscroll":
-					self.autoscroll = true;
-					break;
-				case "nofullscreen":
-					self.fullscreen = false;
-					break;
-				case "noswipe":
-					self.swipe = false;
-					break;
-				case "zoom":
-					self.zoom = true;
-					break;
-				case "pinch":
-					self.pinch = true;
-					break
-				case "thumbs":
-					self.thumbs = true;
-					break;
-				case "multi":
-					self.multi = true;
-					break;
-				case "autoheight":
-					self.autoheight = true;
-					break;
-				case "fade":
-					self.fade = true;
-					break;
-			}
-		});
+    var options = soysauce.getOptions(selector);
+    var self = this;
+    var wrapper;
+    var dotsHtml = "";
+    var numDots;
+    var thumbnails;
 
-		if (this.cms) {
-			var img_src = "";
-			this.widget.find("style").each(function(e) {
-				var styleTag = $(this);
-				var img = "";
-				img_src = styleTag.html().match(/\/\/[\w_\.\/-]+-2x[\w\.\/]+/i)[0];
-				img = "<img src='" + img_src + "'>"
-				styleTag.before(img);
+    // Base Variables
+    this.widget = $(selector);
+    this.index = 0;
+    this.maxIndex;
+    this.container;
+    this.items;
+    this.dots;
+    this.numChildren = 0;
+    this.itemWidth = 0;
+    this.offset = 0;
+    this.ready = false;
+    this.interrupted = false;
+    this.links = false;
+    this.lockScroll = undefined;
+    this.nextBtn;
+    this.prevBtn;
+    this.freeze = false;
+    this.jumping = false;
 
-				styleTag.closest("li").attr("data-ss-component", "item")
+    // Infinite Variables
+    this.infinite = true;
+    this.autoscroll = false;
+    this.autoscrollID;
+    this.autoscrollInterval;
+    this.autoscrollRestartID;
+    this.infiniteID;
+    this.forward;
+    this.lastSlideTime;
+    this.cloneDepth = 0;
+    this.looping = false;
+    this.rewindCoord = 0;
 
-				styleTag.find("+ *").remove();
-				styleTag.remove();
-			});
-		}
-		
-		if (this.swipe) this.widget.find("a").click(function(e) {
-			soysauce.stifle(e);
-		});
-		
-		this.widget.wrapInner("<div data-ss-component='container' />");
-		this.widget.wrapInner("<div data-ss-component='container_wrapper' />");
-		this.container = this.widget.find("[data-ss-component='container']");
-		
-		wrapper = this.widget.find("[data-ss-component='container_wrapper']");
-		
-		if (this.zoom) {
-			wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
-			this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
-			this.zoomMin = parseFloat(this.widget.attr("data-ss-zoom-min")) || 1.2;
-			this.zoomMax = parseFloat(this.widget.attr("data-ss-zoom-max")) || 4;
-			
-			if (this.zoomMin < 1.2) {
-				this.zoomMin = 1.2;
-			}
-			
-			if (this.zoomMin > this.zoomMax) {
-				console.warn("Soysauce: zoomMin is greater than zoomMax, errors may occur.");
-			}
-		}
-		
-		if (this.infinite) {
-			wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='enabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
-		}
-		else {
-			wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='disabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
-		}
-		wrapper.after("<div data-ss-component='dots'></div>")
-		this.dots = this.widget.find("[data-ss-component='dots']");
+    // Fullscreen & Peek Variables
+    this.fullscreen = true;
+    this.peek = false;
+    this.peekWidth = 0;
+    this.peekAlign;
 
-		this.nextBtn = wrapper.find("~ [data-ss-button-type='next']");
-		this.prevBtn = wrapper.find("~ [data-ss-button-type='prev']");
+    // Swipe Variables
+    this.swipe = true;
 
-		wrapper.find("~ [data-ss-button-type='prev']").click(function(e) {
-			soysauce.stifle(e);
-			if (self.ready && !self.interrupted && !self.freeze) {
-				self.slideBackward();
-			}
-		});
+    // Misc Variables
+    this.coords1x = 0;
+    this.coords1y = 0;
 
-		wrapper.find("~ [data-ss-button-type='next']").click(function(e) {
-			soysauce.stifle(e);
-			if (self.ready && !self.interrupted && !self.freeze) {
-				self.slideForward();
-			}
-		});
+    // CMS Variables
+    this.cms = false;
+
+    // Zoom Variables
+    this.zoom = false;
+    this.zoomMultiplier;
+    this.zoomMin;
+    this.zoomMax;
+    this.isZooming = false;
+    this.isZoomed = false;
+    this.panMax = {x:0, y:0};
+    this.panMaxOriginal = {x:0, y:0};
+    this.panCoords = {x:0, y:0};
+    this.panCoordsStart = {x:0, y:0};
+    this.panning = false;
+    this.zoomIcon;
+    this.pinch;
+
+    // Thumbnail Variables
+    this.thumbs = false;
+
+    // Multi Item Variables
+    this.multi = false;
+    this.multiVars = {
+      numItems: 2,
+      stepSize: 1,
+      minWidth: 0
+    };
+
+    // Autoheight Variables
+    this.autoheight = false;
+
+    // Fade Variables
+    this.fade = false;
 		
-		this.maxIndex = this.widget.find("[data-ss-component='item']").length;
-		
-		if (this.multi) {
-			this.multiVars.numItems = parseInt(this.widget.attr("data-ss-multi-set")) || 2;
-			this.multiVars.minWidth = parseInt(this.widget.attr("data-ss-multi-min-width")) || 0;
-			this.multiVars.stepSize = parseInt(this.widget.attr("data-ss-step-size")) || this.multiVars.numItems;
+    if (options) options.forEach(function(option) {
+      switch(option) {
+        case "cms":
+          self.cms = true;
+          break;
+        case "peek":
+          self.peek = true;
+          break;
+        case "finite":
+          self.infinite = false;
+          break;
+        case "autoscroll":
+          self.autoscroll = true;
+          break;
+        case "nofullscreen":
+          self.fullscreen = false;
+          break;
+        case "noswipe":
+          self.swipe = false;
+          break;
+        case "zoom":
+          self.zoom = true;
+          break;
+        case "pinch":
+          self.pinch = true;
+          break
+        case "thumbs":
+          self.thumbs = true;
+          break;
+        case "multi":
+          self.multi = true;
+          break;
+        case "autoheight":
+          self.autoheight = true;
+          break;
+        case "fade":
+          self.fade = true;
+          break;
+      }
+    });
+
+    if (this.cms) {
+      var img_src = "";
+      this.widget.find("style").each(function(e) {
+        var styleTag = $(this);
+        var img = "";
+        img_src = styleTag.html().match(/\/\/[\w_\.\/-]+-2x[\w\.\/]+/i)[0];
+        img = "<img src='" + img_src + "'>"
+        styleTag.before(img);
+
+        styleTag.closest("li").attr("data-ss-component", "item")
+
+        styleTag.find("+ *").remove();
+        styleTag.remove();
+      });
+    }
+
+    if (this.swipe) this.widget.find("a").click(function(e) {
+      soysauce.stifle(e);
+    });
+
+    this.widget.wrapInner("<div data-ss-component='container' />");
+    this.widget.wrapInner("<div data-ss-component='container_wrapper' />");
+    this.container = this.widget.find("[data-ss-component='container']");
+
+    wrapper = this.widget.find("[data-ss-component='container_wrapper']");
+
+    if (this.zoom) {
+      wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
+      this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
+      this.zoomMin = parseFloat(this.widget.attr("data-ss-zoom-min")) || 1.2;
+      this.zoomMax = parseFloat(this.widget.attr("data-ss-zoom-max")) || 4;
+
+      if (this.zoomMin < 1.2) {
+        this.zoomMin = 1.2;
+      }
+
+      if (this.zoomMin > this.zoomMax) {
+        console.warn("Soysauce: zoomMin is greater than zoomMax, errors may occur.");
+      }
+    }
+
+    if (this.infinite) {
+      wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='enabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
+    }
+    else {
+      wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='disabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
+    }
+    wrapper.after("<div data-ss-component='dots'></div>")
+    this.dots = this.widget.find("[data-ss-component='dots']");
+
+    this.nextBtn = wrapper.find("~ [data-ss-button-type='next']");
+    this.prevBtn = wrapper.find("~ [data-ss-button-type='prev']");
+
+    wrapper.find("~ [data-ss-button-type='prev']").click(function(e) {
+      soysauce.stifle(e);
+      if (self.ready && !self.interrupted && !self.freeze) {
+        self.slideBackward();
+      }
+    });
+
+    wrapper.find("~ [data-ss-button-type='next']").click(function(e) {
+      soysauce.stifle(e);
+      if (self.ready && !self.interrupted && !self.freeze) {
+        self.slideForward();
+      }
+    });
+
+    this.maxIndex = this.widget.find("[data-ss-component='item']").length;
+
+    if (this.multi) {
+      this.multiVars.numItems = parseInt(this.widget.attr("data-ss-multi-set")) || 2;
+      this.multiVars.minWidth = parseInt(this.widget.attr("data-ss-multi-min-width")) || 0;
+      this.multiVars.stepSize = parseInt(this.widget.attr("data-ss-step-size")) || this.multiVars.numItems;
       this.maxIndex = Math.ceil(this.maxIndex / this.multiVars.stepSize);
-		}
+    }
+
+    if (this.infinite) {
+      if (this.multi) {
+        // createClones(this, this.multiVars.numItems);
+        console.warn("Soysauce: 'multi' option with infinite scrolling not yet supported. Please add 'finite' option.")
+        createClones(this, 1);
+      }
+      else {
+        createClones(this, 1);
+      }
+      this.lastSlideTime = new Date().getTime();
+    }
+
+    this.items = this.widget.find("[data-ss-component='item']");
+
+    if (!this.items.length) {
+      console.warn("Soysauce: No [data-ss-component='item'] attributes found with widget id " + this.id);
+      return;
+    }
+
+    this.numChildren = this.items.length;
+
+    if (!this.infinite) {
+      wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", (this.numChildren > 1) ? "enabled" : "disabled");
+    }
+    else {
+      wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
+    }
+
+    this.links = (!this.items[0].tagName.match(/^a$/i) && !this.items.find("a[href]").length) ? false : true;
+
+    if (this.thumbs) {
+      var c = 0;
+
+      if (this.container.find("[data-ss-component='thumbnail']").length > 0) return;
+
+      this.items.each(function(i, item){ 
+        var src = (/img/i.test(item.tagName)) ? $(this).attr("src") : $(this).find("img").attr("src");
+
+        ++c;
+
+        // Skip first and last, as they are clones.
+        if (self.infinite && (c === 1 || c === self.numChildren)) {
+          return; 
+        }
+
+        self.container.append("<img data-ss-component='thumbnail' src='" + src + "'>");
+      });
+    }
+
+    numDots = (this.infinite) ? this.numChildren - 2 : this.numChildren;
+    thumbnails = this.container.find("[data-ss-component='thumbnail']");
+
+    if (thumbnails.length > 0) {
+      thumbnails.each(function(i, thumbnail) {
+        dotsHtml += "<div data-ss-component='dot'>" + thumbnail.outerHTML + "</div>";
+        $(this).remove();
+      });
+    }
+    else {
+      for (i = 0; i < numDots; i++) {
+        dotsHtml += "<div data-ss-component='dot'></div>";
+      }
+    }
+
+    this.dots.html(dotsHtml);
+    this.dots = this.dots.find("div");
+    this.dots.attr("data-ss-state", "inactive")
+    this.dots.first().attr("data-ss-state", "active");
+    this.dots.on("click", function(e) {
+      var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+      var index = 0;
+
+      if (currXPos === self.offset) {
+        self.ready = true;
+      }
+
+      if (!self.ready || self.interrupted || self.freeze) return;
+
+      soysauce.stifle(e);
+
+      index = self.dots.index(this);
+
+      if (self.infinite) {
+        index += 1;
+      }
+
+      self.jumpTo(index);
+    });
+
+    if (this.peek) {
+      this.peekAlign = this.widget.attr("data-ss-peek-align") || "center";
+      this.peekWidth = parseInt(this.widget.attr("data-ss-peek-width")) || PEEK_WIDTH;
+      if (this.peekWidth % 2) {
+        this.widget.attr("data-ss-peek-width", ++this.peekWidth);
+      }
+    }
+
+    this.items.attr("data-ss-state", "inactive");
+
+    if (this.infinite) {
+      $(this.items[1]).attr("data-ss-state", "active");
+      this.index++;
+    }
+    else {
+      $(this.items[0]).attr("data-ss-state", "active");
+    }
 		
-		if (this.infinite) {
-			if (this.multi) {
-				// createClones(this, this.multiVars.numItems);
-				console.warn("Soysauce: 'multi' option with infinite scrolling not yet supported. Please add 'finite' option.")
-				createClones(this, 1);
-			}
-			else {
-				createClones(this, 1);
-			}
-			this.lastSlideTime = new Date().getTime();
-		}
+    this.container.imagesLoaded(function(items) {
+      var firstItem = self.items.first();
+      var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
+
+      if (self.multi) {
+        var widgetWidth = self.widget.find('[data-ss-component="container_wrapper"]').innerWidth();
+        if (self.multiVars.minWidth > 0) {
+          self.multiVars.numItems = Math.floor(widgetWidth / self.multiVars.minWidth);
+        }
+        self.itemWidth = widgetWidth / self.multiVars.numItems;
+      }
+      else {
+        self.itemWidth = self.widget.outerWidth();
+      }
+
+      if (self.peek) {
+        self.itemWidth -= self.peekWidth*2;
+        switch (self.peekAlign) {
+          case "center":
+            self.offset += self.peekWidth;
+            break;
+          case "left": // TBI
+            break;
+          case "right": // TBI
+            break;
+        }
+      }
+
+      if (!self.fade) {
+        self.container.width((self.itemWidth + margin) * self.numChildren);
+        self.items.css("width", self.itemWidth + "px");
+      }
+
+      if (self.infinite) {
+        self.offset -= self.itemWidth;
+      }
+
+      self.container.attr("data-ss-state", "notransition");
+      setTranslate(self.container[0], self.offset);
+
+      if (self.zoom) {
+        self.initPanLimits();
+      }
+    });
+
+    if (this.swipe || this.zoom) this.widget.on("touchstart mousedown", function(e) {
+      var targetComponent = $(e.target).attr("data-ss-component");
+
+      if ((targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "thumbnail") && self.interrupted) {
+        var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+        if (currXPos === self.offset) {
+          self.interrupted = false;
+        }
+      }
+
+      if (self.jumping || self.freeze || targetComponent === "button" ||
+          targetComponent === "dot" || targetComponent === "dots" || 
+          targetComponent === "thumbnail") {
+        return;
+      }
+
+      self.handleSwipe(e);
+    });
+
+    this.container.on(TRANSITION_END, function() {
+      self.widget.trigger("slideEnd");
+      self.ready = true;
+      self.jumping = false;
+      self.interrupted = false;
+      self.container.attr("data-ss-state", "ready");
+
+      if (self.autoscroll && self.autoscrollRestartID === undefined) {
+        self.autoscrollRestartID = window.setTimeout(function() {
+          self.autoscrollOn();
+          }, 1000);
+        }
+    });
 		
-		this.items = this.widget.find("[data-ss-component='item']");
+    if (this.autoscroll) {
+      var interval = this.widget.attr("data-ss-autoscroll-interval");
+      this.autoscrollInterval = (!interval) ? AUTOSCROLL_INTERVAL : parseInt(interval);
+      this.autoscrollOn();
+    }
 
-		if (!this.items.length) {
-			console.warn("Soysauce: No [data-ss-component='item'] attributes found with widget id " + this.id);
-			return;
-		}
+    if (this.autoheight) {
+      var height = $(this.items[this.index]).outerHeight();
+      this.widget.css("min-height", height);
+    }
 		
-		this.numChildren = this.items.length;
-
-		if (!this.infinite) {
-			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", (this.numChildren > 1) ? "enabled" : "disabled");
-		}
-		else {
-			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
-		}
-		
-		this.links = (!this.items[0].tagName.match(/^a$/i) && !this.items.find("a[href]").length) ? false : true;
-
-		if (this.thumbs) {
-			var c = 0;
-
-			if (this.container.find("[data-ss-component='thumbnail']").length > 0) return;
-
-			this.items.each(function(i, item){ 
-				var src = (/img/i.test(item.tagName)) ? $(this).attr("src") : $(this).find("img").attr("src");
-				
-				++c;
-
-				// Skip first and last, as they are clones.
-				if (self.infinite && (c === 1 || c === self.numChildren)) {
-					return; 
-				}
-
-				self.container.append("<img data-ss-component='thumbnail' src='" + src + "'>");
-			});
-		}
-
-		numDots = (this.infinite) ? this.numChildren - 2 : this.numChildren;
-		thumbnails = this.container.find("[data-ss-component='thumbnail']");
-
-		if (thumbnails.length > 0) {
-			thumbnails.each(function(i, thumbnail) {
-				dotsHtml += "<div data-ss-component='dot'>" + thumbnail.outerHTML + "</div>";
-				$(this).remove();
-			});
-		}
-		else {
-			for (i = 0; i < numDots; i++) {
-				dotsHtml += "<div data-ss-component='dot'></div>";
-			}
-		}
-		
-		this.dots.html(dotsHtml);
-		this.dots = this.dots.find("div");
-		this.dots.attr("data-ss-state", "inactive")
-		this.dots.first().attr("data-ss-state", "active");
-		this.dots.on("click", function(e) {
-			var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
-			var index = 0;
-			
-			if (currXPos === self.offset) {
-				self.ready = true;
-			}
-
-			if (!self.ready || self.interrupted || self.freeze) return;
-
-			soysauce.stifle(e);
-
-			index = self.dots.index(this);
-
-			if (self.infinite) {
-				index += 1;
-			}
-			
-			self.jumpTo(index);
-		});
-
-		if (this.peek) {
-			this.peekAlign = this.widget.attr("data-ss-peek-align") || "center";
-			this.peekWidth = parseInt(this.widget.attr("data-ss-peek-width")) || PEEK_WIDTH;
-			if (this.peekWidth % 2) {
-				this.widget.attr("data-ss-peek-width", ++this.peekWidth);
-			}
-		}
-
-		this.items.attr("data-ss-state", "inactive");
-		
-		if (this.infinite) {
-			$(this.items[1]).attr("data-ss-state", "active");
-			this.index++;
-		}
-		else {
-			$(this.items[0]).attr("data-ss-state", "active");
-		}
-		
-		this.container.imagesLoaded(function(items) {
-			var firstItem = self.items.first();
-			var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
-			
-			if (self.multi) {
-				var widgetWidth = self.widget.find('[data-ss-component="container_wrapper"]').innerWidth();
-				if (self.multiVars.minWidth > 0) {
-					self.multiVars.numItems = Math.floor(widgetWidth / self.multiVars.minWidth);
-				}
-				self.itemWidth = widgetWidth / self.multiVars.numItems;
-			}
-			else {
-				self.itemWidth = self.widget.outerWidth();
-			}
-			
-			if (self.peek) {
-				self.itemWidth -= self.peekWidth*2;
-				switch (self.peekAlign) {
-					case "center":
-						self.offset += self.peekWidth;
-						break;
-					case "left": // TBI
-						break;
-					case "right": // TBI
-						break;
-				}
-			}
-			
-			if (!self.fade) {
-				self.container.width((self.itemWidth + margin) * self.numChildren);
-				self.items.css("width", self.itemWidth + "px");
-			}
-		
-			if (self.infinite) {
-				self.offset -= self.itemWidth;
-			}
-			
-			self.container.attr("data-ss-state", "notransition");
-			setTranslate(self.container[0], self.offset);
-
-			if (self.zoom) {
-				self.initPanLimits();
-			}
-		});
-
-		if (this.swipe || this.zoom) this.widget.on("touchstart mousedown", function(e) {
-			var targetComponent = $(e.target).attr("data-ss-component");
-
-			if ((targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "thumbnail") && self.interrupted) {
-				var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
-				if (currXPos === self.offset) {
-					self.interrupted = false;
-				}
-			}
-
-			if (self.jumping || self.freeze || targetComponent === "button" ||
-			 		targetComponent === "dot" || targetComponent === "dots" || 
-					targetComponent === "thumbnail") {
-				return;
-			}
-
-			self.handleSwipe(e);
-		});
-
-		this.container.on(TRANSITION_END, function() {
-			self.widget.trigger("slideEnd");
-			self.ready = true;
-			self.jumping = false;
-			self.interrupted = false;
-			self.container.attr("data-ss-state", "ready");
-
-			if (self.autoscroll && self.autoscrollRestartID === undefined) {
-				self.autoscrollRestartID = window.setTimeout(function() {
-					self.autoscrollOn();
-				}, 1000);
-			}
-		});
-		
-		if (this.autoscroll) {
-			var interval = this.widget.attr("data-ss-autoscroll-interval");
-			this.autoscrollInterval = (!interval) ? AUTOSCROLL_INTERVAL : parseInt(interval);
-			this.autoscrollOn();
-		}
-		
-		if (this.autoheight) {
-			var height = $(this.items[this.index]).outerHeight();
-			this.widget.css("min-height", height);
-		}
-		
-		this.widget.one("SSWidgetReady", function() {
-			self.widget.attr("data-ss-state", "ready");
-			self.ready = true;
-			$(window).load(function() {
-			  self.handleResize();
-			});
-			window.setTimeout(function() {
-				self.container.attr("data-ss-state", "ready");
-			}, 0);
-			if (self.autoheight) {
-				var height = $(self.items[self.index]).outerHeight();
-				self.widget.css("height", height);
-				window.setTimeout(function() {
-					self.widget.css("min-height", "0px");
-				}, 300);
-			}
-		});
+    this.widget.one("SSWidgetReady", function() {
+      self.widget.attr("data-ss-state", "ready");
+      self.ready = true;
+      $(window).load(function() {
+        self.handleResize();
+      });
+      window.setTimeout(function() {
+        self.container.attr("data-ss-state", "ready");
+        }, 0);
+        if (self.autoheight) {
+          var height = $(self.items[self.index]).outerHeight();
+          self.widget.css("height", height);
+          window.setTimeout(function() {
+            self.widget.css("min-height", "0px");
+          }, 300);
+        }
+      });
 	} // End Constructor
 	
 	Carousel.prototype.gotoPos = function(x, fast, jumping, resettingPosition) {
