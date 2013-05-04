@@ -1127,7 +1127,7 @@ soysauce.carousels = (function() {
 		this.jumping = true;
 		this.ready = false;
 		
-		var newOffset = index * -this.itemWidth;
+		var newOffset = index * -this.itemWidth + this.peekWidth;
 		
 		if (this.infinite) {
 			$(this.items[this.index]).attr("data-ss-state", "inactive");
