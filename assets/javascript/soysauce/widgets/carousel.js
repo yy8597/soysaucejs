@@ -580,7 +580,7 @@ soysauce.carousels = (function() {
 	      self = this;
 	      
 		this.zoomMultiplier = parseInt(zoomMultiplier) || ZOOM_MULTIPLIER;
-		this.panMaxOriginal.x = this.panMax.x = (this.itemWidth - (this.peekWidth - padding)*2) / this.zoomMultiplier;				
+		this.panMaxOriginal.x = this.panMax.x = ((this.itemWidth - (this.peekWidth)*2) / this.zoomMultiplier) - padding;				
 		this.panMaxOriginal.y = this.panMax.y = this.items.first().height() / this.zoomMultiplier;
 
 		if (this.panMax.y === 0) {
