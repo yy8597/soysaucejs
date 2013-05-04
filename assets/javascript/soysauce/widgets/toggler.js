@@ -369,18 +369,21 @@ soysauce.togglers = (function() {
 	  var self = this;
 	  
     if (this.defer) {
-      var subs = this.allContent.find('[data-ss-widget]');
+      var subWidgets = this.allContent.find("[data-ss-widget]");
       
-      this.allContent.css('clear', 'both').css('position','relative');
+      this.allContent.css({
+        "clear": "both",
+        "position": "relative"
+      });
 
-      if (!subs.length) {
+      if (!subWidgets.length) {
         this.doResize();
       }
       else {
-        subs.each(function(i, e) {
+        subWidgets.each(function(i, e) {
           var widget = soysauce.fetch(e).widget;
 
-          if ((i + 1) !== subs.length) return;
+          if ((i + 1) !== subWidgets.length) return;
             
           widget.one("SSWidgetResized", function () {
             self.allContent.css({
@@ -400,7 +403,6 @@ soysauce.togglers = (function() {
 	
 	Toggler.prototype.adjustHeight = function() {
 		if (!this.slide) {
-			//readjust height on resize
 			if (this.tab && this.nocollapse) {
 				this.widget.css("min-height", this.button.outerHeight() + this.content.outerHeight());
 			}
