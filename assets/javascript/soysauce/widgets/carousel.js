@@ -202,14 +202,14 @@ soysauce.carousels = (function() {
 				self.slideForward();
 			}
 		});
-
+		
 		this.maxIndex = this.widget.find("[data-ss-component='item']").length;
 		
 		if (this.multi) {
-			var numItems = parseInt(this.widget.attr("data-ss-multi-set"));
-			var minWidth = parseInt(this.widget.attr("data-ss-multi-min-width"));
-			this.multiVars.numItems = numItems || 2;
-			this.multiVars.minWidth = minWidth || 0;
+			this.multiVars.numItems = parseInt(this.widget.attr("data-ss-multi-set")) || 2;
+			this.multiVars.minWidth = parseInt(this.widget.attr("data-ss-multi-min-width")) || 0;
+			this.multiVars.stepSize = parseInt(this.widget.attr("data-ss-step-size")) || this.multiVars.numItems;
+      this.maxIndex = Math.ceil(this.maxIndex / this.multiVars.stepSize);
 		}
 		
 		if (this.infinite) {
@@ -223,15 +223,15 @@ soysauce.carousels = (function() {
 			}
 			this.lastSlideTime = new Date().getTime();
 		}
-
-		this.items = items = this.widget.find("[data-ss-component='item']");
 		
-		if (!items.length) {
+		this.items = this.widget.find("[data-ss-component='item']");
+
+		if (!this.items.length) {
 			console.warn("Soysauce: No [data-ss-component='item'] attributes found with widget id " + this.id);
 			return;
 		}
 		
-		this.numChildren = items.length;
+		this.numChildren = this.items.length;
 
 		if (!this.infinite) {
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", (this.numChildren > 1) ? "enabled" : "disabled");
@@ -240,7 +240,7 @@ soysauce.carousels = (function() {
 			wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
 		}
 		
-		this.links = (!items[0].tagName.match(/^a$/i) && !items.find("a[href]").length) ? false : true;
+		this.links = (!this.items[0].tagName.match(/^a$/i) && !this.items.find("a[href]").length) ? false : true;
 
 		if (this.thumbs) {
 			var c = 0;
@@ -309,14 +309,14 @@ soysauce.carousels = (function() {
 			}
 		}
 
-		items.attr("data-ss-state", "inactive");
+		this.items.attr("data-ss-state", "inactive");
 		
 		if (this.infinite) {
-			$(items[1]).attr("data-ss-state", "active");
+			$(this.items[1]).attr("data-ss-state", "active");
 			this.index++;
 		}
 		else {
-			$(items[0]).attr("data-ss-state", "active");
+			$(this.items[0]).attr("data-ss-state", "active");
 		}
 		
 		this.container.imagesLoaded(function(items) {
