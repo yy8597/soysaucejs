@@ -21,8 +21,10 @@ soysauce.carousels = (function() {
     this.maxIndex;
     this.container;
     this.items;
+    this.itemPadding;
     this.dots;
     this.numChildren = 0;
+    this.widgetWidth = 0;
     this.itemWidth = 0;
     this.offset = 0;
     this.ready = false;
@@ -155,7 +157,8 @@ soysauce.carousels = (function() {
     if (this.swipe) this.widget.find("a").click(function(e) {
       soysauce.stifle(e);
     });
-
+    
+    this.widgetWidth = this.widget.outerWidth();
     this.widget.wrapInner("<div data-ss-component='container' />");
     this.widget.wrapInner("<div data-ss-component='container_wrapper' />");
     this.container = this.widget.find("[data-ss-component='container']");
@@ -167,6 +170,7 @@ soysauce.carousels = (function() {
       this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
       this.zoomMin = parseFloat(this.widget.attr("data-ss-zoom-min")) || 1.2;
       this.zoomMax = parseFloat(this.widget.attr("data-ss-zoom-max")) || 4;
+      this.zoomMultiplier = this.widget.attr("data-ss-zoom-multiplier") || ZOOM_MULTIPLIER;
 
       if (this.zoomMin < 1.2) {
         this.zoomMin = 1.2;
@@ -225,6 +229,7 @@ soysauce.carousels = (function() {
     }
 
     this.items = this.widget.find("[data-ss-component='item']");
+    this.itemPadding = parseInt(this.items.first().css("padding-left")) + parseInt(this.items.first().css("padding-right"));
 
     if (!this.items.length) {
       console.warn("Soysauce: No [data-ss-component='item'] attributes found with widget id " + this.id);
@@ -324,14 +329,13 @@ soysauce.carousels = (function() {
       var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
 
       if (self.multi) {
-        var widgetWidth = self.widget.find('[data-ss-component="container_wrapper"]').innerWidth();
         if (self.multiVars.minWidth > 0) {
-          self.multiVars.numItems = Math.floor(widgetWidth / self.multiVars.minWidth);
+          self.multiVars.numItems = Math.floor(self.widgetWidth / self.multiVars.minWidth);
         }
-        self.itemWidth = widgetWidth / self.multiVars.numItems;
+        self.itemWidth = self.widgetWidth / self.multiVars.numItems;
       }
       else {
-        self.itemWidth = self.widget.outerWidth();
+        self.itemWidth = self.widgetWidth;
       }
 
       if (self.peek) {
@@ -411,9 +415,6 @@ soysauce.carousels = (function() {
     this.widget.one("SSWidgetReady", function() {
       self.widget.attr("data-ss-state", "ready");
       self.ready = true;
-      $(window).load(function() {
-        self.handleResize();
-      });
       window.setTimeout(function() {
         self.container.attr("data-ss-state", "ready");
         }, 0);
@@ -566,12 +567,9 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.initPanLimits = function() {
-	  var zoomMultiplier = this.widget.attr("data-ss-zoom-multiplier"),
-	      padding = parseInt(this.items.first().css("padding-left")) + parseInt(this.items.first().css("padding-right")),
-	      self = this;
+	  var self = this;
 	      
-		this.zoomMultiplier = parseInt(zoomMultiplier) || ZOOM_MULTIPLIER;
-		this.panMaxOriginal.x = this.panMax.x = ((this.itemWidth - this.peekWidth*2) / this.zoomMultiplier) - padding;				
+		this.panMaxOriginal.x = this.panMax.x = ((this.itemWidth - this.peekWidth*2) / this.zoomMultiplier) - this.itemPadding;				
 		this.panMaxOriginal.y = this.panMax.y = this.items.first().height() / this.zoomMultiplier;
 
 		if (this.panMax.y === 0) {
@@ -583,15 +581,16 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.handleResize = function() {
-	  var widgetWidth = this.widget.find('[data-ss-component="container_wrapper"]').innerWidth(),
-	      parentWidgetContainer;
+	  var parentWidgetContainer;
+	  
+	  this.widgetWidth = this.widget.outerWidth();
 	  
 	  // Assumption: parent is a toggler
-	  if (!widgetWidth) parentWidgetContainer = this.widget.parents().closest("[data-ss-widget='toggler'] [data-ss-component='content']");
+	  if (!this.widgetWidth) parentWidgetContainer = this.widget.parents().closest("[data-ss-widget='toggler'] [data-ss-component='content']");
 	  
     if (parentWidgetContainer) {
       parentWidgetContainer.css("display", "block");
-      widgetWidth = widgetWidth || parentWidgetContainer.outerWidth();
+      this.widgetWidth = this.widgetWidth || parentWidgetContainer.outerWidth();
     }
 	  
     if (this.fade) {
@@ -600,9 +599,9 @@ soysauce.carousels = (function() {
 
     if (this.multi) {
       if (this.multiVars.minWidth) {
-        this.multiVars.numItems = Math.floor(widgetWidth / this.multiVars.minWidth)
+        this.multiVars.numItems = Math.floor(this.widgetWidth / this.multiVars.minWidth)
       }
-      this.itemWidth = widgetWidth / this.multiVars.numItems;
+      this.itemWidth = this.widgetWidth / this.multiVars.numItems;
     }
 
     if (this.fullscreen) {
@@ -610,10 +609,14 @@ soysauce.carousels = (function() {
       var prevState = this.container.attr("data-ss-state");
 
       if (this.multi) {
-        diff = widgetWidth - (this.itemWidth * this.multiVars.numItems);
+        diff = this.widgetWidth - (this.itemWidth * this.multiVars.numItems);
       }
       else {
-        diff = widgetWidth - this.itemWidth;
+        diff = this.widgetWidth - this.itemWidth;
+      }
+      
+      if (diff < 0 || !diff) {
+        diff = 0;
       }
 
       if (this.peek) {
@@ -622,7 +625,7 @@ soysauce.carousels = (function() {
       }
 
       this.itemWidth += diff;
-
+      
       this.offset = -this.index * this.itemWidth + this.peekWidth;
       this.container.attr("data-ss-state", "notransition");
 
