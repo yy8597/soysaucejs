@@ -10,7 +10,7 @@ soysauce.freeze = function(selector, freezeChildren) {
 	if (typeof(selector) === "object") {
 		selector = parseInt($(selector).attr("data-ss-id"));
 	}
-	freezeChildren = (freezeChildren === undefined) ? true : false;
+	freezeChildren = (!freezeChildren) ? true : false;
 	soysauce.fetch(selector).handleFreeze();
 	if (freezeChildren) {
 		soysauce.freezeChildren(selector);

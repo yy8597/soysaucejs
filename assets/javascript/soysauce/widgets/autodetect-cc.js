@@ -101,7 +101,7 @@ soysauce.autodetectCC = (function() {
 				}
 			}
 			else {
-				var resultChanged = (self.result !== undefined) ? true : false;
+				var resultChanged = (!self.result) ? false : true;
 				self.result = undefined;
 				if (self.prediction === "visa" && card_num.length === 16 ||
 						self.prediction === "mastercard" && card_num.length === 16 ||

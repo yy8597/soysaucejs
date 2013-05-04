@@ -83,7 +83,7 @@ soysauce.togglers = (function() {
 		// Responsive
 		this.responsive = false;
 		this.responsiveVars = {
-			threshold: (!this.widget.attr("data-ss-responsive-threshold")) ? 768 : parseInt(this.widget.attr("data-ss-responsive-threshold")),
+			threshold: parseInt(this.widget.attr("data-ss-responsive-threshold")) || 768,
 			accordions: true
 		};
 		
