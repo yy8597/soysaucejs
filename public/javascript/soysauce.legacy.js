@@ -2015,7 +2015,6 @@ soysauce.carousels = (function() {
 		this.numChildren = 0;
 		this.itemWidth = 0;
 		this.offset = 0;
-		this.spacingOffset = 0;
 		this.ready = false;
 		this.interrupted = false;
 		this.links = false;
@@ -2156,8 +2155,8 @@ soysauce.carousels = (function() {
 		if (this.zoom) {
 			wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
 			this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
-			this.zoomMin = (!this.widget.attr("data-ss-zoom-min")) ? 1.2 : parseFloat(this.widget.attr("data-ss-zoom-min"));
-			this.zoomMax = (!this.widget.attr("data-ss-zoom-max")) ? 4 : parseFloat(this.widget.attr("data-ss-zoom-max"));
+			this.zoomMin = parseFloat(this.widget.attr("data-ss-zoom-min")) || 1.2;
+			this.zoomMax = parseFloat(this.widget.attr("data-ss-zoom-max")) || 4;
 			
 			if (this.zoomMin < 1.2) {
 				this.zoomMin = 1.2;
@@ -2198,9 +2197,9 @@ soysauce.carousels = (function() {
 		
 		if (this.multi) {
 			var numItems = parseInt(this.widget.attr("data-ss-multi-set"));
-			this.multiVars.numItems = (!numItems) ? 2 : numItems;
 			var minWidth = parseInt(this.widget.attr("data-ss-multi-min-width"));
-			this.multiVars.minWidth = (!minWidth) ? 0 : minWidth;
+			this.multiVars.numItems = numItems || 2;
+			this.multiVars.minWidth = minWidth || 0;
 		}
 		
 		if (this.infinite) {
@@ -2293,8 +2292,8 @@ soysauce.carousels = (function() {
 		});
 
 		if (this.peek) {
-			this.peekAlign = (!this.widget.attr("data-ss-peek-align")) ? "center" : this.widget.attr("data-ss-peek-align");
-			this.peekWidth = (!this.widget.attr("data-ss-peek-width")) ? PEEK_WIDTH : parseInt(this.widget.attr("data-ss-peek-width"));
+			this.peekAlign = this.widget.attr("data-ss-peek-align") || "center";
+			this.peekWidth = parseInt(this.widget.attr("data-ss-peek-width")) || PEEK_WIDTH;
 			if (this.peekWidth % 2) {
 				this.widget.attr("data-ss-peek-width", ++this.peekWidth);
 			}
@@ -2309,23 +2308,20 @@ soysauce.carousels = (function() {
 		else {
 			$(items[0]).attr("data-ss-state", "active");
 		}
-
+		
 		this.container.imagesLoaded(function(items) {
 			var firstItem = self.items.first();
-			var padding = parseInt(firstItem.css("padding-left")) + parseInt(firstItem.css("padding-right"));
 			var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
 			
-			self.spacingOffset = 0; // remove this for now
-			
 			if (self.multi) {
-				var widgetWidth = $(self.widget).find('[data-ss-component="container_wrapper"]').innerWidth();
-				if (self.multiVars.minWidth>0) {
+				var widgetWidth = self.widget.find('[data-ss-component="container_wrapper"]').innerWidth();
+				if (self.multiVars.minWidth > 0) {
 					self.multiVars.numItems = Math.floor(widgetWidth / self.multiVars.minWidth);
 				}
 				self.itemWidth = widgetWidth / self.multiVars.numItems;
 			}
 			else {
-				self.itemWidth = self.widget.width();
+				self.itemWidth = self.widget.outerWidth();
 			}
 			
 			if (self.peek) {
@@ -2354,18 +2350,7 @@ soysauce.carousels = (function() {
 			setTranslate(self.container[0], self.offset);
 
 			if (self.zoom) {
-				var zoomMultiplier = self.widget.attr("data-ss-zoom-multiplier");
-				self.zoomMultiplier = (!zoomMultiplier) ? ZOOM_MULTIPLIER : parseInt(zoomMultiplier);
-				self.panMax.x = (self.itemWidth - self.peekWidth*2) / self.zoomMultiplier;				
-				self.panMax.y = self.items.first().height() / self.zoomMultiplier;
-				self.panMaxOriginal.x = self.panMax.x;
-				self.panMaxOriginal.y = self.panMax.y;
-				if (self.panMax.y === 0) {
-					self.container.imagesLoaded(function() {
-						self.panMax.y = self.items.last().height / self.zoomMultiplier;
-						self.panMaxOriginal.y = self.panMax.y;
-					});
-				}
+				self.initPanLimits();
 			}
 		});
 
@@ -2416,6 +2401,9 @@ soysauce.carousels = (function() {
 		this.widget.one("SSWidgetReady", function() {
 			self.widget.attr("data-ss-state", "ready");
 			self.ready = true;
+			$(window).load(function() {
+			  self.handleResize();
+			});
 			window.setTimeout(function() {
 				self.container.attr("data-ss-state", "ready");
 			}, 0);
@@ -2465,7 +2453,7 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.index*self.itemWidth + self.peekWidth + self.spacingOffset;
+						self.offset = -self.index*self.itemWidth + self.peekWidth;
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -2479,7 +2467,7 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.itemWidth + self.peekWidth + self.spacingOffset;
+						self.offset = -self.itemWidth + self.peekWidth;
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -2574,6 +2562,23 @@ soysauce.carousels = (function() {
 		return true;
 	};
 	
+	Carousel.prototype.initPanLimits = function() {
+	  var zoomMultiplier = this.widget.attr("data-ss-zoom-multiplier"),
+	      padding = parseInt(this.items.first().css("padding-left")) + parseInt(this.items.first().css("padding-right")),
+	      self = this;
+	      
+		this.zoomMultiplier = parseInt(zoomMultiplier) || ZOOM_MULTIPLIER;
+		this.panMaxOriginal.x = this.panMax.x = ((this.itemWidth - this.peekWidth*2) / this.zoomMultiplier) - padding;				
+		this.panMaxOriginal.y = this.panMax.y = this.items.first().height() / this.zoomMultiplier;
+
+		if (this.panMax.y === 0) {
+			this.container.imagesLoaded(function() {
+				self.panMax.y = self.items.last().height / self.zoomMultiplier;
+				self.panMaxOriginal.y = self.panMax.y;
+			});
+		}
+	};
+	
 	Carousel.prototype.handleResize = function() {
 	  var widgetWidth = this.widget.find('[data-ss-component="container_wrapper"]').innerWidth(),
 	      parentWidgetContainer;
@@ -2610,6 +2615,7 @@ soysauce.carousels = (function() {
 
       if (this.peek) {
         this.itemWidth -= this.peekWidth*2;
+        this.checkPanLimits();
       }
 
       this.itemWidth += diff;
@@ -2627,7 +2633,7 @@ soysauce.carousels = (function() {
     if (this.zoom) {
       this.panMax.x = this.itemWidth / this.zoomMultiplier;	
       this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
-      this.checkPanLimits();
+      this.initPanLimits();
     }
 	};
 	
@@ -2700,10 +2706,10 @@ soysauce.carousels = (function() {
 			self.infiniteID = undefined;
 			
 			if (self.index === self.numChildren - 2) {
-				self.offset = -self.index*self.itemWidth + (self.peekWidth) + self.spacingOffset;
+				self.offset = -self.index*self.itemWidth + (self.peekWidth);
 			}
 			else if (self.index === 1) {
-				self.offset = -self.itemWidth + (self.peekWidth) + self.spacingOffset;
+				self.offset = -self.itemWidth + (self.peekWidth);
 			}
 			
 			window.setTimeout(function() {
@@ -2918,7 +2924,7 @@ soysauce.carousels = (function() {
 				if (xDist > 0) {
 					if (!self.infinite && self.index === self.numChildren - 1 ||
 						(self.multi && !self.infinite && self.index === self.numChildren - self.multiVars.numItems)) {
-						self.gotoPos(self.index * -self.itemWidth + self.peekWidth + self.spacingOffset);
+						self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
 					}
 					else {
 						if (soysauce.vars.degrade) {
@@ -2929,7 +2935,7 @@ soysauce.carousels = (function() {
 				}
 				else {
 					if (!self.infinite && self.index === 0) {
-						self.gotoPos(self.peekWidth + self.spacingOffset);
+						self.gotoPos(self.peekWidth);
 					}
 					else {
 						if (soysauce.vars.degrade) {
