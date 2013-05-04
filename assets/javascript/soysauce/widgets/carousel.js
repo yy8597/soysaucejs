@@ -490,7 +490,8 @@ soysauce.carousels = (function() {
 	
 	Carousel.prototype.slideForward = function(fast) {
 		var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]),
-		    lastInfiniteIndex = this.numChildren - 1;
+		    lastInfiniteIndex = this.numChildren - 1,
+		    stepSize = (this.multi) ? this.multiVars.stepSize * this.itemWidth : this.itemWidth;
 		
 		if (!this.ready || this.isZooming ||
 			(!this.infinite && this.index === lastInfiniteIndex)) return false;
@@ -521,14 +522,15 @@ soysauce.carousels = (function() {
 		
 		this.ready = false;
 		this.forward = true;
-		this.gotoPos(this.offset - this.itemWidth, fast);
+		this.gotoPos(this.offset - stepSize, fast);
 		
 		return true;
 	};
 	
 	Carousel.prototype.slideBackward = function(fast) {
 	  var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]),
-	      lastInfiniteIndex = this.numChildren - 1;
+	      lastInfiniteIndex = this.numChildren - 1,
+	      stepSize = (this.multi) ? this.multiVars.stepSize * this.itemWidth : this.itemWidth;
 	  
 		if (!this.ready || (!this.infinite && this.index === 0) || this.isZooming) return false;
 		
@@ -558,7 +560,7 @@ soysauce.carousels = (function() {
 			
 		this.ready = false;
 		this.forward = false;
-		this.gotoPos(this.offset + this.itemWidth, fast);
+		this.gotoPos(this.offset + stepSize, fast);
 		
 		return true;
 	};
