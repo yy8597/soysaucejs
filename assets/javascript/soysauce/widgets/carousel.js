@@ -647,10 +647,6 @@ soysauce.carousels = (function() {
       else {
         diff = this.widgetWidth - this.itemWidth;
       }
-      
-      if (diff < 0 || !diff) {
-        diff = 0;
-      }
 
       if (this.peek) {
         this.itemWidth -= this.peekWidth*2;
