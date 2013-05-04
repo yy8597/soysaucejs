@@ -313,7 +313,7 @@ soysauce.carousels = (function() {
         this.widget.attr("data-ss-peek-width", ++this.peekWidth);
       }
     }
-
+    
     this.items.attr("data-ss-state", "inactive");
 
     if (this.infinite) {
@@ -321,7 +321,13 @@ soysauce.carousels = (function() {
       this.index++;
     }
     else {
-      $(this.items[0]).attr("data-ss-state", "active");
+      if (this.multi) {
+  		  var $items = $(this.items.slice(0, this.multiVars.numItems));
+  		  $items.attr("data-ss-state", "active");
+  		}
+  		else {
+  		  $(this.items[0]).attr("data-ss-state", "active");
+  		}
     }
 		
     this.container.imagesLoaded(function(items) {
@@ -499,14 +505,27 @@ soysauce.carousels = (function() {
 		
 		$dots.attr("data-ss-state", "inactive");
 			
-		$(this.items[this.index++]).attr("data-ss-state", "inactive");
+		if (this.multi) {
+		  var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
+		  $items.attr("data-ss-state", "inactive");
+		  this.index++;
+		}
+		else {
+		  $(this.items[this.index++]).attr("data-ss-state", "inactive");
+		}
 		
 		if (this.infinite && this.index === lastInfiniteIndex) {
 			$(this.items[1]).attr("data-ss-state", "active");
 			this.index = 1;
 		}
 		else {
-		  $(this.items[this.index]).attr("data-ss-state", "active");
+		  if (this.multi) {
+		    var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
+		    $items.attr("data-ss-state", "active");
+		  }
+		  else {
+		    $(this.items[this.index]).attr("data-ss-state", "active");
+		  }
 		}
 		
 		$dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]);
@@ -536,15 +555,28 @@ soysauce.carousels = (function() {
 		if (!this.ready || (!this.infinite && this.index === 0) || this.isZooming) return false;
 		
 		$dots.attr("data-ss-state", "inactive");
-			
-		$(this.items[this.index--]).attr("data-ss-state", "inactive");
+		
+		if (this.multi) {
+		  var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
+		  $items.attr("data-ss-state", "inactive");
+		  this.index--;
+		}
+		else {
+		  $(this.items[this.index--]).attr("data-ss-state", "inactive");
+		}
 		
 		if (this.infinite && this.index === 0) {
 			$(this.items[lastInfiniteIndex - 1]).attr("data-ss-state", "active");
 			this.index = lastInfiniteIndex - 1;
 		}
 		else {
-		  $(this.items[this.index]).attr("data-ss-state", "active");
+		  if (this.multi) {
+		    var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
+		    $items.attr("data-ss-state", "active");
+		  }
+		  else {
+		    $(this.items[this.index]).attr("data-ss-state", "active");
+		  }
 		}
 		
 		$dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]);
