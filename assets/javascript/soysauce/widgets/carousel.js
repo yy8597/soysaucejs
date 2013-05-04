@@ -925,9 +925,14 @@ soysauce.carousels = (function() {
 				}
 				
 				if (xDist > 0) {
-					if (!self.infinite && self.index === self.numChildren - 1 ||
-						(self.multi && !self.infinite && self.index === self.numChildren - self.multiVars.numItems)) {
-						self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
+					if (!self.infinite && ((self.index === self.numChildren - 1) 
+					    || (self.multi && self.index === self.maxIndex - Math.floor(self.multiVars.numItems / self.multiVars.stepSize)))) {
+					  if (self.multi)  {
+					    self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
+					  }
+					  else {
+    					self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
+					  }
 					}
 					else {
 						if (soysauce.vars.degrade) {
