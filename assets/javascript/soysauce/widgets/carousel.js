@@ -16,9 +16,7 @@ soysauce.carousels = (function() {
 		var thumbnails;
 		
 		// Base Variables
-		this.type = "Carousel";
 		this.widget = $(selector);
-		this.id = parseInt($(selector).attr("data-ss-id"));
 		this.index = 0;
 		this.maxIndex;
 		this.container;

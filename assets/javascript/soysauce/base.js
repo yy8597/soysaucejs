@@ -233,7 +233,7 @@ $(window).on("resize orientationchange", function(e) {
   		soysauce.widgets.forEach(function(widget) {
   			if (!widget.handleResize) return;
   			widget.handleResize();
-  			if (widget.type === "Carousel") {
+  			if (/carousel/i.test(widget.type)) {
   			  if (widget.itemWidth) {
   			    $(widget.widget).trigger("SSWidgetResized");
   			  }

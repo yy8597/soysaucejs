@@ -4,9 +4,7 @@ soysauce.autodetectCC = (function() {
 		var options = soysauce.getOptions(selector);
 		var self = this;
 		
-		this.type = "Autodetect-CC";
 		this.widget = $(this);
-		this.id = parseInt($(selector).attr("data-ss-id"));
 		this.input = $(selector);
 		this.prediction;
 		this.result;
