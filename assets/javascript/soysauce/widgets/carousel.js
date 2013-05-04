@@ -489,17 +489,17 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.slideForward = function(fast) {
-		var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]);
+		var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]),
+		    lastInfiniteIndex = this.numChildren - 1;
 		
-		if (!this.ready || 
-			(!this.infinite && this.index === this.numChildren - 1) ||
-			this.isZooming) return false;
+		if (!this.ready || this.isZooming ||
+			(!this.infinite && this.index === lastInfiniteIndex)) return false;
 		
 		$dots.attr("data-ss-state", "inactive");
 			
 		$(this.items[this.index++]).attr("data-ss-state", "inactive");
 		
-		if (this.infinite && this.index === this.numChildren - 1) {
+		if (this.infinite && this.index === lastInfiniteIndex) {
 			$(this.items[1]).attr("data-ss-state", "active");
 			this.index = 1;
 		}
@@ -511,7 +511,7 @@ soysauce.carousels = (function() {
 		$dots.attr("data-ss-state", "active");
 
 		if (!this.infinite) {
-			if (this.index === this.numChildren - 1) {
+			if (this.index === lastInfiniteIndex) {
 			  this.nextBtn.attr("data-ss-state", "disabled");
 			}
 			if (this.numChildren > 1) {
@@ -527,7 +527,8 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.slideBackward = function(fast) {
-	  var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]);
+	  var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]),
+	      lastInfiniteIndex = this.numChildren - 1;
 	  
 		if (!this.ready || (!this.infinite && this.index === 0) || this.isZooming) return false;
 		
@@ -536,8 +537,8 @@ soysauce.carousels = (function() {
 		$(this.items[this.index--]).attr("data-ss-state", "inactive");
 		
 		if (this.infinite && this.index === 0) {
-			$(this.items[this.numChildren - 2]).attr("data-ss-state", "active");
-			this.index = this.numChildren - 2;
+			$(this.items[lastInfiniteIndex - 1]).attr("data-ss-state", "active");
+			this.index = lastInfiniteIndex - 1;
 		}
 		else {
 		  $(this.items[this.index]).attr("data-ss-state", "active");
