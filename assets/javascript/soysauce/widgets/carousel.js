@@ -489,18 +489,13 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.slideForward = function(fast) {
-		var self = this;
+		var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]);
 		
 		if (!this.ready || 
 			(!this.infinite && this.index === this.numChildren - 1) ||
 			this.isZooming) return false;
 		
-		if (this.infinite) {
-		  $(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
-		}
-		else {
-		  $(this.dots[this.index]).attr("data-ss-state", "inactive");
-		}
+		$dots.attr("data-ss-state", "inactive");
 			
 		$(this.items[this.index++]).attr("data-ss-state", "inactive");
 		
@@ -512,11 +507,10 @@ soysauce.carousels = (function() {
 		  $(this.items[this.index]).attr("data-ss-state", "active");
 		}
 		
-		if (this.infinite) {
-		  $(this.dots[this.index - 1]).attr("data-ss-state", "active");
-		}
-		else {
-			$(this.dots[this.index]).attr("data-ss-state", "active");
+		$dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]);
+		$dots.attr("data-ss-state", "active");
+
+		if (!this.infinite) {
 			if (this.index === this.numChildren - 1) {
 			  this.nextBtn.attr("data-ss-state", "disabled");
 			}
@@ -524,7 +518,7 @@ soysauce.carousels = (function() {
 			  this.prevBtn.attr("data-ss-state", "enabled");
 			}
 		}
-			
+		
 		this.ready = false;
 		this.forward = true;
 		this.gotoPos(this.offset - this.itemWidth, fast);
@@ -533,14 +527,11 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.slideBackward = function(fast) {
+	  var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]);
+	  
 		if (!this.ready || (!this.infinite && this.index === 0) || this.isZooming) return false;
 		
-		if (this.infinite) {
-		  $(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
-		}
-		else {
-		  $(this.dots[this.index]).attr("data-ss-state", "inactive");
-		}
+		$dots.attr("data-ss-state", "inactive");
 			
 		$(this.items[this.index--]).attr("data-ss-state", "inactive");
 		
@@ -552,11 +543,10 @@ soysauce.carousels = (function() {
 		  $(this.items[this.index]).attr("data-ss-state", "active");
 		}
 		
-		if (this.infinite) {
-		  $(this.dots[this.index - 1]).attr("data-ss-state", "active");
-		}
-		else {
-			$(this.dots[this.index]).attr("data-ss-state", "active");
+		$dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]);
+		$dots.attr("data-ss-state", "active");
+		
+		if (!this.infinite) {
 			if (this.index === 0) {
 			  this.prevBtn.attr("data-ss-state", "disabled");
 			}
