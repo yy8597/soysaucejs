@@ -1,7 +1,7 @@
 soysauce.carousels = (function() {
   // Shared Default Globals
   var AUTOSCROLL_INTERVAL = 5000;
-  var ZOOM_MULTIPLIER = 2;
+  var DEFAULT_SCALE = 2;
   var PEEK_WIDTH = 20;
   var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
   var PINCH_SENSITIVITY = 1500; // lower to increase sensitivity for pinch zoom
@@ -67,7 +67,6 @@ soysauce.carousels = (function() {
 
     // Zoom Variables
     this.zoom = false;
-    this.zoomMultiplier;
     this.zoomMin;
     this.zoomMax;
     this.isZooming = false;
@@ -171,7 +170,7 @@ soysauce.carousels = (function() {
       this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
       this.zoomMin = parseFloat(this.widget.attr("data-ss-zoom-min")) || 1.2;
       this.zoomMax = parseFloat(this.widget.attr("data-ss-zoom-max")) || 4;
-      this.zoomMultiplier = this.scale = this.widget.attr("data-ss-zoom-multiplier") || ZOOM_MULTIPLIER;
+      this.scale = this.widget.attr("data-ss-zoom-scale") || DEFAULT_SCALE;
 
       if (this.zoomMin < 1.2) {
         this.zoomMin = 1.2;
@@ -601,12 +600,12 @@ soysauce.carousels = (function() {
 	Carousel.prototype.initPanLimits = function() {
 	  var self = this;
 	      
-		this.panMaxOriginal.x = this.panMax.x = ((this.itemWidth - this.peekWidth*2) / this.zoomMultiplier) - this.itemPadding;				
-		this.panMaxOriginal.y = this.panMax.y = this.items.first().height() / this.zoomMultiplier;
+		this.panMaxOriginal.x = this.panMax.x = ((this.itemWidth - this.peekWidth*2) / this.scale) - this.itemPadding;				
+		this.panMaxOriginal.y = this.panMax.y = this.items.first().height() / this.scale;
 
 		if (this.panMax.y === 0) {
 			this.container.imagesLoaded(function() {
-				self.panMax.y = self.items.last().height / self.zoomMultiplier;
+				self.panMax.y = self.items.last().height / self.scale;
 				self.panMaxOriginal.y = self.panMax.y;
 			});
 		}
@@ -665,8 +664,8 @@ soysauce.carousels = (function() {
     this.container.css("width", (this.itemWidth * this.numChildren) + "px");
 
     if (this.zoom) {
-      this.panMax.x = this.itemWidth / this.zoomMultiplier;	
-      this.panMax.y = this.container.find("[data-ss-component]").height() / this.zoomMultiplier;
+      this.panMax.x = this.itemWidth / this.scale;	
+      this.panMax.y = this.container.find("[data-ss-component]").height() / this.scale;
       this.initPanLimits();
     }
 	};
@@ -854,7 +853,7 @@ soysauce.carousels = (function() {
 						self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
 
 						self.checkPanLimits();
-						setMatrix(e2.target, self.zoomMultiplier, self.panCoords.x, self.panCoords.y);
+						setMatrix(e2.target, self.scale, self.panCoords.x, self.panCoords.y);
 					}
 				});
 			}
@@ -1004,7 +1003,7 @@ soysauce.carousels = (function() {
 			}
 			
 			$(img).attr("data-ss-state", "panning");
-      setMatrix(img, this.zoomMultiplier, this.panCoords.x, this.panCoords.y);
+      setMatrix(img, this.scale, this.panCoords.x, this.panCoords.y);
 		}
 	};
 	
@@ -1032,7 +1031,7 @@ soysauce.carousels = (function() {
 			else {
 				self.panCoords = soysauce.getCoords(e2);
 				self.panCoords.x -= self.itemWidth/2;
-				self.panCoords.x *= -self.zoomMultiplier;
+				self.panCoords.x *= -self.scale;
 				
 				if (e1.type.match(/mousedown/i) !== null) {
 					if (e1.originalEvent !== undefined) {
@@ -1051,8 +1050,8 @@ soysauce.carousels = (function() {
 					}
 				}
 
-				self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.zoomMultiplier) - offset;
-				self.panCoords.y *= self.zoomMultiplier;
+				self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.scale) - offset;
+				self.panCoords.y *= self.scale;
 
 				self.checkPanLimits();
 
@@ -1068,7 +1067,7 @@ soysauce.carousels = (function() {
 				this.ready = false;
 				this.widget.attr("data-ss-state", "zoomed");
 				this.zoomIcon.attr("data-ss-state", "in");
-        setMatrix(zoomImg, self.zoomMultiplier, self.panCoords.x, self.panCoords.y);
+        setMatrix(zoomImg, self.scale, self.panCoords.x, self.panCoords.y);
 				$(zoomImg).on(TRANSITION_END, function() {
 					self.isZoomed = true;
 					self.isZooming = false;
@@ -1218,7 +1217,7 @@ soysauce.carousels = (function() {
   function setMatrix(element, scale, x, y) {
     x = x || 0;
     y = y || 0;
-    scale = (!scale) ? ZOOM_MULTIPLIER : scale;
+    scale = scale || DEFAULT_SCALE;
     element.style.webkitTransform = 
     element.style.msTransform = 
     element.style.OTransform = 
