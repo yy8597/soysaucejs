@@ -79,7 +79,7 @@ soysauce.carousels = (function() {
     this.panning = false;
     this.zoomIcon;
     this.pinch;
-    this.scale = 1;
+    this.scale;
 
     // Thumbnail Variables
     this.thumbs = false;
@@ -171,7 +171,7 @@ soysauce.carousels = (function() {
       this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
       this.zoomMin = parseFloat(this.widget.attr("data-ss-zoom-min")) || 1.2;
       this.zoomMax = parseFloat(this.widget.attr("data-ss-zoom-max")) || 4;
-      this.zoomMultiplier = this.widget.attr("data-ss-zoom-multiplier") || ZOOM_MULTIPLIER;
+      this.zoomMultiplier = this.scale = this.widget.attr("data-ss-zoom-multiplier") || ZOOM_MULTIPLIER;
 
       if (this.zoomMin < 1.2) {
         this.zoomMin = 1.2;
@@ -828,34 +828,29 @@ soysauce.carousels = (function() {
 					
 					coords2 = soysauce.getCoords(e2);
 					
+					$(zoomImg).attr("data-ss-state", "panning");
+					
 					// Pinch Zooming
 					if (self.pinch && event.changedTouches.length > 1) {
-            // console.log(event);
 						var startCoords = soysauce.getCoords(event);
+						var scale = prevScale + event.scale - 1;
             var centerPt = {
               x: Math.floor((coords2.x2 - coords2.x) / 2),
               y: Math.floor((coords2.y2 - coords2.y) / 2)
             };
-            var scale = prevScale + event.scale - 1;
             
             if (scale >= self.zoomMin && scale <= self.zoomMax) {
-                // console.log("scale: " + scale);
-                setMatrix(zoomImg, scale);
-              }
+              setMatrix(zoomImg, scale);
+            }
 					}
 					// Panning
 					else {
-					  $(zoomImg).attr("data-ss-state", "panning");
-					  
 						self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
 						self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
 
 						self.checkPanLimits();
+						setMatrix(e2.target, self.zoomMultiplier, self.panCoords.x, self.panCoords.y);
 					}
-					
-          // setTranslate(e2.target, self.panCoords.x, self.panCoords.y);
-          // setScale(e2.target, self.zoomMultiplier);
-          setMatrix(e2.target, self.zoomMultiplier, self.panCoords.x, self.panCoords.y);
 				});
 			}
 			// Swipe Forward/Backward
@@ -1001,8 +996,6 @@ soysauce.carousels = (function() {
 				img = $(img).find("img")[0];
 			
 			$(img).attr("data-ss-state", "panning");
-      // setTranslate(img, this.panCoords.x, this.panCoords.y);
-      // setScale(img, this.zoomMultiplier);
       setMatrix(img, this.zoomMultiplier, this.panCoords.x, this.panCoords.y);
 		}
 	};
@@ -1067,8 +1060,6 @@ soysauce.carousels = (function() {
 				this.ready = false;
 				this.widget.attr("data-ss-state", "zoomed");
 				this.zoomIcon.attr("data-ss-state", "in");
-        // setTranslate(zoomImg, self.panCoords.x, self.panCoords.y);
-        // setScale(zoomImg, self.zoomMultiplier);
         setMatrix(zoomImg, self.zoomMultiplier, self.panCoords.x, self.panCoords.y);
 				$(zoomImg).on(TRANSITION_END, function() {
 					self.isZoomed = true;
@@ -1085,8 +1076,6 @@ soysauce.carousels = (function() {
 			this.ready = false;
 			this.widget.attr("data-ss-state", "ready");
 			this.zoomIcon.attr("data-ss-state", "out");
-      // setTranslate(zoomImg, 0, 0);
-      // setScale(zoomImg, 1);
 			setMatrix(zoomImg, 1, 0, 0);
 			$(zoomImg).on(TRANSITION_END, function() {
 				self.isZoomed = false;
@@ -1188,8 +1177,6 @@ soysauce.carousels = (function() {
 			this.ready = false;
 			this.widget.attr("data-ss-state", "ready");
 			this.zoomIcon.attr("data-ss-state", "out");
-      // setTranslate(zoomImg, 0, 0);
-      // setScale(zoomImg, 1);
       setMatrix(zoomImg, 1, 0, 0);
 			$(zoomImg).on(TRANSITION_END, function() {
 				self.isZoomed = false;
@@ -1218,17 +1205,6 @@ soysauce.carousels = (function() {
 			element.style.transform =
 				"translate3d(" + x + "px," + y + "px,0)";
 		}
-	}
-	
-	function setScale(element, multiplier) {
-		var currTransform = element.style.webkitTransform;
-		multiplier = (!multiplier) ? ZOOM_MULTIPLIER : multiplier;
-		element.style.webkitTransform = 
-		element.style.msTransform = 
-		element.style.OTransform = 
-		element.style.MozTransform = 
-		element.style.transform = 
-			currTransform + " scale" + ((!soysauce.vars.degrade) ? "3d(" + multiplier + "," + multiplier + ",1)" : "(" + multiplier + "," + multiplier + ")");
 	}
 	
   function setMatrix(element, scale, x, y) {
