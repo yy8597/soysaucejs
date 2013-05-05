@@ -1011,7 +1011,7 @@ soysauce.carousels = (function() {
 		
 		// Zoom In
 		if (!this.isZoomed) {
-			var offset = 0, targetComponent = $(e2.target).attr("data-ss-component"), 
+			var offset = 0, targetComponent = $(e2.target).attr("data-ss-component");
 			
 			if (/^zoom_icon$/.test(targetComponent)) {
 				self.panCoords = {x: 0, y: 0};
