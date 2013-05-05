@@ -829,10 +829,6 @@ soysauce.carousels = (function() {
 					if (self.pinch && event.changedTouches.length > 1) {
 						var startCoords = soysauce.getCoords(event);
 						var scale = prevScale + event.scale - 1;
-            var centerPt = {
-              x: Math.floor((coords2.x2 - coords2.x) / 2),
-              y: Math.floor((coords2.y2 - coords2.y) / 2)
-            };
             
             self.initPanLimits();
             
@@ -1015,9 +1011,9 @@ soysauce.carousels = (function() {
 		
 		// Zoom In
 		if (!this.isZoomed) {
-			var offset = 0;
+			var offset = 0, targetComponent = $(e2.target).attr("data-ss-component"), 
 			
-			if ($(e2.target).attr("data-ss-component") === "zoom_icon") {
+			if (/^zoom_icon$/.test(targetComponent)) {
 				self.panCoords = {x: 0, y: 0};
 				self.panCoordsStart = {x: 0, y: 0};
 			}
@@ -1025,6 +1021,12 @@ soysauce.carousels = (function() {
 				self.panCoords = soysauce.getCoords(e2);
 				self.panCoords.x -= self.itemWidth/2;
 				self.panCoords.x *= -self.scale;
+				
+				// pinch zoom center point
+				// var centerPt = {
+				//           x: Math.floor((coords2.x2 - coords2.x) / 2),
+				//           y: Math.floor((coords2.y2 - coords2.y) / 2)
+				//         };
 				
 				if (e1.type.match(/mousedown/i) !== null) {
 					if (e1.originalEvent !== undefined) {
