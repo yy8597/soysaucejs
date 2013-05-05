@@ -794,7 +794,8 @@ soysauce.carousels = (function() {
 					var array = soysauce.getArrayFromMatrix($(e2.target).css(PREFIX + "transform")),
 					    panX = parseInt(array[4]), panY = parseInt(array[5]), $target = $(e2.target),
 					    buttonName = $(e2.target).attr("data-ss-button-type"),
-              componentName = $(e2.target).attr("data-ss-component");
+              componentName = $(e2.target).attr("data-ss-component"),
+              $zoomImg = $(self.items[self.index]);
 					
 					if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
 					
@@ -802,11 +803,10 @@ soysauce.carousels = (function() {
 					self.panCoordsStart.y = (Math.abs(panY) > 0) ? panY : 0;
 					zoomingIn = null;
 					
-					if (/panning/.test($target.attr("data-ss-state"))) {
-					  $target.attr("data-ss-state", "ready");
-					}
-					else {
-            var scale = prevScale + e2.originalEvent.scale - 1;
+					$zoomImg.attr("data-ss-state", "ready");
+					
+					if (e2.originalEvent.changedTouches.length > 1) {
+					  var scale = prevScale + e2.originalEvent.scale - 1;
             if (scale > self.zoomMax) {
               self.scale = self.zoomMax;
             }
@@ -817,6 +817,7 @@ soysauce.carousels = (function() {
               self.scale += e2.originalEvent.scale - 1;
             }
 					}
+          
 				});
 				this.widget.on("touchmove mousemove", function(e2) {
 				  var event = e2.originalEvent, 
