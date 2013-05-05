@@ -379,16 +379,14 @@ soysauce.carousels = (function() {
     if (this.swipe || this.zoom) this.widget.on("touchstart mousedown", function(e) {
       var targetComponent = $(e.target).attr("data-ss-component");
 
-      if ((targetComponent === "zoom_icon" || targetComponent === "dot" || targetComponent === "thumbnail") && self.interrupted) {
+      if (/^(zoom_icon|dot|thumbnail)$/.test(targetComponent) && self.interrupted) {
         var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
         if (currXPos === self.offset) {
           self.interrupted = false;
         }
       }
-
-      if (self.jumping || self.freeze || targetComponent === "button" ||
-          targetComponent === "dot" || targetComponent === "dots" || 
-          targetComponent === "thumbnail") {
+      
+      if (self.jumping || self.freeze || /^(button|dot|dots|thumbnail)$/.test(targetComponent)) {
         return;
       }
 
@@ -719,7 +717,7 @@ soysauce.carousels = (function() {
 			
 			ret = coords2 = soysauce.getCoords(e2);
 			
-			if (self.lockScroll === undefined) {
+			if (!self.lockScroll) {
 				if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2) {
 					self.lockScroll = "y";
 				}
@@ -728,7 +726,7 @@ soysauce.carousels = (function() {
 				}
 			}
 			
-			if (self.lockScroll === "y") {
+			if (/^y$/.test(self.lockScroll)) {
 				return;
 			}
 			
@@ -793,13 +791,17 @@ soysauce.carousels = (function() {
 			if (this.zoom && this.isZoomed) {
 			  var prevScale = self.scale;
 				this.widget.one("touchend mouseup", function(e2) {
-					var array = soysauce.getArrayFromMatrix($(e2.target).css(PREFIX + "transform"));
-					var panX = parseInt(array[4]);
-					var panY = parseInt(array[5]);
-					var $target = $(e2.target);
+					var array = soysauce.getArrayFromMatrix($(e2.target).css(PREFIX + "transform")),
+					    panX = parseInt(array[4]), panY = parseInt(array[5]), $target = $(e2.target),
+					    buttonName = $(e2.target).attr("data-ss-button-type"),
+              componentName = $(e2.target).attr("data-ss-component");
+					
+					if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
+					
 					self.panCoordsStart.x = (Math.abs(panX) > 0) ? panX : 0;
 					self.panCoordsStart.y = (Math.abs(panY) > 0) ? panY : 0;
 					zoomingIn = null;
+					
 					if (/panning/.test($target.attr("data-ss-state"))) {
 					  $target.attr("data-ss-state", "ready");
 					}
@@ -818,13 +820,15 @@ soysauce.carousels = (function() {
 				});
 				this.widget.on("touchmove mousemove", function(e2) {
 				  var event = e2.originalEvent, 
-				      zoomImg = self.items[self.index];
-				      
-      		zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
+				      zoomImg = self.items[self.index],
+				      buttonName = $(e2.target).attr("data-ss-button-type"),
+				      componentName = $(e2.target).attr("data-ss-component");
 				  
 					soysauce.stifle(e2);
 					
-					if ($(e2.target).attr("data-ss-button-type") !== undefined || $(e2.target).attr("data-ss-component") === "dots") return;
+					if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
+					
+					zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
 					
 					coords2 = soysauce.getCoords(e2);
 					
@@ -853,15 +857,17 @@ soysauce.carousels = (function() {
 					}
 				});
 			}
-			// Swipe Forward/Backward
+			// Swipe Forward/Backward or Lock Scroll
 			else if (this.swipe) this.widget.on("touchmove mousemove", function(e2) {
-				var dragOffset;
+				var dragOffset,
+				    target_name = $(e2.target).attr("data-ss-component");
+				
 				coords2 = soysauce.getCoords(e2);
 				
-				if ($(e2.target).attr("data-ss-component") === "zoom_icon") return;
+				if (/^zoom_icon$/.test(target_name)) return;
 				
-				if (self.lockScroll === undefined) {
-					if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2) {
+				if (!self.lockScroll) {
+					if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) >= 1) {
 						self.lockScroll = "y";
 					}
 					else {
@@ -869,7 +875,7 @@ soysauce.carousels = (function() {
 					}
 				}
 				
-				if (self.lockScroll === "y") {
+				if (/^y$/.test(self.lockScroll)) {
 					return;
 				}
 				
@@ -887,15 +893,17 @@ soysauce.carousels = (function() {
 			var forceZoom;
 			var targetComponent = $(e2.target).attr("data-ss-component");
 			
+			self.widget.off("touchmove mousemove");
+			
 			if (self.jumping) return;
 			
 			soysauce.stifle(e2);
 			
-			if (targetComponent === "button") {
+			if (/^button$/.test(targetComponent)) {
 				return;
 			}
 			
-			forceZoom = (targetComponent === "zoom_icon") ? true : false;
+			forceZoom = (/^zoom_icon$/.test(targetComponent)) ? true : false;
 			
 			coords2 = soysauce.getCoords(e2);
 			
@@ -908,8 +916,6 @@ soysauce.carousels = (function() {
 			
 			var velocity = xDist / time;
 			var fast = (velocity > 0.9) ? true : false;
-			
-			self.widget.off("touchmove mousemove");
 			
 			if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
 				self.ready = true;
@@ -937,7 +943,7 @@ soysauce.carousels = (function() {
 			else if (Math.abs(xDist) > 3 && self.swipe) {
 				self.ready = true;
 				self.container.attr("data-ss-state", "ready");
-
+        
 				if (self.lockScroll === "y") {
 					return;
 				}
@@ -992,8 +998,9 @@ soysauce.carousels = (function() {
 		if (this.isZoomed) {
 			var img = this.items[this.index];
 			
-			if (!/img/i.test(img.tagName))
-				img = $(img).find("img")[0];
+			if (!/img/i.test(img.tagName)) {
+			  img = $(img).find("img")[0];
+			}
 			
 			$(img).attr("data-ss-state", "panning");
       setMatrix(img, this.zoomMultiplier, this.panCoords.x, this.panCoords.y);
