@@ -795,7 +795,7 @@ soysauce.carousels = (function() {
 					    panX = parseInt(array[4]), panY = parseInt(array[5]), $target = $(e2.target),
 					    buttonName = $(e2.target).attr("data-ss-button-type"),
               componentName = $(e2.target).attr("data-ss-component"),
-              $zoomImg = $(self.items[self.index]);
+              $zoomImg = $(self.items[self.index]).find("img");
 					
 					if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
 					
