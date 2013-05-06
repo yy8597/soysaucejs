@@ -529,7 +529,7 @@ soysauce.carousels = (function() {
 		$dots.attr("data-ss-state", "active");
 
 		if (!this.infinite) {
-			if (this.index === lastInfiniteIndex) {
+			if (this.index === lastInfiniteIndex || (this.multi && this.index === this.maxIndex - 1)) {
 			  this.nextBtn.attr("data-ss-state", "disabled");
 			}
 			if (this.numChildren > 1) {
