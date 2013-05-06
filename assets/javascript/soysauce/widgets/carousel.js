@@ -785,7 +785,8 @@ soysauce.carousels = (function() {
 					    panX = parseInt(array[4]), panY = parseInt(array[5]), $target = $(e2.target),
 					    buttonName = $(e2.target).attr("data-ss-button-type"),
               componentName = $(e2.target).attr("data-ss-component"),
-              $zoomImg = $(self.items[self.index]).find("img");
+              $zoomImg = $(self.items[self.index]).find("img"),
+              event = e2.originalEvent;
 					
 					if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
 					
@@ -795,8 +796,8 @@ soysauce.carousels = (function() {
 					
 					$zoomImg.attr("data-ss-state", "ready");
 					
-					if (e2.originalEvent.changedTouches && e2.originalEvent.changedTouches.length > 1) {
-					  var scale = prevScale + e2.originalEvent.scale - 1;
+					if (event.changedTouches && event.changedTouches.length > 1) {
+					  var scale = prevScale + event.scale - 1;
             if (scale > self.zoomMax) {
               self.scale = self.zoomMax;
             }
@@ -804,10 +805,11 @@ soysauce.carousels = (function() {
               self.scale = self.zoomMin;
             }
             else {
-              self.scale += e2.originalEvent.scale - 1;
+              self.scale += event.scale - 1;
             }
 					}
-          
+					
+					self.widget.off("touchmove mousemove");
 				});
 				this.widget.on("touchmove mousemove", function(e2) {
 				  var event = e2.originalEvent, 
@@ -829,11 +831,11 @@ soysauce.carousels = (function() {
 					if (self.pinch && event.changedTouches.length > 1) {
 						var startCoords = soysauce.getCoords(event);
 						var scale = prevScale + event.scale - 1;
-            
+
             self.initPanLimits();
             
             if (scale >= self.zoomMin && scale <= self.zoomMax) {
-              setMatrix(zoomImg, scale);
+              setMatrix(zoomImg, scale, self.panCoordsStart.x, self.panCoordsStart.y);
             }
 					}
 					// Panning
@@ -1022,12 +1024,6 @@ soysauce.carousels = (function() {
 				self.panCoords.x -= self.itemWidth/2;
 				self.panCoords.x *= -self.scale;
 				
-				// pinch zoom center point
-				// var centerPt = {
-				//           x: Math.floor((coords2.x2 - coords2.x) / 2),
-				//           y: Math.floor((coords2.y2 - coords2.y) / 2)
-				//         };
-				
 				if (e1.type.match(/mousedown/i) !== null) {
 					if (e1.originalEvent !== undefined) {
 						offset = e1.originalEvent.offsetY;
@@ -1081,6 +1077,7 @@ soysauce.carousels = (function() {
 			this.widget.attr("data-ss-state", "ready");
 			this.zoomIcon.attr("data-ss-state", "out");
 			this.scale = this.zoomMin;
+			this.widget.off("touchmove mousemove");
 			setMatrix(zoomImg, 1, 0, 0);
 			$(zoomImg).on(TRANSITION_END, function() {
 				self.isZoomed = false;
