@@ -4,9 +4,7 @@ soysauce.autodetectCC = (function() {
 		var options = soysauce.getOptions(selector);
 		var self = this;
 		
-		this.type = "Autodetect-CC";
 		this.widget = $(this);
-		this.id = parseInt($(selector).attr("data-ss-id"));
 		this.input = $(selector);
 		this.prediction;
 		this.result;
@@ -103,7 +101,7 @@ soysauce.autodetectCC = (function() {
 				}
 			}
 			else {
-				var resultChanged = (self.result !== undefined) ? true : false;
+				var resultChanged = (!self.result) ? false : true;
 				self.result = undefined;
 				if (self.prediction === "visa" && card_num.length === 16 ||
 						self.prediction === "mastercard" && card_num.length === 16 ||

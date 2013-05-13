@@ -5,9 +5,7 @@ soysauce.lazyloader = (function() {
 		var options = soysauce.getOptions(selector);
 		var self = this;
 		
-		this.type = "Lazyloader";
 		this.widget = $(selector);
-		this.id = parseInt(this.widget.attr("data-ss-id"));
 		this.items = this.widget.find("[data-ss-component='item']");
 		this.threshold = parseInt(this.widget.attr("data-ss-threshold")) || 100;
 		this.timeStamp = 0; // for throttling
@@ -42,10 +40,6 @@ soysauce.lazyloader = (function() {
       if ((e.timeStamp - self.timeStamp) > THROTTLE) {
         var widgetPositionThreshold = context.widget.height() + context.widget.offset().top - context.threshold,
             windowPosition = $(window).scrollTop() + $(window).height();
-        if (!self.items.length) {
-          $(window).unbind("scroll", update);
-          return;
-        }
         self.timeStamp = e.timeStamp;
         if (windowPosition > widgetPositionThreshold) {
           self.processNextBatch();
@@ -55,11 +49,12 @@ soysauce.lazyloader = (function() {
 	};
 	
 	Lazyloader.prototype.processNextBatch = function(batchSize) {
-	  var $items = $(this.items.splice(0, batchSize || this.batchSize)),
+	  var batchSize = batchSize || this.batchSize,
+	      $items = $(this.items.splice(0, batchSize)),
 	      self = this,
 	      count = 0;
 	      
-	  self.widget.trigger("SSBatchStart");
+    self.widget.trigger("SSBatchStart");
 
     $items.each(function(i, item) {
       var $item = $(item);
@@ -70,6 +65,9 @@ soysauce.lazyloader = (function() {
         $item.attr("data-ss-state", "loaded");
         if (++count === $items.length) {
           self.widget.trigger("SSBatchLoaded");
+          if (!self.items.length) {
+            self.widget.trigger("SSItemsEmpty");
+          }
         }
       });
     });

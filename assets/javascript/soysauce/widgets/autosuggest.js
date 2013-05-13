@@ -4,9 +4,7 @@ soysauce.autosuggest = (function() {
 		var options = soysauce.getOptions(selector);
 		var self = this;
 
-    this.type = "Autosuggest";
 		this.widget = $(selector);
-		this.id = parseInt(this.widget.attr("data-ss-id"));
 		this.input = $(selector);
 		
 		if (options)

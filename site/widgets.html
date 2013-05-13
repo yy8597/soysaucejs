@@ -116,12 +116,10 @@
    Peek Width pixels (per side); default is "20"
 4) data-ss-multi-set="x"
    Defines the num. of items with the 'multi' option; default is 2
-5) data-ss-zoom-multiplier="x"
-   Zoom Multiplier; default is "2" (before the user pinch zooms)
-6) data-ss-zoom-min="x"
-   Defines the minimum zoom multiplier; default is 1.2
-7) data-ss-zoom-max="x"
-   Defines the maxmimum zoom multiplier; default is 4</xmp></pre>
+5) data-ss-zoom-min="x"
+   Defines the minimum zoom scale; default is 1.2
+6) data-ss-zoom-max="x"
+   Defines the maxmimum zoom scale; default is 4</xmp></pre>
 											<p class="note">Note: Carousel optional attributes are placed on the widget container</p>
 										</article>
 									</div>
@@ -339,6 +337,7 @@
 											<ul>
 												<li><span class="snippet">SSBatchStart</span> - This event is fired on the widget when a batch request is made</li>
 												<li><span class="snippet">SSBatchLoaded</span> - This event is fired on the widget when the batch is loaded</li>
+												<li><span class="snippet">SSItemsEmpty</span> - This event is fired after there are no more items to load; use this event to obtain more items</li>
 											</ul>
 										</article>
 									</div>

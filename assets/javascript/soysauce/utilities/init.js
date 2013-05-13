@@ -52,6 +52,8 @@ soysauce.init = function(selector) {
 		}
 
 		if (widget !== undefined) {
+		  widget.type = type;
+		  widget.id = soysauce.vars.idCount;
 			soysauce.widgets.push(widget);
 			ret = true;
 			if ($this.attr("data-ss-defer") !== undefined) {

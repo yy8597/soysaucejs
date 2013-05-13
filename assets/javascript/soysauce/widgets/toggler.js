@@ -5,11 +5,13 @@ soysauce.togglers = (function() {
 	function Toggler(selector, orphan) {
 		var self = this;
 		var options = soysauce.getOptions(selector);
-		
+
 		// Base
 		if (orphan) {
-			var togglerID = $(selector).attr("data-ss-toggler-id");
+		  var button = $(selector);
+			var togglerID = button.attr("data-ss-toggler-id");
 			var query = "[data-ss-toggler-id='" + togglerID + "']";
+			
 			this.orphan = true;
 			this.widget = $(query);
 			
@@ -35,8 +37,7 @@ soysauce.togglers = (function() {
 			});
 			
 			this.setState("closed");
-			this.id = parseInt(this.button.attr("data-ss-id"));
-			this.content.attr("data-ss-id", this.id);
+			this.content.attr("data-ss-id", button.attr("data-ss-id"));
 			
 			if (soysauce.vars.degrade) {
 				this.content.attr("data-ss-degrade", "true");
@@ -50,10 +51,8 @@ soysauce.togglers = (function() {
 			this.button = this.allButtons.first();
 			this.allContent = this.widget.find("> [data-ss-component='content']");
 			this.content = this.allContent.first();
-			this.id = parseInt(this.widget.attr("data-ss-id"));
 		}
 		
-		this.type = "Toggler";
 		this.parentID = 0;
 		this.tabID;
 		this.state = "closed";
@@ -84,7 +83,7 @@ soysauce.togglers = (function() {
 		// Responsive
 		this.responsive = false;
 		this.responsiveVars = {
-			threshold: (!this.widget.attr("data-ss-responsive-threshold")) ? 768 : parseInt(this.widget.attr("data-ss-responsive-threshold")),
+			threshold: parseInt(this.widget.attr("data-ss-responsive-threshold")) || 768,
 			accordions: true
 		};
 		
@@ -370,18 +369,21 @@ soysauce.togglers = (function() {
 	  var self = this;
 	  
     if (this.defer) {
-      var subs = this.allContent.find('[data-ss-widget]');
+      var subWidgets = this.allContent.find("[data-ss-widget]");
       
-      this.allContent.css('clear', 'both').css('position','relative');
+      this.allContent.css({
+        "clear": "both",
+        "position": "relative"
+      });
 
-      if (!subs.length) {
+      if (!subWidgets.length) {
         this.doResize();
       }
       else {
-        subs.each(function(i, e) {
+        subWidgets.each(function(i, e) {
           var widget = soysauce.fetch(e).widget;
 
-          if ((i + 1) !== subs.length) return;
+          if ((i + 1) !== subWidgets.length) return;
             
           widget.one("SSWidgetResized", function () {
             self.allContent.css({
@@ -401,7 +403,6 @@ soysauce.togglers = (function() {
 	
 	Toggler.prototype.adjustHeight = function() {
 		if (!this.slide) {
-			//readjust height on resize
 			if (this.tab && this.nocollapse) {
 				this.widget.css("min-height", this.button.outerHeight() + this.content.outerHeight());
 			}

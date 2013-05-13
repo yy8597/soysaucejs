@@ -237,8 +237,7 @@ soysauce = {
 
 // Widget Resize Handler
 $(window).on("resize orientationchange", function(e) {
-	if ((e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) &&
-	    (e.timeStamp - soysauce.vars.lastResizeTime > 30)) {
+	if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
 	  if (soysauce.vars.lastResizeID) clearTimeout(soysauce.vars.lastResizeID);
 	  soysauce.vars.lastResizeID = window.setTimeout(function() {
 	    soysauce.vars.lastResizeTime = e.timeStamp;
@@ -246,7 +245,7 @@ $(window).on("resize orientationchange", function(e) {
   		soysauce.widgets.forEach(function(widget) {
   			if (!widget.handleResize) return;
   			widget.handleResize();
-  			if (widget.type === "Carousel") {
+  			if (/carousel/i.test(widget.type)) {
   			  if (widget.itemWidth) {
   			    $(widget.widget).trigger("SSWidgetResized");
   			  }
@@ -255,7 +254,7 @@ $(window).on("resize orientationchange", function(e) {
   			  $(widget.widget).trigger("SSWidgetResized");
   			}
   		});
-	  }, 250);
+	  }, 30);
 	}
 });
 
