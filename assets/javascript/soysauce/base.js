@@ -211,7 +211,20 @@ soysauce = {
 	browserInfo: {
 		userAgent: navigator.userAgent,
 		supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,
-		supportsLocalStorage: (typeof(window.localStorage) !== "undefined") ? true : false,
+		supportsLocalStorage:function() {
+			try { 
+					if (localStorage) {
+						localStorage.setItem("BBLOCALTEST",1);
+						return true;
+					}
+					else { 
+						return false; 
+					}
+			}
+			catch(err) { 
+				return false 
+			}
+		},	
 		supportsSessionStorage: (typeof(window.sessionStorage) !== "undefined") ? true : false,
 		sessionStorageFull: false
 	},
