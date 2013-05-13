@@ -133,7 +133,6 @@ task :build do
 
       bucketMutex.synchronize do
         o = bucket.objects["soysauce/latest/" + file]
-        puts File.basename(file)
         if File.extname(file) =~ /\.css/
           o.write(:file => "build/latest/" + file, :content_type => "text/css", :acl => :public_read)
         else
