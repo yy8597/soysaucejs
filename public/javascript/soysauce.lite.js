@@ -462,7 +462,7 @@ soysauce.carousels = (function() {
     this.panCoordsStart = {x:0, y:0};
     this.panning = false;
     this.zoomIcon;
-    this.pinch;
+    this.pinch = false;
     this.scale;
 
     // Thumbnail Variables
@@ -1181,7 +1181,7 @@ soysauce.carousels = (function() {
 					
 					$zoomImg.attr("data-ss-state", "ready");
 					
-					if (event.changedTouches && event.changedTouches.length > 1) {
+					if (self.pinch && event.changedTouches && event.changedTouches.length > 1) {
 					  var scale = prevScale + event.scale - 1;
             if (scale > self.zoomMax) {
               self.scale = self.zoomMax;
@@ -1211,7 +1211,7 @@ soysauce.carousels = (function() {
 					coords2 = soysauce.getCoords(e2);
 					
 					$(zoomImg).attr("data-ss-state", "panning");
-					
+
 					// Pinch Zooming
 					if (self.pinch && event.changedTouches.length > 1) {
 						var startCoords = soysauce.getCoords(event);
@@ -1445,7 +1445,7 @@ soysauce.carousels = (function() {
 				this.zoomIcon.attr("data-ss-state", "in");
 				this.scale = DEFAULT_SCALE;
 				this.initPanLimits();
-        setMatrix(zoomImg, self.scale, self.panCoords.x, self.panCoords.y);
+        setMatrix(zoomImg, this.scale, this.panCoords.x, this.panCoords.y);
 				$(zoomImg).on(TRANSITION_END, function() {
 					self.isZoomed = true;
 					self.isZooming = false;
@@ -1461,9 +1461,9 @@ soysauce.carousels = (function() {
 			this.ready = false;
 			this.widget.attr("data-ss-state", "ready");
 			this.zoomIcon.attr("data-ss-state", "out");
-			this.scale = this.zoomMin;
+			this.scale = 1;
 			this.widget.off("touchmove mousemove");
-			setMatrix(zoomImg, 1, 0, 0);
+			setMatrix(zoomImg, this.scale, 0, 0);
 			$(zoomImg).on(TRANSITION_END, function() {
 				self.isZoomed = false;
 				self.isZooming = false;
