@@ -73,6 +73,11 @@ soysauce.lazyloader = (function() {
     });
 	};
 	
+	Lazyloader.prototype.reload = function() {
+	  this.items = this.widget.find("[data-ss-component='item']:not([data-ss-state])");
+	  this.processNextBatch();
+	};
+	
 	return {
 		init: function(selector) {
 			return new Lazyloader(selector);
