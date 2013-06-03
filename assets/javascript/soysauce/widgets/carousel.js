@@ -1015,56 +1015,56 @@ soysauce.carousels = (function() {
 		var self = this;
 		$(zoomImg).attr("data-ss-state", "ready");
 		
-		// Zoom In
-		if (!this.isZoomed) {
-			var offset = 0, targetComponent = $(e2.target).attr("data-ss-component");
-			
-			if (/^zoom_icon$/.test(targetComponent)) {
-				self.panCoords = {x: 0, y: 0};
-				self.panCoordsStart = {x: 0, y: 0};
-			}
-			else {
-			  var halfHeight = self.container.find("[data-ss-component='item']").height() / 2;
+    // Zoom In
+    if (!this.isZoomed) {
+      var offset = 0, targetComponent = $(e2.target).attr("data-ss-component");
 
-				self.panCoords = soysauce.getCoords(e2);
-				self.panCoords.x -= self.itemWidth/2;
-				self.panCoords.x *= -self.scale;
+      if (/^zoom_icon$/.test(targetComponent)) {
+        self.panCoords = {x: 0, y: 0};
+        self.panCoordsStart = {x: 0, y: 0};
+      }
+      else {
+        var halfHeight = self.container.find("[data-ss-component='item']").height() / 2;
+
+        self.panCoords = soysauce.getCoords(e2);
+        self.panCoords.x -= self.itemWidth/2;
+        self.panCoords.x *= -self.scale;
         self.panCoords.y = e2.originalEvent.changedTouches[0].pageY;
 
         offset = self.panCoords.y - e2.originalEvent.changedTouches[0].target.y;
-        
+
         if (offset < (self.container.find("[data-ss-component='item']").height() / 2)) {
           offset = Math.abs(offset - halfHeight);
         }
         else {
           offset = halfHeight - offset;
         }
-        
-				self.panCoords.y = offset;
 
-				self.checkPanLimits();
+        self.panCoords.y = offset;
 
-				self.panCoordsStart.x = self.panCoords.x;
-				self.panCoordsStart.y = self.panCoords.y;
-			}
-			
-			if (!isNaN(self.panCoords.x) && !isNaN(self.panCoords.y)) {
-				this.dots.first().parent().css("visibility", "hidden");
-				this.nextBtn.hide();
-				this.prevBtn.hide();
-				this.isZooming = true;
-				this.ready = false;
-				this.widget.attr("data-ss-state", "zoomed");
-				this.zoomIcon.attr("data-ss-state", "in");
-				this.scale = DEFAULT_SCALE;
-				this.initPanLimits();
+        self.checkPanLimits();
+
+        self.panCoordsStart.x = self.panCoords.x;
+        self.panCoordsStart.y = self.panCoords.y;
+      }
+
+      if (!isNaN(self.panCoords.x) && !isNaN(self.panCoords.y)) {
+        this.dots.first().parent().css("visibility", "hidden");
+        this.nextBtn.hide();
+        this.prevBtn.hide();
+        this.isZooming = true;
+        this.ready = false;
+        this.widget.attr("data-ss-state", "zoomed");
+        this.zoomIcon.attr("data-ss-state", "in");
+        this.scale = DEFAULT_SCALE;
+        this.initPanLimits();
         setMatrix(zoomImg, this.scale, this.panCoords.x, this.panCoords.y);
-				$(zoomImg).on(TRANSITION_END, function() {
-					self.isZoomed = true;
-					self.isZooming = false;
-				});
-			}
-		}
+        $(zoomImg).on(TRANSITION_END, function() {
+          self.isZoomed = true;
+          self.isZooming = false;
+        });
+      }
+    }
 		// Zoom Out
 		else if (xDist < 2 && yDist < 2) {
 			this.dots.first().parent().css("visibility", "visible");
