@@ -210,9 +210,9 @@ soysauce.carousels = (function() {
     this.maxIndex = this.widget.find("[data-ss-component='item']").length;
 
     if (this.multi) {
-      this.multiVars.numItems = parseInt(this.widget.attr("data-ss-multi-set")) || 2;
-      this.multiVars.minWidth = parseInt(this.widget.attr("data-ss-multi-min-width")) || 0;
-      this.multiVars.stepSize = parseInt(this.widget.attr("data-ss-step-size")) || this.multiVars.numItems;
+      this.multiVars.numItems = parseInt(this.widget.attr("data-ss-multi-set"), 10) || 2;
+      this.multiVars.minWidth = parseInt(this.widget.attr("data-ss-multi-min-width"), 10) || 0;
+      this.multiVars.stepSize = parseInt(this.widget.attr("data-ss-step-size"), 10) || this.multiVars.numItems;
       this.maxIndex = Math.ceil(this.maxIndex / this.multiVars.stepSize);
     }
 
@@ -229,7 +229,7 @@ soysauce.carousels = (function() {
     }
 
     this.items = this.widget.find("[data-ss-component='item']");
-    this.itemPadding = parseInt(this.items.first().css("padding-left")) + parseInt(this.items.first().css("padding-right"));
+    this.itemPadding = parseInt(this.items.first().css("padding-left"), 10) + parseInt(this.items.first().css("padding-right"), 10);
 
     if (!this.items.length) {
       console.warn("Soysauce: No [data-ss-component='item'] attributes found with widget id " + this.id);
@@ -287,7 +287,7 @@ soysauce.carousels = (function() {
     this.dots.attr("data-ss-state", "inactive")
     this.dots.first().attr("data-ss-state", "active");
     this.dots.on("click", function(e) {
-      var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+      var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
       var index = 0;
 
       if (currXPos === self.offset) {
@@ -309,7 +309,7 @@ soysauce.carousels = (function() {
 
     if (this.peek) {
       this.peekAlign = this.widget.attr("data-ss-peek-align") || "center";
-      this.peekWidth = parseInt(this.widget.attr("data-ss-peek-width")) || PEEK_WIDTH;
+      this.peekWidth = parseInt(this.widget.attr("data-ss-peek-width"), 10) || PEEK_WIDTH;
       if (this.peekWidth % 2) {
         this.widget.attr("data-ss-peek-width", ++this.peekWidth);
       }
@@ -333,7 +333,7 @@ soysauce.carousels = (function() {
 		
     this.container.imagesLoaded(function(items) {
       var firstItem = self.items.first();
-      var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
+      var margin = parseInt(firstItem.css("margin-left"), 10) + parseInt(firstItem.css("margin-right"), 10);
 
       if (self.multi) {
         if (self.multiVars.minWidth > 0) {
@@ -377,7 +377,7 @@ soysauce.carousels = (function() {
       var targetComponent = $(e.target).attr("data-ss-component");
 
       if (/^(zoom_icon|dot|thumbnail)$/.test(targetComponent) && self.interrupted) {
-        var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+        var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
         if (currXPos === self.offset) {
           self.interrupted = false;
         }
@@ -406,7 +406,7 @@ soysauce.carousels = (function() {
 		
     if (this.autoscroll) {
       var interval = this.widget.attr("data-ss-autoscroll-interval");
-      this.autoscrollInterval = (!interval) ? AUTOSCROLL_INTERVAL : parseInt(interval);
+      this.autoscrollInterval = (!interval) ? AUTOSCROLL_INTERVAL : parseInt(interval, 10);
       this.autoscrollOn();
     }
 
@@ -461,7 +461,7 @@ soysauce.carousels = (function() {
 			// Slide Backward Rewind
 			if (!resettingPosition && !jumping && this.index === this.numChildren - 2 && !this.forward) {
 				this.infiniteID = window.setTimeout(function() {
-					xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+					xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
 					setTranslate(self.container[0], self.offset);
@@ -475,7 +475,7 @@ soysauce.carousels = (function() {
 			// Slide Forward Rewind
 			else if (!resettingPosition && !jumping && this.index === 1 && this.forward) {
 				this.infiniteID = window.setTimeout(function() {
-					xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+					xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = self.itemWidth*(self.numChildren - 2) + xcoord;
 					setTranslate(self.container[0], self.offset);
@@ -669,7 +669,7 @@ soysauce.carousels = (function() {
 		
 		var self = this;
 		var coords1, coords2, ret;
-		var xcoord = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left) : parseInt(soysauce.getArrayFromMatrix(this.container.css(PREFIX + "transform"))[4]);
+		var xcoord = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(this.container.css(PREFIX + "transform"))[4], 10);
 		
 		this.interrupted = true;
 		
@@ -782,7 +782,7 @@ soysauce.carousels = (function() {
 			  var prevScale = self.scale;
 				this.widget.one("touchend mouseup", function(e2) {
 					var array = soysauce.getArrayFromMatrix($(e2.target).css(PREFIX + "transform")),
-					    panX = parseInt(array[4]), panY = parseInt(array[5]), $target = $(e2.target),
+					    panX = parseInt(array[4], 10), panY = parseInt(array[5], 10), $target = $(e2.target),
 					    buttonName = $(e2.target).attr("data-ss-button-type"),
               componentName = $(e2.target).attr("data-ss-component"),
               $zoomImg = $(self.items[self.index]).find("img"),
@@ -951,7 +951,7 @@ soysauce.carousels = (function() {
 					}
 					else {
 						if (soysauce.vars.degrade) {
-							self.rewindCoord = parseInt(self.container.css("left"));
+							self.rewindCoord = parseInt(self.container.css("left"), 10);
 						}
 						self.slideForward(fast);
 					}
@@ -962,7 +962,7 @@ soysauce.carousels = (function() {
 					}
 					else {
 						if (soysauce.vars.degrade) {
-							self.rewindCoord = parseInt(self.container.css("left"));
+							self.rewindCoord = parseInt(self.container.css("left"), 10);
 						}
 						self.slideBackward(fast);
 					}

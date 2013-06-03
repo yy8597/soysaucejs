@@ -8,7 +8,7 @@ soysauce.freezeChildren = function(selector) {
 
 soysauce.freeze = function(selector, freezeChildren) {
 	if (typeof(selector) === "object") {
-		selector = parseInt($(selector).attr("data-ss-id"));
+		selector = parseInt($(selector).attr("data-ss-id"), 10);
 	}
 	freezeChildren = (!freezeChildren) ? true : false;
 	soysauce.fetch(selector).handleFreeze();
@@ -19,7 +19,7 @@ soysauce.freeze = function(selector, freezeChildren) {
 
 soysauce.unfreeze = function(selector) {
 	if (typeof(selector) === "object") {
-		selector = parseInt($(selector).attr("data-ss-id"));
+		selector = parseInt($(selector).attr("data-ss-id"), 10);
 	}
 	var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
 	soysauce.fetch(selector).handleUnfreeze();

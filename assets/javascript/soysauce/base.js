@@ -158,14 +158,14 @@ soysauce = {
 		if (!selector) return false;
 		
 		if (typeof(selector) === "object") {
-			selector = parseInt($(selector).attr("data-ss-id"));
+			selector = parseInt($(selector).attr("data-ss-id"), 10);
 		}
 		
 		if (typeof(selector) === "string") {
-			var val = parseInt($(selector).attr("data-ss-id"));;
+			var val = parseInt($(selector).attr("data-ss-id"), 10);;
 
 			if (isNaN(val)) {
-				val = parseInt(selector);
+				val = parseInt(selector, 10);
 			}
 
 			selector = val;
