@@ -366,11 +366,15 @@ soysauce.carousels = (function() {
       if (self.infinite) {
         self.offset -= self.itemWidth;
       }
-
+      
       self.container.attr("data-ss-state", "notransition");
       setTranslate(self.container[0], self.offset);
       
       self.widgetHeight = self.widget.outerHeight();
+      
+      if (self.zoom) {
+        self.initPanLimits();
+      }
     });
 
     if (this.swipe || this.zoom) this.widget.on("touchstart mousedown", function(e) {
@@ -1020,29 +1024,23 @@ soysauce.carousels = (function() {
 				self.panCoordsStart = {x: 0, y: 0};
 			}
 			else {
+			  var halfHeight = self.container.find("[data-ss-component='item']").height() / 2;
+
 				self.panCoords = soysauce.getCoords(e2);
 				self.panCoords.x -= self.itemWidth/2;
 				self.panCoords.x *= -self.scale;
-				
-				if (e1.type.match(/mousedown/i) !== null) {
-					if (e1.originalEvent !== undefined) {
-						offset = e1.originalEvent.offsetY;
-					}
-					else {
-						offset = e1.offsetY;
-					}
-				}
-				else {
-					if (e1.originalEvent !== undefined) {
-						offset = e1.originalEvent.pageY - $(e1.target).offset().top;
-					} 
-					else {
-						offset = e1.pageY - $(e1.target).offset().top;
-					}
-				}
+        self.panCoords.y = e2.originalEvent.changedTouches[0].pageY;
 
-				self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.scale) - offset;
-				self.panCoords.y *= self.scale;
+        offset = self.panCoords.y - e2.originalEvent.changedTouches[0].target.y;
+        
+        if (offset < (self.container.find("[data-ss-component='item']").height() / 2)) {
+          offset = Math.abs(offset - halfHeight);
+        }
+        else {
+          offset = halfHeight - offset;
+        }
+        
+				self.panCoords.y = offset;
 
 				self.checkPanLimits();
 
