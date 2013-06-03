@@ -132,7 +132,7 @@ soysauce = {
 	vars: {
 		idCount: 0,
 		currentViewportWidth: window.innerWidth,
-		degrade: (/Android [12]|Opera/.test(navigator.userAgent)) ? true : false,
+		degrade: (/Android [12]|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent)) ? true : false,
 		lastResizeTime: 0,
 		lastResizeTimerID: 0
 	},
