@@ -1053,14 +1053,9 @@ soysauce.carousels = (function() {
           self.panCoords = soysauce.getCoords(e2);
           self.panCoords.x -= self.itemWidth/2;
           self.panCoords.x *= -self.scale;
-          self.panCoords.y = e2.originalEvent.pageY || e2.originalEvent.changedTouches[0].pageY;
-
-          try {
-            offset = self.panCoords.y - e2.originalEvent.changedTouches[0].target.y;
-          }
-          catch(e) {
-            offset = self.panCoords.y - e2.originalEvent.target.y;
-          }
+          self.panCoords.y = (e2.originalEvent.changedTouches.length) ? e2.originalEvent.changedTouches[0].pageY : e2.originalEvent.pageY;
+          
+          offset = self.panCoords.y - ((e2.originalEvent.changedTouches.length) ? e2.originalEvent.changedTouches[0].target.y : e2.originalEvent.target.y);
 
           if (offset < (self.container.find("[data-ss-component='item']").height() / 2)) {
             offset = Math.abs(offset - halfHeight);
