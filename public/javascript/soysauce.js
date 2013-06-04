@@ -1015,7 +1015,6 @@ $(window).on("resize orientationchange", function(e) {
 
 // Widget Initialization
 $(document).ready(function() {
-	soysauce.scrollTop();
 	soysauce.init();
 	if (soysauce.vars.degrade) {
 		$("body").attr("data-ss-degrade", "true");
@@ -1042,6 +1041,10 @@ $(document).ready(function() {
 		});
 	});
 	$(window).trigger("SSReady");
+});
+
+$(window).load(function() {
+  soysauce.scrollTop();
 });
 
 }
