@@ -1017,53 +1017,83 @@ soysauce.carousels = (function() {
 		
     // Zoom In
     if (!this.isZoomed) {
-      var offset = 0, targetComponent = $(e2.target).attr("data-ss-component");
+      var offset = 0, 
+          targetComponent = $(e2.target).attr("data-ss-component"),
+          hqZoomSrc = ($(zoomImg).attr("data-ss-zoom-src") !== undefined);
 
-      if (/^zoom_icon$/.test(targetComponent)) {
-        self.panCoords = {x: 0, y: 0};
-        self.panCoordsStart = {x: 0, y: 0};
-      }
-      else {
-        var halfHeight = self.container.find("[data-ss-component='item']").height() / 2;
-
-        self.panCoords = soysauce.getCoords(e2);
-        self.panCoords.x -= self.itemWidth/2;
-        self.panCoords.x *= -self.scale;
-        self.panCoords.y = e2.originalEvent.changedTouches[0].pageY;
-
-        offset = self.panCoords.y - e2.originalEvent.changedTouches[0].target.y;
-
-        if (offset < (self.container.find("[data-ss-component='item']").height() / 2)) {
-          offset = Math.abs(offset - halfHeight);
-        }
-        else {
-          offset = halfHeight - offset;
-        }
-
-        self.panCoords.y = offset;
-
-        self.checkPanLimits();
-
-        self.panCoordsStart.x = self.panCoords.x;
-        self.panCoordsStart.y = self.panCoords.y;
-      }
-
-      if (!isNaN(self.panCoords.x) && !isNaN(self.panCoords.y)) {
-        this.dots.first().parent().css("visibility", "hidden");
-        this.nextBtn.hide();
-        this.prevBtn.hide();
-        this.isZooming = true;
-        this.ready = false;
-        this.widget.attr("data-ss-state", "zoomed");
-        this.zoomIcon.attr("data-ss-state", "in");
-        this.scale = DEFAULT_SCALE;
-        this.initPanLimits();
-        setMatrix(zoomImg, this.scale, this.panCoords.x, this.panCoords.y);
-        $(zoomImg).on(TRANSITION_END, function() {
-          self.isZoomed = true;
-          self.isZooming = false;
+      if (hqZoomSrc) {
+        zoomImg.src = $(zoomImg).attr("data-ss-zoom-src");
+        $(zoomImg).removeAttr("data-ss-zoom-src");
+        $(this.items[this.index]).append("<div data-ss-component='loading'>Loading...</div>");
+        $(this.items[this.index]).find("[data-ss-component='loading']").css({
+          "position": "absolute",
+          "z-index": "7",
+          "top": "50%",
+          "left": "50%",
+          "margin": "-10px -10px -5px -40px",
+          "padding": "5px 10px",
+          "background": "rgba(0,0,0,0.3)",
+          "color": "white",
+          "border": "1px solid #777"
         });
       }
+      
+      $(zoomImg).imagesLoaded(function() {
+        if (hqZoomSrc) {
+          $(self.items[self.index]).find("[data-ss-component='loading']").hide();
+        }
+        
+        if (/^zoom_icon$/.test(targetComponent)) {
+          self.panCoords = {x: 0, y: 0};
+          self.panCoordsStart = {x: 0, y: 0};
+        }
+        else {
+          var halfHeight = self.container.find("[data-ss-component='item']").height() / 2;
+
+          self.panCoords = soysauce.getCoords(e2);
+          self.panCoords.x -= self.itemWidth/2;
+          self.panCoords.x *= -self.scale;
+          self.panCoords.y = e2.originalEvent.pageY || e2.originalEvent.changedTouches[0].pageY;
+
+          try {
+            offset = self.panCoords.y - e2.originalEvent.changedTouches[0].target.y;
+          }
+          catch(e) {
+            offset = self.panCoords.y - e2.originalEvent.target.y;
+          }
+
+          if (offset < (self.container.find("[data-ss-component='item']").height() / 2)) {
+            offset = Math.abs(offset - halfHeight);
+          }
+          else {
+            offset = halfHeight - offset;
+          }
+
+          self.panCoords.y = offset;
+
+          self.checkPanLimits();
+
+          self.panCoordsStart.x = self.panCoords.x;
+          self.panCoordsStart.y = self.panCoords.y;
+        }
+
+        if (!isNaN(self.panCoords.x) && !isNaN(self.panCoords.y)) {
+          self.dots.first().parent().css("visibility", "hidden");
+          self.nextBtn.hide();
+          self.prevBtn.hide();
+          self.isZooming = true;
+          self.ready = false;
+          self.widget.attr("data-ss-state", "zoomed");
+          self.zoomIcon.attr("data-ss-state", "in");
+          self.scale = DEFAULT_SCALE;
+          self.initPanLimits();
+          setMatrix(zoomImg, self.scale, self.panCoords.x, self.panCoords.y);
+          $(zoomImg).on(TRANSITION_END, function() {
+            self.isZoomed = true;
+            self.isZooming = false;
+          });
+        }
+      });
     }
 		// Zoom Out
 		else if (xDist < 2 && yDist < 2) {
