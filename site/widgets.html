@@ -58,6 +58,7 @@
 												<li><span class="snippet">soysauce.init(CSS selector or Element)</span> - Use this function on an element containing the [data-ss-widget] attribute to initialize the widget; Soysauce will initialize it depending on the value</li>
 												<li><span class="snippet">soysauce.widgets</span> - Returns an object that contains all the initialized widgets</li>
 												<li><span class="snippet">soysauce.browserInfo</span> - Returns an object that contains helpful browser information such as the user agent, local/session storage support, and SVG support</li>
+												<li><span class="snippet">soysauce.vars.degrade</span> - Programmatically determine if the current browser is degraded</li>
 											</ul>
 										</article>
 									</div>
@@ -119,7 +120,9 @@
 5) data-ss-zoom-min="x"
    Defines the minimum zoom scale; default is 1.2
 6) data-ss-zoom-max="x"
-   Defines the maxmimum zoom scale; default is 4</xmp></pre>
+   Defines the maxmimum zoom scale; default is 4
+7) data-ss-zoom-src="new_src"
+   Place this on the image to request a new zoomed image</xmp></pre>
 											<p class="note">Note: Carousel optional attributes are placed on the widget container</p>
 										</article>
 									</div>
@@ -345,7 +348,7 @@
 										<h3>Functions</h3>
 										<article>
 											<ul>
-												<li><span class="snippet">soysauce.lateload(Element or CSS Selector)</span> - Use this function to explicitly load an image that has the [data-ss-ll-src] attribute</li>
+											  <li><span class="snippet">lazyloader.reload()</span> - After adding more items to the container (ex. ajax'd pagination), call this function to invoke continuation of lazyloading.</li>
 											</ul>
 										</article>
 									</div>
