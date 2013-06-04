@@ -70,20 +70,20 @@ task :build do
   File.delete("config/assets.yml");
   File.rename("config/assets2.yml", "config/assets.yml")
 
-  FileUtils.copy("public/javascript/soysauce.js", "build/" + version)
-  FileUtils.copy("public/javascript/soysauce.lite.js", "build/" + version)
-  FileUtils.copy("public/javascript/soysauce.legacy.js", "build/" + version)
-  FileUtils.copy("public/javascript/soysauce.min.js", "build/" + version)
-  FileUtils.copy("public/javascript/soysauce.lite.min.js", "build/" + version)
-  FileUtils.copy("public/javascript/soysauce.legacy.min.js", "build/" + version)
+  FileUtils.copy("public/javascript/soysauce.js.gz", "build/" + version + "/soysauce.js")
+  FileUtils.copy("public/javascript/soysauce.lite.js.gz", "build/" + version + "/soysauce.lite.js")
+  FileUtils.copy("public/javascript/soysauce.legacy.js.gz", "build/" + version + "/soysauce.legacy.js")
+  FileUtils.copy("public/javascript/soysauce.min.js.gz", "build/" + version + "/soysauce.min.js")
+  FileUtils.copy("public/javascript/soysauce.lite.min.js.gz", "build/" + version + "/soysauce.lite.min.js")
+  FileUtils.copy("public/javascript/soysauce.legacy.min.js.gz", "build/" + version + "/soysauce.legacy.min.js")
   FileUtils.copy("assets/soysauce.css", "build/" + version)
-
-  FileUtils.copy("public/javascript/soysauce.js", "build/latest")
-  FileUtils.copy("public/javascript/soysauce.lite.js", "build/latest")
-  FileUtils.copy("public/javascript/soysauce.legacy.js", "build/latest")
-  FileUtils.copy("public/javascript/soysauce.min.js", "build/latest")
-  FileUtils.copy("public/javascript/soysauce.lite.min.js", "build/latest")
-  FileUtils.copy("public/javascript/soysauce.legacy.min.js", "build/latest")
+  
+  FileUtils.copy("public/javascript/soysauce.js.gz", "build/latest/soysauce.js")
+  FileUtils.copy("public/javascript/soysauce.lite.js.gz", "build/latest/soysauce.lite.js")
+  FileUtils.copy("public/javascript/soysauce.legacy.js.gz", "build/latest/soysauce.legacy.js")
+  FileUtils.copy("public/javascript/soysauce.min.js.gz", "build/latest/soysauce.min.js")
+  FileUtils.copy("public/javascript/soysauce.lite.min.js.gz", "build/latest/soysauce.lite.min.js")
+  FileUtils.copy("public/javascript/soysauce.legacy.min.js.gz", "build/latest/soysauce.legacy.min.js")
   FileUtils.copy("assets/soysauce.css", "build/latest")
 
   # Publish to CDN
@@ -119,7 +119,7 @@ task :build do
         if File.extname(file) =~ /\.css/
           o.write(:file => "build/" + file_path, :content_type => "text/css", :acl => :public_read)
         else
-          o.write(:file => "build/" + file_path, :content_type => "text/javascript", :acl => :public_read)
+          o.write(:file => "build/" + file_path, :content_type => "text/javascript", :content_encoding => "gzip", :acl => :public_read)
         end
       end
     end
@@ -136,7 +136,7 @@ task :build do
         if File.extname(file) =~ /\.css/
           o.write(:file => "build/latest/" + file, :content_type => "text/css", :acl => :public_read)
         else
-          o.write(:file => "build/latest/" + file, :content_type => "text/javascript", :acl => :public_read)
+          o.write(:file => "build/latest/" + file, :content_type => "text/javascript", :content_encoding => "gzip", :acl => :public_read)
         end
       end
     end
@@ -149,17 +149,17 @@ task :build do
   readme = File.read("README.md")
 
   readme = readme.gsub(/v[\d\.]+/, version)
-  size = '%.2f' % (File.size("public/javascript/soysauce.lite.min.js").to_f / 1000)
+  size = '%.2f' % (File.size("public/javascript/soysauce.lite.min.js.gz").to_f / 1000)
   readme = readme.gsub(/(Compressed Lite \()[\d\.]+/, "\\1" + size)
-  size = '%.2f' % (File.size("public/javascript/soysauce.legacy.min.js").to_f / 1000)
+  size = '%.2f' % (File.size("public/javascript/soysauce.legacy.min.js.gz").to_f / 1000)
   readme = readme.gsub(/(Compressed Legacy \()[\d\.]+/, "\\1" + size)
-  size = '%.2f' % (File.size("public/javascript/soysauce.min.js").to_f / 1000)
+  size = '%.2f' % (File.size("public/javascript/soysauce.min.js.gz").to_f / 1000)
   readme = readme.gsub(/(Compressed \()[\d\.]+/, "\\1" + size)
-  size = '%.2f' % (File.size("public/javascript/soysauce.lite.js").to_f / 1000)
+  size = '%.2f' % (File.size("public/javascript/soysauce.lite.js.gz").to_f / 1000)
   readme = readme.gsub(/(Uncompressed Lite \()[\d\.]+/, "\\1" + size)
-  size = '%.2f' % (File.size("public/javascript/soysauce.legacy.js").to_f / 1000)
+  size = '%.2f' % (File.size("public/javascript/soysauce.legacy.js.gz").to_f / 1000)
   readme = readme.gsub(/(Uncompressed Legacy \()[\d\.]+/, "\\1" + size)
-  size = '%.2f' % (File.size("public/javascript/soysauce.js").to_f / 1000)
+  size = '%.2f' % (File.size("public/javascript/soysauce.js.gz").to_f / 1000)
   readme = readme.gsub(/(Uncompressed \()[\d\.]+/, "\\1" + size)
   size = '%.2f' % (File.size("assets/soysauce.css").to_f / 1000)
   readme = readme.gsub(/(CSS \()[\d\.]+/, "\\1" + size)
@@ -172,17 +172,17 @@ task :build do
   home = File.read("site/home.html")
 
   home = home.gsub(/v[\d\.]+/, version)
-  size = '%.2f' % (File.size("public/javascript/soysauce.lite.min.js").to_f / 1000)
+  size = '%.2f' % (File.size("public/javascript/soysauce.lite.min.js.gz").to_f / 1000)
   home = home.gsub(/(Compressed Lite \()[\d\.]+/, "\\1" + size)
-  size = '%.2f' % (File.size("public/javascript/soysauce.legacy.min.js").to_f / 1000)
+  size = '%.2f' % (File.size("public/javascript/soysauce.legacy.min.js.gz").to_f / 1000)
   home = home.gsub(/(Compressed Legacy \()[\d\.]+/, "\\1" + size)
-  size = '%.2f' % (File.size("public/javascript/soysauce.min.js").to_f / 1000)
+  size = '%.2f' % (File.size("public/javascript/soysauce.min.js.gz").to_f / 1000)
   home = home.gsub(/(Compressed \()[\d\.]+/, "\\1" + size)
-  size = '%.2f' % (File.size("public/javascript/soysauce.lite.js").to_f / 1000)
+  size = '%.2f' % (File.size("public/javascript/soysauce.lite.js.gz").to_f / 1000)
   home = home.gsub(/(Uncompressed Lite \()[\d\.]+/, "\\1" + size)
-  size = '%.2f' % (File.size("public/javascript/soysauce.legacy.js").to_f / 1000)
+  size = '%.2f' % (File.size("public/javascript/soysauce.legacy.js.gz").to_f / 1000)
   home = home.gsub(/(Uncompressed Legacy \()[\d\.]+/, "\\1" + size)
-  size = '%.2f' % (File.size("public/javascript/soysauce.js").to_f / 1000)
+  size = '%.2f' % (File.size("public/javascript/soysauce.js.gz").to_f / 1000)
   home = home.gsub(/(Uncompressed \()[\d\.]+/, "\\1" + size)
   size = '%.2f' % (File.size("assets/soysauce.css").to_f / 1000)
   home = home.gsub(/(CSS \()[\d\.]+/, "\\1" + size)

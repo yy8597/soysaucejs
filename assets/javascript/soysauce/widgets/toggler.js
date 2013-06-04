@@ -83,7 +83,7 @@ soysauce.togglers = (function() {
 		// Responsive
 		this.responsive = false;
 		this.responsiveVars = {
-			threshold: parseInt(this.widget.attr("data-ss-responsive-threshold")) || 768,
+			threshold: parseInt(this.widget.attr("data-ss-responsive-threshold"), 10) || 768,
 			accordions: true
 		};
 		
@@ -125,7 +125,7 @@ soysauce.togglers = (function() {
 
 		if (this.isChildToggler) {
 			var parent = this.widget.parents("[data-ss-widget='toggler']");
-			this.parentID = parseInt(parent.attr("data-ss-id"));
+			this.parentID = parseInt(parent.attr("data-ss-id"), 10);
 			this.parent = soysauce.fetch(this.parentID);
 		}
 
@@ -326,7 +326,7 @@ soysauce.togglers = (function() {
 				});
 			}
 			else {
-				self.height = parseInt(self.content.attr("data-ss-slide-height"));
+				self.height = parseInt(self.content.attr("data-ss-slide-height"), 10);
 				self.content.css("height", self.height + "px");
 			}
 		}
@@ -480,7 +480,7 @@ soysauce.togglers = (function() {
 			this.content = $(target).find("+ [data-ss-component='content']");
 
 			if (this.slide) {
-				self.height = parseInt(self.content.attr("data-ss-slide-height"));
+				self.height = parseInt(self.content.attr("data-ss-slide-height"), 10);
 			}
 
 			if (collapse) {

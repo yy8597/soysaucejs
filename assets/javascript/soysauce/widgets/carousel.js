@@ -77,7 +77,7 @@ soysauce.carousels = (function() {
     this.panCoordsStart = {x:0, y:0};
     this.panning = false;
     this.zoomIcon;
-    this.pinch;
+    this.pinch = false;
     this.scale;
 
     // Thumbnail Variables
@@ -210,9 +210,9 @@ soysauce.carousels = (function() {
     this.maxIndex = this.widget.find("[data-ss-component='item']").length;
 
     if (this.multi) {
-      this.multiVars.numItems = parseInt(this.widget.attr("data-ss-multi-set")) || 2;
-      this.multiVars.minWidth = parseInt(this.widget.attr("data-ss-multi-min-width")) || 0;
-      this.multiVars.stepSize = parseInt(this.widget.attr("data-ss-step-size")) || this.multiVars.numItems;
+      this.multiVars.numItems = parseInt(this.widget.attr("data-ss-multi-set"), 10) || 2;
+      this.multiVars.minWidth = parseInt(this.widget.attr("data-ss-multi-min-width"), 10) || 0;
+      this.multiVars.stepSize = parseInt(this.widget.attr("data-ss-step-size"), 10) || this.multiVars.numItems;
       this.maxIndex = Math.ceil(this.maxIndex / this.multiVars.stepSize);
     }
 
@@ -229,7 +229,7 @@ soysauce.carousels = (function() {
     }
 
     this.items = this.widget.find("[data-ss-component='item']");
-    this.itemPadding = parseInt(this.items.first().css("padding-left")) + parseInt(this.items.first().css("padding-right"));
+    this.itemPadding = parseInt(this.items.first().css("padding-left"), 10) + parseInt(this.items.first().css("padding-right"), 10);
 
     if (!this.items.length) {
       console.warn("Soysauce: No [data-ss-component='item'] attributes found with widget id " + this.id);
@@ -287,7 +287,7 @@ soysauce.carousels = (function() {
     this.dots.attr("data-ss-state", "inactive")
     this.dots.first().attr("data-ss-state", "active");
     this.dots.on("click", function(e) {
-      var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+      var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
       var index = 0;
 
       if (currXPos === self.offset) {
@@ -309,7 +309,7 @@ soysauce.carousels = (function() {
 
     if (this.peek) {
       this.peekAlign = this.widget.attr("data-ss-peek-align") || "center";
-      this.peekWidth = parseInt(this.widget.attr("data-ss-peek-width")) || PEEK_WIDTH;
+      this.peekWidth = parseInt(this.widget.attr("data-ss-peek-width"), 10) || PEEK_WIDTH;
       if (this.peekWidth % 2) {
         this.widget.attr("data-ss-peek-width", ++this.peekWidth);
       }
@@ -333,7 +333,7 @@ soysauce.carousels = (function() {
 		
     this.container.imagesLoaded(function(items) {
       var firstItem = self.items.first();
-      var margin = parseInt(firstItem.css("margin-left")) + parseInt(firstItem.css("margin-right"));
+      var margin = parseInt(firstItem.css("margin-left"), 10) + parseInt(firstItem.css("margin-right"), 10);
 
       if (self.multi) {
         if (self.multiVars.minWidth > 0) {
@@ -366,18 +366,22 @@ soysauce.carousels = (function() {
       if (self.infinite) {
         self.offset -= self.itemWidth;
       }
-
+      
       self.container.attr("data-ss-state", "notransition");
       setTranslate(self.container[0], self.offset);
       
       self.widgetHeight = self.widget.outerHeight();
+      
+      if (self.zoom) {
+        self.initPanLimits();
+      }
     });
 
     if (this.swipe || this.zoom) this.widget.on("touchstart mousedown", function(e) {
       var targetComponent = $(e.target).attr("data-ss-component");
 
       if (/^(zoom_icon|dot|thumbnail)$/.test(targetComponent) && self.interrupted) {
-        var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+        var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
         if (currXPos === self.offset) {
           self.interrupted = false;
         }
@@ -406,7 +410,7 @@ soysauce.carousels = (function() {
 		
     if (this.autoscroll) {
       var interval = this.widget.attr("data-ss-autoscroll-interval");
-      this.autoscrollInterval = (!interval) ? AUTOSCROLL_INTERVAL : parseInt(interval);
+      this.autoscrollInterval = (!interval) ? AUTOSCROLL_INTERVAL : parseInt(interval, 10);
       this.autoscrollOn();
     }
 
@@ -461,7 +465,7 @@ soysauce.carousels = (function() {
 			// Slide Backward Rewind
 			if (!resettingPosition && !jumping && this.index === this.numChildren - 2 && !this.forward) {
 				this.infiniteID = window.setTimeout(function() {
-					xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+					xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
 					setTranslate(self.container[0], self.offset);
@@ -475,7 +479,7 @@ soysauce.carousels = (function() {
 			// Slide Forward Rewind
 			else if (!resettingPosition && !jumping && this.index === 1 && this.forward) {
 				this.infiniteID = window.setTimeout(function() {
-					xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4]);
+					xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
 					self.container.attr("data-ss-state", "notransition");
 					self.offset = self.itemWidth*(self.numChildren - 2) + xcoord;
 					setTranslate(self.container[0], self.offset);
@@ -669,7 +673,7 @@ soysauce.carousels = (function() {
 		
 		var self = this;
 		var coords1, coords2, ret;
-		var xcoord = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left) : parseInt(soysauce.getArrayFromMatrix(this.container.css(PREFIX + "transform"))[4]);
+		var xcoord = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(this.container.css(PREFIX + "transform"))[4], 10);
 		
 		this.interrupted = true;
 		
@@ -782,7 +786,7 @@ soysauce.carousels = (function() {
 			  var prevScale = self.scale;
 				this.widget.one("touchend mouseup", function(e2) {
 					var array = soysauce.getArrayFromMatrix($(e2.target).css(PREFIX + "transform")),
-					    panX = parseInt(array[4]), panY = parseInt(array[5]), $target = $(e2.target),
+					    panX = parseInt(array[4], 10), panY = parseInt(array[5], 10), $target = $(e2.target),
 					    buttonName = $(e2.target).attr("data-ss-button-type"),
               componentName = $(e2.target).attr("data-ss-component"),
               $zoomImg = $(self.items[self.index]).find("img"),
@@ -796,7 +800,7 @@ soysauce.carousels = (function() {
 					
 					$zoomImg.attr("data-ss-state", "ready");
 					
-					if (event.changedTouches && event.changedTouches.length > 1) {
+					if (self.pinch && event.changedTouches && event.changedTouches.length > 1) {
 					  var scale = prevScale + event.scale - 1;
             if (scale > self.zoomMax) {
               self.scale = self.zoomMax;
@@ -826,7 +830,7 @@ soysauce.carousels = (function() {
 					coords2 = soysauce.getCoords(e2);
 					
 					$(zoomImg).attr("data-ss-state", "panning");
-					
+
 					// Pinch Zooming
 					if (self.pinch && event.changedTouches.length > 1) {
 						var startCoords = soysauce.getCoords(event);
@@ -951,7 +955,7 @@ soysauce.carousels = (function() {
 					}
 					else {
 						if (soysauce.vars.degrade) {
-							self.rewindCoord = parseInt(self.container.css("left"));
+							self.rewindCoord = parseInt(self.container.css("left"), 10);
 						}
 						self.slideForward(fast);
 					}
@@ -962,7 +966,7 @@ soysauce.carousels = (function() {
 					}
 					else {
 						if (soysauce.vars.degrade) {
-							self.rewindCoord = parseInt(self.container.css("left"));
+							self.rewindCoord = parseInt(self.container.css("left"), 10);
 						}
 						self.slideBackward(fast);
 					}
@@ -1011,62 +1015,81 @@ soysauce.carousels = (function() {
 		var self = this;
 		$(zoomImg).attr("data-ss-state", "ready");
 		
-		// Zoom In
-		if (!this.isZoomed) {
-			var offset = 0, targetComponent = $(e2.target).attr("data-ss-component");
-			
-			if (/^zoom_icon$/.test(targetComponent)) {
-				self.panCoords = {x: 0, y: 0};
-				self.panCoordsStart = {x: 0, y: 0};
-			}
-			else {
-				self.panCoords = soysauce.getCoords(e2);
-				self.panCoords.x -= self.itemWidth/2;
-				self.panCoords.x *= -self.scale;
-				
-				if (e1.type.match(/mousedown/i) !== null) {
-					if (e1.originalEvent !== undefined) {
-						offset = e1.originalEvent.offsetY;
-					}
-					else {
-						offset = e1.offsetY;
-					}
-				}
-				else {
-					if (e1.originalEvent !== undefined) {
-						offset = e1.originalEvent.pageY - $(e1.target).offset().top;
-					} 
-					else {
-						offset = e1.pageY - $(e1.target).offset().top;
-					}
-				}
+    // Zoom In
+    if (!this.isZoomed) {
+      var offset = 0, 
+          targetComponent = $(e2.target).attr("data-ss-component"),
+          hqZoomSrc = ($(zoomImg).attr("data-ss-zoom-src") !== undefined);
 
-				self.panCoords.y = (self.container.find("[data-ss-component='item']").height() / self.scale) - offset;
-				self.panCoords.y *= self.scale;
+      if (hqZoomSrc) {
+        zoomImg.src = $(zoomImg).attr("data-ss-zoom-src");
+        $(zoomImg).removeAttr("data-ss-zoom-src");
+        $(this.items[this.index]).append("<div data-ss-component='loading'>Loading...</div>");
+        $(this.items[this.index]).find("[data-ss-component='loading']").css({
+          "position": "absolute",
+          "z-index": "7",
+          "top": "50%",
+          "left": "50%",
+          "margin": "-10px -10px -5px -40px",
+          "padding": "5px 10px",
+          "background": "rgba(0,0,0,0.3)",
+          "color": "white",
+          "border": "1px solid #777"
+        });
+      }
+      
+      $(zoomImg).imagesLoaded(function() {
+        if (hqZoomSrc) {
+          $(self.items[self.index]).find("[data-ss-component='loading']").hide();
+        }
+        
+        if (/^zoom_icon$/.test(targetComponent)) {
+          self.panCoords = {x: 0, y: 0};
+          self.panCoordsStart = {x: 0, y: 0};
+        }
+        else {
+          var halfHeight = self.container.find("[data-ss-component='item']").height() / 2;
 
-				self.checkPanLimits();
+          self.panCoords = soysauce.getCoords(e2);
+          self.panCoords.x -= self.itemWidth/2;
+          self.panCoords.x *= -self.scale;
+          self.panCoords.y = (e2.originalEvent.changedTouches.length) ? e2.originalEvent.changedTouches[0].pageY : e2.originalEvent.pageY;
+          
+          offset = self.panCoords.y - ((e2.originalEvent.changedTouches.length) ? e2.originalEvent.changedTouches[0].target.y : e2.originalEvent.target.y);
 
-				self.panCoordsStart.x = self.panCoords.x;
-				self.panCoordsStart.y = self.panCoords.y;
-			}
-			
-			if (!isNaN(self.panCoords.x) && !isNaN(self.panCoords.y)) {
-				this.dots.first().parent().css("visibility", "hidden");
-				this.nextBtn.hide();
-				this.prevBtn.hide();
-				this.isZooming = true;
-				this.ready = false;
-				this.widget.attr("data-ss-state", "zoomed");
-				this.zoomIcon.attr("data-ss-state", "in");
-				this.scale = DEFAULT_SCALE;
-				this.initPanLimits();
-        setMatrix(zoomImg, self.scale, self.panCoords.x, self.panCoords.y);
-				$(zoomImg).on(TRANSITION_END, function() {
-					self.isZoomed = true;
-					self.isZooming = false;
-				});
-			}
-		}
+          if (offset < (self.container.find("[data-ss-component='item']").height() / 2)) {
+            offset = Math.abs(offset - halfHeight);
+          }
+          else {
+            offset = halfHeight - offset;
+          }
+
+          self.panCoords.y = offset;
+
+          self.checkPanLimits();
+
+          self.panCoordsStart.x = self.panCoords.x;
+          self.panCoordsStart.y = self.panCoords.y;
+        }
+
+        if (!isNaN(self.panCoords.x) && !isNaN(self.panCoords.y)) {
+          self.dots.first().parent().css("visibility", "hidden");
+          self.nextBtn.hide();
+          self.prevBtn.hide();
+          self.isZooming = true;
+          self.ready = false;
+          self.widget.attr("data-ss-state", "zoomed");
+          self.zoomIcon.attr("data-ss-state", "in");
+          self.scale = DEFAULT_SCALE;
+          self.initPanLimits();
+          setMatrix(zoomImg, self.scale, self.panCoords.x, self.panCoords.y);
+          $(zoomImg).on(TRANSITION_END, function() {
+            self.isZoomed = true;
+            self.isZooming = false;
+          });
+        }
+      });
+    }
 		// Zoom Out
 		else if (xDist < 2 && yDist < 2) {
 			this.dots.first().parent().css("visibility", "visible");
@@ -1076,9 +1099,9 @@ soysauce.carousels = (function() {
 			this.ready = false;
 			this.widget.attr("data-ss-state", "ready");
 			this.zoomIcon.attr("data-ss-state", "out");
-			this.scale = this.zoomMin;
+			this.scale = 1;
 			this.widget.off("touchmove mousemove");
-			setMatrix(zoomImg, 1, 0, 0);
+			setMatrix(zoomImg, this.scale, 0, 0);
 			$(zoomImg).on(TRANSITION_END, function() {
 				self.isZoomed = false;
 				self.isZooming = false;

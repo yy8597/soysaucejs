@@ -74,7 +74,7 @@ soysauce.autofillZip = (function() {
 		
 		if (this.freeze) return;
 		
-		if ((value.length === 5) && (parseFloat(value) == parseInt(value)) && !isNaN(value))  {
+		if ((value.length === 5) && (parseFloat(value, 10) == parseInt(value, 10)) && !isNaN(value))  {
 			this.widget.trigger("SSDataFetch");
 			$.ajax({
 				dataType: "json",

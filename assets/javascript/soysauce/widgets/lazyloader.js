@@ -7,10 +7,10 @@ soysauce.lazyloader = (function() {
 		
 		this.widget = $(selector);
 		this.items = this.widget.find("[data-ss-component='item']");
-		this.threshold = parseInt(this.widget.attr("data-ss-threshold")) || 100;
+		this.threshold = parseInt(this.widget.attr("data-ss-threshold"), 10) || 100;
 		this.timeStamp = 0; // for throttling
-		this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load")) || 10;
-		this.batchSize = parseInt(this.widget.attr("data-ss-batch-size")) || 5;
+		this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load"), 10) || 10;
+		this.batchSize = parseInt(this.widget.attr("data-ss-batch-size"), 10) || 5;
 		this.autoload = false;
 		this.button = this.widget.find("[data-ss-component='button']");
 		
@@ -71,6 +71,11 @@ soysauce.lazyloader = (function() {
         }
       });
     });
+	};
+	
+	Lazyloader.prototype.reload = function() {
+	  this.items = this.widget.find("[data-ss-component='item']:not([data-ss-state])");
+	  this.processNextBatch();
 	};
 	
 	return {

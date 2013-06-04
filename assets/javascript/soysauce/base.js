@@ -132,7 +132,7 @@ soysauce = {
 	vars: {
 		idCount: 0,
 		currentViewportWidth: window.innerWidth,
-		degrade: (/Android [12]|Opera/.test(navigator.userAgent)) ? true : false,
+		degrade: (/Android [12]|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent)) ? true : false,
 		lastResizeTime: 0,
 		lastResizeTimerID: 0
 	},
@@ -158,14 +158,14 @@ soysauce = {
 		if (!selector) return false;
 		
 		if (typeof(selector) === "object") {
-			selector = parseInt($(selector).attr("data-ss-id"));
+			selector = parseInt($(selector).attr("data-ss-id"), 10);
 		}
 		
 		if (typeof(selector) === "string") {
-			var val = parseInt($(selector).attr("data-ss-id"));;
+			var val = parseInt($(selector).attr("data-ss-id"), 10);;
 
 			if (isNaN(val)) {
-				val = parseInt(selector);
+				val = parseInt(selector, 10);
 			}
 
 			selector = val;
@@ -208,26 +208,41 @@ soysauce = {
 	getArrayFromMatrix: function(matrix) {
 		return matrix.substr(7, matrix.length - 8).split(', ');
 	},
-	browserInfo: {
-		userAgent: navigator.userAgent,
-		supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,
-		supportsLocalStorage:(function() {
-			try { 
-					if (localStorage) {
-						localStorage.setItem("BBLOCALTEST",1);
-						return true;
-					}
-					else { 
-						return false; 
-					}
-			}
-			catch(err) { 
-				return false 
-			}
-		})();,	
-		supportsSessionStorage: (typeof(window.sessionStorage) !== "undefined") ? true : false,
-		sessionStorageFull: false
-	},
+  browserInfo: {
+    userAgent: navigator.userAgent,
+    supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,
+    supportsLocalStorage: function() {
+      try { 
+        if (localStorage) {
+          localStorage.setItem("test", 1);
+          localStorage.removeItem("test");
+          return true;
+        }
+        else { 
+          return false; 
+        }
+      }
+      catch(err) { 
+        return false;
+      }
+    }(),
+    supportsSessionStorage: function() {
+      try { 
+        if (sessionStorage) {
+          sessionStorage.setItem("test", 1);
+          sessionStorage.removeItem("test");
+          return true;
+        }
+        else { 
+          return false; 
+        }
+      }
+      catch(err) { 
+        return false;
+      }
+    }(),
+    sessionStorageFull: false
+  },
 	scrollTop: function() {
 		window.setTimeout(function(){
 			window.scrollTo(0, 1);
