@@ -1,21 +1,16 @@
-/*
-	FastClick (removes the click delay found on mobile devices).
-	More info can be found on https://github.com/ftlabs/fastclick
-*/
+/**
+ * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
+ *
+ * @version 0.6.7
+ * @codingstandard ftlabs-jsv2
+ * @copyright The Financial Times Limited [All Rights Reserved]
+ * @license MIT License (see LICENSE.txt)
+ */
+
+/*jslint browser:true, node:true*/
+/*global define, Event, Node*/
+
 (function() {
-	/**
-   * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
-   *
-   * @version 0.6.4
-   * @codingstandard ftlabs-jsv2
-   * @copyright The Financial Times Limited [All Rights Reserved]
-   * @license MIT License (see LICENSE.txt)
-   */
-
-  /*jslint browser:true, node:true*/
-  /*global define, Event, Node*/
-
-
   /**
    * Instantiate fast-clicking listeners on the specificed layer.
    *
@@ -76,6 +71,14 @@
 
 
   	/**
+  	 * Touchmove boundary, beyond which a click will be cancelled.
+  	 *
+  	 * @type number
+  	 */
+  	this.touchBoundary = 10;
+
+
+  	/**
   	 * The FastClick layer.
   	 *
   	 * @type Element
@@ -101,7 +104,7 @@
   	/** @type function() */
   	this.onTouchCancel = function() { return FastClick.prototype.onTouchCancel.apply(self, arguments); };
 
-  	if (FastClick.notNeeded()) {
+  	if (FastClick.notNeeded(layer)) {
   		return;
   	}
 
@@ -200,16 +203,27 @@
    */
   FastClick.prototype.needsClick = function(target) {
   	'use strict';
-  	var nodeName = target.nodeName.toLowerCase();
+  	switch (target.nodeName.toLowerCase()) {
 
-  	if (nodeName === 'button' || nodeName === 'input') {
+  	// Don't send a synthetic click to disabled inputs (issue #62)
+  	case 'button':
+  	case 'select':
+  	case 'textarea':
+  		if (target.disabled) {
+  			return true;
+  		}
+
+  		break;
+  	case 'input':
 
   		// File inputs need real clicks on iOS 6 due to a browser bug (issue #68)
-  		// Don't send a synthetic click to disabled inputs (issue #62)
   		if ((this.deviceIsIOS && target.type === 'file') || target.disabled) {
   			return true;
-  		}		
-  	} else if (nodeName === 'label' || nodeName === 'video') {
+  		}
+
+  		break;
+  	case 'label':
+  	case 'video':
   		return true;
   	}
 
@@ -348,6 +362,11 @@
   	'use strict';
   	var targetElement, touch, selection;
 
+  	// Ignore multiple touches, otherwise pinch-to-zoom is prevented if both fingers are on the FastClick element (issue #111).
+  	if (event.targetTouches.length > 1) {
+  		return true;
+  	}
+
   	targetElement = this.getTargetElementFromEventTarget(event.target);
   	touch = event.targetTouches[0];
 
@@ -407,9 +426,9 @@
    */
   FastClick.prototype.touchHasMoved = function(event) {
   	'use strict';
-  	var touch = event.changedTouches[0];
+  	var touch = event.changedTouches[0], boundary = this.touchBoundary;
 
-  	if (Math.abs(touch.pageX - this.touchStartX) > 10 || Math.abs(touch.pageY - this.touchStartY) > 10) {
+  	if (Math.abs(touch.pageX - this.touchStartX) > boundary || Math.abs(touch.pageY - this.touchStartY) > boundary) {
   		return true;
   	}
 
@@ -654,7 +673,12 @@
   };
 
 
-  FastClick.notNeeded = function() {
+  /**
+   * Check whether FastClick is needed.
+   *
+   * @param {Element} layer The layer to listen on
+   */
+  FastClick.notNeeded = function(layer) {
   	'use strict';
   	var metaViewport;
 
@@ -678,6 +702,11 @@
   		}
   	}
 
+  	// IE10 with -ms-touch-action: none, which disables double-tap-to-zoom (issue #97)
+  	if (layer.style.msTouchAction === 'none') {
+  		return true;
+  	}
+
   	return false;
   };
 
@@ -691,6 +720,7 @@
   	'use strict';
   	return new FastClick(layer);
   };
+
 
   if (typeof define !== 'undefined' && define.amd) {
 
@@ -706,9 +736,7 @@
   	window.FastClick = FastClick;
   }
   
-  window.addEventListener("load", function() {
-      new FastClick(document.body);
-  }, false);
+  FastClick.attach(document.body);
   
 })();
 
