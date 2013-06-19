@@ -736,8 +736,6 @@
   	window.FastClick = FastClick;
   }
   
-  FastClick.attach(document.body);
-  
 })();
 
 if (!jQuery.fn.find) {
@@ -1217,6 +1215,8 @@ soysauce.init = function(selector) {
 	var set;
 	var numItems = 0;
 	var ret = false;
+	
+	soysauce.vars.fastclick = FastClick.attach(document.body);
 	
 	if (!selector) {
 		set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
