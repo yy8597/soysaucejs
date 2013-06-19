@@ -502,7 +502,8 @@ soysauce.carousels = (function() {
 		    stepSize = (this.multi) ? this.multiVars.stepSize * this.itemWidth : this.itemWidth;
 		
 		if (!this.ready || this.isZooming ||
-			(!this.infinite && this.index === lastInfiniteIndex)) return false;
+			(!this.infinite && this.index === lastInfiniteIndex) ||
+			(this.multi && this.index === this.maxIndex - 1)) return false;
 		
 		$dots.attr("data-ss-state", "inactive");
 			
