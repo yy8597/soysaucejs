@@ -100,7 +100,7 @@ soysauce.togglers = (function() {
 					self.nocollapse = true;
 					break;
 				case "slide":
-					self.slide = true;
+					self.slide = (soysauce.vars.degrade) ? false : true;
 					break;
 				case "responsive":
 					self.responsive = true;

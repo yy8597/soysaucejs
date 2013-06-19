@@ -1146,7 +1146,6 @@ $(window).on("resize orientationchange", function(e) {
 
 // Widget Initialization
 $(document).ready(function() {
-	soysauce.scrollTop();
 	soysauce.init();
 	if (soysauce.vars.degrade) {
 		$("body").attr("data-ss-degrade", "true");
@@ -1173,6 +1172,10 @@ $(document).ready(function() {
 		});
 	});
 	$(window).trigger("SSReady");
+});
+
+$(window).load(function() {
+  soysauce.scrollTop();
 });
 
 }
@@ -1212,6 +1215,8 @@ soysauce.init = function(selector) {
 	var set;
 	var numItems = 0;
 	var ret = false;
+	
+	soysauce.vars.fastclick = FastClick.attach(document.body);
 	
 	if (!selector) {
 		set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
@@ -3124,9 +3129,9 @@ soysauce.carousels = (function() {
           self.panCoords = soysauce.getCoords(e2);
           self.panCoords.x -= self.itemWidth/2;
           self.panCoords.x *= -self.scale;
-          self.panCoords.y = (e2.originalEvent.changedTouches.length) ? e2.originalEvent.changedTouches[0].pageY : e2.originalEvent.pageY;
+          self.panCoords.y = (e2.originalEvent.changedTouches && e2.originalEvent.changedTouches.length) ? e2.originalEvent.changedTouches[0].pageY : e2.originalEvent.pageY;
           
-          offset = self.panCoords.y - ((e2.originalEvent.changedTouches.length) ? e2.originalEvent.changedTouches[0].target.y : e2.originalEvent.target.y);
+          offset = self.panCoords.y - ((e2.originalEvent.changedTouches && e2.originalEvent.changedTouches.length) ? e2.originalEvent.changedTouches[0].target.y : e2.originalEvent.target.y);
 
           if (offset < (self.container.find("[data-ss-component='item']").height() / 2)) {
             offset = Math.abs(offset - halfHeight);
@@ -3584,7 +3589,7 @@ soysauce.togglers = (function() {
 					self.nocollapse = true;
 					break;
 				case "slide":
-					self.slide = true;
+					self.slide = (soysauce.vars.degrade) ? false : true;
 					break;
 				case "responsive":
 					self.responsive = true;
