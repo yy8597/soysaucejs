@@ -503,7 +503,7 @@ soysauce.carousels = (function() {
 		
 		if (!this.ready || this.isZooming ||
 			(!this.infinite && this.index === lastInfiniteIndex) ||
-			(this.multi && this.index === this.maxIndex - 1)) return false;
+			(!this.infinite && this.multi && this.index === this.maxIndex - 1)) return false;
 		
 		$dots.attr("data-ss-state", "inactive");
 			
