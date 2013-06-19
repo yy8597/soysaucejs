@@ -37,7 +37,7 @@
 		}
 	}
 	&[data-ss-options*="zoom"] img[data-ss-state="ready"] {
-		@include transition(transform .5s);
+		@include transition(transform .5s, left .5s);
 	}
 	&[data-ss-state="zoomed"] [data-ss-component="button"] {
 		display: none;
