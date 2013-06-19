@@ -351,9 +351,10 @@ soysauce.carousels = (function() {
           case "center":
             self.offset += self.peekWidth;
             break;
-          case "left": // TBI
+          case "left":
             break;
-          case "right": // TBI
+          case "right":
+            self.offset += (self.peekWidth * 2);
             break;
         }
       }
@@ -471,7 +472,12 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.index*self.itemWidth + self.peekWidth;
+						if (self.peek && /left/.test(self.peekAlign)) {
+						  self.offset = -self.index*self.itemWidth;
+						}
+						else {
+						  self.offset = -self.index*self.itemWidth + self.peekWidth;
+						}
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -485,7 +491,12 @@ soysauce.carousels = (function() {
 					setTranslate(self.container[0], self.offset);
 					window.setTimeout(function() {
 						self.container.attr("data-ss-state", "intransit");
-						self.offset = -self.itemWidth + self.peekWidth;
+						if (self.peek && /left/.test(self.peekAlign)) {
+						  self.offset = -self.itemWidth;
+						}
+						else {
+						  self.offset = -self.itemWidth + self.peekWidth;
+						}
 						setTranslate(self.container[0], self.offset);
 					}, 0);
 				}, 0);
@@ -502,7 +513,8 @@ soysauce.carousels = (function() {
 		    stepSize = (this.multi) ? this.multiVars.stepSize * this.itemWidth : this.itemWidth;
 		
 		if (!this.ready || this.isZooming ||
-			(!this.infinite && this.index === lastInfiniteIndex)) return false;
+			(!this.infinite && this.index === lastInfiniteIndex) ||
+			(!this.infinite && this.multi && this.index === this.maxIndex - 1)) return false;
 		
 		$dots.attr("data-ss-state", "inactive");
 			
@@ -654,7 +666,13 @@ soysauce.carousels = (function() {
 
       this.itemWidth += diff;
       
-      this.offset = -this.index * this.itemWidth + this.peekWidth;
+      if (this.peek && /left/.test(this.peekAlign)) {
+        this.offset = -this.index * this.itemWidth;
+      }
+      else {
+        this.offset = -this.index * this.itemWidth + this.peekWidth;
+      }
+      
       this.container.attr("data-ss-state", "notransition");
 
       this.items.css("width", this.itemWidth + "px");
@@ -734,10 +752,20 @@ soysauce.carousels = (function() {
 			self.infiniteID = undefined;
 			
 			if (self.index === self.numChildren - 2) {
-				self.offset = -self.index*self.itemWidth + (self.peekWidth);
+			  if (self.peek && /left/.test(self.peekAlign)) {
+			    self.offset = -self.index*self.itemWidth;
+			  }
+			  else {
+			    self.offset = -self.index*self.itemWidth + self.peekWidth;
+			  }
 			}
 			else if (self.index === 1) {
-				self.offset = -self.itemWidth + (self.peekWidth);
+			  if (self.peek && /left/.test(self.peekAlign)) {
+			    self.offset = -self.itemWidth;
+			  }
+			  else {
+			    self.offset = -self.itemWidth + self.peekWidth;
+			  }
 			}
 			
 			window.setTimeout(function() {
@@ -1082,6 +1110,14 @@ soysauce.carousels = (function() {
           self.zoomIcon.attr("data-ss-state", "in");
           self.scale = DEFAULT_SCALE;
           self.initPanLimits();
+          
+          if (self.peek && /left/.test(self.peekAlign)) {
+            $(zoomImg).css({
+              "position": "relative",
+              "left": self.peekWidth + "px"
+            });
+          }
+          
           setMatrix(zoomImg, self.scale, self.panCoords.x, self.panCoords.y);
           $(zoomImg).on(TRANSITION_END, function() {
             self.isZoomed = true;
@@ -1101,6 +1137,13 @@ soysauce.carousels = (function() {
 			this.zoomIcon.attr("data-ss-state", "out");
 			this.scale = 1;
 			this.widget.off("touchmove mousemove");
+			
+			if (self.peek && /left/.test(self.peekAlign)) {
+        $(zoomImg).css({
+          "left": "0px"
+        });
+      }
+      
 			setMatrix(zoomImg, this.scale, 0, 0);
 			$(zoomImg).on(TRANSITION_END, function() {
 				self.isZoomed = false;

@@ -113,10 +113,10 @@
   transition: transform 0.4s, left 0.4s;
 }
 [data-ss-widget="carousel"][data-ss-options*="zoom"] img[data-ss-state="ready"] {
-  -webkit-transition: -webkit-transform 0.5s;
-  -moz-transition: -moz-transform 0.5s;
-  -o-transition: -o-transform 0.5s;
-  transition: transform 0.5s;
+  -webkit-transition: -webkit-transform 0.5s, left 0.5s;
+  -moz-transition: -moz-transform 0.5s, left 0.5s;
+  -o-transition: -o-transform 0.5s, left 0.5s;
+  transition: transform 0.5s, left 0.5s;
 }
 [data-ss-widget="carousel"][data-ss-state="zoomed"] [data-ss-component="button"] {
   display: none;
