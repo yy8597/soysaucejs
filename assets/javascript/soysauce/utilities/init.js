@@ -3,8 +3,8 @@ soysauce.init = function(selector) {
 	var numItems = 0;
 	var ret = false;
 	
-  soysauce.vars.fastclick = $("[data-ss-widget='toggler'] > [data-ss-component='button'], [data-ss-toggler-id][data-ss-component='button']").each(function() {
-    FastClick.attach(this);
+  $("[data-ss-widget='toggler'] > [data-ss-component='button']").each(function() {
+    soysauce.vars.fastclick.push(FastClick.attach(this));
   });
 	
 	if (!selector) {
