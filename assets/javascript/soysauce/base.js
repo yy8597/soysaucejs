@@ -149,7 +149,11 @@ soysauce = {
 	},
 	stifle: function(e) {
 		if (!e) return false;
-		e.stopImmediatePropagation();
+		if (e.stopImmediatePropagation) {
+			e.stopImmediatePropagation();
+		} else {
+			e.propagationStopped = true;
+		}
 		e.preventDefault();
 	},
 	fetch: function(selector) {
