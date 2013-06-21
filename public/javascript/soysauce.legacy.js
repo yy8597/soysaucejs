@@ -1005,7 +1005,8 @@ soysauce = {
 		currentViewportWidth: window.innerWidth,
 		degrade: (/Android [12]|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent)) ? true : false,
 		lastResizeTime: 0,
-		lastResizeTimerID: 0
+		lastResizeTimerID: 0,
+		fastclick: []
 	},
 	getOptions: function(selector) {
 		if(!$(selector).attr("data-ss-options")) return false;
@@ -1020,7 +1021,11 @@ soysauce = {
 	},
 	stifle: function(e) {
 		if (!e) return false;
-		e.stopImmediatePropagation();
+		if (e.stopImmediatePropagation) {
+			e.stopImmediatePropagation();
+		} else {
+			e.propagationStopped = true;
+		}
 		e.preventDefault();
 	},
 	fetch: function(selector) {
@@ -1111,8 +1116,7 @@ soysauce = {
       catch(err) { 
         return false;
       }
-    }(),
-    sessionStorageFull: false
+    }()
   },
 	scrollTop: function() {
 		window.setTimeout(function(){
@@ -1216,7 +1220,9 @@ soysauce.init = function(selector) {
 	var numItems = 0;
 	var ret = false;
 	
-  // soysauce.vars.fastclick = FastClick.attach(document.body);
+  $("[data-ss-widget='toggler'] > [data-ss-component='button']").each(function() {
+    soysauce.vars.fastclick.push(FastClick.attach(this));
+  });
 	
 	if (!selector) {
 		set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
