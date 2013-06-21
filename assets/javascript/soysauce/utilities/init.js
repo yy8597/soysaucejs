@@ -3,7 +3,9 @@ soysauce.init = function(selector) {
 	var numItems = 0;
 	var ret = false;
 	
-  // soysauce.vars.fastclick = FastClick.attach(document.body);
+  soysauce.vars.fastclick = $("[data-ss-widget='toggler'] > [data-ss-component='button'], [data-ss-toggler-id][data-ss-component='button']").each(function() {
+    FastClick.attach(this);
+  });
 	
 	if (!selector) {
 		set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
