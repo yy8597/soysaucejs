@@ -244,8 +244,7 @@ soysauce = {
       catch(err) { 
         return false;
       }
-    }(),
-    sessionStorageFull: false
+    }()
   },
 	scrollTop: function() {
 		window.setTimeout(function(){
