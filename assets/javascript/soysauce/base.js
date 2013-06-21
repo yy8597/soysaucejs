@@ -134,7 +134,8 @@ soysauce = {
 		currentViewportWidth: window.innerWidth,
 		degrade: (/Android [12]|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent)) ? true : false,
 		lastResizeTime: 0,
-		lastResizeTimerID: 0
+		lastResizeTimerID: 0,
+		fastclick: []
 	},
 	getOptions: function(selector) {
 		if(!$(selector).attr("data-ss-options")) return false;
