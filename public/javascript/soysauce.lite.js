@@ -767,7 +767,7 @@ soysauce.carousels = (function() {
       self.container.attr("data-ss-state", "notransition");
       setTranslate(self.container[0], self.offset);
       
-      self.widgetHeight = self.widget.outerHeight();
+      self.widgetHeight = self.widget.outerHeight(true);
       
       if (self.zoom) {
         self.initPanLimits();
@@ -812,7 +812,7 @@ soysauce.carousels = (function() {
     }
 
     if (this.autoheight) {
-      var height = $(this.items[this.index]).outerHeight();
+      var height = $(this.items[this.index]).outerHeight(true);
       this.widget.css("min-height", height);
     }
 		
@@ -823,7 +823,7 @@ soysauce.carousels = (function() {
         self.container.attr("data-ss-state", "ready");
         }, 0);
         if (self.autoheight) {
-          var height = $(self.items[self.index]).outerHeight();
+          var height = $(self.items[self.index]).outerHeight(true);
           self.widget.css("height", height);
           window.setTimeout(function() {
             self.widget.css("min-height", "0px");
@@ -1627,7 +1627,7 @@ soysauce.carousels = (function() {
 		}
 
 		if (this.autoheight) {
-			var newHeight = $(self.items[index]).outerHeight();
+			var newHeight = $(self.items[index]).outerHeight(true);
 			this.widget.height(newHeight);
 		}
 
@@ -1867,7 +1867,7 @@ soysauce.togglers = (function() {
 					content.imagesLoaded(function() {
 						var height;
 						content.find("[data-ss-component='content']").attr("data-ss-state", "closed");
-						height = content.outerHeight();
+						height = content.outerHeight(true);
 						self.height = height;
 						content.attr("data-ss-slide-height", height);
 						content.css("height", "0px");
@@ -1880,7 +1880,7 @@ soysauce.togglers = (function() {
 				this.allContent.each(function() {
 					var content = $(this);
 					content.imagesLoaded(function() {
-						content.attr("data-ss-slide-height", content.outerHeight());
+						content.attr("data-ss-slide-height", content.outerHeight(true));
 						content.css("height", "0px");
 						content.attr("data-ss-state", "closed");
 					});
@@ -1994,7 +1994,7 @@ soysauce.togglers = (function() {
 		
 		if (this.tab && this.nocollapse) {
 			this.content.imagesLoaded(function() {
-				self.widget.css("min-height", self.button.outerHeight() + self.content.outerHeight());
+				self.widget.css("min-height", self.button.outerHeight(true) + self.content.outerHeight(true));
 			});
 		}
 	} // End constructor
@@ -2029,7 +2029,7 @@ soysauce.togglers = (function() {
 			if (this.ajax && this.height === 0) {
 				$(this.content).imagesLoaded(function() {
 					self.content.css("height", "auto");
-					self.height = self.content.height();
+					self.height = self.content.outerHeight(true);
 					self.content.css("height", self.height + "px");
 				});
 			}
@@ -2040,7 +2040,7 @@ soysauce.togglers = (function() {
 		}
 		
 		if (this.tab && this.nocollapse) {
-			this.widget.css("min-height", this.button.outerHeight() + this.content.outerHeight());
+			this.widget.css("min-height", this.button.outerHeight(true) + this.content.outerHeight(true));
 		}
 
 		this.opened = true;
@@ -2112,12 +2112,12 @@ soysauce.togglers = (function() {
 	Toggler.prototype.adjustHeight = function() {
 		if (!this.slide) {
 			if (this.tab && this.nocollapse) {
-				this.widget.css("min-height", this.button.outerHeight() + this.content.outerHeight());
+				this.widget.css("min-height", this.button.outerHeight(true) + this.content.outerHeight(true));
 			}
 			return;
 		}
 		if (this.opened) {
-			this.height = this.content.find("> [data-ss-component='wrapper']").outerHeight();
+			this.height = this.content.find("> [data-ss-component='wrapper']").outerHeight(true);
 			this.content.attr("data-ss-slide-height", this.height).height(this.height);
 		}
 	};
@@ -2260,7 +2260,7 @@ soysauce.togglers = (function() {
 				this.content = this.widget.find("[data-ss-component='content']").first();
 				this.open();
 			}
-			this.widget.css("min-height", this.button.outerHeight() + this.content.outerHeight() + "px");
+			this.widget.css("min-height", this.button.outerHeight(true) + this.content.outerHeight(true) + "px");
 		}
 		else {
 			this.responsiveVars.accordions = true;

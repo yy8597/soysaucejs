@@ -1,8 +1,12 @@
 [data-ss-widget], [data-ss-component] {
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
-  -webkit-backface-visibility: hidden;
-  position: relative;
   z-index: 5;
+}
+@media (-webkit-transform-3d) {
+  [data-ss-widget], [data-ss-component] {
+    -webkit-backface-visibility: hidden;
+    position: relative;
+  }
 }
 [data-ss-widget][data-ss-degrade], [data-ss-component][data-ss-degrade] {
   -webkit-backface-visibility: visible !important;

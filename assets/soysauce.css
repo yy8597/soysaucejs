@@ -1,5 +1,4 @@
 [data-ss-widget], [data-ss-component] {
-  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
   z-index: 5;
 }
 @media (-webkit-transform-3d) {
