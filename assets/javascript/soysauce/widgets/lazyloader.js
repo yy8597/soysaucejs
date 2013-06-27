@@ -8,6 +8,7 @@ soysauce.lazyloader = (function() {
 		this.widget = $(selector);
 		this.items = this.widget.find("[data-ss-component='item']");
 		this.threshold = parseInt(this.widget.attr("data-ss-threshold"), 10) || 100;
+		this.threshold = parseInt(this.widget.attr("data-ss-threshold"), 10) || 300;
 		this.timeStamp = 0; // for throttling
 		this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load"), 10) || 10;
 		this.batchSize = parseInt(this.widget.attr("data-ss-batch-size"), 10) || 5;
