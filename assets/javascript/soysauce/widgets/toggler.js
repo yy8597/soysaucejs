@@ -321,7 +321,7 @@ soysauce.togglers = (function() {
 			if (this.ajax && this.height === 0) {
 				$(this.content).imagesLoaded(function() {
 					self.content.css("height", "auto");
-					self.height = self.content.height();
+					self.height = self.content.outerHeight();
 					self.content.css("height", self.height + "px");
 				});
 			}
