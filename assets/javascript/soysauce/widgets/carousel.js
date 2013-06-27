@@ -371,7 +371,7 @@ soysauce.carousels = (function() {
       self.container.attr("data-ss-state", "notransition");
       setTranslate(self.container[0], self.offset);
       
-      self.widgetHeight = self.widget.outerHeight();
+      self.widgetHeight = self.widget.outerHeight(true);
       
       if (self.zoom) {
         self.initPanLimits();
@@ -416,7 +416,7 @@ soysauce.carousels = (function() {
     }
 
     if (this.autoheight) {
-      var height = $(this.items[this.index]).outerHeight();
+      var height = $(this.items[this.index]).outerHeight(true);
       this.widget.css("min-height", height);
     }
 		
@@ -427,7 +427,7 @@ soysauce.carousels = (function() {
         self.container.attr("data-ss-state", "ready");
         }, 0);
         if (self.autoheight) {
-          var height = $(self.items[self.index]).outerHeight();
+          var height = $(self.items[self.index]).outerHeight(true);
           self.widget.css("height", height);
           window.setTimeout(function() {
             self.widget.css("min-height", "0px");
@@ -1231,7 +1231,7 @@ soysauce.carousels = (function() {
 		}
 
 		if (this.autoheight) {
-			var newHeight = $(self.items[index]).outerHeight();
+			var newHeight = $(self.items[index]).outerHeight(true);
 			this.widget.height(newHeight);
 		}
 
