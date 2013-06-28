@@ -1,11 +1,6 @@
 [data-ss-widget], [data-ss-component] {
+  position: relative;
   z-index: 5;
-}
-@media (-webkit-transform-3d) {
-  [data-ss-widget], [data-ss-component] {
-    -webkit-backface-visibility: hidden;
-    position: relative;
-  }
 }
 [data-ss-widget][data-ss-degrade], [data-ss-component][data-ss-degrade] {
   -webkit-backface-visibility: visible !important;
@@ -16,9 +11,6 @@
   -webkit-backface-visibility: visible !important;
   -webkit-animation: none 0 ease 0 1 normal !important;
   animation: none 0 ease 0 1 normal !important;
-}
-[data-ss-widget]:not([data-ss-widget="autofill-cc"],[data-ss-widget="autofill-zip"]), [data-ss-component]:not([data-ss-widget="autofill-cc"],[data-ss-widget="autofill-zip"]) {
-  -webkit-user-select: none;
 }
 
 [data-ss-widget="toggler"]:not([data-ss-options*="slide"]) > [data-ss-component="content"][data-ss-state="open"] {
@@ -71,6 +63,11 @@
   -o-transition: opacity 0.5s ease-in-out;
   transition: opacity 0.5s ease-in-out;
 }
+@media (-webkit-transform-3d) {
+  [data-ss-widget="carousel"] {
+    -webkit-backface-visibility: hidden;
+  }
+}
 [data-ss-widget="carousel"] a, [data-ss-widget="carousel"] img {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -109,6 +106,11 @@
   -o-transition: -o-transform 0.65s, left 0.65s;
   transition: transform 0.65s, left 0.65s;
 }
+@media (-webkit-transform-3d) {
+  [data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"]) {
+    -webkit-backface-visibility: hidden;
+  }
+}
 [data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"])[data-ss-state="intransit-fast"] {
   -webkit-transition: -webkit-transform 0.4s, left 0.4s;
   -moz-transition: -moz-transform 0.4s, left 0.4s;
@@ -120,6 +122,11 @@
   -moz-transition: -moz-transform 0.5s, left 0.5s;
   -o-transition: -o-transform 0.5s, left 0.5s;
   transition: transform 0.5s, left 0.5s;
+}
+@media (-webkit-transform-3d) {
+  [data-ss-widget="carousel"][data-ss-options*="zoom"] img[data-ss-state="ready"] {
+    -webkit-backface-visibility: hidden;
+  }
 }
 [data-ss-widget="carousel"][data-ss-state="zoomed"] [data-ss-component="button"] {
   display: none;
