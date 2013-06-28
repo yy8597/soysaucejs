@@ -214,6 +214,7 @@ soysauce = {
 		return matrix.substr(7, matrix.length - 8).split(', ');
 	},
   browserInfo: {
+    pageLoad: new Date().getTime(),
     userAgent: navigator.userAgent,
     supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,
     supportsLocalStorage: function() {
@@ -308,6 +309,8 @@ $(document).ready(function() {
 });
 
 $(window).load(function() {
+  var cachedLazyLoader = soysauce.fetch("[data-ss-widget='lazyloader'][data-ss-options*='cache']");
+  if (cachedLazyLoader && cachedLazyLoader.isCached) return;
   soysauce.scrollTop();
 });
 
