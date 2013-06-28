@@ -2,11 +2,8 @@
 
 // Global Styles
 [data-ss-widget], [data-ss-component] {
-	@media (-webkit-transform-3d) {
-  	-webkit-backface-visibility: hidden;
-  	position: relative;
-	}	
-	z-index: 5;
+  position: relative;
+  z-index: 5;
 	&[data-ss-degrade] {
 		-webkit-backface-visibility: visible !important;
 		-webkit-animation: none 0 ease 0 1 normal !important;
@@ -16,9 +13,6 @@
 			-webkit-animation: none 0 ease 0 1 normal !important;
 			animation: none 0 ease 0 1 normal !important;
 		}
-	}
-	&:not([data-ss-widget="autofill-cc"],[data-ss-widget="autofill-zip"]) {
-		-webkit-user-select: none;
 	}
 }
 
