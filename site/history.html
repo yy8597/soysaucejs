@@ -1,0 +1,405 @@
+<html>
+	<head>
+		<title>Soysauce - History</title>
+		<link rel="stylesheet" href="assets/soysauce.css">
+		<link rel="stylesheet" href="assets/main.css">
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	</head>
+	<body class="history">
+		<header>
+			<a class="title" href="/site/home.html"><img src="assets/images/icon.png"><span>Soysauce</span></a>
+			<nav>
+				<a href="/site/home.html">Home</a>
+				<a href="/site/widgets.html">Widgets</a>
+				<a href="/site/demos.html">Demos</a>
+				<a href="/site/contribute.html">Contribute</a>
+				<a class="active">History</a>
+			</nav>
+			<a class="github" target="_blank" href="https://github.com/brandingbrand/soysauce/issues?state=open">Report an Issue</a>
+		</header>
+		<div class="wrapper">
+			<div class="content">
+				<section>
+					<h1>History</h1>
+					<article>
+						<h2>v1.1.81 <em>June 19, 2013</em></h2>
+						<h4>Carousel</h4>
+							<ul>
+								<li>New feature - "left aligned peeking; add [data-ss-peek-align="left"] to widget container (right not yet available)</li>
+								<li>Fixed issue with carousel progressing further than the max index with finite, multi carousels</li>
+							</ul>
+					</article>
+					<article>
+						<h2>v1.180 <em>June 19, 2013</em></h2>
+						<h3>June 19, 2013</h3>
+						<h4>General</h4>
+							<ul>
+								<li>soysauce.scrollTop() now called on page load instead of document.ready</li>
+							</ul>
+						<h4>Fastclick</h4>
+							<ul>
+								<li>Updated to v.0.6.7</li>
+								<li>Fastclick var now found in soysauce.vars.fastclick; if necessary to remove it from the site, call soysauce.vars.fastclick.destroy()</li>
+								<li>Now attached to body on document.ready event</li>
+							</ul>
+						<h4>Toggler</h4>
+							<ul>
+								<li>Degraded devices no longer support the "slide" option; these devices toggle content normally</li>
+							</ul>
+					</article>
+					<article>
+						<h2>v.1.1.75 - v1.1.79 <em>June 04, 2013 - June 06, 2013</em></h2>
+						<h3>June 04, 2013 - June 06, 2013</h3>
+						<h4>General</h4>
+							<ul>
+								<li>Now compressed and gzipped (approximately 4x smaller)</li>
+								<li>Updated Fastclick to 0.6.7</li>
+								<li>All calls to parseInt() now explicitly define base 10</li>
+								<li>Added "SAMSUNG-SGH-I747" to the list of degraded devices</li>
+							</ul>
+						<h4>Autodetect-CC</h4>
+							<ul>
+								<li>Improved event triggering</li>
+							</ul>
+						<h4>Lazyloader</h4>
+							<ul>
+								<li>Improved event triggering</li>
+								<li>Added Lazyloader.prototype.reload() function; call after new items are inserted into the container- allows for the lazyloader to continue<li>
+							</ul>
+						<h4>Carousel</h4>
+							<ul>
+								<li>Fixed issue with user attempting to pinch-zoom images if zoom option is not used (pinch is still not ready)</li>
+								<li>Zoom - Tap to zoom now zooms to where the user tapped (still needs minor translate adjustment)</li>
+								<li>High Quality Zoom Image - new feature - add "[data-ss-zoom-src='new_src']" to request a new, higher quality image (not a required tag); feel free to prank the user by adding in a completely different image source as well</li>
+							</ul>
+					</article>
+					<article>
+						<h2>v.1.1.70 - v.1.1.74 <em>May 13, 2013 - May 28, 2013</em></h2>
+						<h3>May 13, 2013 - May 28, 2013</h3>
+						<h4>General</h4>
+							<ul>
+								<li>Code refactoring - small performance gains here and there</li>
+								<li>soysauce.browserInfo.supportsLocalStorage() now properly works with private browsing</li>
+							</ul>
+						<h4>Carousel</h4>
+							<ul>
+								<li>Multi carousel can now swipe in multiples; by default, it swipes in the number of items in the set. this can be changed via [data-ss-step-size="x"]; dots, item states, and button states are properly updated. Infinite is still not supported</li>
+								<li>Zoom, although many changes have occurred, has not changed much. Pinch will be caked in as soon as it's finished</li>
+								<li>Zoom pan limits now account for item padding</li>
+							</ul>
+						<h4>Lazyloader</h4>
+							<ul>
+								<li>"SSItemsEmpty" now properly fires after the items are empty</li>
+								<li>No longer unbinds the "autoload" scroll event after items are empty</li>
+							</ul>		
+					</article>
+					<article>
+						<h2>v.1.1.66 - v1.1.69 <em>May 02, 2013 - May 05, 2013</em></h2>
+						<h3>May 02, 2013 - May 05, 2013</h3>
+						<h4>General</h4>
+							<ul>
+								<li>Fixed bug with attaching overlay to body when DOM wasn't ready</li>
+							</ul>
+						<h4>Lazyloader</h4>
+							<ul>
+								<li>Completely remodeled</li>
+								<li>"autoload" option added - when a user enters the threshold (defined by the dev or 100px from bottom of container by default), a batch of items will be loaded</li>
+							</ul>
+					</article>
+					<article>
+						<h2>v1.1.63 - v1.1.64 <em>April 23, 2013 - April 29, 2013</em></h2>
+						<h3>April 23, 2013 - April 29, 2013</h3>
+						<h4>General</h4>
+							<ul>
+								<li>Base - updated Fastclick</li>
+							</ul>
+					</article>
+					<article>
+						<h2>v.1.1.62</h2>
+						<h3>April 22, 2013</h3>
+						<h4>General</h4>
+							<ul>
+								<li>Widgets now fire a "SSWidgetResized" event</li>
+								<li>Deferred widgets will fire SSWidgetResized after children (aka, you can now have carousels inside closed togglers, see demos page)</li>
+								<li>All widgets now carry a "type" variable</li>
+								<li>Throttling resize events</li>
+							</ul>
+						<h4>Toggler</h4>
+							<ul>
+								<li>Target fix for basic toggler</li>
+							</ul>
+					</article>
+					<article>
+						<h2>v1.1.60 - v1.1.61 <em>April 15, 2013 - April 22, 2013</em></h2>
+						<h3>April 15, 2013 - April 22, 2013</h3>
+						<h4>Toggler</h4>
+							<ul>
+								<li>Hiding non-slide togglers during load via display: none</li>
+								<li>Hiding slide togglers during load via visibility: hidden</li>
+								<li>Basic togglers now properly collapse the parent</li>
+							</ul>
+						<h4>Input Clear</h4>
+							<ul>
+								<li>Wrapper now inherit's inputs css</li>
+								<li>Hides when not focused</li>
+							</ul>
+						<h4>Autosuggest</h4>
+							<ul>
+								<li>Properly hides during blur and when there is no value</li>
+							</ul>
+					</article>
+					<article>
+						<h2>v1.1.59 <em>April 14, 2013</em></h2>
+						<h3>April 14, 2013</h3>
+						<h4>General</h4>
+						<ul>
+							<li>New widget - autosuggest</li>
+							<li>New widget - input clear</li>
+							<li>Widgets that cannot be initialized no longer obtain a soysauce id #</li>
+							<li>Widgets with the [data-ss-defer] option wait for inner widgets to load before itself</li>
+						</ul>
+						<h4>Carousel</h4>
+						<ul>
+							<li>New attribute "data-ss-multi-min-width" - place this on the body when used with the multi option to allow responsive action (multiple items will increase)</li>
+							<li>Removed "3d" option - soysauce will automatically detect whether the os can support 3d or not</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.58 <em>April 11, 2013</em></h2>
+						<h3>April 11, 2013</h3>
+						<h4>General</h4>
+						<ul>
+							<li>New feature - "SSReady" event - the event "SSReady" is now triggered on the window after Soysauce is loaded</li>
+							<li>New feature - "degrading" - older devices now have a [data-ss-degrade="true"] attribute attached to the body (currently matches android 1.x, 2.x, and opera browsers); degraded widgets can have separate/limited functionality and different styling</li>
+							<li>Widgets no longer require a handleResize() function</li>
+						</ul>
+						<h4>Carousel</h4>
+						<ul>
+							<li>New feature - degraded carousel - degraded carousels now use 'left' css transitions instead of transform- translate(x,y)</li>
+						</ul>
+						<h4>Toggler</h4>
+						<ul>
+							<li>"nocollapse" + "tabs" option combination now places a min-height on the widget (assuming the user is creating folder tabs)</li>
+						</ul>
+						<h4>Autodetect CC</h4>
+						<ul>
+							<li>"format" option now has degraded support</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.52 - v1.1.57 <em>April 03, 2013 - April 10, 2013</em></h2>
+						<h3>April 03, 2013 - April 10, 2013</h3>
+						<h4>Toggler</h4>
+						<ul>
+							<li>Fixed issue with orphans not having an ID; ID now placed on both button and content</li>
+							<li>Toggler orphans now throw a "slideEnd" event on the content after opening (if a transition exists)</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.50 - v1.1.51 <em>April 02, 2013 - April 03, 2013</em></h2>
+						<h3>April 02, 2013 - April 03, 2013</h3>
+						<h4>General</h4>
+						<ul>
+							<li>Lite now only contains toggler and carousel. Removed Fastclick and Lateloader.</li>
+						</ul>
+						<h4>Toggler</h4>
+						<ul>
+							<li>Checks for full session storage if using ajax option</li>
+							<li>Adjusts slide-height after a resize/orientation change</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.49 <em>April 01, 2013</em></h2>
+						<h3>April 01, 2013</h3>
+						<h4>Toggler</h4>
+						<ul>
+							<li>Fixed issue with nesting slide togglers which prevented togglers from obtaining slide height attribute</li>
+							<li>Added "nocollapse" option; this needs to be paired with "tab" option which will always keep a toggler open</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.46 - v1.1.48 <em>March 26, 2013 - March 29, 2013</em></h2>
+						<h3>March 26, 2013 - March 29, 2013</h3>
+						<h4>General</h4>
+						<ul>
+							<li>Created new legacy bundles (stripped from main to minimize size); soysauce.legacy.min.js and soysauce.legacy.js</li>
+							<li>Site documentation nearly complete and can be seen at <a href="http://soysauce.s3.amazonaws.com/site/home.html">http://soysauce.s3.amazonaws.com/site/home.html</a></li>
+						</ul>
+						<h4>Toggler</h4>
+						<ul>
+							<li>Fixed issue with "slide" togglers not calculating cached image height</li>
+						</ul>
+						<h4>Carousel</h4>
+						<ul>
+							<li>If carousel is zoomed, carousel will now zoom out when jumpTo() is called</li>
+							<li>Dot/button clicks now reset the interval timer with "autoscroll" carousels</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.42 - v1.1.45 <em>March 22, 2013 - March 26, 2013</em></h2>
+						<h3>March 22, 2013 - March 26, 2013</h3>
+						<h4>General</h4>
+						<ul>
+							<li>Added backwards support for jQuery versions that do not have the find() function with elements and jQuery objects (jQuery 1.6+)</li>
+							<li>Improved null/undefined checking when calling soysauce.fetch()</li>
+						</ul>
+						<h4>Carousel</h4>
+						<ul>
+							<li>Fixes major Android issue with users not being able to click content within carousels</li>
+							<li>Fixes issue with zoom icon not toggling the zoom</li>
+							<li>New option "fade"</li>
+							<li>Fixes issue with "finite" carousels not having an initial, active item</li>
+							<li>Fixes issue with "peek" and "infinite" carousels getting off center when users performs an interrupted loop-around</li>
+						</ul>
+						<h4>Overlay</h4>
+						<ul>
+							<li>Re-wrote overlay</li>
+							<li>Can be called via soysauce.overlay.on()/off()/toggle()</li>
+						</ul>
+						<h4>Autodetect-CC</h4>
+						<ul>
+							<li>Max-length adjusted if user does not select formatting option</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.25 - v1.1.41 <em>March 11, 2013 - March 20, 2013</em></h2>
+						<h3>March 11, 2013 - March 20, 2013</h3>
+						<h4>General</h4>
+						<ul>
+							<li>Started providing examples at <a href="http://soysauce.s3.amazonaws.com/site/home.html">http://soysauce.s3.amazonaws.com/site/home.html</a> (v1.1.24)</li>
+						</ul>
+						<h4>Autofill-Zip</h4>
+						<ul>
+							<li>Now supports reverse geocoding (can use current location)</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.24 <em>March 08, 2013</em></h2>
+						<h3>March 08, 2013</h3>
+						<h4>Autofill-Zip</h4>
+						<ul>
+							<li>Now using our own native webservice (ex. <a href="http://jeocoder.herokuapp.com/zips/94608">http://jeocoder.herokuapp.com/zips/94608</a>)</li>
+						</ul>
+						<h4>Carousel</h4>
+						<ul>
+							<li>Fixes issue with carousel always thinking it has links</li>
+						</ul>
+						<h4>Toggler</h4>
+						<ul>
+							<li>Hiding content before state is attached</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.18 - v1.1.23 <em>March 06, 2013 - March 07, 2013</em></h2>
+						<h3>March 06, 2013 - March 07, 2013</h3>
+						<h4>General</h4>
+						<ul>
+							<li>Changed CDN URL; CNAMEs cannot be used with Cloudfront when accessing SSL links (updated in README.md)</li>
+							<li>New Widget - Autofill-Zip</li>
+						</ul>
+						<h4>Carousel</h4>
+						<ul>
+							<li>Fixed bug with carousel always thinking it has links</li>
+							<li>Fixed bug concerning padding/margin with the items</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.9 - v1.1.17 <em>March 04, 2013 - March 06, 2013</em></h2>
+						<h3>March 04, 2013 - March 06, 2013</h3>
+						<h4>General</h4>
+						<ul>
+							<li>Moved freeze functions from base to utilities/freeze.js</li>
+						</ul>
+						<h4>Lazyloader</h4>
+						<ul>
+							<li>Added scrollEvent throttle which only fires the update() event at a max of once per 100ms</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.8 <em>March 04, 2013</em></h2>
+						<h3>March 04, 2013</h3>
+						<h4>General</h4>
+						<ul>
+							<li>Added new widget: Lazyloader</li>
+						</ul>
+						<h4>Carousels</h4>
+						<ul>
+							<li>Added error check to ensure dev puts items in the carousel</li>
+						</ul>
+						<h4>Toggler</h4>
+						<ul>
+							<li>Fixed bug with 'autoheight'</li>
+							<li>Added error if toggler ajax'd data cannot be fetched</li>
+						</ul>
+						<h4>Lazyloader (new)</h4>
+						<ul>
+							<li>Basic functionality - image appears on page then it loads</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.7 <em>February 27, 2013</em></h2>
+						<h3>February 27, 2013</h3>
+						<h4>Carousels</h4>
+						<ul>
+							<li>Fixed order of carousel ready state</li>
+							<li>Added max-height to carousel while loading</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.6 <em>February 27, 2013</em></h2>
+						<h3>February 27, 2013</h3>
+						<h4>Carousel</h4>
+						<ul>
+							<li>Fixes issue with carousel re-animating it's loop when it should just be resetting it's position.</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.5 <em>February 27, 2013</em></h2>
+						<h3>February 27, 2013</h3>
+						<h4>Carousel</h4>
+						<ul>
+							<li>Accounting for padding + peek; avoid using margin if possible (not finished)</li>
+						</ul>
+						<h4>Toggler</h4>
+						<ul>
+						  <li>Re-coded 'ajax' option</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v.1.1.2 - v1.1.4 <em>February 25, 2013 - February 26, 2013</em></h2>
+						<h3>February 25, 2013 - February 26, 2013</h3>
+						<h4>General</h4>
+						<ul>
+							<li>Added new lite version</li>
+							<li>CDN now migrated to cdn.brandingbrand.com</li>
+						</ul>
+						<h4>General</h4>
+						<ul>
+							<li>Added 'autoheight' feature</li>
+							<li>Lowered slide transition time</li>
+							<li>Bug fix with infinite carousels with single image</li>
+						</ul>
+					</article>
+				</section>
+			</div>
+		</div>
+		<footer></footer>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="assets/soysauce.min.js"></script>
+		<script src="assets/site.js"></script>
+		<script type="text/javascript">
+
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-37029859-1']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+
+		</script>
+	</body>
+</html>
