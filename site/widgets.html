@@ -333,6 +333,7 @@
 										<article>
 											<ul>
 												<li><span class="snippet">autoload</span> - Auto-processes the next batch once the user reaches the threshold</li>
+												<li><span class="snippet">cache</span> - Allows two new events to fire: SSSaveState and SSLoadState; an input with [data-ss-component="cache"] is required.</li>
 											</ul>											
 										</article>
 									</div>
@@ -343,6 +344,8 @@
 												<li><span class="snippet">SSBatchStart</span> - This event is fired on the widget when a batch request is made</li>
 												<li><span class="snippet">SSBatchLoaded</span> - This event is fired on the widget when the batch is loaded</li>
 												<li><span class="snippet">SSItemsEmpty</span> - This event is fired after there are no more items to load; use this event to obtain more items</li>
+												<li><span class="snippet">SSSaveState</span> - This event is fired on the widget on the "beforeunload" window event; save the state's page during this event</li>
+												<li><span class="snippet">SSLoadState</span> - This event is fired on the widget if the page is cached</li>
 											</ul>
 										</article>
 									</div>
