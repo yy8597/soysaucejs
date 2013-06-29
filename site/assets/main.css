@@ -904,8 +904,7 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
   display: none;
 }
 .history ul {
-  text-indent: 10px;
-  margin: 0 0 10px 20px;
+  margin: 0 0 10px 30px;
   list-style-type: disc;
 }
 .history ul li {
