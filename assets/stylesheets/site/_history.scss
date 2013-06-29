@@ -1,0 +1,49 @@
+.history {
+  h2 {
+    @include box-shadow(none);
+    color: #fbff3a;
+    border-bottom: 0px;
+    text-transform: lowercase;
+    
+    em {
+      text-transform: capitalize;
+      color: #aaa;
+      font-size: 11px;
+    }
+  }
+
+  h4 {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  h3 {
+    display: none;
+  }
+
+  ul {
+    text-indent: 10px;
+    margin: 0 0 10px 20px;
+    list-style-type: disc;
+    
+    li {
+      margin-bottom: 5px;
+      
+      &:last-child {
+        margin-bottom: 0px;
+      }
+    }
+  }
+  
+  article {
+    @include box-shadow(0px 1px 0 rgba(255, 255, 255, 0.1));
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid black;
+    
+    &:last-of-type {
+      @include box-shadow(none);
+      border-bottom: 0px;
+    }
+  }
+}
