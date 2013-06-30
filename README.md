@@ -3,7 +3,7 @@ Original Author: Edward Gaba
 
 Soysauce is a customizable javascript widget library. Popular widgets included are carousels and accordions. Please file any issues you find in Github. Please see the Soysauce website for full documentation of the widgets:
 
-http://soysauce.s3.amazonaws.com/site/home.html
+http://www.soysaucejs.com/
 
 ## Current CDN URLs
 * Compressed (16.68 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.1.87/soysauce.min.js
