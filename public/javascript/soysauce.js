@@ -1091,8 +1091,12 @@ soysauce.init = function(selector) {
 	var set;
 	var numItems = 0;
 	var ret = false;
+	var fastclickSelectors = "";
 	
-  $("[data-ss-widget='toggler'] > [data-ss-component='button']").each(function() {
+	fastclickSelectors = "[data-ss-widget='toggler'] > [data-ss-component='button']";
+	fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='button']";
+	
+  $(fastclickSelectors).each(function() {
     soysauce.vars.fastclick.push(FastClick.attach(this));
   });
 	
@@ -3148,69 +3152,69 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.jumpTo = function(index) {
-		var self = this;
-		
-		if (index === this.index) return false;
-		
-		if (this.infinite) {
-			if (index < 1 || index > this.maxIndex )
-				return false;
-		}
-		else {
-			if (index < 0 || index > this.maxIndex - 1)
-				return false;
-		}
-		
-		this.jumping = true;
-		this.ready = false;
-		
-		var newOffset = index * -this.itemWidth + this.peekWidth;
-		
-		if (this.infinite) {
-			$(this.items[this.index]).attr("data-ss-state", "inactive");
-			$(this.items[index]).attr("data-ss-state", "active");
-			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
-			$(this.dots[index - 1]).attr("data-ss-state", "active");
-		}
-		else {
-			$(this.items[this.index]).attr("data-ss-state", "inactive");
-			$(this.items[index]).attr("data-ss-state", "active");
-			$(this.dots[this.index]).attr("data-ss-state", "inactive");
-			$(this.dots[index]).attr("data-ss-state", "active");
-		}
+    var self = this;
 
-		if (this.fade) {
-			this.index = index;
-			return true;
-		}
+    if (index === this.index) return false;
 
-		if (this.autoheight) {
-			var newHeight = $(self.items[index]).outerHeight(true);
-			this.widget.height(newHeight);
-		}
+    if (this.infinite) {
+      if (index < 1 || index > this.maxIndex )
+        return false;
+    }
+    else {
+      if (index < 0 || index > this.maxIndex - 1)
+        return false;
+    }
+		
+    this.jumping = true;
+    this.ready = false;
 
-		if (this.isZoomed) {
-			var zoomImg = this.items[this.index];
-			zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
-			this.dots.first().parent().css("visibility", "visible");
-			this.nextBtn.show();
-			this.prevBtn.show();
-			this.isZooming = true;
-			this.ready = false;
-			this.widget.attr("data-ss-state", "ready");
-			this.zoomIcon.attr("data-ss-state", "out");
+    var newOffset = index * -this.itemWidth + this.peekWidth;
+
+    if (this.infinite) {
+      $(this.items[this.index]).attr("data-ss-state", "inactive");
+      $(this.items[index]).attr("data-ss-state", "active");
+      $(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
+      $(this.dots[index - 1]).attr("data-ss-state", "active");
+    }
+    else {
+      $(this.items[this.index]).attr("data-ss-state", "inactive");
+      $(this.items[index]).attr("data-ss-state", "active");
+      $(this.dots[this.index]).attr("data-ss-state", "inactive");
+      $(this.dots[index]).attr("data-ss-state", "active");
+    }
+
+    if (this.fade) {
+      this.index = index;
+      return true;
+    }
+
+    if (this.autoheight) {
+      var newHeight = $(self.items[index]).outerHeight(true);
+      this.widget.height(newHeight);
+    }
+
+    if (this.isZoomed) {
+      var zoomImg = this.items[this.index];
+      zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
+      this.dots.first().parent().css("visibility", "visible");
+      this.nextBtn.show();
+      this.prevBtn.show();
+      this.isZooming = true;
+      this.ready = false;
+      this.widget.attr("data-ss-state", "ready");
+      this.zoomIcon.attr("data-ss-state", "out");
       setMatrix(zoomImg, 1, 0, 0);
-			$(zoomImg).on(TRANSITION_END, function() {
-				self.isZoomed = false;
-				self.isZooming = false;
-			});
-		}
+      $(zoomImg).on(TRANSITION_END, function() {
+        self.isZoomed = false;
+        self.isZooming = false;
+      });
+    }
 
-		this.gotoPos(newOffset, false, true);
-		this.index = index;
-		
-		return true;
-	};
+    this.gotoPos(newOffset, false, true);
+    this.index = index;
+
+    return true;
+  };
 	
 	// Helper Functions
 	function setTranslate(element, x, y) {
@@ -3321,77 +3325,77 @@ soysauce.inputClear = (function() {
 })();
 
 soysauce.lazyloader = (function() {
-	var THROTTLE = 100; // milliseconds
-	
+  var THROTTLE = 100; // milliseconds
+
 	function Lazyloader(selector) {
-		var options = soysauce.getOptions(selector);
-		var self = this;
+    var options = soysauce.getOptions(selector);
+    var self = this;
+
+    this.widget = $(selector);
+    this.items = this.widget.find("[data-ss-component='item']");
+    this.threshold = parseInt(this.widget.attr("data-ss-threshold"), 10) || 300;
+    this.timeStamp = 0; // for throttling
+    this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load"), 10) || 10;
+    this.initialBatchLoaded = false;
+    this.batchSize = parseInt(this.widget.attr("data-ss-batch-size"), 10) || 5;
+    this.autoload = false;
+    this.button = this.widget.find("[data-ss-component='button']");
+    this.cache = false;
+    this.cacheInput = $("[data-ss-component='cache']");
+    this.isCached = false;
+    this.processing = false;
+
+    if (options) options.forEach(function(option) {
+      switch(option) {
+        case "autoload":
+          self.autoload = true;
+        break;
+        case "cache":
+          if (!self.cacheInput.length) {
+            console.warn("Soysauce: Cache input not found.");
+          }
+          else {
+            self.cache = true;
+            self.isCached = (parseInt(self.cacheInput.val(), 10) === 1) ? true : false;
+          }
+        break;
+      }
+    });
 		
-		this.widget = $(selector);
-		this.items = this.widget.find("[data-ss-component='item']");
-		this.threshold = parseInt(this.widget.attr("data-ss-threshold"), 10) || 300;
-		this.timeStamp = 0; // for throttling
-		this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load"), 10) || 10;
-		this.initialBatchLoaded = false;
-		this.batchSize = parseInt(this.widget.attr("data-ss-batch-size"), 10) || 5;
-		this.autoload = false;
-		this.button = this.widget.find("[data-ss-component='button']");
-		this.cache = false;
-		this.cacheInput = $("[data-ss-component='cache']");
-		this.isCached = false;
-		this.processing = false;
-		
-		if (options) options.forEach(function(option) {
-			switch(option) {
-				case "autoload":
-				  self.autoload = true;
-					break;
-				case "cache":
-				  if (!self.cacheInput.length) {
-				    console.warn("Soysauce: Cache input not found.");
-				  }
-				  else {
-				    self.cache = true;
-				    self.isCached = (parseInt(self.cacheInput.val(), 10) === 1) ? true : false;
-				  }
-				  break;
-			}
-		});
-		
-		if (this.cache) {
-		  if (this.isCached) {
-		    this.widget.one("SSWidgetReady", function() {
+    if (this.cache) {
+      if (this.isCached) {
+        this.widget.one("SSWidgetReady", function() {
           self.widget.trigger("SSLoadState");
         });
-		  }
-		  else {
+      }
+      else {
         this.cacheInput.val(1);
-		  }
-		  $(window).on("beforeunload", function() {
-		    self.widget.trigger("SSSaveState");
-		  });
-		}
+      }
+      $(window).on("beforeunload", function() {
+        self.widget.trigger("SSSaveState");
+      });
+    }
 		
-		this.processNextBatch(this.initialLoad);
-		
-		if (this.button.length) {
-		  this.button.on("click", function() {
-		    self.processNextBatch();
-		  });
-		}
-		
-		if (this.autoload) {
-		  $(window).scroll(function(e) {
+    this.processNextBatch(this.initialLoad);
+
+    if (this.button.length) {
+      this.button.on("click", function() {
+        self.processNextBatch();
+      });
+    }
+
+    if (this.autoload) {
+      $(window).scroll(function(e) {
         update(e, self);
       });
-		}
+    }
 		
     function update(e, context) {
       if ((e.timeStamp - self.timeStamp) > THROTTLE) {
         var widgetPositionThreshold = context.widget.height() + context.widget.offset().top - context.threshold,
             windowPosition = $(window).scrollTop() + $(window).height();
         self.timeStamp = e.timeStamp;
-        
+
         if ((windowPosition > widgetPositionThreshold) && Math.abs(e.timeStamp - soysauce.browserInfo.pageLoad) > 1500) {
           self.processNextBatch();
         }
@@ -3399,11 +3403,11 @@ soysauce.lazyloader = (function() {
     }
 	};
 	
-	Lazyloader.prototype.processNextBatch = function(batchSize) {
-	  var batchSize = batchSize || this.batchSize,
-	      $items = $(this.items.splice(0, batchSize)),
-	      self = this,
-	      count = 0;
+  Lazyloader.prototype.processNextBatch = function(batchSize) {
+    var batchSize = batchSize || this.batchSize,
+      $items = $(this.items.splice(0, batchSize)),
+      self = this,
+      count = 0;
 	      
     this.widget.trigger("SSBatchStart");
     this.processing = true;
@@ -3432,20 +3436,20 @@ soysauce.lazyloader = (function() {
         });
       });
     }
-	};
+  };
 	
-	Lazyloader.prototype.reload = function(processBatch) {
-	  this.items = this.widget.find("[data-ss-component='item']:not([data-ss-state])");
-	  if (processBatch !== false) {
-	    this.processNextBatch();
-	  }
-	};
+  Lazyloader.prototype.reload = function(processBatch) {
+    this.items = this.widget.find("[data-ss-component='item']:not([data-ss-state])");
+    if (processBatch !== false) {
+      this.processNextBatch();
+    }
+  };
 	
-	return {
-		init: function(selector) {
-			return new Lazyloader(selector);
-		}
-	};
+  return {
+    init: function(selector) {
+      return new Lazyloader(selector);
+    }
+  };
 	
 })();
 

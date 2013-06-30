@@ -320,8 +320,12 @@ soysauce.init = function(selector) {
 	var set;
 	var numItems = 0;
 	var ret = false;
+	var fastclickSelectors = "";
 	
-  $("[data-ss-widget='toggler'] > [data-ss-component='button']").each(function() {
+	fastclickSelectors = "[data-ss-widget='toggler'] > [data-ss-component='button']";
+	fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='button']";
+	
+  $(fastclickSelectors).each(function() {
     soysauce.vars.fastclick.push(FastClick.attach(this));
   });
 	
@@ -1593,69 +1597,69 @@ soysauce.carousels = (function() {
 	};
 	
 	Carousel.prototype.jumpTo = function(index) {
-		var self = this;
-		
-		if (index === this.index) return false;
-		
-		if (this.infinite) {
-			if (index < 1 || index > this.maxIndex )
-				return false;
-		}
-		else {
-			if (index < 0 || index > this.maxIndex - 1)
-				return false;
-		}
-		
-		this.jumping = true;
-		this.ready = false;
-		
-		var newOffset = index * -this.itemWidth + this.peekWidth;
-		
-		if (this.infinite) {
-			$(this.items[this.index]).attr("data-ss-state", "inactive");
-			$(this.items[index]).attr("data-ss-state", "active");
-			$(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
-			$(this.dots[index - 1]).attr("data-ss-state", "active");
-		}
-		else {
-			$(this.items[this.index]).attr("data-ss-state", "inactive");
-			$(this.items[index]).attr("data-ss-state", "active");
-			$(this.dots[this.index]).attr("data-ss-state", "inactive");
-			$(this.dots[index]).attr("data-ss-state", "active");
-		}
+    var self = this;
 
-		if (this.fade) {
-			this.index = index;
-			return true;
-		}
+    if (index === this.index) return false;
 
-		if (this.autoheight) {
-			var newHeight = $(self.items[index]).outerHeight(true);
-			this.widget.height(newHeight);
-		}
+    if (this.infinite) {
+      if (index < 1 || index > this.maxIndex )
+        return false;
+    }
+    else {
+      if (index < 0 || index > this.maxIndex - 1)
+        return false;
+    }
+		
+    this.jumping = true;
+    this.ready = false;
 
-		if (this.isZoomed) {
-			var zoomImg = this.items[this.index];
-			zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
-			this.dots.first().parent().css("visibility", "visible");
-			this.nextBtn.show();
-			this.prevBtn.show();
-			this.isZooming = true;
-			this.ready = false;
-			this.widget.attr("data-ss-state", "ready");
-			this.zoomIcon.attr("data-ss-state", "out");
+    var newOffset = index * -this.itemWidth + this.peekWidth;
+
+    if (this.infinite) {
+      $(this.items[this.index]).attr("data-ss-state", "inactive");
+      $(this.items[index]).attr("data-ss-state", "active");
+      $(this.dots[this.index - 1]).attr("data-ss-state", "inactive");
+      $(this.dots[index - 1]).attr("data-ss-state", "active");
+    }
+    else {
+      $(this.items[this.index]).attr("data-ss-state", "inactive");
+      $(this.items[index]).attr("data-ss-state", "active");
+      $(this.dots[this.index]).attr("data-ss-state", "inactive");
+      $(this.dots[index]).attr("data-ss-state", "active");
+    }
+
+    if (this.fade) {
+      this.index = index;
+      return true;
+    }
+
+    if (this.autoheight) {
+      var newHeight = $(self.items[index]).outerHeight(true);
+      this.widget.height(newHeight);
+    }
+
+    if (this.isZoomed) {
+      var zoomImg = this.items[this.index];
+      zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
+      this.dots.first().parent().css("visibility", "visible");
+      this.nextBtn.show();
+      this.prevBtn.show();
+      this.isZooming = true;
+      this.ready = false;
+      this.widget.attr("data-ss-state", "ready");
+      this.zoomIcon.attr("data-ss-state", "out");
       setMatrix(zoomImg, 1, 0, 0);
-			$(zoomImg).on(TRANSITION_END, function() {
-				self.isZoomed = false;
-				self.isZooming = false;
-			});
-		}
+      $(zoomImg).on(TRANSITION_END, function() {
+        self.isZoomed = false;
+        self.isZooming = false;
+      });
+    }
 
-		this.gotoPos(newOffset, false, true);
-		this.index = index;
-		
-		return true;
-	};
+    this.gotoPos(newOffset, false, true);
+    this.index = index;
+
+    return true;
+  };
 	
 	// Helper Functions
 	function setTranslate(element, x, y) {
