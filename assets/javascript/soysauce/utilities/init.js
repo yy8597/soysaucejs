@@ -2,8 +2,12 @@ soysauce.init = function(selector) {
 	var set;
 	var numItems = 0;
 	var ret = false;
+	var fastclickSelectors = "";
 	
-  $("[data-ss-widget='toggler'] > [data-ss-component='button']").each(function() {
+	fastclickSelectors = "[data-ss-widget='toggler'] > [data-ss-component='button']";
+	fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='button']";
+	
+  $(fastclickSelectors).each(function() {
     soysauce.vars.fastclick.push(FastClick.attach(this));
   });
 	

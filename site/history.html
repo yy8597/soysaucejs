@@ -8,12 +8,12 @@
 	</head>
 	<body class="history">
 		<header>
-			<a class="title" href="/site/home.html"><img src="assets/images/icon.png"><span>Soysauce</span></a>
+			<a class="title" href="/"><img src="assets/images/icon.png"><span>Soysauce</span></a>
 			<nav>
-				<a href="/site/home.html">Home</a>
-				<a href="/site/widgets.html">Widgets</a>
-				<a href="/site/demos.html">Demos</a>
-				<a href="/site/contribute.html">Contribute</a>
+				<a href="/home.html">Home</a>
+				<a href="/widgets.html">Widgets</a>
+				<a href="/demos.html">Demos</a>
+				<a href="/contribute.html">Contribute</a>
 				<a class="active">History</a>
 			</nav>
 			<a class="github" target="_blank" href="https://github.com/brandingbrand/soysauce/issues?state=open">Report an Issue</a>
@@ -21,7 +21,57 @@
 		<div class="wrapper">
 			<div class="content">
 				<section>
-					<h1>History</h1>
+					<h1>Version History</h1>
+					<article>
+						<h2>v1.1.88 <em>July 1, 2013</em></h2>
+						<h4>General</h4>
+						<ul>
+							<li>Applying backface-visibility only to carousels and slide togglers</li>
+						</ul>
+						<h4>Carousel</h4>
+						<ul>
+							<li>Fastclick attached to carousel buttons</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.86 - v1.1.87 <em>June 27, 2013</em></h2>
+						<h4>Lazyloader</h4>
+						<ul>
+							<li>New "cache" option triggers two new events: SSSaveState and SSLoadState</li>
+							<li>Default threshold from bottom increased to 300px</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.85 <em>June 27, 2013</em></h2>
+						<h4>General</h4>
+						<ul>
+							<li>Remove -webkit-tap-highlight-color from widgets/components</li>
+						</ul>
+						<h4>Carousel/Toggler</h4>
+						<ul>
+							<li>Include margins when calculating heights</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.1.84 <em>June 26, 2013</em></h2>
+						<h4>General</h4>
+							<ul>
+								<li>Exclude -webkit-backface-visibility: hidden attribute from browsers that do not support -webkit-transform-3d</li>
+							</ul>
+					</article>
+					<article>
+						<h2>v1.1.82 - v1.1.83 <em>June 21, 2013</em></h2>
+						<h4>General</h4>
+						  <ul>
+						    <li>Removed soysauce.vars.sessionStorageFull (was never fully implemented)</li>
+						  </ul>
+						<h4>Fastclick</h4>
+							<ul>
+								<li>Removed from body</li>
+								<li>Attached only to non-orphan toggler buttons</li>
+								<li>soysauce.vars.fastclick is an array of Fastclick attached elements (call destroy on these objects if they need to be removed)</li>
+							</ul>
+					</article>
 					<article>
 						<h2>v1.1.81 <em>June 19, 2013</em></h2>
 						<h4>Carousel</h4>
@@ -374,7 +424,7 @@
 							<li>Added new lite version</li>
 							<li>CDN now migrated to cdn.brandingbrand.com</li>
 						</ul>
-						<h4>General</h4>
+						<h4>Carousel</h4>
 						<ul>
 							<li>Added 'autoheight' feature</li>
 							<li>Lowered slide transition time</li>

@@ -8,13 +8,13 @@
 	</head>
 	<body class="widgets">
 		<header>
-			<a class="title" href="/site/home.html"><img src="assets/images/icon.png"><span>Soysauce</span></a>
+			<a class="title" href="/"><img src="assets/images/icon.png"><span>Soysauce</span></a>
 			<nav>
-				<a href="/site/home.html">Home</a>
+				<a href="/home.html">Home</a>
 				<a class="active">Widgets</a>
-				<a href="/site/demos.html">Demos</a>
-				<a href="/site/contribute.html">Contribute</a>
-				<a href="/site/history.html">History</a>
+				<a href="/demos.html">Demos</a>
+				<a href="/contribute.html">Contribute</a>
+				<a href="/history.html">History</a>
 			</nav>
 			<a class="github" target="_blank" href="https://github.com/brandingbrand/soysauce/issues?state=open">Report an Issue</a>
 		</header>
@@ -333,6 +333,7 @@
 										<article>
 											<ul>
 												<li><span class="snippet">autoload</span> - Auto-processes the next batch once the user reaches the threshold</li>
+												<li><span class="snippet">cache</span> - Allows two new events to fire: SSSaveState and SSLoadState; an input with [data-ss-component="cache"] is required.</li>
 											</ul>											
 										</article>
 									</div>
@@ -343,6 +344,8 @@
 												<li><span class="snippet">SSBatchStart</span> - This event is fired on the widget when a batch request is made</li>
 												<li><span class="snippet">SSBatchLoaded</span> - This event is fired on the widget when the batch is loaded</li>
 												<li><span class="snippet">SSItemsEmpty</span> - This event is fired after there are no more items to load; use this event to obtain more items</li>
+												<li><span class="snippet">SSSaveState</span> - This event is fired on the widget on the "beforeunload" window event; save the state's page during this event</li>
+												<li><span class="snippet">SSLoadState</span> - This event is fired on the widget if the page is cached</li>
 											</ul>
 										</article>
 									</div>
