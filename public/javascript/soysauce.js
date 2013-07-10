@@ -1087,7 +1087,7 @@ soysauce.unfreeze = function(selector) {
 	});
 };
 
-soysauce.init = function(selector) {
+soysauce.init = function(selector, manual) {
 	var set;
 	var numItems = 0;
 	var ret = false;
@@ -1117,12 +1117,16 @@ soysauce.init = function(selector) {
 		var widget;
 		var orphan = false;
 		
-		$this.attr("data-ss-id", ++soysauce.vars.idCount);
-		
 		if (!type && $this.attr("data-ss-toggler-id") !== undefined) {
 			type = "toggler";
 			orphan = true;
 		}
+		
+		if (!manual && /manual/.test($this.attr("data-ss-init"))) {
+  	  return;
+  	}
+		
+		$this.attr("data-ss-id", ++soysauce.vars.idCount);
 		
 		switch (type) {
 			case "toggler":
@@ -3496,11 +3500,6 @@ soysauce.togglers = (function() {
 			
 			this.setState("closed");
 			this.content.attr("data-ss-id", button.attr("data-ss-id"));
-			
-			if (soysauce.vars.degrade) {
-				this.content.attr("data-ss-degrade", "true");
-				this.button.attr("data-ss-degrade", "true");
-			}
 		}
 		else {
 			this.widget = $(selector);

@@ -24,11 +24,6 @@
   display: block !important;
 }
 
-@media (-webkit-transform-3d) {
-  [data-ss-widget="toggler"][data-ss-options*="slide"] {
-    -webkit-backface-visibility: hidden;
-  }
-}
 [data-ss-widget="toggler"][data-ss-options*="slide"] [data-ss-component="content"] {
   -webkit-transition: height 0.25s ease-in-out;
   -moz-transition: height 0.25s ease-in-out;
