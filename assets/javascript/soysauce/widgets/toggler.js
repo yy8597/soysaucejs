@@ -38,11 +38,6 @@ soysauce.togglers = (function() {
 			
 			this.setState("closed");
 			this.content.attr("data-ss-id", button.attr("data-ss-id"));
-			
-			if (soysauce.vars.degrade) {
-				this.content.attr("data-ss-degrade", "true");
-				this.button.attr("data-ss-degrade", "true");
-			}
 		}
 		else {
 			this.widget = $(selector);
