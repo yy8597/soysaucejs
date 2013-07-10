@@ -1,4 +1,4 @@
-soysauce.init = function(selector) {
+soysauce.init = function(selector, manual) {
 	var set;
 	var numItems = 0;
 	var ret = false;
@@ -28,12 +28,16 @@ soysauce.init = function(selector) {
 		var widget;
 		var orphan = false;
 		
-		$this.attr("data-ss-id", ++soysauce.vars.idCount);
-		
 		if (!type && $this.attr("data-ss-toggler-id") !== undefined) {
 			type = "toggler";
 			orphan = true;
 		}
+		
+		if (!manual && /manual/.test($this.attr("data-ss-init"))) {
+  	  return;
+  	}
+		
+		$this.attr("data-ss-id", ++soysauce.vars.idCount);
 		
 		switch (type) {
 			case "toggler":
