@@ -56,7 +56,7 @@
 										<article>
 											<ul>
 												<li><span class="snippet">soysauce.fetch(id or CSS selector)</span> - Use this function to obtain information about a widget; An ID is placed on every widget that contains the [data-ss-widget] attribute</li>
-												<li><span class="snippet">soysauce.init(CSS selector or Element)</span> - Use this function on an element containing the [data-ss-widget] attribute to initialize the widget; Soysauce will initialize it depending on the value</li>
+												<li><span class="snippet">soysauce.init(CSS selector or Element, manual)</span> - Use this function on an element containing the [data-ss-widget] attribute to initialize the widget; Soysauce will initialize it depending on the value; set manual to true (boolean) if you've added data-ss-init="manual" on the widget container</li>
 												<li><span class="snippet">soysauce.widgets</span> - Returns an object that contains all the initialized widgets</li>
 												<li><span class="snippet">soysauce.browserInfo</span> - Returns an object that contains helpful browser information such as the user agent, local/session storage support, and SVG support</li>
 												<li><span class="snippet">soysauce.vars.degrade</span> - Programmatically determine if the current browser is degraded</li>
@@ -79,6 +79,17 @@
 												<li><span class="snippet">id</span> - The ID of the widget; used for fetching and exists on every widget (even orphan togglers)</li>
 												<li><span class="snippet">widget</span> - The widget selector; widget events are usually fired on this; simply a cached jQuery selector for this widget</li>
 												<li><span class="snippet">initialized</span> - the first check to see if a widget is initialized; if not, you will need to wait on the "SSWidgetReady" event which is fired on the widget</li>
+											</ul>											
+										</article>
+									</div>
+									<div class="attributes">
+										<h3>Common/Global Attributes</h3>
+										<article>
+											<ul>
+											  <li><span class="snippet">data-ss-widget</span> - Set to the type of widget you want to create.</li>
+											  <li><span class="snippet">data-ss-id</span> - Added automatically. The id number of the widget, can be passed into soysauce.fetch()</li>
+												<li><span class="snippet">data-ss-state</span> - Added automatically. The state of the widget, generally can be used to key off of for css</li>
+												<li><span class="snippet">data-ss-init</span> - If set to "manual", this widget will not initialize automatically on page load.</li>
 											</ul>											
 										</article>
 									</div>
