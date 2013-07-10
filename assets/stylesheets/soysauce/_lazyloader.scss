@@ -1,4 +1,5 @@
 [data-ss-widget="lazyloader"] {
+  -webkit-backface-visibility: hidden;
   [data-ss-component="item"]:not([data-ss-state="loaded"]) {
     display: none !important;
   }
