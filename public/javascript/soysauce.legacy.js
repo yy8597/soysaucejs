@@ -3494,6 +3494,7 @@ soysauce.lazyloader = (function() {
     });
 		
     if (this.cache) {
+      var unloaded = false;
       if (this.isCached) {
         this.widget.one("SSWidgetReady", function() {
           self.widget.trigger("SSLoadState");
@@ -3502,7 +3503,9 @@ soysauce.lazyloader = (function() {
       else {
         this.cacheInput.val(1);
       }
-      $(window).on("beforeunload", function() {
+      $(window).on("beforeunload unload", function(e) {
+        if (unloaded) return;
+        unloaded = true;
         self.widget.trigger("SSSaveState");
       });
     }
