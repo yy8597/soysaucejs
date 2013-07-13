@@ -63,6 +63,7 @@ soysauce.lazyloader = (function() {
 
     if (this.autoload) {
       $(window).scroll(function(e) {
+        if (self.processing) return;
         update(e, self);
       });
     }
@@ -72,7 +73,7 @@ soysauce.lazyloader = (function() {
         var widgetPositionThreshold = context.widget.height() + context.widget.offset().top - context.threshold,
             windowPosition = $(window).scrollTop() + $(window).height();
         self.timeStamp = e.timeStamp;
-
+        
         if ((windowPosition > widgetPositionThreshold) && Math.abs(e.timeStamp - soysauce.browserInfo.pageLoad) > 1500) {
           self.processNextBatch();
         }
@@ -85,9 +86,12 @@ soysauce.lazyloader = (function() {
       $items = $(this.items.splice(0, batchSize)),
       self = this,
       count = 0;
-	      
-    this.widget.trigger("SSBatchStart");
+    
+    if (this.processing) return;
+    
     this.processing = true;
+    this.widget.trigger("SSBatchStart");
+    
     if ($items.length === 0) {
       this.processing = false;
       this.widget.trigger("SSItemsEmpty");
