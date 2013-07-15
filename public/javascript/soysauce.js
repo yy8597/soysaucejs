@@ -3337,7 +3337,7 @@ soysauce.lazyloader = (function() {
 
     this.widget = $(selector);
     this.items = this.widget.find("[data-ss-component='item']");
-    this.threshold = parseInt(this.widget.attr("data-ss-threshold"), 10) || 300;
+    this.threshold = parseInt(this.widget.attr("data-ss-threshold"), 10) || 800;
     this.timeStamp = 0; // for throttling
     this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load"), 10) || 10;
     this.initialBatchLoaded = false;
@@ -3393,6 +3393,7 @@ soysauce.lazyloader = (function() {
 
     if (this.autoload) {
       $(window).scroll(function(e) {
+        if (self.processing) return;
         update(e, self);
       });
     }
@@ -3402,7 +3403,7 @@ soysauce.lazyloader = (function() {
         var widgetPositionThreshold = context.widget.height() + context.widget.offset().top - context.threshold,
             windowPosition = $(window).scrollTop() + $(window).height();
         self.timeStamp = e.timeStamp;
-
+        
         if ((windowPosition > widgetPositionThreshold) && Math.abs(e.timeStamp - soysauce.browserInfo.pageLoad) > 1500) {
           self.processNextBatch();
         }
@@ -3415,9 +3416,12 @@ soysauce.lazyloader = (function() {
       $items = $(this.items.splice(0, batchSize)),
       self = this,
       count = 0;
-	      
-    this.widget.trigger("SSBatchStart");
+    
+    if (this.processing) return;
+    
     this.processing = true;
+    this.widget.trigger("SSBatchStart");
+    
     if ($items.length === 0) {
       this.processing = false;
       this.widget.trigger("SSItemsEmpty");
@@ -3531,6 +3535,7 @@ soysauce.togglers = (function() {
 		this.doAjax = false;
 		this.ajaxData;
 		this.ajaxing = false;
+		this.ajaxOnLoad = false;
 		
 		// Tab
 		this.tab = false;
@@ -3549,6 +3554,7 @@ soysauce.togglers = (function() {
 				case "ajax":
 					self.ajax = true;
 					self.doAjax = true;
+					self.ajaxOnLoad = /true/.test(self.widget.attr("data-ss-ajax-onload"));
 					break;
 				case "tabs":
 					self.tab = true;
@@ -3667,54 +3673,30 @@ soysauce.togglers = (function() {
 			
 			content.each(function(i, contentItem) {
 				ajaxButton = $(contentItem.previousElementSibling);
-				ajaxButton.click(function(e) {
-					
-					if (!self.doAjax || self.ajaxing) return;
+				if (self.ajaxOnLoad) {
+				  injectAjaxContent(self, contentItem);
+				}
+				else {
+				  ajaxButton.click(function() {
+  					injectAjaxContent(self, contentItem);
+  				});
+				}
+			});
+			
+			function injectAjaxContent(self, contentItem) {
+			  var triggered = false;
+			  
+			  if (!self.doAjax || self.ajaxing) return;
 
-					self.setState("ajaxing");
-					self.ready = false;
-
-					url = $(contentItem).attr("data-ss-ajax-url");
-
-					if (soysauce.browserInfo.supportsSessionStorage && !soysauce.browserInfo.sessionStorageFull) {
-						self.ajaxing = true;
-						if (!sessionStorage.getItem(url)) {
-							firstTime = true;
-							$.ajax({
-								url: url,
-								type: "GET",
-								success: function(data) {
-									if (typeof(data) === "object") {
-										self.ajaxData = data;
-									}
-									else {
-										self.ajaxData = JSON.parse(data);
-									}
-									try {
-										sessionStorage.setItem(url, JSON.stringify(data));
-									}
-									catch(e) {
-										if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
-											soysauce.browserInfo.sessionStorageFull = true;
-											console.warn("Soysauce: SessionStorage full. Unable to store item.")
-										}
-									}
-									obj.trigger("SSAjaxComplete");
-									self.setAjaxComplete();
-									firstTime = false;
-								},
-								error: function(data) {
-									console.warn("Soysauce: Unable to fetch " + url);
-									self.setAjaxComplete();
-								}
-							});
-						}
-						else {
-							self.ajaxData = JSON.parse(sessionStorage.getItem(url));
-							obj.trigger("SSAjaxComplete");
-						}
-					}
-					else {
+				self.setState("ajaxing");
+				self.ready = false;
+        
+				url = $(contentItem).attr("data-ss-ajax-url");
+				
+				if (soysauce.browserInfo.supportsSessionStorage && !soysauce.browserInfo.sessionStorageFull) {
+					self.ajaxing = true;
+					if (!sessionStorage.getItem(url)) {
+						firstTime = true;
 						$.ajax({
 							url: url,
 							type: "GET",
@@ -3725,8 +3707,18 @@ soysauce.togglers = (function() {
 								else {
 									self.ajaxData = JSON.parse(data);
 								}
+								try {
+									sessionStorage.setItem(url, JSON.stringify(data));
+								}
+								catch(e) {
+									if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
+										soysauce.browserInfo.sessionStorageFull = true;
+										console.warn("Soysauce: SessionStorage full. Unable to store item.")
+									}
+								}
 								obj.trigger("SSAjaxComplete");
-								self.ajaxing = false;
+								self.setAjaxComplete();
+								firstTime = false;
 							},
 							error: function(data) {
 								console.warn("Soysauce: Unable to fetch " + url);
@@ -3734,11 +3726,36 @@ soysauce.togglers = (function() {
 							}
 						});
 					}
-					if (!firstTime) {
-						self.setAjaxComplete();
+					else {
+						self.ajaxData = JSON.parse(sessionStorage.getItem(url));
+						obj.trigger("SSAjaxComplete");
+						triggered = true;
 					}
-				});
-			});
+				}
+				else {
+					$.ajax({
+						url: url,
+						type: "GET",
+						success: function(data) {
+							if (typeof(data) === "object") {
+								self.ajaxData = data;
+							}
+							else {
+								self.ajaxData = JSON.parse(data);
+							}
+							obj.trigger("SSAjaxComplete");
+							self.ajaxing = false;
+						},
+						error: function(data) {
+							console.warn("Soysauce: Unable to fetch " + url);
+							self.setAjaxComplete();
+						}
+					});
+				}
+				if (!firstTime) {
+					self.setAjaxComplete();
+				}
+			}
 		}
 		
 		if (this.tab && this.nocollapse) {
@@ -3988,6 +4005,9 @@ soysauce.togglers = (function() {
 		this.ready = true;
 		if (this.opened) {
 			this.setState("open");
+		}
+		else {
+		  this.setState("closed");
 		}
 	};
 
