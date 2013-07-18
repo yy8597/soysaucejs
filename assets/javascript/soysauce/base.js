@@ -148,14 +148,16 @@ soysauce = {
 		else if (navigator.userAgent.match(/opera/i) !== null) return "-o-";
 		return "";
 	},
-	stifle: function(e) {
+	stifle: function(e, onlyPropagation) {
 		if (!e) return false;
 		if (e.stopImmediatePropagation) {
 			e.stopImmediatePropagation();
 		} else {
 			e.propagationStopped = true;
 		}
-		e.preventDefault();
+		if (onlyPropagation) {
+		  e.preventDefault();
+		}
 	},
 	fetch: function(selector) {
 		var query, ret;
