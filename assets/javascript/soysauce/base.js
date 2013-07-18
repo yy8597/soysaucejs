@@ -312,7 +312,9 @@ $(document).ready(function() {
 $(window).load(function() {
   var cachedLazyLoader = soysauce.fetch("[data-ss-widget='lazyloader'][data-ss-options*='cache']");
   if (cachedLazyLoader && cachedLazyLoader.isCached) return;
-  soysauce.scrollTop();
+  if (!$(this).scrollTop()) {
+    soysauce.scrollTop();
+  }
 });
 
 }
