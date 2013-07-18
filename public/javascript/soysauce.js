@@ -888,13 +888,14 @@ soysauce = {
 		else if (navigator.userAgent.match(/opera/i) !== null) return "-o-";
 		return "";
 	},
-	stifle: function(e) {
+	stifle: function(e, onlyPropagation) {
 		if (!e) return false;
 		if (e.stopImmediatePropagation) {
 			e.stopImmediatePropagation();
 		} else {
 			e.propagationStopped = true;
 		}
+		if (onlyPropagation) return false;
 		e.preventDefault();
 	},
 	fetch: function(selector) {
@@ -1051,7 +1052,9 @@ $(document).ready(function() {
 $(window).load(function() {
   var cachedLazyLoader = soysauce.fetch("[data-ss-widget='lazyloader'][data-ss-options*='cache']");
   if (cachedLazyLoader && cachedLazyLoader.isCached) return;
-  soysauce.scrollTop();
+  if (!$(this).scrollTop()) {
+    soysauce.scrollTop();
+  }
 });
 
 }
