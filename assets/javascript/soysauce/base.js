@@ -155,9 +155,8 @@ soysauce = {
 		} else {
 			e.propagationStopped = true;
 		}
-		if (onlyPropagation) {
-		  e.preventDefault();
-		}
+		if (onlyPropagation) return false;
+		e.preventDefault();
 	},
 	fetch: function(selector) {
 		var query, ret;
