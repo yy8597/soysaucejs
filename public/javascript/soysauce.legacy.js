@@ -1190,6 +1190,37 @@ $(window).load(function() {
 
 }
 
+soysauce.ajax = function(url) {
+  var result = false;
+  if (soysauce.browserInfo.supportsSessionStorage && sessionStorage[url]) {
+    try {
+      result = JSON.parse(sessionStorage[url]);
+      return result;
+    }
+    catch(e) {}
+  }
+  $.ajax({
+    url: url,
+    type: "GET",
+    async: false
+  }).success(function(data) {
+    try {
+      var resultString = result = JSON.stringify(data);
+      result = JSON.parse(result);
+      if (soysauce.browserInfo.supportsSessionStorage) {
+        sessionStorage.setItem(url, resultString);
+      }
+    }
+    catch(e) {
+      console.warn("Soysauce: error fetching url '" + url + "'. Data returned needs to be JSON.");
+      result = false;
+    }
+  }).fail(function(data) {
+    console.warn("Soysauce: " + data.status + " " + data.statusText);
+  });
+  return result;
+};
+
 soysauce.freezeChildren = function(selector) {
 	var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
 	children.each(function(index, child) {
@@ -3808,7 +3839,9 @@ soysauce.togglers = (function() {
 			content.each(function(i, contentItem) {
 				ajaxButton = $(contentItem.previousElementSibling);
 				if (self.ajaxOnLoad) {
-				  injectAjaxContent(self, contentItem);
+				  obj.on("SSWidgetReady", function() {
+				    injectAjaxContent(self, contentItem);
+				  });
 				}
 				else {
 				  ajaxButton.click(function() {

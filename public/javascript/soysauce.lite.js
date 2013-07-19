@@ -1930,7 +1930,9 @@ soysauce.togglers = (function() {
 			content.each(function(i, contentItem) {
 				ajaxButton = $(contentItem.previousElementSibling);
 				if (self.ajaxOnLoad) {
-				  injectAjaxContent(self, contentItem);
+				  obj.on("SSWidgetReady", function() {
+				    injectAjaxContent(self, contentItem);
+				  });
 				}
 				else {
 				  ajaxButton.click(function() {
