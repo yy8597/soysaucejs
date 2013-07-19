@@ -1059,33 +1059,35 @@ $(window).load(function() {
 
 }
 
-soysauce.ajax = function(url) {
+soysauce.ajax = function(url, forceAjax) {
   var result = false;
   if (soysauce.browserInfo.supportsSessionStorage && sessionStorage[url]) {
     try {
       result = JSON.parse(sessionStorage[url]);
-      return result;
+      if (!forceAjax) return result;
     }
     catch(e) {}
   }
   $.ajax({
     url: url,
-    type: "GET",
     async: false
   }).success(function(data) {
     try {
-      var resultString = result = JSON.stringify(data);
-      result = JSON.parse(result);
-      if (soysauce.browserInfo.supportsSessionStorage) {
-        sessionStorage.setItem(url, resultString);
-      }
+      var resultString = JSON.stringify(data);
+      result = JSON.parse(resultString);
+      sessionStorage.setItem(url, resultString);
     }
     catch(e) {
-      console.warn("Soysauce: error fetching url '" + url + "'. Data returned needs to be JSON.");
-      result = false;
+      if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
+        console.warn("Soysauce: sessionStorage is full.");
+      }
+      else {
+        console.warn("Soysauce: error fetching url '" + url + "'. Data returned needs to be JSON.");
+        result = false;
+      }
     }
   }).fail(function(data) {
-    console.warn("Soysauce: " + data.status + " " + data.statusText);
+    console.warn("Soysauce: error fetching url '" + url + "'. Message: " + data.status + " " + data.statusText);
   });
   return result;
 };
@@ -3566,7 +3568,6 @@ soysauce.togglers = (function() {
 		
 		// Ajax
 		this.ajax = false;
-		this.doAjax = false;
 		this.ajaxData;
 		this.ajaxing = false;
 		this.ajaxOnLoad = false;
@@ -3587,7 +3588,6 @@ soysauce.togglers = (function() {
 			switch(option) {
 				case "ajax":
 					self.ajax = true;
-					self.doAjax = true;
 					self.ajaxOnLoad = /true/.test(self.widget.attr("data-ss-ajax-onload"));
 					break;
 				case "tabs":
@@ -3720,77 +3720,15 @@ soysauce.togglers = (function() {
 			});
 			
 			function injectAjaxContent(self, contentItem) {
-			  var triggered = false;
+			  url = $(contentItem).attr("data-ss-ajax-url");
 			  
-			  if (!self.doAjax || self.ajaxing) return;
-
 				self.setState("ajaxing");
 				self.ready = false;
-        
-				url = $(contentItem).attr("data-ss-ajax-url");
+				self.ajaxing = true;
 				
-				if (soysauce.browserInfo.supportsSessionStorage && !soysauce.browserInfo.sessionStorageFull) {
-					self.ajaxing = true;
-					if (!sessionStorage.getItem(url)) {
-						firstTime = true;
-						$.ajax({
-							url: url,
-							type: "GET",
-							success: function(data) {
-								if (typeof(data) === "object") {
-									self.ajaxData = data;
-								}
-								else {
-									self.ajaxData = JSON.parse(data);
-								}
-								try {
-									sessionStorage.setItem(url, JSON.stringify(data));
-								}
-								catch(e) {
-									if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
-										soysauce.browserInfo.sessionStorageFull = true;
-										console.warn("Soysauce: SessionStorage full. Unable to store item.")
-									}
-								}
-								obj.trigger("SSAjaxComplete");
-								self.setAjaxComplete();
-								firstTime = false;
-							},
-							error: function(data) {
-								console.warn("Soysauce: Unable to fetch " + url);
-								self.setAjaxComplete();
-							}
-						});
-					}
-					else {
-						self.ajaxData = JSON.parse(sessionStorage.getItem(url));
-						obj.trigger("SSAjaxComplete");
-						triggered = true;
-					}
-				}
-				else {
-					$.ajax({
-						url: url,
-						type: "GET",
-						success: function(data) {
-							if (typeof(data) === "object") {
-								self.ajaxData = data;
-							}
-							else {
-								self.ajaxData = JSON.parse(data);
-							}
-							obj.trigger("SSAjaxComplete");
-							self.ajaxing = false;
-						},
-						error: function(data) {
-							console.warn("Soysauce: Unable to fetch " + url);
-							self.setAjaxComplete();
-						}
-					});
-				}
-				if (!firstTime) {
-					self.setAjaxComplete();
-				}
+				self.ajaxData = soysauce.ajax(url);
+				
+				self.setAjaxComplete();
 			}
 		}
 		
@@ -4036,7 +3974,6 @@ soysauce.togglers = (function() {
 	};
 
 	Toggler.prototype.setAjaxComplete = function() {
-		this.doAjax = false;
 		this.ajaxing = false;
 		this.ready = true;
 		if (this.opened) {
@@ -4045,6 +3982,7 @@ soysauce.togglers = (function() {
 		else {
 		  this.setState("closed");
 		}
+		this.widget.trigger("SSAjaxComplete");
 	};
 
 	Toggler.prototype.handleFreeze = function() {
