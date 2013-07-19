@@ -13,8 +13,8 @@ soysauce.ajax = function(url) {
     async: false
   }).success(function(data) {
     try {
-      var resultString = result = JSON.stringify(data);
-      result = JSON.parse(result);
+      var resultString = JSON.stringify(data);
+      result = JSON.parse(resultString);
       if (soysauce.browserInfo.supportsSessionStorage) {
         sessionStorage.setItem(url, resultString);
       }
@@ -24,7 +24,7 @@ soysauce.ajax = function(url) {
       result = false;
     }
   }).fail(function(data) {
-    console.warn("Soysauce: " + data.status + " " + data.statusText);
+    console.warn("Soysauce: error fetching url '" + url + "'. Message: " + data.status + " " + data.statusText);
   });
   return result;
 };
