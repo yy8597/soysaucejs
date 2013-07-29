@@ -71,6 +71,7 @@
   }
   &[data-ss-options*="autoheight"] {
     @include transition(height 0.2s);
+    overflow-y: hidden;
   }
   &[data-ss-options*="fade"] {
     [data-ss-component="container_wrapper"], [data-ss-component="container"] {
