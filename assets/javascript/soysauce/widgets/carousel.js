@@ -36,6 +36,7 @@ soysauce.carousels = (function() {
     this.prevBtn;
     this.freeze = false;
     this.jumping = false;
+    this.lastTransitionEnd = 0;
 
     // Infinite Variables
     this.infinite = true;
@@ -395,7 +396,10 @@ soysauce.carousels = (function() {
       self.handleSwipe(e);
     });
 
-    this.container.on(TRANSITION_END, function() {
+    this.container.on(TRANSITION_END, function(e) {
+      if (Math.abs(e.timeStamp - self.lastTransitionEnd) < 300) return;
+
+      self.lastTransitionEnd = e.timeStamp;
       self.widget.trigger("slideEnd");
       self.ready = true;
       self.jumping = false;
