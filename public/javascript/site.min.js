@@ -1,120 +1,120 @@
 $(document).ready(function() {
-	$(".demos").each(function() {
-		$(".autodetect-cc").each(function() {
-			var widget = soysauce.fetch("#cc-input");
-			var prediction = $("#prediction");
-			var result = $("#result");
-			var ccInput = $("#cc-input");
-			var cardElements = $(".cards li");
+  $(".demos").each(function() {
+    $(".autodetect-cc").each(function() {
+      var widget = soysauce.fetch("#cc-input");
+      var prediction = $("#prediction");
+      var result = $("#result");
+      var ccInput = $("#cc-input");
+      var cardElements = $(".cards li");
 
-			ccInput.on("SSPrediction", function() {
-				prediction.html(widget.prediction);
+      ccInput.on("SSPrediction", function() {
+        prediction.html(widget.prediction);
 
-				if (widget.prediction !== undefined) {
-					cardElements.each(function(i, card) {
-						var cards = widget.prediction.split(" ");
-						var setInactive = true;
+        if (widget.prediction !== undefined) {
+          cardElements.each(function(i, card) {
+            var cards = widget.prediction.split(" ");
+            var setInactive = true;
 
-						cards.forEach(function(name) {
-							if ($(card).hasClass(name)) {
-								setInactive = false;
-							}
-						});
+            cards.forEach(function(name) {
+              if ($(card).hasClass(name)) {
+                setInactive = false;
+              }
+            });
 
-						if (setInactive) {
-							$(card).addClass("inactive");
-						}
-						else {
-							$(card).removeClass("inactive");
-						}
-					});
-				} 
-				else {
-					prediction.html("unknown type");
-					cardElements.addClass("inactive");
-				}
-			});
+            if (setInactive) {
+              $(card).addClass("inactive");
+            }
+            else {
+              $(card).removeClass("inactive");
+            }
+          });
+        } 
+        else {
+          prediction.html("unknown type");
+          cardElements.addClass("inactive");
+        }
+      });
 
-			ccInput.on("SSResult", function() {
-				if (!widget.result) {
-					result.html("invalid card");
-				}
-				else {
-					result.html(widget.result);
-				}
-				$(".cards li:not(." + widget.result + ")").addClass("inactive");
-				$(".cards li." + widget.result).removeClass("inactive");
-			});
+      ccInput.on("SSResult", function() {
+        if (!widget.result) {
+          result.html("invalid card");
+        }
+        else {
+          result.html(widget.result);
+        }
+        $(".cards li:not(." + widget.result + ")").addClass("inactive");
+        $(".cards li." + widget.result).removeClass("inactive");
+      });
 
-			ccInput.on("keyup change", function() {
-				if (ccInput.val() === "") {
-					prediction.html("");
-					result.html("");
-					cardElements.removeClass("inactive");
-				}
-			});
-		});
-		$(".reverseGeocode").each(function() {
-			var input = soysauce.fetch(".reverseGeocode [data-ss-widget='autofill-zip']");
+      ccInput.on("keyup change", function() {
+        if (ccInput.val() === "") {
+          prediction.html("");
+          result.html("");
+          cardElements.removeClass("inactive");
+        }
+      });
+    });
+    $(".reverseGeocode").each(function() {
+      var input = soysauce.fetch(".reverseGeocode [data-ss-widget='autofill-zip']");
 
-			input.widget.on("SSDataFetch", function() {
-				showLoader(input);
-			});
+      input.widget.on("SSDataFetch", function() {
+        showLoader(input);
+      });
 
-			input.widget.on("SSDataReady SSDataError", function() {
-				hideLoader(input);
-			});
+      input.widget.on("SSDataReady SSDataError", function() {
+        hideLoader(input);
+      });
 
-			function showLoader(widget) {
-				widget.zip.find("+ img").show();
-			}
+      function showLoader(widget) {
+        widget.zip.find("+ img").show();
+      }
 
-			function hideLoader(widget) {
-				widget.zip.find("+ img").hide();
-			}
-		});
-	});
+      function hideLoader(widget) {
+        widget.zip.find("+ img").hide();
+      }
+    });
+  });
 });
 
 $(document).ready(function() {
-	$(".home").each(function() {
-		var autofill = soysauce.fetch("[data-ss-widget='autofill-zip']");
-		var loader = $(".ajaxLoader");
-		
-		autofill.widget.on("SSDataFetch", function() {
-			showLoader(autofill);
-		});
+  $(".home").each(function() {
+    var autofill = soysauce.fetch("[data-ss-widget='autofill-zip']");
+    var loader = $(".ajaxLoader");
+    
+    autofill.widget.on("SSDataFetch", function() {
+      showLoader(autofill);
+    });
 
-		autofill.widget.on("SSDataReady SSDataError", function() {
-			hideLoader(autofill);
-		});
-		
-		autofill.widget.on("SSDataError", function() {
-			autofill.zip.addClass("error");
-		});
-		
-		autofill.widget.on("SSDataReady", function() {
-			$(".message").css("opacity", "1");
-			autofill.zip.removeClass("error");
-		});
-		
-		$(".proceed button").on("click", function() {
-			$(".step1").hide();
-			$(".step2").show();
-		});
-		
-		$(".latest input[type=text]").click(function() {
-		   $(this).select();
-		});
-		
-		function showLoader(widget) {
-			loader.css("visibility", "visible");
-		}
-		
-		function hideLoader(widget) {
-			loader.css("visibility", "hidden");
-		}
-	});
+    autofill.widget.on("SSDataReady SSDataError", function() {
+      hideLoader(autofill);
+    });
+    
+    autofill.widget.on("SSDataError", function() {
+      autofill.zip.addClass("error");
+    });
+    
+    autofill.widget.on("SSDataReady", function() {
+      $(".message").css("opacity", "1");
+      autofill.zip.removeClass("error");
+    });
+    
+    $(".proceed button").on("click", function() {
+      $(".step1").hide();
+      $(".step2").show();
+    });
+    
+    $(".latest input[type=text]").click(function() {
+       $(this).select();
+    });
+    
+    function showLoader(widget) {
+      loader.css("visibility", "visible");
+    }
+    
+    function hideLoader(widget) {
+      loader.css("visibility", "hidden");
+    }
+  });
 });
 !function(){var r=null;
 (function(){function X(e){function j(){try{J.doScroll("left")}catch(e){P(j,50);return}w("poll")}function w(j){if(!(j.type=="readystatechange"&&x.readyState!="complete")&&((j.type=="load"?n:x)[z](i+j.type,w,!1),!m&&(m=!0)))e.call(n,j.type||j)}var Y=x.addEventListener,m=!1,C=!0,t=Y?"addEventListener":"attachEvent",z=Y?"removeEventListener":"detachEvent",i=Y?"":"on";if(x.readyState=="complete")e.call(n,"lazy");else{if(x.createEventObject&&J.doScroll){try{C=!n.frameElement}catch(A){}C&&j()}x[t](i+"DOMContentLoaded",
@@ -151,63 +151,63 @@ prettyPrint:e=e=function(a,d){function e(){for(var b=V.PR_SHOULD_USE_CONTINUATIO
 P(e,250):"function"===typeof a&&a()}for(var b=d||document.body,i=b.ownerDocument||document,b=[b.getElementsByTagName("pre"),b.getElementsByTagName("code"),b.getElementsByTagName("xmp")],j=[],m=0;m<b.length;++m)for(var l=0,n=b[m].length;l<n;++l)j.push(b[m][l]);var b=r,c=Date;c.now||(c={now:function(){return+new Date}});var p=0,t,q=/\blang(?:uage)?-([\w.]+)(?!\S)/,f=/\bprettyprint\b/,w=/\bprettyprinted\b/,y=/pre|xmp/i,u=/^code$/i,g=/^(?:pre|code|xmp)$/i,k={};e()}};typeof define==="function"&&define.amd&&
 define("google-code-prettify",[],function(){return X})})();return e}();R||P(Q,0)})();}()
 $(document).ready(function() {
-	// Home
-	$(".home").each(function() {
-		// Track Demo Click
-		$(".proceed button").on("click", function() {
-			_gaq.push(["_trackEvent", "Home", "Click", "How To Demo"]);
-		});
-	});
-	
-	// Widgets
-	$(".widgets").each(function() {
-		// Track Widget API Navigation Click
-		var basics = 0,
-				carousel = 1,
-				toggler = 2,
-				lazyloader = 3
-				autodetectCC = 4,
-				autofillZip = 5;
-		
-		var navButtons = $(".api aside li");
-		
-		navButtons.on("click", function() {
-			var type = "";
-			
-			switch (navButtons.index(this)) {
-				case basics:
-					type = "Basics";
-					break;
-				case carousel:
-					type = "Carousel";
-					break;
-				case toggler:
-					type = "Toggler";
-					break;
-				case lazyloader:
-					type = "Lazyloader"
-					break;
-				case autodetectCC:
-					type = "Autodetect CC";
-					break;
-				case autofillZip:
-					type = "Autofill Zip";
-					break;
-			}
-			
-			_gaq.push(["_trackEvent", "Widgets", "Click", type]);
-		});
-		
-	});
-	
+  // Home
+  $(".home").each(function() {
+    // Track Demo Click
+    $(".proceed button").on("click", function() {
+      _gaq.push(["_trackEvent", "Home", "Click", "How To Demo"]);
+    });
+  });
+  
+  // Widgets
+  $(".widgets").each(function() {
+    // Track Widget API Navigation Click
+    var basics = 0,
+        carousel = 1,
+        toggler = 2,
+        lazyloader = 3
+        autodetectCC = 4,
+        autofillZip = 5;
+    
+    var navButtons = $(".api aside li");
+    
+    navButtons.on("click", function() {
+      var type = "";
+      
+      switch (navButtons.index(this)) {
+        case basics:
+          type = "Basics";
+          break;
+        case carousel:
+          type = "Carousel";
+          break;
+        case toggler:
+          type = "Toggler";
+          break;
+        case lazyloader:
+          type = "Lazyloader"
+          break;
+        case autodetectCC:
+          type = "Autodetect CC";
+          break;
+        case autofillZip:
+          type = "Autofill Zip";
+          break;
+      }
+      
+      _gaq.push(["_trackEvent", "Widgets", "Click", type]);
+    });
+    
+  });
+  
 });
 
 $(document).ready(function() {
-	$(".widgets").each(function() {
-		var navItems = $(".api aside li");
-		var apiCarousel = soysauce.fetch(".apiCarousel");
-		navItems.click(function(e, i) {
-			apiCarousel.jumpTo(navItems.index(this));
-		});
-	});
+  $(".widgets").each(function() {
+    var navItems = $(".api aside li");
+    var apiCarousel = soysauce.fetch(".apiCarousel");
+    navItems.click(function(e, i) {
+      apiCarousel.jumpTo(navItems.index(this));
+    });
+  });
 });

@@ -18,148 +18,148 @@
    * @param {Element} layer The layer to listen on
    */
   function FastClick(layer) {
-  	'use strict';
-  	var oldOnClick, self = this;
+    'use strict';
+    var oldOnClick, self = this;
 
 
-  	/**
-  	 * Whether a click is currently being tracked.
-  	 *
-  	 * @type boolean
-  	 */
-  	this.trackingClick = false;
+    /**
+     * Whether a click is currently being tracked.
+     *
+     * @type boolean
+     */
+    this.trackingClick = false;
 
 
-  	/**
-  	 * Timestamp for when when click tracking started.
-  	 *
-  	 * @type number
-  	 */
-  	this.trackingClickStart = 0;
+    /**
+     * Timestamp for when when click tracking started.
+     *
+     * @type number
+     */
+    this.trackingClickStart = 0;
 
 
-  	/**
-  	 * The element being tracked for a click.
-  	 *
-  	 * @type EventTarget
-  	 */
-  	this.targetElement = null;
+    /**
+     * The element being tracked for a click.
+     *
+     * @type EventTarget
+     */
+    this.targetElement = null;
 
 
-  	/**
-  	 * X-coordinate of touch start event.
-  	 *
-  	 * @type number
-  	 */
-  	this.touchStartX = 0;
+    /**
+     * X-coordinate of touch start event.
+     *
+     * @type number
+     */
+    this.touchStartX = 0;
 
 
-  	/**
-  	 * Y-coordinate of touch start event.
-  	 *
-  	 * @type number
-  	 */
-  	this.touchStartY = 0;
+    /**
+     * Y-coordinate of touch start event.
+     *
+     * @type number
+     */
+    this.touchStartY = 0;
 
 
-  	/**
-  	 * ID of the last touch, retrieved from Touch.identifier.
-  	 *
-  	 * @type number
-  	 */
-  	this.lastTouchIdentifier = 0;
+    /**
+     * ID of the last touch, retrieved from Touch.identifier.
+     *
+     * @type number
+     */
+    this.lastTouchIdentifier = 0;
 
 
-  	/**
-  	 * Touchmove boundary, beyond which a click will be cancelled.
-  	 *
-  	 * @type number
-  	 */
-  	this.touchBoundary = 10;
+    /**
+     * Touchmove boundary, beyond which a click will be cancelled.
+     *
+     * @type number
+     */
+    this.touchBoundary = 10;
 
 
-  	/**
-  	 * The FastClick layer.
-  	 *
-  	 * @type Element
-  	 */
-  	this.layer = layer;
+    /**
+     * The FastClick layer.
+     *
+     * @type Element
+     */
+    this.layer = layer;
 
-  	if (!layer || !layer.nodeType) {
-  		throw new TypeError('Layer must be a document node');
-  	}
+    if (!layer || !layer.nodeType) {
+      throw new TypeError('Layer must be a document node');
+    }
 
-  	/** @type function() */
-  	this.onClick = function() { return FastClick.prototype.onClick.apply(self, arguments); };
+    /** @type function() */
+    this.onClick = function() { return FastClick.prototype.onClick.apply(self, arguments); };
 
-  	/** @type function() */
-  	this.onMouse = function() { return FastClick.prototype.onMouse.apply(self, arguments); };
+    /** @type function() */
+    this.onMouse = function() { return FastClick.prototype.onMouse.apply(self, arguments); };
 
-  	/** @type function() */
-  	this.onTouchStart = function() { return FastClick.prototype.onTouchStart.apply(self, arguments); };
+    /** @type function() */
+    this.onTouchStart = function() { return FastClick.prototype.onTouchStart.apply(self, arguments); };
 
-  	/** @type function() */
-  	this.onTouchEnd = function() { return FastClick.prototype.onTouchEnd.apply(self, arguments); };
+    /** @type function() */
+    this.onTouchEnd = function() { return FastClick.prototype.onTouchEnd.apply(self, arguments); };
 
-  	/** @type function() */
-  	this.onTouchCancel = function() { return FastClick.prototype.onTouchCancel.apply(self, arguments); };
+    /** @type function() */
+    this.onTouchCancel = function() { return FastClick.prototype.onTouchCancel.apply(self, arguments); };
 
-  	if (FastClick.notNeeded(layer)) {
-  		return;
-  	}
+    if (FastClick.notNeeded(layer)) {
+      return;
+    }
 
-  	// Set up event handlers as required
-  	if (this.deviceIsAndroid) {
-  		layer.addEventListener('mouseover', this.onMouse, true);
-  		layer.addEventListener('mousedown', this.onMouse, true);
-  		layer.addEventListener('mouseup', this.onMouse, true);
-  	}
+    // Set up event handlers as required
+    if (this.deviceIsAndroid) {
+      layer.addEventListener('mouseover', this.onMouse, true);
+      layer.addEventListener('mousedown', this.onMouse, true);
+      layer.addEventListener('mouseup', this.onMouse, true);
+    }
 
-  	layer.addEventListener('click', this.onClick, true);
-  	layer.addEventListener('touchstart', this.onTouchStart, false);
-  	layer.addEventListener('touchend', this.onTouchEnd, false);
-  	layer.addEventListener('touchcancel', this.onTouchCancel, false);
+    layer.addEventListener('click', this.onClick, true);
+    layer.addEventListener('touchstart', this.onTouchStart, false);
+    layer.addEventListener('touchend', this.onTouchEnd, false);
+    layer.addEventListener('touchcancel', this.onTouchCancel, false);
 
-  	// Hack is required for browsers that don't support Event#stopImmediatePropagation (e.g. Android 2)
-  	// which is how FastClick normally stops click events bubbling to callbacks registered on the FastClick
-  	// layer when they are cancelled.
-  	if (!Event.prototype.stopImmediatePropagation) {
-  		layer.removeEventListener = function(type, callback, capture) {
-  			var rmv = Node.prototype.removeEventListener;
-  			if (type === 'click') {
-  				rmv.call(layer, type, callback.hijacked || callback, capture);
-  			} else {
-  				rmv.call(layer, type, callback, capture);
-  			}
-  		};
+    // Hack is required for browsers that don't support Event#stopImmediatePropagation (e.g. Android 2)
+    // which is how FastClick normally stops click events bubbling to callbacks registered on the FastClick
+    // layer when they are cancelled.
+    if (!Event.prototype.stopImmediatePropagation) {
+      layer.removeEventListener = function(type, callback, capture) {
+        var rmv = Node.prototype.removeEventListener;
+        if (type === 'click') {
+          rmv.call(layer, type, callback.hijacked || callback, capture);
+        } else {
+          rmv.call(layer, type, callback, capture);
+        }
+      };
 
-  		layer.addEventListener = function(type, callback, capture) {
-  			var adv = Node.prototype.addEventListener;
-  			if (type === 'click') {
-  				adv.call(layer, type, callback.hijacked || (callback.hijacked = function(event) {
-  					if (!event.propagationStopped) {
-  						callback(event);
-  					}
-  				}), capture);
-  			} else {
-  				adv.call(layer, type, callback, capture);
-  			}
-  		};
-  	}
+      layer.addEventListener = function(type, callback, capture) {
+        var adv = Node.prototype.addEventListener;
+        if (type === 'click') {
+          adv.call(layer, type, callback.hijacked || (callback.hijacked = function(event) {
+            if (!event.propagationStopped) {
+              callback(event);
+            }
+          }), capture);
+        } else {
+          adv.call(layer, type, callback, capture);
+        }
+      };
+    }
 
-  	// If a handler is already declared in the element's onclick attribute, it will be fired before
-  	// FastClick's onClick handler. Fix this by pulling out the user-defined handler function and
-  	// adding it as listener.
-  	if (typeof layer.onclick === 'function') {
+    // If a handler is already declared in the element's onclick attribute, it will be fired before
+    // FastClick's onClick handler. Fix this by pulling out the user-defined handler function and
+    // adding it as listener.
+    if (typeof layer.onclick === 'function') {
 
-  		// Android browser on at least 3.2 requires a new reference to the function in layer.onclick
-  		// - the old one won't work if passed to addEventListener directly.
-  		oldOnClick = layer.onclick;
-  		layer.addEventListener('click', function(event) {
-  			oldOnClick(event);
-  		}, false);
-  		layer.onclick = null;
-  	}
+      // Android browser on at least 3.2 requires a new reference to the function in layer.onclick
+      // - the old one won't work if passed to addEventListener directly.
+      oldOnClick = layer.onclick;
+      layer.addEventListener('click', function(event) {
+        oldOnClick(event);
+      }, false);
+      layer.onclick = null;
+    }
   }
 
 
@@ -202,32 +202,32 @@
    * @returns {boolean} Returns true if the element needs a native click
    */
   FastClick.prototype.needsClick = function(target) {
-  	'use strict';
-  	switch (target.nodeName.toLowerCase()) {
+    'use strict';
+    switch (target.nodeName.toLowerCase()) {
 
-  	// Don't send a synthetic click to disabled inputs (issue #62)
-  	case 'button':
-  	case 'select':
-  	case 'textarea':
-  		if (target.disabled) {
-  			return true;
-  		}
+    // Don't send a synthetic click to disabled inputs (issue #62)
+    case 'button':
+    case 'select':
+    case 'textarea':
+      if (target.disabled) {
+        return true;
+      }
 
-  		break;
-  	case 'input':
+      break;
+    case 'input':
 
-  		// File inputs need real clicks on iOS 6 due to a browser bug (issue #68)
-  		if ((this.deviceIsIOS && target.type === 'file') || target.disabled) {
-  			return true;
-  		}
+      // File inputs need real clicks on iOS 6 due to a browser bug (issue #68)
+      if ((this.deviceIsIOS && target.type === 'file') || target.disabled) {
+        return true;
+      }
 
-  		break;
-  	case 'label':
-  	case 'video':
-  		return true;
-  	}
+      break;
+    case 'label':
+    case 'video':
+      return true;
+    }
 
-  	return (/\bneedsclick\b/).test(target.className);
+    return (/\bneedsclick\b/).test(target.className);
   };
 
 
@@ -238,27 +238,27 @@
    * @returns {boolean} Returns true if the element requires a call to focus to simulate native click.
    */
   FastClick.prototype.needsFocus = function(target) {
-  	'use strict';
-  	switch (target.nodeName.toLowerCase()) {
-  	case 'textarea':
-  	case 'select':
-  		return true;
-  	case 'input':
-  		switch (target.type) {
-  		case 'button':
-  		case 'checkbox':
-  		case 'file':
-  		case 'image':
-  		case 'radio':
-  		case 'submit':
-  			return false;
-  		}
+    'use strict';
+    switch (target.nodeName.toLowerCase()) {
+    case 'textarea':
+    case 'select':
+      return true;
+    case 'input':
+      switch (target.type) {
+      case 'button':
+      case 'checkbox':
+      case 'file':
+      case 'image':
+      case 'radio':
+      case 'submit':
+        return false;
+      }
 
-  		// No point in attempting to focus disabled inputs
-  		return !target.disabled && !target.readOnly;
-  	default:
-  		return (/\bneedsfocus\b/).test(target.className);
-  	}
+      // No point in attempting to focus disabled inputs
+      return !target.disabled && !target.readOnly;
+    default:
+      return (/\bneedsfocus\b/).test(target.className);
+    }
   };
 
 
@@ -269,21 +269,21 @@
    * @param {Event} event
    */
   FastClick.prototype.sendClick = function(targetElement, event) {
-  	'use strict';
-  	var clickEvent, touch;
+    'use strict';
+    var clickEvent, touch;
 
-  	// On some Android devices activeElement needs to be blurred otherwise the synthetic click will have no effect (#24)
-  	if (document.activeElement && document.activeElement !== targetElement) {
-  		document.activeElement.blur();
-  	}
+    // On some Android devices activeElement needs to be blurred otherwise the synthetic click will have no effect (#24)
+    if (document.activeElement && document.activeElement !== targetElement) {
+      document.activeElement.blur();
+    }
 
-  	touch = event.changedTouches[0];
+    touch = event.changedTouches[0];
 
-  	// Synthesise a click event, with an extra attribute so it can be tracked
-  	clickEvent = document.createEvent('MouseEvents');
-  	clickEvent.initMouseEvent('click', true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
-  	clickEvent.forwardedTouchEvent = true;
-  	targetElement.dispatchEvent(clickEvent);
+    // Synthesise a click event, with an extra attribute so it can be tracked
+    clickEvent = document.createEvent('MouseEvents');
+    clickEvent.initMouseEvent('click', true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
+    clickEvent.forwardedTouchEvent = true;
+    targetElement.dispatchEvent(clickEvent);
   };
 
 
@@ -291,15 +291,15 @@
    * @param {EventTarget|Element} targetElement
    */
   FastClick.prototype.focus = function(targetElement) {
-  	'use strict';
-  	var length;
+    'use strict';
+    var length;
 
-  	if (this.deviceIsIOS && targetElement.setSelectionRange) {
-  		length = targetElement.value.length;
-  		targetElement.setSelectionRange(length, length);
-  	} else {
-  		targetElement.focus();
-  	}
+    if (this.deviceIsIOS && targetElement.setSelectionRange) {
+      length = targetElement.value.length;
+      targetElement.setSelectionRange(length, length);
+    } else {
+      targetElement.focus();
+    }
   };
 
 
@@ -309,30 +309,30 @@
    * @param {EventTarget|Element} targetElement
    */
   FastClick.prototype.updateScrollParent = function(targetElement) {
-  	'use strict';
-  	var scrollParent, parentElement;
+    'use strict';
+    var scrollParent, parentElement;
 
-  	scrollParent = targetElement.fastClickScrollParent;
+    scrollParent = targetElement.fastClickScrollParent;
 
-  	// Attempt to discover whether the target element is contained within a scrollable layer. Re-check if the
-  	// target element was moved to another parent.
-  	if (!scrollParent || !scrollParent.contains(targetElement)) {
-  		parentElement = targetElement;
-  		do {
-  			if (parentElement.scrollHeight > parentElement.offsetHeight) {
-  				scrollParent = parentElement;
-  				targetElement.fastClickScrollParent = parentElement;
-  				break;
-  			}
+    // Attempt to discover whether the target element is contained within a scrollable layer. Re-check if the
+    // target element was moved to another parent.
+    if (!scrollParent || !scrollParent.contains(targetElement)) {
+      parentElement = targetElement;
+      do {
+        if (parentElement.scrollHeight > parentElement.offsetHeight) {
+          scrollParent = parentElement;
+          targetElement.fastClickScrollParent = parentElement;
+          break;
+        }
 
-  			parentElement = parentElement.parentElement;
-  		} while (parentElement);
-  	}
+        parentElement = parentElement.parentElement;
+      } while (parentElement);
+    }
 
-  	// Always update the scroll top tracker if possible.
-  	if (scrollParent) {
-  		scrollParent.fastClickLastScrollTop = scrollParent.scrollTop;
-  	}
+    // Always update the scroll top tracker if possible.
+    if (scrollParent) {
+      scrollParent.fastClickLastScrollTop = scrollParent.scrollTop;
+    }
   };
 
 
@@ -341,14 +341,14 @@
    * @returns {Element|EventTarget}
    */
   FastClick.prototype.getTargetElementFromEventTarget = function(eventTarget) {
-  	'use strict';
+    'use strict';
 
-  	// On some older browsers (notably Safari on iOS 4.1 - see issue #56) the event target may be a text node.
-  	if (eventTarget.nodeType === Node.TEXT_NODE) {
-  		return eventTarget.parentNode;
-  	}
+    // On some older browsers (notably Safari on iOS 4.1 - see issue #56) the event target may be a text node.
+    if (eventTarget.nodeType === Node.TEXT_NODE) {
+      return eventTarget.parentNode;
+    }
 
-  	return eventTarget;
+    return eventTarget;
   };
 
 
@@ -359,62 +359,62 @@
    * @returns {boolean}
    */
   FastClick.prototype.onTouchStart = function(event) {
-  	'use strict';
-  	var targetElement, touch, selection;
+    'use strict';
+    var targetElement, touch, selection;
 
-  	// Ignore multiple touches, otherwise pinch-to-zoom is prevented if both fingers are on the FastClick element (issue #111).
-  	if (event.targetTouches.length > 1) {
-  		return true;
-  	}
+    // Ignore multiple touches, otherwise pinch-to-zoom is prevented if both fingers are on the FastClick element (issue #111).
+    if (event.targetTouches.length > 1) {
+      return true;
+    }
 
-  	targetElement = this.getTargetElementFromEventTarget(event.target);
-  	touch = event.targetTouches[0];
+    targetElement = this.getTargetElementFromEventTarget(event.target);
+    touch = event.targetTouches[0];
 
-  	if (this.deviceIsIOS) {
+    if (this.deviceIsIOS) {
 
-  		// Only trusted events will deselect text on iOS (issue #49)
-  		selection = window.getSelection();
-  		if (selection.rangeCount && !selection.isCollapsed) {
-  			return true;
-  		}
+      // Only trusted events will deselect text on iOS (issue #49)
+      selection = window.getSelection();
+      if (selection.rangeCount && !selection.isCollapsed) {
+        return true;
+      }
 
-  		if (!this.deviceIsIOS4) {
+      if (!this.deviceIsIOS4) {
 
-  			// Weird things happen on iOS when an alert or confirm dialog is opened from a click event callback (issue #23):
-  			// when the user next taps anywhere else on the page, new touchstart and touchend events are dispatched
-  			// with the same identifier as the touch event that previously triggered the click that triggered the alert.
-  			// Sadly, there is an issue on iOS 4 that causes some normal touch events to have the same identifier as an
-  			// immediately preceeding touch event (issue #52), so this fix is unavailable on that platform.
-  			if (touch.identifier === this.lastTouchIdentifier) {
-  				event.preventDefault();
-  				return false;
-  			}
+        // Weird things happen on iOS when an alert or confirm dialog is opened from a click event callback (issue #23):
+        // when the user next taps anywhere else on the page, new touchstart and touchend events are dispatched
+        // with the same identifier as the touch event that previously triggered the click that triggered the alert.
+        // Sadly, there is an issue on iOS 4 that causes some normal touch events to have the same identifier as an
+        // immediately preceeding touch event (issue #52), so this fix is unavailable on that platform.
+        if (touch.identifier === this.lastTouchIdentifier) {
+          event.preventDefault();
+          return false;
+        }
 
-  			this.lastTouchIdentifier = touch.identifier;
+        this.lastTouchIdentifier = touch.identifier;
 
-  			// If the target element is a child of a scrollable layer (using -webkit-overflow-scrolling: touch) and:
-  			// 1) the user does a fling scroll on the scrollable layer
-  			// 2) the user stops the fling scroll with another tap
-  			// then the event.target of the last 'touchend' event will be the element that was under the user's finger
-  			// when the fling scroll was started, causing FastClick to send a click event to that layer - unless a check
-  			// is made to ensure that a parent layer was not scrolled before sending a synthetic click (issue #42).
-  			this.updateScrollParent(targetElement);
-  		}
-  	}
+        // If the target element is a child of a scrollable layer (using -webkit-overflow-scrolling: touch) and:
+        // 1) the user does a fling scroll on the scrollable layer
+        // 2) the user stops the fling scroll with another tap
+        // then the event.target of the last 'touchend' event will be the element that was under the user's finger
+        // when the fling scroll was started, causing FastClick to send a click event to that layer - unless a check
+        // is made to ensure that a parent layer was not scrolled before sending a synthetic click (issue #42).
+        this.updateScrollParent(targetElement);
+      }
+    }
 
-  	this.trackingClick = true;
-  	this.trackingClickStart = event.timeStamp;
-  	this.targetElement = targetElement;
+    this.trackingClick = true;
+    this.trackingClickStart = event.timeStamp;
+    this.targetElement = targetElement;
 
-  	this.touchStartX = touch.pageX;
-  	this.touchStartY = touch.pageY;
+    this.touchStartX = touch.pageX;
+    this.touchStartY = touch.pageY;
 
-  	// Prevent phantom clicks on fast double-tap (issue #36)
-  	if ((event.timeStamp - this.lastClickTime) < 200) {
-  		event.preventDefault();
-  	}
+    // Prevent phantom clicks on fast double-tap (issue #36)
+    if ((event.timeStamp - this.lastClickTime) < 200) {
+      event.preventDefault();
+    }
 
-  	return true;
+    return true;
   };
 
 
@@ -425,14 +425,14 @@
    * @returns {boolean}
    */
   FastClick.prototype.touchHasMoved = function(event) {
-  	'use strict';
-  	var touch = event.changedTouches[0], boundary = this.touchBoundary;
+    'use strict';
+    var touch = event.changedTouches[0], boundary = this.touchBoundary;
 
-  	if (Math.abs(touch.pageX - this.touchStartX) > boundary || Math.abs(touch.pageY - this.touchStartY) > boundary) {
-  		return true;
-  	}
+    if (Math.abs(touch.pageX - this.touchStartX) > boundary || Math.abs(touch.pageY - this.touchStartY) > boundary) {
+      return true;
+    }
 
-  	return false;
+    return false;
   };
 
 
@@ -443,21 +443,21 @@
    * @returns {Element|null}
    */
   FastClick.prototype.findControl = function(labelElement) {
-  	'use strict';
+    'use strict';
 
-  	// Fast path for newer browsers supporting the HTML5 control attribute
-  	if (labelElement.control !== undefined) {
-  		return labelElement.control;
-  	}
+    // Fast path for newer browsers supporting the HTML5 control attribute
+    if (labelElement.control !== undefined) {
+      return labelElement.control;
+    }
 
-  	// All browsers under test that support touch events also support the HTML5 htmlFor attribute
-  	if (labelElement.htmlFor) {
-  		return document.getElementById(labelElement.htmlFor);
-  	}
+    // All browsers under test that support touch events also support the HTML5 htmlFor attribute
+    if (labelElement.htmlFor) {
+      return document.getElementById(labelElement.htmlFor);
+    }
 
-  	// If no for attribute exists, attempt to retrieve the first labellable descendant element
-  	// the list of which is defined here: http://www.w3.org/TR/html5/forms.html#category-label
-  	return labelElement.querySelector('button, input:not([type=hidden]), keygen, meter, output, progress, select, textarea');
+    // If no for attribute exists, attempt to retrieve the first labellable descendant element
+    // the list of which is defined here: http://www.w3.org/TR/html5/forms.html#category-label
+    return labelElement.querySelector('button, input:not([type=hidden]), keygen, meter, output, progress, select, textarea');
   };
 
 
@@ -468,89 +468,89 @@
    * @returns {boolean}
    */
   FastClick.prototype.onTouchEnd = function(event) {
-  	'use strict';
-  	var forElement, trackingClickStart, targetTagName, scrollParent, touch, targetElement = this.targetElement;
+    'use strict';
+    var forElement, trackingClickStart, targetTagName, scrollParent, touch, targetElement = this.targetElement;
 
-  	// If the touch has moved, cancel the click tracking
-  	if (this.touchHasMoved(event)) {
-  		this.trackingClick = false;
-  		this.targetElement = null;
-  	}
+    // If the touch has moved, cancel the click tracking
+    if (this.touchHasMoved(event)) {
+      this.trackingClick = false;
+      this.targetElement = null;
+    }
 
-  	if (!this.trackingClick) {
-  		return true;
-  	}
+    if (!this.trackingClick) {
+      return true;
+    }
 
-  	// Prevent phantom clicks on fast double-tap (issue #36)
-  	if ((event.timeStamp - this.lastClickTime) < 200) {
-  		this.cancelNextClick = true;
-  		return true;
-  	}
+    // Prevent phantom clicks on fast double-tap (issue #36)
+    if ((event.timeStamp - this.lastClickTime) < 200) {
+      this.cancelNextClick = true;
+      return true;
+    }
 
-  	this.lastClickTime = event.timeStamp;
+    this.lastClickTime = event.timeStamp;
 
-  	trackingClickStart = this.trackingClickStart;
-  	this.trackingClick = false;
-  	this.trackingClickStart = 0;
+    trackingClickStart = this.trackingClickStart;
+    this.trackingClick = false;
+    this.trackingClickStart = 0;
 
-  	// On some iOS devices, the targetElement supplied with the event is invalid if the layer
-  	// is performing a transition or scroll, and has to be re-detected manually. Note that
-  	// for this to function correctly, it must be called *after* the event target is checked!
-  	// See issue #57; also filed as rdar://13048589 .
-  	if (this.deviceIsIOSWithBadTarget) {
-  		touch = event.changedTouches[0];
-  		targetElement = document.elementFromPoint(touch.pageX - window.pageXOffset, touch.pageY - window.pageYOffset);
-  	}
+    // On some iOS devices, the targetElement supplied with the event is invalid if the layer
+    // is performing a transition or scroll, and has to be re-detected manually. Note that
+    // for this to function correctly, it must be called *after* the event target is checked!
+    // See issue #57; also filed as rdar://13048589 .
+    if (this.deviceIsIOSWithBadTarget) {
+      touch = event.changedTouches[0];
+      targetElement = document.elementFromPoint(touch.pageX - window.pageXOffset, touch.pageY - window.pageYOffset);
+    }
 
-  	targetTagName = targetElement.tagName.toLowerCase();
-  	if (targetTagName === 'label') {
-  		forElement = this.findControl(targetElement);
-  		if (forElement) {
-  			this.focus(targetElement);
-  			if (this.deviceIsAndroid) {
-  				return false;
-  			}
+    targetTagName = targetElement.tagName.toLowerCase();
+    if (targetTagName === 'label') {
+      forElement = this.findControl(targetElement);
+      if (forElement) {
+        this.focus(targetElement);
+        if (this.deviceIsAndroid) {
+          return false;
+        }
 
-  			targetElement = forElement;
-  		}
-  	} else if (this.needsFocus(targetElement)) {
+        targetElement = forElement;
+      }
+    } else if (this.needsFocus(targetElement)) {
 
-  		// Case 1: If the touch started a while ago (best guess is 100ms based on tests for issue #36) then focus will be triggered anyway. Return early and unset the target element reference so that the subsequent click will be allowed through.
-  		// Case 2: Without this exception for input elements tapped when the document is contained in an iframe, then any inputted text won't be visible even though the value attribute is updated as the user types (issue #37).
-  		if ((event.timeStamp - trackingClickStart) > 100 || (this.deviceIsIOS && window.top !== window && targetTagName === 'input')) {
-  			this.targetElement = null;
-  			return false;
-  		}
+      // Case 1: If the touch started a while ago (best guess is 100ms based on tests for issue #36) then focus will be triggered anyway. Return early and unset the target element reference so that the subsequent click will be allowed through.
+      // Case 2: Without this exception for input elements tapped when the document is contained in an iframe, then any inputted text won't be visible even though the value attribute is updated as the user types (issue #37).
+      if ((event.timeStamp - trackingClickStart) > 100 || (this.deviceIsIOS && window.top !== window && targetTagName === 'input')) {
+        this.targetElement = null;
+        return false;
+      }
 
-  		this.focus(targetElement);
+      this.focus(targetElement);
 
-  		// Select elements need the event to go through on iOS 4, otherwise the selector menu won't open.
-  		if (!this.deviceIsIOS4 || targetTagName !== 'select') {
-  			this.targetElement = null;
-  			event.preventDefault();
-  		}
+      // Select elements need the event to go through on iOS 4, otherwise the selector menu won't open.
+      if (!this.deviceIsIOS4 || targetTagName !== 'select') {
+        this.targetElement = null;
+        event.preventDefault();
+      }
 
-  		return false;
-  	}
+      return false;
+    }
 
-  	if (this.deviceIsIOS && !this.deviceIsIOS4) {
+    if (this.deviceIsIOS && !this.deviceIsIOS4) {
 
-  		// Don't send a synthetic click event if the target element is contained within a parent layer that was scrolled
-  		// and this tap is being used to stop the scrolling (usually initiated by a fling - issue #42).
-  		scrollParent = targetElement.fastClickScrollParent;
-  		if (scrollParent && scrollParent.fastClickLastScrollTop !== scrollParent.scrollTop) {
-  			return true;
-  		}
-  	}
+      // Don't send a synthetic click event if the target element is contained within a parent layer that was scrolled
+      // and this tap is being used to stop the scrolling (usually initiated by a fling - issue #42).
+      scrollParent = targetElement.fastClickScrollParent;
+      if (scrollParent && scrollParent.fastClickLastScrollTop !== scrollParent.scrollTop) {
+        return true;
+      }
+    }
 
-  	// Prevent the actual click from going though - unless the target node is marked as requiring
-  	// real clicks or if it is in the whitelist in which case only non-programmatic clicks are permitted.
-  	if (!this.needsClick(targetElement)) {
-  		event.preventDefault();
-  		this.sendClick(targetElement, event);
-  	}
+    // Prevent the actual click from going though - unless the target node is marked as requiring
+    // real clicks or if it is in the whitelist in which case only non-programmatic clicks are permitted.
+    if (!this.needsClick(targetElement)) {
+      event.preventDefault();
+      this.sendClick(targetElement, event);
+    }
 
-  	return false;
+    return false;
   };
 
 
@@ -560,9 +560,9 @@
    * @returns {void}
    */
   FastClick.prototype.onTouchCancel = function() {
-  	'use strict';
-  	this.trackingClick = false;
-  	this.targetElement = null;
+    'use strict';
+    this.trackingClick = false;
+    this.targetElement = null;
   };
 
 
@@ -573,45 +573,45 @@
    * @returns {boolean}
    */
   FastClick.prototype.onMouse = function(event) {
-  	'use strict';
+    'use strict';
 
-  	// If a target element was never set (because a touch event was never fired) allow the event
-  	if (!this.targetElement) {
-  		return true;
-  	}
+    // If a target element was never set (because a touch event was never fired) allow the event
+    if (!this.targetElement) {
+      return true;
+    }
 
-  	if (event.forwardedTouchEvent) {
-  		return true;
-  	}
+    if (event.forwardedTouchEvent) {
+      return true;
+    }
 
-  	// Programmatically generated events targeting a specific element should be permitted
-  	if (!event.cancelable) {
-  		return true;
-  	}
+    // Programmatically generated events targeting a specific element should be permitted
+    if (!event.cancelable) {
+      return true;
+    }
 
-  	// Derive and check the target element to see whether the mouse event needs to be permitted;
-  	// unless explicitly enabled, prevent non-touch click events from triggering actions,
-  	// to prevent ghost/doubleclicks.
-  	if (!this.needsClick(this.targetElement) || this.cancelNextClick) {
+    // Derive and check the target element to see whether the mouse event needs to be permitted;
+    // unless explicitly enabled, prevent non-touch click events from triggering actions,
+    // to prevent ghost/doubleclicks.
+    if (!this.needsClick(this.targetElement) || this.cancelNextClick) {
 
-  		// Prevent any user-added listeners declared on FastClick element from being fired.
-  		if (event.stopImmediatePropagation) {
-  			event.stopImmediatePropagation();
-  		} else {
+      // Prevent any user-added listeners declared on FastClick element from being fired.
+      if (event.stopImmediatePropagation) {
+        event.stopImmediatePropagation();
+      } else {
 
-  			// Part of the hack for browsers that don't support Event#stopImmediatePropagation (e.g. Android 2)
-  			event.propagationStopped = true;
-  		}
+        // Part of the hack for browsers that don't support Event#stopImmediatePropagation (e.g. Android 2)
+        event.propagationStopped = true;
+      }
 
-  		// Cancel the event
-  		event.stopPropagation();
-  		event.preventDefault();
+      // Cancel the event
+      event.stopPropagation();
+      event.preventDefault();
 
-  		return false;
-  	}
+      return false;
+    }
 
-  	// If the mouse event is permitted, return true for the action to go through.
-  	return true;
+    // If the mouse event is permitted, return true for the action to go through.
+    return true;
   };
 
 
@@ -624,30 +624,30 @@
    * @returns {boolean}
    */
   FastClick.prototype.onClick = function(event) {
-  	'use strict';
-  	var permitted;
+    'use strict';
+    var permitted;
 
-  	// It's possible for another FastClick-like library delivered with third-party code to fire a click event before FastClick does (issue #44). In that case, set the click-tracking flag back to false and return early. This will cause onTouchEnd to return early.
-  	if (this.trackingClick) {
-  		this.targetElement = null;
-  		this.trackingClick = false;
-  		return true;
-  	}
+    // It's possible for another FastClick-like library delivered with third-party code to fire a click event before FastClick does (issue #44). In that case, set the click-tracking flag back to false and return early. This will cause onTouchEnd to return early.
+    if (this.trackingClick) {
+      this.targetElement = null;
+      this.trackingClick = false;
+      return true;
+    }
 
-  	// Very odd behaviour on iOS (issue #18): if a submit element is present inside a form and the user hits enter in the iOS simulator or clicks the Go button on the pop-up OS keyboard the a kind of 'fake' click event will be triggered with the submit-type input element as the target.
-  	if (event.target.type === 'submit' && event.detail === 0) {
-  		return true;
-  	}
+    // Very odd behaviour on iOS (issue #18): if a submit element is present inside a form and the user hits enter in the iOS simulator or clicks the Go button on the pop-up OS keyboard the a kind of 'fake' click event will be triggered with the submit-type input element as the target.
+    if (event.target.type === 'submit' && event.detail === 0) {
+      return true;
+    }
 
-  	permitted = this.onMouse(event);
+    permitted = this.onMouse(event);
 
-  	// Only unset targetElement if the click is not permitted. This will ensure that the check for !targetElement in onMouse fails and the browser's click doesn't go through.
-  	if (!permitted) {
-  		this.targetElement = null;
-  	}
+    // Only unset targetElement if the click is not permitted. This will ensure that the check for !targetElement in onMouse fails and the browser's click doesn't go through.
+    if (!permitted) {
+      this.targetElement = null;
+    }
 
-  	// If clicks are permitted, return true for the action to go through.
-  	return permitted;
+    // If clicks are permitted, return true for the action to go through.
+    return permitted;
   };
 
 
@@ -657,19 +657,19 @@
    * @returns {void}
    */
   FastClick.prototype.destroy = function() {
-  	'use strict';
-  	var layer = this.layer;
+    'use strict';
+    var layer = this.layer;
 
-  	if (this.deviceIsAndroid) {
-  		layer.removeEventListener('mouseover', this.onMouse, true);
-  		layer.removeEventListener('mousedown', this.onMouse, true);
-  		layer.removeEventListener('mouseup', this.onMouse, true);
-  	}
+    if (this.deviceIsAndroid) {
+      layer.removeEventListener('mouseover', this.onMouse, true);
+      layer.removeEventListener('mousedown', this.onMouse, true);
+      layer.removeEventListener('mouseup', this.onMouse, true);
+    }
 
-  	layer.removeEventListener('click', this.onClick, true);
-  	layer.removeEventListener('touchstart', this.onTouchStart, false);
-  	layer.removeEventListener('touchend', this.onTouchEnd, false);
-  	layer.removeEventListener('touchcancel', this.onTouchCancel, false);
+    layer.removeEventListener('click', this.onClick, true);
+    layer.removeEventListener('touchstart', this.onTouchStart, false);
+    layer.removeEventListener('touchend', this.onTouchEnd, false);
+    layer.removeEventListener('touchcancel', this.onTouchCancel, false);
   };
 
 
@@ -679,35 +679,35 @@
    * @param {Element} layer The layer to listen on
    */
   FastClick.notNeeded = function(layer) {
-  	'use strict';
-  	var metaViewport;
+    'use strict';
+    var metaViewport;
 
-  	// Devices that don't support touch don't need FastClick
-  	if (typeof window.ontouchstart === 'undefined') {
-  		return true;
-  	}
+    // Devices that don't support touch don't need FastClick
+    if (typeof window.ontouchstart === 'undefined') {
+      return true;
+    }
 
-  	if ((/Chrome\/[0-9]+/).test(navigator.userAgent)) {
+    if ((/Chrome\/[0-9]+/).test(navigator.userAgent)) {
 
-  		// Chrome on Android with user-scalable="no" doesn't need FastClick (issue #89)
-  		if (FastClick.prototype.deviceIsAndroid) {
-  			metaViewport = document.querySelector('meta[name=viewport]');
-  			if (metaViewport && metaViewport.content.indexOf('user-scalable=no') !== -1) {
-  				return true;
-  			}
+      // Chrome on Android with user-scalable="no" doesn't need FastClick (issue #89)
+      if (FastClick.prototype.deviceIsAndroid) {
+        metaViewport = document.querySelector('meta[name=viewport]');
+        if (metaViewport && metaViewport.content.indexOf('user-scalable=no') !== -1) {
+          return true;
+        }
 
-  		// Chrome desktop doesn't need FastClick (issue #15)
-  		} else {
-  			return true;
-  		}
-  	}
+      // Chrome desktop doesn't need FastClick (issue #15)
+      } else {
+        return true;
+      }
+    }
 
-  	// IE10 with -ms-touch-action: none, which disables double-tap-to-zoom (issue #97)
-  	if (layer.style.msTouchAction === 'none') {
-  		return true;
-  	}
+    // IE10 with -ms-touch-action: none, which disables double-tap-to-zoom (issue #97)
+    if (layer.style.msTouchAction === 'none') {
+      return true;
+    }
 
-  	return false;
+    return false;
   };
 
 
@@ -717,157 +717,157 @@
    * @param {Element} layer The layer to listen on
    */
   FastClick.attach = function(layer) {
-  	'use strict';
-  	return new FastClick(layer);
+    'use strict';
+    return new FastClick(layer);
   };
 
 
   if (typeof define !== 'undefined' && define.amd) {
 
-  	// AMD. Register as an anonymous module.
-  	define(function() {
-  		'use strict';
-  		return FastClick;
-  	});
+    // AMD. Register as an anonymous module.
+    define(function() {
+      'use strict';
+      return FastClick;
+    });
   } else if (typeof module !== 'undefined' && module.exports) {
-  	module.exports = FastClick.attach;
-  	module.exports.FastClick = FastClick;
+    module.exports = FastClick.attach;
+    module.exports.FastClick = FastClick;
   } else {
-  	window.FastClick = FastClick;
+    window.FastClick = FastClick;
   }
   
 })();
 
 if (!jQuery.fn.find) {
-	jQuery.fn.extend({
-		find: function( selector ) {
-			var i, ret, self,
-			len = this.length;
+  jQuery.fn.extend({
+    find: function( selector ) {
+      var i, ret, self,
+      len = this.length;
 
-			if ( typeof selector !== "string" ) {
-				self = this;
-				return this.pushStack( jQuery( selector ).filter(function() {
-					for ( i = 0; i < len; i++ ) {
-						if ( jQuery.contains( self[ i ], this ) ) {
-							return true;
-						}
-					}
-				}));
-			}
+      if ( typeof selector !== "string" ) {
+        self = this;
+        return this.pushStack( jQuery( selector ).filter(function() {
+          for ( i = 0; i < len; i++ ) {
+            if ( jQuery.contains( self[ i ], this ) ) {
+              return true;
+            }
+          }
+        }));
+      }
 
-			ret = [];
-			for ( i = 0; i < len; i++ ) {
-				jQuery.find( selector, this[ i ], ret );
-			}
+      ret = [];
+      for ( i = 0; i < len; i++ ) {
+        jQuery.find( selector, this[ i ], ret );
+      }
         
-			// Needed because $( selector, context ) becomes $( context ).find( selector )
-			ret = this.pushStack( len > 1 ? jQuery.unique( ret ) : ret );
-			ret.selector = ( this.selector ? this.selector + " " : "" ) + selector;
-			return ret;
-		}
-	});
+      // Needed because $( selector, context ) becomes $( context ).find( selector )
+      ret = this.pushStack( len > 1 ? jQuery.unique( ret ) : ret );
+      ret.selector = ( this.selector ? this.selector + " " : "" ) + selector;
+      return ret;
+    }
+  });
 }
 
 if (!jQuery.fn.on) {
-	jQuery.fn.extend({
-		on: function( types, selector, data, fn, /*INTERNAL*/ one ) {
-			var type, origFn;
+  jQuery.fn.extend({
+    on: function( types, selector, data, fn, /*INTERNAL*/ one ) {
+      var type, origFn;
 
-			// Types can be a map of types/handlers
-			if ( typeof types === "object" ) {
-				// ( types-Object, selector, data )
-				if ( typeof selector !== "string" ) {
-					// ( types-Object, data )
-					data = data || selector;
-					selector = undefined;
-				}
-				for ( type in types ) {
-					this.on( type, selector, data, types[ type ], one );
-				}
-				return this;
-			}
+      // Types can be a map of types/handlers
+      if ( typeof types === "object" ) {
+        // ( types-Object, selector, data )
+        if ( typeof selector !== "string" ) {
+          // ( types-Object, data )
+          data = data || selector;
+          selector = undefined;
+        }
+        for ( type in types ) {
+          this.on( type, selector, data, types[ type ], one );
+        }
+        return this;
+      }
 
-			if ( data == null && fn == null ) {
-				// ( types, fn )
-				fn = selector;
-				data = selector = undefined;
-			} else if ( fn == null ) {
-				if ( typeof selector === "string" ) {
-					// ( types, selector, fn )
-					fn = data;
-					data = undefined;
-				} else {
-					// ( types, data, fn )
-					fn = data;
-					data = selector;
-					selector = undefined;
-				}
-			}
-			if ( fn === false ) {
-				fn = returnFalse;
-			} else if ( !fn ) {
-				return this;
-			}
+      if ( data == null && fn == null ) {
+        // ( types, fn )
+        fn = selector;
+        data = selector = undefined;
+      } else if ( fn == null ) {
+        if ( typeof selector === "string" ) {
+          // ( types, selector, fn )
+          fn = data;
+          data = undefined;
+        } else {
+          // ( types, data, fn )
+          fn = data;
+          data = selector;
+          selector = undefined;
+        }
+      }
+      if ( fn === false ) {
+        fn = returnFalse;
+      } else if ( !fn ) {
+        return this;
+      }
 
-			if ( one === 1 ) {
-				origFn = fn;
-				fn = function( event ) {
-					// Can use an empty set, since event contains the info
-					jQuery().off( event );
-					return origFn.apply( this, arguments );
-				};
-				// Use same guid so caller can remove using origFn
-				fn.guid = origFn.guid || ( origFn.guid = jQuery.guid++ );
-			}
-			return this.each( function() {
-				jQuery.event.add( this, types, fn, data, selector );
-			});
-		}
-	});
+      if ( one === 1 ) {
+        origFn = fn;
+        fn = function( event ) {
+          // Can use an empty set, since event contains the info
+          jQuery().off( event );
+          return origFn.apply( this, arguments );
+        };
+        // Use same guid so caller can remove using origFn
+        fn.guid = origFn.guid || ( origFn.guid = jQuery.guid++ );
+      }
+      return this.each( function() {
+        jQuery.event.add( this, types, fn, data, selector );
+      });
+    }
+  });
 }
 
 if (!jQuery.fn.one) {
-	jQuery.fn.extend({
-		one: function( types, selector, data, fn ) {
-			return this.on( types, selector, data, fn, 1 );
-		}
-	});
+  jQuery.fn.extend({
+    one: function( types, selector, data, fn ) {
+      return this.on( types, selector, data, fn, 1 );
+    }
+  });
 }
 
 if (!jQuery.fn.off) {
-	jQuery.fn.extend({
-		off: function( types, selector, fn ) {
-			var handleObj, type;
-			if ( types && types.preventDefault && types.handleObj ) {
-				// ( event )  dispatched jQuery.Event
-				handleObj = types.handleObj;
-				jQuery( types.delegateTarget ).off(
-					handleObj.namespace ? handleObj.origType + "." + handleObj.namespace : handleObj.origType,
-					handleObj.selector,
-					handleObj.handler
-				);
-				return this;
-			}
-			if ( typeof types === "object" ) {
-				// ( types-object [, selector] )
-				for ( type in types ) {
-					this.off( type, selector, types[ type ] );
-				}
-				return this;
-			}
-			if ( selector === false || typeof selector === "function" ) {
-				// ( types [, fn] )
-				fn = selector;
-				selector = undefined;
-			}
-			if ( fn === false ) {
-				fn = returnFalse;
-			}
-			return this.each(function() {
-				jQuery.event.remove( this, types, fn, selector );
-			});
-		}
-	});
+  jQuery.fn.extend({
+    off: function( types, selector, fn ) {
+      var handleObj, type;
+      if ( types && types.preventDefault && types.handleObj ) {
+        // ( event )  dispatched jQuery.Event
+        handleObj = types.handleObj;
+        jQuery( types.delegateTarget ).off(
+          handleObj.namespace ? handleObj.origType + "." + handleObj.namespace : handleObj.origType,
+          handleObj.selector,
+          handleObj.handler
+        );
+        return this;
+      }
+      if ( typeof types === "object" ) {
+        // ( types-object [, selector] )
+        for ( type in types ) {
+          this.off( type, selector, types[ type ] );
+        }
+        return this;
+      }
+      if ( selector === false || typeof selector === "function" ) {
+        // ( types [, fn] )
+        fn = selector;
+        selector = undefined;
+      }
+      if ( fn === false ) {
+        fn = returnFalse;
+      }
+      return this.each(function() {
+        jQuery.event.remove( this, types, fn, selector );
+      });
+    }
+  });
 }
 /*
  * jQuery imagesLoaded plugin v2.1.1
@@ -886,111 +886,111 @@ if (!jQuery.fn.off) {
 var BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 
 $.fn.imagesLoaded = function( callback ) {
-	var $this = this,
-		deferred = $.isFunction($.Deferred) ? $.Deferred() : 0,
-		hasNotify = $.isFunction(deferred.notify),
-		$images = $this.find('img').add( $this.filter('img') ),
-		loaded = [],
-		proper = [],
-		broken = [];
+  var $this = this,
+    deferred = $.isFunction($.Deferred) ? $.Deferred() : 0,
+    hasNotify = $.isFunction(deferred.notify),
+    $images = $this.find('img').add( $this.filter('img') ),
+    loaded = [],
+    proper = [],
+    broken = [];
 
-	// Register deferred callbacks
-	if ($.isPlainObject(callback)) {
-		$.each(callback, function (key, value) {
-			if (key === 'callback') {
-				callback = value;
-			} else if (deferred) {
-				deferred[key](value);
-			}
-		});
-	}
+  // Register deferred callbacks
+  if ($.isPlainObject(callback)) {
+    $.each(callback, function (key, value) {
+      if (key === 'callback') {
+        callback = value;
+      } else if (deferred) {
+        deferred[key](value);
+      }
+    });
+  }
 
-	function doneLoading() {
-		var $proper = $(proper),
-			$broken = $(broken);
+  function doneLoading() {
+    var $proper = $(proper),
+      $broken = $(broken);
 
-		if ( deferred ) {
-			if ( broken.length ) {
-				deferred.reject( $images, $proper, $broken );
-			} else {
-				deferred.resolve( $images );
-			}
-		}
+    if ( deferred ) {
+      if ( broken.length ) {
+        deferred.reject( $images, $proper, $broken );
+      } else {
+        deferred.resolve( $images );
+      }
+    }
 
-		if ( $.isFunction( callback ) ) {
-			callback.call( $this, $images, $proper, $broken );
-		}
-	}
+    if ( $.isFunction( callback ) ) {
+      callback.call( $this, $images, $proper, $broken );
+    }
+  }
 
-	function imgLoadedHandler( event ) {
-		imgLoaded( event.target, event.type === 'error' );
-	}
+  function imgLoadedHandler( event ) {
+    imgLoaded( event.target, event.type === 'error' );
+  }
 
-	function imgLoaded( img, isBroken ) {
-		// don't proceed if BLANK image, or image is already loaded
-		if ( img.src === BLANK || $.inArray( img, loaded ) !== -1 ) {
-			return;
-		}
+  function imgLoaded( img, isBroken ) {
+    // don't proceed if BLANK image, or image is already loaded
+    if ( img.src === BLANK || $.inArray( img, loaded ) !== -1 ) {
+      return;
+    }
 
-		// store element in loaded images array
-		loaded.push( img );
+    // store element in loaded images array
+    loaded.push( img );
 
-		// keep track of broken and properly loaded images
-		if ( isBroken ) {
-			broken.push( img );
-		} else {
-			proper.push( img );
-		}
+    // keep track of broken and properly loaded images
+    if ( isBroken ) {
+      broken.push( img );
+    } else {
+      proper.push( img );
+    }
 
-		// cache image and its state for future calls
-		$.data( img, 'imagesLoaded', { isBroken: isBroken, src: img.src } );
+    // cache image and its state for future calls
+    $.data( img, 'imagesLoaded', { isBroken: isBroken, src: img.src } );
 
-		// trigger deferred progress method if present
-		if ( hasNotify ) {
-			deferred.notifyWith( $(img), [ isBroken, $images, $(proper), $(broken) ] );
-		}
+    // trigger deferred progress method if present
+    if ( hasNotify ) {
+      deferred.notifyWith( $(img), [ isBroken, $images, $(proper), $(broken) ] );
+    }
 
-		// call doneLoading and clean listeners if all images are loaded
-		if ( $images.length === loaded.length ) {
-			setTimeout( doneLoading );
-			$images.unbind( '.imagesLoaded', imgLoadedHandler );
-		}
-	}
+    // call doneLoading and clean listeners if all images are loaded
+    if ( $images.length === loaded.length ) {
+      setTimeout( doneLoading );
+      $images.unbind( '.imagesLoaded', imgLoadedHandler );
+    }
+  }
 
-	// if no images, trigger immediately
-	if ( !$images.length ) {
-		doneLoading();
-	} else {
-		$images.bind( 'load.imagesLoaded error.imagesLoaded', imgLoadedHandler )
-		.each( function( i, el ) {
-			var src = el.src;
+  // if no images, trigger immediately
+  if ( !$images.length ) {
+    doneLoading();
+  } else {
+    $images.bind( 'load.imagesLoaded error.imagesLoaded', imgLoadedHandler )
+    .each( function( i, el ) {
+      var src = el.src;
 
-			// find out if this image has been already checked for status
-			// if it was, and src has not changed, call imgLoaded on it
-			var cached = $.data( el, 'imagesLoaded' );
-			if ( cached && cached.src === src ) {
-				imgLoaded( el, cached.isBroken );
-				return;
-			}
+      // find out if this image has been already checked for status
+      // if it was, and src has not changed, call imgLoaded on it
+      var cached = $.data( el, 'imagesLoaded' );
+      if ( cached && cached.src === src ) {
+        imgLoaded( el, cached.isBroken );
+        return;
+      }
 
-			// if complete is true and browser supports natural sizes, try
-			// to check for image status manually
-			if ( el.complete && el.naturalWidth !== undefined ) {
-				imgLoaded( el, el.naturalWidth === 0 || el.naturalHeight === 0 );
-				return;
-			}
+      // if complete is true and browser supports natural sizes, try
+      // to check for image status manually
+      if ( el.complete && el.naturalWidth !== undefined ) {
+        imgLoaded( el, el.naturalWidth === 0 || el.naturalHeight === 0 );
+        return;
+      }
 
-			// cached images don't fire load sometimes, so we reset src, but only when
-			// dealing with IE, or image is complete (loaded) and failed manual check
-			// webkit hack from http://groups.google.com/group/jquery-dev/browse_thread/thread/eee6ab7b2da50e1f
-			if ( el.readyState || el.complete ) {
-				el.src = BLANK;
-				el.src = src;
-			}
-		});
-	}
+      // cached images don't fire load sometimes, so we reset src, but only when
+      // dealing with IE, or image is complete (loaded) and failed manual check
+      // webkit hack from http://groups.google.com/group/jquery-dev/browse_thread/thread/eee6ab7b2da50e1f
+      if ( el.readyState || el.complete ) {
+        el.src = BLANK;
+        el.src = src;
+      }
+    });
+  }
 
-	return deferred ? deferred.promise( $this ) : $this;
+  return deferred ? deferred.promise( $this ) : $this;
 };
 
 })(jQuery);
@@ -999,92 +999,92 @@ if(typeof(soysauce) === "undefined") {
 "use strict";
 
 soysauce = {
-	widgets: new Array(),
-	vars: {
-		idCount: 0,
-		currentViewportWidth: window.innerWidth,
-		degrade: (/Android [12]|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent)) ? true : false,
-		lastResizeTime: 0,
-		lastResizeTimerID: 0,
-		fastclick: []
-	},
-	getOptions: function(selector) {
-		if(!$(selector).attr("data-ss-options")) return false;
-		return $(selector).attr("data-ss-options").split(" ");
-	},
-	getPrefix: function() {
-		if (navigator.userAgent.match(/webkit/i) !== null) return "-webkit-";
-		else if (navigator.userAgent.match(/windows\sphone|msie/i) !== null) return "-ms-";
-		else if (navigator.userAgent.match(/^mozilla/i) !== null) return "-moz-";
-		else if (navigator.userAgent.match(/opera/i) !== null) return "-o-";
-		return "";
-	},
-	stifle: function(e, onlyPropagation) {
-		if (!e) return false;
-		if (e.stopImmediatePropagation) {
-			e.stopImmediatePropagation();
-		} else {
-			e.propagationStopped = true;
-		}
-		if (onlyPropagation) return false;
-		e.preventDefault();
-	},
-	fetch: function(selector) {
-		var query, ret;
-		
-		if (!selector) return false;
-		
-		if (typeof(selector) === "object") {
-			selector = parseInt($(selector).attr("data-ss-id"), 10);
-		}
-		
-		if (typeof(selector) === "string") {
-			var val = parseInt($(selector).attr("data-ss-id"), 10);;
+  widgets: new Array(),
+  vars: {
+    idCount: 0,
+    currentViewportWidth: window.innerWidth,
+    degrade: (/Android [12]|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent)) ? true : false,
+    lastResizeTime: 0,
+    lastResizeTimerID: 0,
+    fastclick: []
+  },
+  getOptions: function(selector) {
+    if(!$(selector).attr("data-ss-options")) return false;
+    return $(selector).attr("data-ss-options").split(" ");
+  },
+  getPrefix: function() {
+    if (navigator.userAgent.match(/webkit/i) !== null) return "-webkit-";
+    else if (navigator.userAgent.match(/windows\sphone|msie/i) !== null) return "-ms-";
+    else if (navigator.userAgent.match(/^mozilla/i) !== null) return "-moz-";
+    else if (navigator.userAgent.match(/opera/i) !== null) return "-o-";
+    return "";
+  },
+  stifle: function(e, onlyPropagation) {
+    if (!e) return false;
+    if (e.stopImmediatePropagation) {
+      e.stopImmediatePropagation();
+    } else {
+      e.propagationStopped = true;
+    }
+    if (onlyPropagation) return false;
+    e.preventDefault();
+  },
+  fetch: function(selector) {
+    var query, ret;
+    
+    if (!selector) return false;
+    
+    if (typeof(selector) === "object") {
+      selector = parseInt($(selector).attr("data-ss-id"), 10);
+    }
+    
+    if (typeof(selector) === "string") {
+      var val = parseInt($(selector).attr("data-ss-id"), 10);;
 
-			if (isNaN(val)) {
-				val = parseInt(selector, 10);
-			}
+      if (isNaN(val)) {
+        val = parseInt(selector, 10);
+      }
 
-			selector = val;
-		}
-		
-		if (selector===+selector && selector === (selector|0)) {
-			query = "[data-ss-id='" + selector + "']";
-		}
-		else {
-			query = selector;
-		}
+      selector = val;
+    }
+    
+    if (selector===+selector && selector === (selector|0)) {
+      query = "[data-ss-id='" + selector + "']";
+    }
+    else {
+      query = selector;
+    }
 
-		soysauce.widgets.forEach(function(widget) {
-			if (widget.id === selector) {
-				ret = widget;
-			}
-		});
+    soysauce.widgets.forEach(function(widget) {
+      if (widget.id === selector) {
+        ret = widget;
+      }
+    });
 
-		if (!ret) {
-			return false;
-		}
-		else {
-			return ret;
-		}
-	},
-	getCoords: function(e) {
-		if (!e) return;
-		if (e.originalEvent !== undefined) e = e.originalEvent;
-		if (e.touches && e.touches.length === 1)
-			return {x: e.touches[0].clientX, y: e.touches[0].clientY};
-		else if (e.touches && e.touches.length === 2)
-			return {x: e.touches[0].clientX, y: e.touches[0].clientY, x2: e.touches[1].clientX, y2: e.touches[1].clientY};
-		else if (e.changedTouches && e.changedTouches.length === 1)
-			return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY};
-		else if (e.changedTouches && e.changedTouches.length === 2)
-			return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY, x2: e.changedTouches[1].clientX, y2: e.changedTouches[1].clientY};
-		else if (e.clientX !== undefined)
-			return {x: e.clientX, y: e.clientY};
-	},
-	getArrayFromMatrix: function(matrix) {
-		return matrix.substr(7, matrix.length - 8).split(', ');
-	},
+    if (!ret) {
+      return false;
+    }
+    else {
+      return ret;
+    }
+  },
+  getCoords: function(e) {
+    if (!e) return;
+    if (e.originalEvent !== undefined) e = e.originalEvent;
+    if (e.touches && e.touches.length === 1)
+      return {x: e.touches[0].clientX, y: e.touches[0].clientY};
+    else if (e.touches && e.touches.length === 2)
+      return {x: e.touches[0].clientX, y: e.touches[0].clientY, x2: e.touches[1].clientX, y2: e.touches[1].clientY};
+    else if (e.changedTouches && e.changedTouches.length === 1)
+      return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY};
+    else if (e.changedTouches && e.changedTouches.length === 2)
+      return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY, x2: e.changedTouches[1].clientX, y2: e.changedTouches[1].clientY};
+    else if (e.clientX !== undefined)
+      return {x: e.clientX, y: e.clientY};
+  },
+  getArrayFromMatrix: function(matrix) {
+    return matrix.substr(7, matrix.length - 8).split(', ');
+  },
   browserInfo: {
     pageLoad: new Date().getTime(),
     userAgent: navigator.userAgent,
@@ -1120,64 +1120,64 @@ soysauce = {
       }
     }()
   },
-	scrollTop: function() {
-		window.setTimeout(function(){
-			window.scrollTo(0, 1);
-		}, 0);
-	}
+  scrollTop: function() {
+    window.setTimeout(function(){
+      window.scrollTo(0, 1);
+    }, 0);
+  }
 }
 
 // Widget Resize Handler
 $(window).on("resize orientationchange", function(e) {
-	if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
-	  if (soysauce.vars.lastResizeID) clearTimeout(soysauce.vars.lastResizeID);
-	  soysauce.vars.lastResizeID = window.setTimeout(function() {
-	    soysauce.vars.lastResizeTime = e.timeStamp;
-  		soysauce.vars.currentViewportWidth = window.innerWidth;
-  		soysauce.widgets.forEach(function(widget) {
-  			if (!widget.handleResize) return;
-  			widget.handleResize();
-  			if (/carousel/i.test(widget.type)) {
-  			  if (widget.itemWidth) {
-  			    $(widget.widget).trigger("SSWidgetResized");
-  			  }
-  			}
-  			else {
-  			  $(widget.widget).trigger("SSWidgetResized");
-  			}
-  		});
-	  }, 30);
-	}
+  if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
+    if (soysauce.vars.lastResizeID) clearTimeout(soysauce.vars.lastResizeID);
+    soysauce.vars.lastResizeID = window.setTimeout(function() {
+      soysauce.vars.lastResizeTime = e.timeStamp;
+      soysauce.vars.currentViewportWidth = window.innerWidth;
+      soysauce.widgets.forEach(function(widget) {
+        if (!widget.handleResize) return;
+        widget.handleResize();
+        if (/carousel/i.test(widget.type)) {
+          if (widget.itemWidth) {
+            $(widget.widget).trigger("SSWidgetResized");
+          }
+        }
+        else {
+          $(widget.widget).trigger("SSWidgetResized");
+        }
+      });
+    }, 30);
+  }
 });
 
 // Widget Initialization
 $(document).ready(function() {
-	soysauce.init();
-	if (soysauce.vars.degrade) {
-		$("body").attr("data-ss-degrade", "true");
-	}
-	soysauce.widgets.forEach(function(obj) {
-		if (!obj.defer) return;
-		var deferCount = 0;
-		var innerWidgets = obj.widget.find("[data-ss-widget]");
-		innerWidgets.each(function() {
-			var widget = soysauce.fetch(this);
-			if (widget.initialized) {
-				if (++deferCount === innerWidgets.length) {
-					$(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
-					return;
-				}
-			}
-			else {
-				widget.widget.on("SSWidgetReady", function() {
-					if (++deferCount === innerWidgets.length) {
-						$(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
-					}
-				});
-			}
-		});
-	});
-	$(window).trigger("SSReady");
+  soysauce.init();
+  if (soysauce.vars.degrade) {
+    $("body").attr("data-ss-degrade", "true");
+  }
+  soysauce.widgets.forEach(function(obj) {
+    if (!obj.defer) return;
+    var deferCount = 0;
+    var innerWidgets = obj.widget.find("[data-ss-widget]");
+    innerWidgets.each(function() {
+      var widget = soysauce.fetch(this);
+      if (widget.initialized) {
+        if (++deferCount === innerWidgets.length) {
+          $(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
+          return;
+        }
+      }
+      else {
+        widget.widget.on("SSWidgetReady", function() {
+          if (++deferCount === innerWidgets.length) {
+            $(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
+          }
+        });
+      }
+    });
+  });
+  $(window).trigger("SSReady");
 });
 
 $(window).load(function() {
@@ -1224,274 +1224,274 @@ soysauce.ajax = function(url, forceAjax) {
 };
 
 soysauce.freezeChildren = function(selector) {
-	var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
-	children.each(function(index, child) {
-		var id = $(child).attr("data-ss-id");
-		soysauce.freeze(id, false);
-	});
+  var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
+  children.each(function(index, child) {
+    var id = $(child).attr("data-ss-id");
+    soysauce.freeze(id, false);
+  });
 };
 
 soysauce.freeze = function(selector, freezeChildren) {
-	if (typeof(selector) === "object") {
-		selector = parseInt($(selector).attr("data-ss-id"), 10);
-	}
-	freezeChildren = (!freezeChildren) ? true : false;
-	soysauce.fetch(selector).handleFreeze();
-	if (freezeChildren) {
-		soysauce.freezeChildren(selector);
-	}
+  if (typeof(selector) === "object") {
+    selector = parseInt($(selector).attr("data-ss-id"), 10);
+  }
+  freezeChildren = (!freezeChildren) ? true : false;
+  soysauce.fetch(selector).handleFreeze();
+  if (freezeChildren) {
+    soysauce.freezeChildren(selector);
+  }
 };
 
 soysauce.unfreeze = function(selector) {
-	if (typeof(selector) === "object") {
-		selector = parseInt($(selector).attr("data-ss-id"), 10);
-	}
-	var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
-	soysauce.fetch(selector).handleUnfreeze();
-	children.each(function(index, child) {
-		var id = $(child).attr("data-ss-id");
-		soysauce.fetch(id).handleUnfreeze();
-	});
+  if (typeof(selector) === "object") {
+    selector = parseInt($(selector).attr("data-ss-id"), 10);
+  }
+  var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
+  soysauce.fetch(selector).handleUnfreeze();
+  children.each(function(index, child) {
+    var id = $(child).attr("data-ss-id");
+    soysauce.fetch(id).handleUnfreeze();
+  });
 };
 
 soysauce.init = function(selector, manual) {
-	var set;
-	var numItems = 0;
-	var ret = false;
-	var fastclickSelectors = "";
-	
-	fastclickSelectors = "[data-ss-widget='toggler'] > [data-ss-component='button']";
-	fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='button']";
-	
+  var set;
+  var numItems = 0;
+  var ret = false;
+  var fastclickSelectors = "";
+  
+  fastclickSelectors = "[data-ss-widget='toggler'] > [data-ss-component='button']";
+  fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='button']";
+  
   $(fastclickSelectors).each(function() {
     soysauce.vars.fastclick.push(FastClick.attach(this));
   });
-	
-	if (!selector) {
-		set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
-	}
-	else {
-		set = $(selector);
-	}
-	
-	if ((!$(selector) && !set) || $(selector).attr("data-ss-id") !== undefined) return ret;
-	
-	numItems = set.length;
-	
-	set.each(function(i) {
-		var $this = $(this);
-		var type = $(this).attr("data-ss-widget");
-		var widget;
-		var orphan = false;
-		
-		if (!type && $this.attr("data-ss-toggler-id") !== undefined) {
-			type = "toggler";
-			orphan = true;
-		}
-		
-		if (!manual && /manual/.test($this.attr("data-ss-init"))) {
-  	  return;
-  	}
-		
-		$this.attr("data-ss-id", ++soysauce.vars.idCount);
-		
-		switch (type) {
-			case "toggler":
-				widget = soysauce.togglers.init(this, orphan);
-				break;
-			case "carousel":
-				widget = soysauce.carousels.init(this);
-				break;
-			case "lazyloader":
-				widget = soysauce.lazyloader.init(this);
-				break;
-			case "autofill-zip":
-				widget = soysauce.autofillZip.init(this);
-				break;
-			case "autodetect-cc":
-				widget = soysauce.autodetectCC.init(this);
-				break;
-			case "autosuggest":
-				widget = soysauce.autosuggest.init(this);
-				break;
-			case "input-clear":
-				widget = soysauce.inputClear.init(this);
-				break;
-		}
+  
+  if (!selector) {
+    set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
+  }
+  else {
+    set = $(selector);
+  }
+  
+  if ((!$(selector) && !set) || $(selector).attr("data-ss-id") !== undefined) return ret;
+  
+  numItems = set.length;
+  
+  set.each(function(i) {
+    var $this = $(this);
+    var type = $(this).attr("data-ss-widget");
+    var widget;
+    var orphan = false;
+    
+    if (!type && $this.attr("data-ss-toggler-id") !== undefined) {
+      type = "toggler";
+      orphan = true;
+    }
+    
+    if (!manual && /manual/.test($this.attr("data-ss-init"))) {
+      return;
+    }
+    
+    $this.attr("data-ss-id", ++soysauce.vars.idCount);
+    
+    switch (type) {
+      case "toggler":
+        widget = soysauce.togglers.init(this, orphan);
+        break;
+      case "carousel":
+        widget = soysauce.carousels.init(this);
+        break;
+      case "lazyloader":
+        widget = soysauce.lazyloader.init(this);
+        break;
+      case "autofill-zip":
+        widget = soysauce.autofillZip.init(this);
+        break;
+      case "autodetect-cc":
+        widget = soysauce.autodetectCC.init(this);
+        break;
+      case "autosuggest":
+        widget = soysauce.autosuggest.init(this);
+        break;
+      case "input-clear":
+        widget = soysauce.inputClear.init(this);
+        break;
+    }
 
-		if (widget !== undefined) {
-		  widget.type = type;
-		  widget.id = soysauce.vars.idCount;
-			soysauce.widgets.push(widget);
-			ret = true;
-			if ($this.attr("data-ss-defer") !== undefined) {
-				widget.defer = true;
-			}
-			else {
-				$this.imagesLoaded(function() {
-					widget.initialized = true;
-					$this.trigger("SSWidgetReady");
-				});
-			}
-		}
-		else {
-			$this.removeAttr("data-ss-id");
-			--soysauce.vars.idCount;
-		}
-	});
-	
-	return ret;
+    if (widget !== undefined) {
+      widget.type = type;
+      widget.id = soysauce.vars.idCount;
+      soysauce.widgets.push(widget);
+      ret = true;
+      if ($this.attr("data-ss-defer") !== undefined) {
+        widget.defer = true;
+      }
+      else {
+        $this.imagesLoaded(function() {
+          widget.initialized = true;
+          $this.trigger("SSWidgetReady");
+        });
+      }
+    }
+    else {
+      $this.removeAttr("data-ss-id");
+      --soysauce.vars.idCount;
+    }
+  });
+  
+  return ret;
 }
 
 soysauce.lateload = function(selector) {
-	
-	function loadItem(selector) {
-		var curr = $(selector);
-		var val = curr.attr("data-ss-ll-src");
-		if (val) {
-			curr.attr("src", val).removeAttr("data-ss-ll-src");
-			return true;
-		}
-		return false;
-	}
-	
-	if (selector) {
-		return loadItem(selector);
-	}
-	else {
-		$(document).on("DOMContentLoaded", function() {
-			$("[data-ss-ll-src][data-ss-options='dom']").each(function(i, e) {
-				loadItem(e);
-			});
-		});
-		$(window).on("load", function() {
-			if (!$("[data-ss-ll-src][data-ss-options='load']")) return;
-			$("[data-ss-ll-src][data-ss-options='load']").each(function(i, e) {
-				loadItem(e);
-			});
-		});
-	}
+  
+  function loadItem(selector) {
+    var curr = $(selector);
+    var val = curr.attr("data-ss-ll-src");
+    if (val) {
+      curr.attr("src", val).removeAttr("data-ss-ll-src");
+      return true;
+    }
+    return false;
+  }
+  
+  if (selector) {
+    return loadItem(selector);
+  }
+  else {
+    $(document).on("DOMContentLoaded", function() {
+      $("[data-ss-ll-src][data-ss-options='dom']").each(function(i, e) {
+        loadItem(e);
+      });
+    });
+    $(window).on("load", function() {
+      if (!$("[data-ss-ll-src][data-ss-options='load']")) return;
+      $("[data-ss-ll-src][data-ss-options='load']").each(function(i, e) {
+        loadItem(e);
+      });
+    });
+  }
 };
 
 soysauce.lateload();
 
 soysauce.overlay = (function() {
-	var overlay, done, caption;
-	var init = true;
-	var isOn = false;
+  var overlay, done, caption;
+  var init = true;
+  var isOn = false;
 
-	return {
-		init: function(selector) {
-			document.addEventListener("DOMContentLoaded", function() {
-				var div = document.createElement("div");
+  return {
+    init: function(selector) {
+      document.addEventListener("DOMContentLoaded", function() {
+        var div = document.createElement("div");
 
-				if (!init) return false;
+        if (!init) return false;
 
-				div.setAttribute("data-ss-utility", "overlay");
-				div.setAttribute("data-ss-state", "inactive");
-				document.body.appendChild(div);
+        div.setAttribute("data-ss-utility", "overlay");
+        div.setAttribute("data-ss-state", "inactive");
+        document.body.appendChild(div);
 
-				overlay = $("[data-ss-utility='overlay']");
+        overlay = $("[data-ss-utility='overlay']");
 
-				overlay.append("<span class='done'></span>");
-				done = overlay.find(".done");
+        overlay.append("<span class='done'></span>");
+        done = overlay.find(".done");
 
-				overlay.append("<div class='caption'></span>");
-				caption = overlay.find(".caption");
+        overlay.append("<div class='caption'></span>");
+        caption = overlay.find(".caption");
 
-				done.on("click", function() {
-					soysauce.overlay.off();
-				});
+        done.on("click", function() {
+          soysauce.overlay.off();
+        });
 
-				init = false;
-			});
-		},
-		on: function() {
-			if (isOn) return;
-			overlay.show();
-			window.setTimeout(function() {
-				overlay.attr("data-ss-state","active");
-				isOn = true;
-			}, 0);
-		},
-		off: function() {
-			if (!isOn) return;
-			overlay.attr("data-ss-state","inactive");
-			window.setTimeout(function() {
-				overlay.hide();
-				isOn = false;
-			}, 400);
-		},
-		toggle: function() {
-			if (isOn) {
-				soysauce.overlay.off();
-			}
-			else {
-				soysauce.overlay.on();
-			}
-		},
-		state: function() {
-			if (isOn) {
-				return "on";
-			}
-			else {
-				return "off";
-			}
-		},
-		caption: function(text) {
-			if (!text) {
-				caption.html("");
-			}
-			else {
-				caption.html(text);
-			}
-		}
-	};
+        init = false;
+      });
+    },
+    on: function() {
+      if (isOn) return;
+      overlay.show();
+      window.setTimeout(function() {
+        overlay.attr("data-ss-state","active");
+        isOn = true;
+      }, 0);
+    },
+    off: function() {
+      if (!isOn) return;
+      overlay.attr("data-ss-state","inactive");
+      window.setTimeout(function() {
+        overlay.hide();
+        isOn = false;
+      }, 400);
+    },
+    toggle: function() {
+      if (isOn) {
+        soysauce.overlay.off();
+      }
+      else {
+        soysauce.overlay.on();
+      }
+    },
+    state: function() {
+      if (isOn) {
+        return "on";
+      }
+      else {
+        return "off";
+      }
+    },
+    caption: function(text) {
+      if (!text) {
+        caption.html("");
+      }
+      else {
+        caption.html(text);
+      }
+    }
+  };
 
 })();
 
 soysauce.overlay.init();
 soysauce.autodetectCC = (function() {
-	
-	function autodetectCC(selector) {
-		var options = soysauce.getOptions(selector);
-		var self = this;
-		
-		this.widget = $(this);
-		this.input = $(selector);
-		this.prediction;
-		this.result;
-		this.format = false;
-		this.valid = false;
-		
-		if (options) options.forEach(function(option) {
-			switch(option) {
-				case "format":
-					self.format = true;
-					break;
-			}
-		});
-		
-		if (this.format) {
-			this.input.attr("maxlength", "19");
-		}
-		else {
-			this.input.attr("maxlength", "16");
-		}
-		
-		if (this.format && soysauce.vars.degrade) {
-			this.input.on("keydown", function(e) {
-				var keycode = e.keyCode ? e.keyCode : e.which;
-				if (keycode !== 8 && keycode !== 46 && keycode !== 91 && keycode !== 17 && keycode !== 189) {
-					soysauce.stifle(e);
-					self.input.val(this.value + String.fromCharCode(e.keyCode));
-				}
-			});
-		}
-		
-		this.input.on("keyup change", function(e) {
-			var card_num = e.target.value.replace(/[-\s]+/g, "");
-			var keycode = e.keyCode ? e.keyCode : e.which;
+  
+  function autodetectCC(selector) {
+    var options = soysauce.getOptions(selector);
+    var self = this;
+    
+    this.widget = $(this);
+    this.input = $(selector);
+    this.prediction;
+    this.result;
+    this.format = false;
+    this.valid = false;
+    
+    if (options) options.forEach(function(option) {
+      switch(option) {
+        case "format":
+          self.format = true;
+          break;
+      }
+    });
+    
+    if (this.format) {
+      this.input.attr("maxlength", "19");
+    }
+    else {
+      this.input.attr("maxlength", "16");
+    }
+    
+    if (this.format && soysauce.vars.degrade) {
+      this.input.on("keydown", function(e) {
+        var keycode = e.keyCode ? e.keyCode : e.which;
+        if (keycode !== 8 && keycode !== 46 && keycode !== 91 && keycode !== 17 && keycode !== 189) {
+          soysauce.stifle(e);
+          self.input.val(this.value + String.fromCharCode(e.keyCode));
+        }
+      });
+    }
+    
+    this.input.on("keyup change", function(e) {
+      var card_num = e.target.value.replace(/[-\s]+/g, "");
+      var keycode = e.keyCode ? e.keyCode : e.which;
       var result;
 
 
@@ -1531,7 +1531,7 @@ soysauce.autodetectCC = (function() {
         self.prediction = undefined;
       }
     
-			// State 2 - Result
+      // State 2 - Result
       if (/visa/.test(self.prediction) && card_num.length >= 13) {
         if (validCC(card_num)) {
           self.valid = (/^4[0-9]{12}(?:[0-9]{3})?$/.test(card_num)) ? true : false;
@@ -1586,545 +1586,545 @@ soysauce.autodetectCC = (function() {
           self.valid = false;
         }
       }
-			
-			if (self.valid && result) {
-			  self.result = result;
-			  $(e.target).trigger("SSResult");
-			}
-			else {
+      
+      if (self.valid && result) {
+        self.result = result;
+        $(e.target).trigger("SSResult");
+      }
+      else {
         // var resultChanged = (!self.result) ? false : true;
-				self.result = undefined;
-				if (!self.prediction && card_num.length === 16 ||
-				    /visa/.test(self.prediction) && card_num.length === 13 ||
-				    /visa|mastercard|discover|dinersclub|jcb/.test(self.prediction) && card_num.length === 16 ||
-				    /amex/.test(self.prediction) && card_num.length === 15) {
-				  $(e.target).trigger("SSResult");
-				}
-			}
-			// keycodes: 8 = backspace, 46 = delete, 91 = command, 17 = ctrl, 189 = dash
-			if (self.format && card_num.length > 3 && 
-				keycode !== 8 && keycode !== 46 && keycode !== 91 && keycode !== 17 && keycode !== 189) {
+        self.result = undefined;
+        if (!self.prediction && card_num.length === 16 ||
+            /visa/.test(self.prediction) && card_num.length === 13 ||
+            /visa|mastercard|discover|dinersclub|jcb/.test(self.prediction) && card_num.length === 16 ||
+            /amex/.test(self.prediction) && card_num.length === 15) {
+          $(e.target).trigger("SSResult");
+        }
+      }
+      // keycodes: 8 = backspace, 46 = delete, 91 = command, 17 = ctrl, 189 = dash
+      if (self.format && card_num.length > 3 && 
+        keycode !== 8 && keycode !== 46 && keycode !== 91 && keycode !== 17 && keycode !== 189) {
         self.formatInput(e);
-			}
-			
-		});
-	}
-	
-	autodetectCC.prototype.formatInput = function(e) {
-		var val = this.input.val().replace(/[\s]+/g, "");
-		var isAmex = (/^3[47]/.test(val.replace(/[-\s]+/g, ""))) ? true : false;
-		var isDC = (/^3(?:0[0-5]|[68][0-9])/.test(val.replace(/[-\s]+/g, "")) && !isAmex) ? true : false;
-		
-		if (soysauce.vars.degrade) {
-			setCursorToEnd(this.input[0]);
-		}
-		
-		if (isAmex || isDC) {
-			if (val[4] !== undefined && val[4] !== "-") {
-				val = insertStringAt("-", 4, val);
-				this.input.val(val);
-			}
-			if (val[11] !== undefined && val[11] !== "-") {
-				val = insertStringAt("-", 11, val);
-				this.input.val(val);
-			}
-		}
-		else {
-			if (val[4] !== undefined && val[4] !== "-") {
-				val = insertStringAt("-", 4, val);
-				this.input.val(val);
-			}
-			if (val[9] !== undefined && val[9] !== "-") {
-				val = insertStringAt("-", 9, val);
-				this.input.val(val);
-			}
-			if (val[14] !== undefined && val[14] !== "-") {
-				val = insertStringAt("-", 14, val)
-				this.input.val(val);
-			}
-		}
-		
-		function insertStringAt(content, index, dest) {
-			if (index > 0) {
-				return dest.substring(0, index) + content + dest.substring(index, dest.length);
-			}
-			else {
-				return content + dest;
-			}
-		}
-	};
-	
-	function setCursorToEnd(input) {
-		var index = input.length;
-		input.setSelectionRange(19, 19);
-	}
-	
-	// Luhn Algorithm, Copyright (c) 2011 Thomas Fuchs, http://mir.aculo.us
-	// https://gist.github.com/madrobby/976805
-	function validCC(a,b,c,d,e){for(d=+a[b=a.length-1],e=0;b--;)c=+a[b],d+=++e%2?2*c%10+(c>4):c;return!(d%10)};
-	
-	return {
-		init: function(selector) {
-			return new autodetectCC(selector);
-		}
-	};
-	
+      }
+      
+    });
+  }
+  
+  autodetectCC.prototype.formatInput = function(e) {
+    var val = this.input.val().replace(/[\s]+/g, "");
+    var isAmex = (/^3[47]/.test(val.replace(/[-\s]+/g, ""))) ? true : false;
+    var isDC = (/^3(?:0[0-5]|[68][0-9])/.test(val.replace(/[-\s]+/g, "")) && !isAmex) ? true : false;
+    
+    if (soysauce.vars.degrade) {
+      setCursorToEnd(this.input[0]);
+    }
+    
+    if (isAmex || isDC) {
+      if (val[4] !== undefined && val[4] !== "-") {
+        val = insertStringAt("-", 4, val);
+        this.input.val(val);
+      }
+      if (val[11] !== undefined && val[11] !== "-") {
+        val = insertStringAt("-", 11, val);
+        this.input.val(val);
+      }
+    }
+    else {
+      if (val[4] !== undefined && val[4] !== "-") {
+        val = insertStringAt("-", 4, val);
+        this.input.val(val);
+      }
+      if (val[9] !== undefined && val[9] !== "-") {
+        val = insertStringAt("-", 9, val);
+        this.input.val(val);
+      }
+      if (val[14] !== undefined && val[14] !== "-") {
+        val = insertStringAt("-", 14, val)
+        this.input.val(val);
+      }
+    }
+    
+    function insertStringAt(content, index, dest) {
+      if (index > 0) {
+        return dest.substring(0, index) + content + dest.substring(index, dest.length);
+      }
+      else {
+        return content + dest;
+      }
+    }
+  };
+  
+  function setCursorToEnd(input) {
+    var index = input.length;
+    input.setSelectionRange(19, 19);
+  }
+  
+  // Luhn Algorithm, Copyright (c) 2011 Thomas Fuchs, http://mir.aculo.us
+  // https://gist.github.com/madrobby/976805
+  function validCC(a,b,c,d,e){for(d=+a[b=a.length-1],e=0;b--;)c=+a[b],d+=++e%2?2*c%10+(c>4):c;return!(d%10)};
+  
+  return {
+    init: function(selector) {
+      return new autodetectCC(selector);
+    }
+  };
+  
 })();
 
 soysauce.autofillZip = (function() {
-	var BASE_URL = "//jeocoder.herokuapp.com/zips/";
-	var AOL_URL = "//www.mapquestapi.com/geocoding/v1/reverse?key=Fmjtd%7Cluub2l6tnu%2Ca5%3Do5-96tw0f";
-	
-	function autofillZip(selector) {
-		var options = soysauce.getOptions(selector);
-		var self = this;
-		
-		this.widget = $(selector);
-		this.zip = this.widget.find("[data-ss-component='zip']");
-		this.city = this.widget.find("[data-ss-component='city']");
-		this.state = this.widget.find("[data-ss-component='state']");
-		this.lastRequestedData;
-		this.freeze = false;
-		
-		// Reverse Geocode Variables
-		this.reverse = false;
-		this.reverseGeocodeButton = this.widget.find("[data-ss-component='reverse-geocode']");
-		
-		if (options) options.forEach(function(option) {
-			switch(option) {
-				case "reverse":
-					self.reverse = true;
-					break;
-			}
-		});
-		
-		if (this.reverse) {
-			this.reverseGeocodeButton.on("click", function() {
-				self.reverseGeocode();
-			});
-		}
-		else {
-			this.zip.on("keyup change", function() {
-				self.getLocationData();
-			});
-		}
-	}
-	
-	autofillZip.prototype.reverseGeocode = function() {
-		var self = this;
-		if (!navigator.geolocation || this.freeze) return;
-		
-		self.widget.trigger("SSDataFetch");
-		
-		navigator.geolocation.getCurrentPosition(function(data) {
-			var src = AOL_URL + "&lat=" + data.coords.latitude + "&lng=" + data.coords.longitude + "&callback=soysauce.fetch(" + self.id + ").setLocationData";
-			$("body").append("<script src='" + src + "'></script>");
-		});
-	};
-	
-	autofillZip.prototype.setLocationData = function(data) {
-		var self = this;
-		var city = data.city;
-		var state = data.state;
-		
-		if (this.freeze) return;
-		
-		this.lastRequestedData = data;
-		this.widget.trigger("SSDataReady");
+  var BASE_URL = "//jeocoder.herokuapp.com/zips/";
+  var AOL_URL = "//www.mapquestapi.com/geocoding/v1/reverse?key=Fmjtd%7Cluub2l6tnu%2Ca5%3Do5-96tw0f";
+  
+  function autofillZip(selector) {
+    var options = soysauce.getOptions(selector);
+    var self = this;
+    
+    this.widget = $(selector);
+    this.zip = this.widget.find("[data-ss-component='zip']");
+    this.city = this.widget.find("[data-ss-component='city']");
+    this.state = this.widget.find("[data-ss-component='state']");
+    this.lastRequestedData;
+    this.freeze = false;
+    
+    // Reverse Geocode Variables
+    this.reverse = false;
+    this.reverseGeocodeButton = this.widget.find("[data-ss-component='reverse-geocode']");
+    
+    if (options) options.forEach(function(option) {
+      switch(option) {
+        case "reverse":
+          self.reverse = true;
+          break;
+      }
+    });
+    
+    if (this.reverse) {
+      this.reverseGeocodeButton.on("click", function() {
+        self.reverseGeocode();
+      });
+    }
+    else {
+      this.zip.on("keyup change", function() {
+        self.getLocationData();
+      });
+    }
+  }
+  
+  autofillZip.prototype.reverseGeocode = function() {
+    var self = this;
+    if (!navigator.geolocation || this.freeze) return;
+    
+    self.widget.trigger("SSDataFetch");
+    
+    navigator.geolocation.getCurrentPosition(function(data) {
+      var src = AOL_URL + "&lat=" + data.coords.latitude + "&lng=" + data.coords.longitude + "&callback=soysauce.fetch(" + self.id + ").setLocationData";
+      $("body").append("<script src='" + src + "'></script>");
+    });
+  };
+  
+  autofillZip.prototype.setLocationData = function(data) {
+    var self = this;
+    var city = data.city;
+    var state = data.state;
+    
+    if (this.freeze) return;
+    
+    this.lastRequestedData = data;
+    this.widget.trigger("SSDataReady");
 
-		if (this.reverse) {
-			this.zip.val(data.results[0].locations[0].postalCode);
-		}
-		else {
-			this.city.val(city);
-			this.state.val(state);
-		}
-	};
-	
-	autofillZip.prototype.getLocationData = function() {
-		var self = this;
-		var value = this.zip[0].value;
-		
-		if (this.freeze) return;
-		
-		if ((value.length === 5) && (parseFloat(value, 10) == parseInt(value, 10)) && !isNaN(value))  {
-			this.widget.trigger("SSDataFetch");
-			$.ajax({
-				dataType: "json",
-				url: BASE_URL + value,
-				success: function(data) {
-					self.setLocationData(data);
-				},
-				error: function() {
-					self.widget.trigger("SSDataError");
-					console.warn("Soysauce: Could not fetch zip code " + value);
-				}
-			});
-		}
-	};
-	
-	autofillZip.prototype.handleFreeze = function() {
-		this.freeze = true;
-	};
-	
-	autofillZip.prototype.handleUnfreeze = function() {
-		this.freeze = false;
-	};
-	
-	return {
-		init: function(selector) {
-			return new autofillZip(selector);
-		}
-	};
-	
+    if (this.reverse) {
+      this.zip.val(data.results[0].locations[0].postalCode);
+    }
+    else {
+      this.city.val(city);
+      this.state.val(state);
+    }
+  };
+  
+  autofillZip.prototype.getLocationData = function() {
+    var self = this;
+    var value = this.zip[0].value;
+    
+    if (this.freeze) return;
+    
+    if ((value.length === 5) && (parseFloat(value, 10) == parseInt(value, 10)) && !isNaN(value))  {
+      this.widget.trigger("SSDataFetch");
+      $.ajax({
+        dataType: "json",
+        url: BASE_URL + value,
+        success: function(data) {
+          self.setLocationData(data);
+        },
+        error: function() {
+          self.widget.trigger("SSDataError");
+          console.warn("Soysauce: Could not fetch zip code " + value);
+        }
+      });
+    }
+  };
+  
+  autofillZip.prototype.handleFreeze = function() {
+    this.freeze = true;
+  };
+  
+  autofillZip.prototype.handleUnfreeze = function() {
+    this.freeze = false;
+  };
+  
+  return {
+    init: function(selector) {
+      return new autofillZip(selector);
+    }
+  };
+  
 })();
 
 soysauce.autosuggest = (function() {
 
-	function AutoSuggest(selector) {
-		var options = soysauce.getOptions(selector);
-		var self = this;
+  function AutoSuggest(selector) {
+    var options = soysauce.getOptions(selector);
+    var self = this;
 
-		this.widget = $(selector);
-		this.input = $(selector);
-		
-		if (options)
-			options.forEach(function(option) {
-				switch (option) {
-					case "option1":
-						break;
-				}
-			});
+    this.widget = $(selector);
+    this.input = $(selector);
+    
+    if (options)
+      options.forEach(function(option) {
+        switch (option) {
+          case "option1":
+            break;
+        }
+      });
 
-		var defaults = {  
-			url: undefined,
-			data: undefined,
-			minCharacters: 1,
-			maxResults: 10,
-			wildCard: '',
-			caseSensitive: false,
-			notCharacter: '!',
-			maxHeight: 350,
-			highlightMatches: true,
-			onSelect: undefined,
-			width: undefined,
-			property: 'text'
-		};
-		this.acSettings = defaults//$.extend(defaults, options);  
-		
-		
-		this.obj = $(selector);
-		this.wildCardPatt = new RegExp(self.regexEscape(this.acSettings.wildCard || ''),'g')
-		this.results = $('<ul />');
-		this.currentSelection = undefined;
-		this.pageX =undefined;
-		this.pageY =undefined;
-		this.getJSONTimeout = 0;
-		
-		// Prepare the input box to show suggest results by adding in the events
-		// that will initiate the search and placing the element on the page
-		// that will show the results.
-		$(this.results).addClass('jsonSuggest ui-autocomplete ui-menu ui-widget ui-widget-content ui-corner-all').
-			attr('role', 'listbox').
-			css({
-				'xtop': (this.obj.position().top + this.obj.outerHeight()) + 'px',
-				'xleft': this.obj.position().left + 'px',
-				'width': this.acSettings.width || (this.obj.outerWidth() + 'px'),
-				'z-index': 1000000,
-				'position':'absolute',
-				'background-color': 'black'
-			}).hide();
-		
-		
-		this.obj.after(this.results).
-			keyup(function (e){
-				switch (e.keyCode) {
-					case 13: // return key
-						$(self.currentSelection).trigger('click');
-						return false;
-					case 40: // down key
-						if (typeof self.currentSelection === 'undefined') {
-							self.currentSelection = $('li:first', self.results).get(0);
-						}
-						else {
-							self.currentSelection = $(self.currentSelection).next().get(0);
-						}
+    var defaults = {  
+      url: undefined,
+      data: undefined,
+      minCharacters: 1,
+      maxResults: 10,
+      wildCard: '',
+      caseSensitive: false,
+      notCharacter: '!',
+      maxHeight: 350,
+      highlightMatches: true,
+      onSelect: undefined,
+      width: undefined,
+      property: 'text'
+    };
+    this.acSettings = defaults//$.extend(defaults, options);  
+    
+    
+    this.obj = $(selector);
+    this.wildCardPatt = new RegExp(self.regexEscape(this.acSettings.wildCard || ''),'g')
+    this.results = $('<ul />');
+    this.currentSelection = undefined;
+    this.pageX =undefined;
+    this.pageY =undefined;
+    this.getJSONTimeout = 0;
+    
+    // Prepare the input box to show suggest results by adding in the events
+    // that will initiate the search and placing the element on the page
+    // that will show the results.
+    $(this.results).addClass('jsonSuggest ui-autocomplete ui-menu ui-widget ui-widget-content ui-corner-all').
+      attr('role', 'listbox').
+      css({
+        'xtop': (this.obj.position().top + this.obj.outerHeight()) + 'px',
+        'xleft': this.obj.position().left + 'px',
+        'width': this.acSettings.width || (this.obj.outerWidth() + 'px'),
+        'z-index': 1000000,
+        'position':'absolute',
+        'background-color': 'black'
+      }).hide();
+    
+    
+    this.obj.after(this.results).
+      keyup(function (e){
+        switch (e.keyCode) {
+          case 13: // return key
+            $(self.currentSelection).trigger('click');
+            return false;
+          case 40: // down key
+            if (typeof self.currentSelection === 'undefined') {
+              self.currentSelection = $('li:first', self.results).get(0);
+            }
+            else {
+              self.currentSelection = $(self.currentSelection).next().get(0);
+            }
 
-						self.setHoverClass(self.currentSelection);
-						if (self.currentSelection) {
-							$(self.results).scrollTop(self.currentSelection.offsetTop);
-						}
+            self.setHoverClass(self.currentSelection);
+            if (self.currentSelection) {
+              $(self.results).scrollTop(self.currentSelection.offsetTop);
+            }
 
-						return false;
-					case 38: // up key
-						if (typeof self.currentSelection === 'undefined') {
-							self.currentSelection = $('li:last', self.results).get(0);
-						}
-						else {
-							self.currentSelection = $(self.currentSelection).prev().get(0);
-						}
+            return false;
+          case 38: // up key
+            if (typeof self.currentSelection === 'undefined') {
+              self.currentSelection = $('li:last', self.results).get(0);
+            }
+            else {
+              self.currentSelection = $(self.currentSelection).prev().get(0);
+            }
 
-						self.setHoverClass(self.currentSelection);
-						if (self.currentSelection) {
-							$(self.results).scrollTop(self.currentSelection.offsetTop);
-						}
+            self.setHoverClass(self.currentSelection);
+            if (self.currentSelection) {
+              $(self.results).scrollTop(self.currentSelection.offsetTop);
+            }
 
-						return false;
-					default:
-						self.runSuggest.apply(this, [e, self]);
-				}
-			}).
-			keydown(function(e) {
-				// for tab/enter key
-				if ((e.keyCode === 9 || e.keyCode === 13) && self.currentSelection) {
-					$(self.currentSelection).trigger('click');
-					return true;
-				}
-			}).
-			blur(function(e) {
-				// We need to make sure we don't hide the result set
-				// if the input blur event is called because of clicking on
-				// a result item.
-				var resPos = $(self.results).offset();
-				resPos.bottom = resPos.top + $(self.results).height();
-				resPos.right = resPos.left + $(self.results).width();
+            return false;
+          default:
+            self.runSuggest.apply(this, [e, self]);
+        }
+      }).
+      keydown(function(e) {
+        // for tab/enter key
+        if ((e.keyCode === 9 || e.keyCode === 13) && self.currentSelection) {
+          $(self.currentSelection).trigger('click');
+          return true;
+        }
+      }).
+      blur(function(e) {
+        // We need to make sure we don't hide the result set
+        // if the input blur event is called because of clicking on
+        // a result item.
+        var resPos = $(self.results).offset();
+        resPos.bottom = resPos.top + $(self.results).height();
+        resPos.right = resPos.left + $(self.results).width();
 
-				if (pageY < resPos.top || pageY > resPos.bottom || pageX < resPos.left || pageX > resPos.right) {
-					$(self.results).hide();
-				}
-			}).
-			focus(function(e) {
-				$(this.results).css({
-					'top': (self.obj.position().top + self.obj.outerHeight()) + 'px',
-					'left': self.obj.position().left + 'px'
-				});
+        if (pageY < resPos.top || pageY > resPos.bottom || pageX < resPos.left || pageX > resPos.right) {
+          $(self.results).hide();
+        }
+      }).
+      focus(function(e) {
+        $(this.results).css({
+          'top': (self.obj.position().top + self.obj.outerHeight()) + 'px',
+          'left': self.obj.position().left + 'px'
+        });
 
-				if ($('li', self.results).length > 0) {
-					$(self.results).show();
-				}
-			}).
-			attr('autocomplete', 'off');
-		
-		
-		$(window).mousemove(function(e) {
-			this.pageX = e.pageX;
-			this.pageY = e.pageY;
-		});
-		
-		
-		// Escape the not character if present so that it doesn't act in the regular expression
-		this.acSettings.notCharacter = self.regexEscape(this.acSettings.notCharacter || '');
+        if ($('li', self.results).length > 0) {
+          $(self.results).show();
+        }
+      }).
+      attr('autocomplete', 'off');
+    
+    
+    $(window).mousemove(function(e) {
+      this.pageX = e.pageX;
+      this.pageY = e.pageY;
+    });
+    
+    
+    // Escape the not character if present so that it doesn't act in the regular expression
+    this.acSettings.notCharacter = self.regexEscape(this.acSettings.notCharacter || '');
 
-		//if we have a url for json, grab it and parse
-		if (this.widget.attr("data-ss-suggest-json-file"))
-		$.ajax({
-			url: this.widget.attr("data-ss-suggest-json-file"),
-			dataType: 'json',
-			async: false,
-			success: function(data) {
-				self.acSettings.data = data;
-			}
-		});
+    //if we have a url for json, grab it and parse
+    if (this.widget.attr("data-ss-suggest-json-file"))
+    $.ajax({
+      url: this.widget.attr("data-ss-suggest-json-file"),
+      dataType: 'json',
+      async: false,
+      success: function(data) {
+        self.acSettings.data = data;
+      }
+    });
 
-		// Make sure the JSON data is a JavaScript object if given as a string.
-		if (this.acSettings.data && typeof this.acSettings.data === 'string') {
-			this.acSettings.data = $.parseJSON(this.acSettings.data);
-		}
-		
-		$(this.obj).trigger("SSLoaded");
-	};
+    // Make sure the JSON data is a JavaScript object if given as a string.
+    if (this.acSettings.data && typeof this.acSettings.data === 'string') {
+      this.acSettings.data = $.parseJSON(this.acSettings.data);
+    }
+    
+    $(this.obj).trigger("SSLoaded");
+  };
 
-	AutoSuggest.prototype.handleResize = function() {
-		// Placeholder - required soysauce function
-	};
-	
-	/**
-	* Escape some text so that it can be used inside a regular expression
-	* without implying regular expression rules iself. 
-	*/
-	AutoSuggest.prototype.regexEscape = function(txt, omit) {
-		var specials = ['/', '.', '*', '+', '?', '|',
-						'(', ')', '[', ']', '{', '}', '\\'];
+  AutoSuggest.prototype.handleResize = function() {
+    // Placeholder - required soysauce function
+  };
+  
+  /**
+  * Escape some text so that it can be used inside a regular expression
+  * without implying regular expression rules iself. 
+  */
+  AutoSuggest.prototype.regexEscape = function(txt, omit) {
+    var specials = ['/', '.', '*', '+', '?', '|',
+            '(', ')', '[', ']', '{', '}', '\\'];
 
-		if (omit) {
-			for (var i = 0; i < specials.length; i++) {
-				if (specials[i] === omit) { specials.splice(i,1); }
-			}
-		}
+    if (omit) {
+      for (var i = 0; i < specials.length; i++) {
+        if (specials[i] === omit) { specials.splice(i,1); }
+      }
+    }
 
-		var escapePatt = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
-		return txt.replace(escapePatt, '\\$1');
-	}
-	
-	/**
-	* When an item has been selected then update the input box,
-	* hide the results again and if set, call the onSelect function.
-	*/
-	AutoSuggest.prototype.selectResultItem = function(item) {
-		this.obj.val(item[this.acSettings.property]);
-		this.widget.trigger("SSAutoSuggested", {
-			suggestion: item
-		});
-		$(this.results).html('').hide();
+    var escapePatt = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
+    return txt.replace(escapePatt, '\\$1');
+  }
+  
+  /**
+  * When an item has been selected then update the input box,
+  * hide the results again and if set, call the onSelect function.
+  */
+  AutoSuggest.prototype.selectResultItem = function(item) {
+    this.obj.val(item[this.acSettings.property]);
+    this.widget.trigger("SSAutoSuggested", {
+      suggestion: item
+    });
+    $(this.results).html('').hide();
 
-		if (typeof this.acSettings.onSelect === 'function') {
-			this.acSettings.onSelect(item);
-		}
-	}
-	
-	/**
-	* Used to get rid of the hover class on all result item elements in the
-	* current set of results and add it only to the given element. We also
-	* need to set the current selection to the given element here.
-	*/
-	AutoSuggest.prototype.setHoverClass = function(el) {
-		$('li a', this.results).removeClass('ui-state-hover');
-		if (el) {
-			$('a', el).addClass('ui-state-hover');
-		}
+    if (typeof this.acSettings.onSelect === 'function') {
+      this.acSettings.onSelect(item);
+    }
+  }
+  
+  /**
+  * Used to get rid of the hover class on all result item elements in the
+  * current set of results and add it only to the given element. We also
+  * need to set the current selection to the given element here.
+  */
+  AutoSuggest.prototype.setHoverClass = function(el) {
+    $('li a', this.results).removeClass('ui-state-hover');
+    if (el) {
+      $('a', el).addClass('ui-state-hover');
+    }
 
-		this.currentSelection = el;
-	}
-	
-	/**
-	* Build the results HTML based on an array of objects that matched
-	* the search criteria, highlight the matches if that feature is turned 
-	* on in the settings.
-	*/
-	AutoSuggest.prototype.buildResults = function(resultObjects, filterTxt) {
-		filterTxt = '(' + filterTxt + ')';
-		
-		var saveSelf = this;
+    this.currentSelection = el;
+  }
+  
+  /**
+  * Build the results HTML based on an array of objects that matched
+  * the search criteria, highlight the matches if that feature is turned 
+  * on in the settings.
+  */
+  AutoSuggest.prototype.buildResults = function(resultObjects, filterTxt) {
+    filterTxt = '(' + filterTxt + ')';
+    
+    var saveSelf = this;
 
-		var bOddRow = true, i, iFound = 0,
-			filterPatt = this.acSettings.caseSensitive ? new RegExp(filterTxt, 'g') : new RegExp(filterTxt, 'ig');
+    var bOddRow = true, i, iFound = 0,
+      filterPatt = this.acSettings.caseSensitive ? new RegExp(filterTxt, 'g') : new RegExp(filterTxt, 'ig');
 
-		$(this.results).html('').hide();
+    $(this.results).html('').hide();
 
-		for (i = 0; i < resultObjects.length; i += 1) {
-			var item = $('<li />'),
-				text = resultObjects[i][this.acSettings.property];
+    for (i = 0; i < resultObjects.length; i += 1) {
+      var item = $('<li />'),
+        text = resultObjects[i][this.acSettings.property];
 
-			if (this.acSettings.highlightMatches === true) {
-				text = text.replace(filterPatt, '<strong>$1</strong>');
-			}
+      if (this.acSettings.highlightMatches === true) {
+        text = text.replace(filterPatt, '<strong>$1</strong>');
+      }
 
-			$(item).append('<a class="ui-corner-all">' + text + '</a>');
+      $(item).append('<a class="ui-corner-all">' + text + '</a>');
 
-			if (typeof resultObjects[i].image === 'string') {
-				$('>a', item).prepend('<img src="' + resultObjects[i].image + '" />');
-			}
+      if (typeof resultObjects[i].image === 'string') {
+        $('>a', item).prepend('<img src="' + resultObjects[i].image + '" />');
+      }
 
-			if (typeof resultObjects[i].extra === 'string') {
-				$('>a', item).append('<small>' + resultObjects[i].extra + '</small>');
-			}
+      if (typeof resultObjects[i].extra === 'string') {
+        $('>a', item).append('<small>' + resultObjects[i].extra + '</small>');
+      }
 
-			
-			$(item).addClass('ui-menu-item').
-				addClass((bOddRow) ? 'odd' : 'even').
-				attr('role', 'menuitem').
-				click((function(n) { return function() {
-					saveSelf.selectResultItem(resultObjects[n]);						
-				};})(i)).
-				mouseover((function(el) { return function() { 
-					saveSelf.setHoverClass(el); 
-				};})(item));
+      
+      $(item).addClass('ui-menu-item').
+        addClass((bOddRow) ? 'odd' : 'even').
+        attr('role', 'menuitem').
+        click((function(n) { return function() {
+          saveSelf.selectResultItem(resultObjects[n]);            
+        };})(i)).
+        mouseover((function(el) { return function() { 
+          saveSelf.setHoverClass(el); 
+        };})(item));
 
-			$(this.results).append(item);
+      $(this.results).append(item);
 
-			bOddRow = !bOddRow;
+      bOddRow = !bOddRow;
 
-			iFound += 1;
-			if (typeof this.acSettings.maxResults === 'number' && iFound >= this.acSettings.maxResults) {
-				break;
-			}
-		}
+      iFound += 1;
+      if (typeof this.acSettings.maxResults === 'number' && iFound >= this.acSettings.maxResults) {
+        break;
+      }
+    }
 
-		if ($('li', this.results).length > 0) {
-			this.currentSelection = undefined;
-			$(this.results).show().css('height', 'auto');
+    if ($('li', this.results).length > 0) {
+      this.currentSelection = undefined;
+      $(this.results).show().css('height', 'auto');
 
-			if ($(this.results).height() > this.acSettings.maxHeight) {
-				$(this.results).css({'overflow': 'auto', 'height': this.acSettings.maxHeight + 'px'});
-			}
-		}
-	}
-	
-	/**
-	* Prepare the search data based on the settings for this plugin,
-	* run a match against each item in the possible results and display any 
-	* results on the page allowing selection by the user.
-	*/
-	AutoSuggest.prototype.runSuggest = function(e, self) {	
-		var search = function(searchData) {
-			if (this.value.length < self.acSettings.minCharacters) {
-				self.clearAndHideResults();
-				return false;
-			}
+      if ($(this.results).height() > this.acSettings.maxHeight) {
+        $(this.results).css({'overflow': 'auto', 'height': this.acSettings.maxHeight + 'px'});
+      }
+    }
+  }
+  
+  /**
+  * Prepare the search data based on the settings for this plugin,
+  * run a match against each item in the possible results and display any 
+  * results on the page allowing selection by the user.
+  */
+  AutoSuggest.prototype.runSuggest = function(e, self) {  
+    var search = function(searchData) {
+      if (this.value.length < self.acSettings.minCharacters) {
+        self.clearAndHideResults();
+        return false;
+      }
 
-			var resultObjects = [],
-				filterTxt = (!self.acSettings.wildCard) ? self.regexEscape(this.value) : self.regexEscape(this.value, self.acSettings.wildCard).replace(wildCardPatt, '.*'),
-				bMatch = true, 
-				filterPatt, i;
+      var resultObjects = [],
+        filterTxt = (!self.acSettings.wildCard) ? self.regexEscape(this.value) : self.regexEscape(this.value, self.acSettings.wildCard).replace(wildCardPatt, '.*'),
+        bMatch = true, 
+        filterPatt, i;
 
-			if (self.acSettings.notCharacter && filterTxt.indexOf(self.acSettings.notCharacter) === 0) {
-				filterTxt = filterTxt.substr(self.acSettings.notCharacter.length,filterTxt.length);
-				if (filterTxt.length > 0) { bMatch = false; }
-			}
-			filterTxt = filterTxt || '.*';
-			filterTxt = self.acSettings.wildCard ? '^' + filterTxt : filterTxt;
-			filterPatt = self.acSettings.caseSensitive ? new RegExp(filterTxt) : new RegExp(filterTxt, 'i');
+      if (self.acSettings.notCharacter && filterTxt.indexOf(self.acSettings.notCharacter) === 0) {
+        filterTxt = filterTxt.substr(self.acSettings.notCharacter.length,filterTxt.length);
+        if (filterTxt.length > 0) { bMatch = false; }
+      }
+      filterTxt = filterTxt || '.*';
+      filterTxt = self.acSettings.wildCard ? '^' + filterTxt : filterTxt;
+      filterPatt = self.acSettings.caseSensitive ? new RegExp(filterTxt) : new RegExp(filterTxt, 'i');
 
-			// Look for the required match against each single search data item. When the not
-			// character is used we are looking for a false match. 
-			for (i = 0; i < searchData.length; i += 1) {
-				if (filterPatt.test(searchData[i][self.acSettings.property]) === bMatch) {
-					resultObjects.push(searchData[i]);
-				}
-			}
+      // Look for the required match against each single search data item. When the not
+      // character is used we are looking for a false match. 
+      for (i = 0; i < searchData.length; i += 1) {
+        if (filterPatt.test(searchData[i][self.acSettings.property]) === bMatch) {
+          resultObjects.push(searchData[i]);
+        }
+      }
 
-			self.buildResults(resultObjects, filterTxt);
-		};
+      self.buildResults(resultObjects, filterTxt);
+    };
 
-		if (self.acSettings.data && self.acSettings.data.length) {
-			search.apply(this, [self.acSettings.data, self]);
-		}
-		else if (self.acSettings.url && typeof self.acSettings.url === 'string') {
-			var text = this.value;
-			if (text.length < self.acSettings.minCharacters) {
-				self.clearAndHideResults();
-				return false;
-			}
+    if (self.acSettings.data && self.acSettings.data.length) {
+      search.apply(this, [self.acSettings.data, self]);
+    }
+    else if (self.acSettings.url && typeof self.acSettings.url === 'string') {
+      var text = this.value;
+      if (text.length < self.acSettings.minCharacters) {
+        self.clearAndHideResults();
+        return false;
+      }
 
-			$(self.results).html('<li class="ui-menu-item ajaxSearching"><a class="ui-corner-all">Searching...</a></li>').
-				show().css('height', 'auto');
+      $(self.results).html('<li class="ui-menu-item ajaxSearching"><a class="ui-corner-all">Searching...</a></li>').
+        show().css('height', 'auto');
 
-			self.getJSONTimeout = window.clearTimeout(self.getJSONTimeout);
-			self.getJSONTimeout = window.setTimeout(function() {
-				$.getJSON(self.acSettings.url, {search: text}, function(data) {
-					if (data) {
-						self.buildResults(data, text);
-					}
-					else {
-						self.clearAndHideResults();
-					}
-				});
-			}, 500);
-		}
-	}
-	
-	/**
-	* Clears any previous results and hides the result list
-	*/
-	AutoSuggest.prototype.clearAndHideResults = function() {
-		$(this.results).html('').hide();
-	}
+      self.getJSONTimeout = window.clearTimeout(self.getJSONTimeout);
+      self.getJSONTimeout = window.setTimeout(function() {
+        $.getJSON(self.acSettings.url, {search: text}, function(data) {
+          if (data) {
+            self.buildResults(data, text);
+          }
+          else {
+            self.clearAndHideResults();
+          }
+        });
+      }, 500);
+    }
+  }
+  
+  /**
+  * Clears any previous results and hides the result list
+  */
+  AutoSuggest.prototype.clearAndHideResults = function() {
+    $(this.results).html('').hide();
+  }
 
-	return {
-		init: function(selector) {
-			return new AutoSuggest(selector);
-		}
-	};
+  return {
+    init: function(selector) {
+      return new AutoSuggest(selector);
+    }
+  };
 
 })();
 soysauce.carousels = (function() {
@@ -2135,8 +2135,8 @@ soysauce.carousels = (function() {
   var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
   var PINCH_SENSITIVITY = 1500; // lower to increase sensitivity for pinch zoom
   var PREFIX = soysauce.getPrefix();
-	
-	function Carousel(selector) {
+  
+  function Carousel(selector) {
     var options = soysauce.getOptions(selector);
     var self = this;
     var wrapper;
@@ -2165,6 +2165,7 @@ soysauce.carousels = (function() {
     this.prevBtn;
     this.freeze = false;
     this.jumping = false;
+    this.lastTransitionEnd = 0;
 
     // Infinite Variables
     this.infinite = true;
@@ -2225,7 +2226,7 @@ soysauce.carousels = (function() {
 
     // Fade Variables
     this.fade = false;
-		
+    
     if (options) options.forEach(function(option) {
       switch(option) {
         case "cms":
@@ -2452,14 +2453,14 @@ soysauce.carousels = (function() {
     }
     else {
       if (this.multi) {
-  		  var $items = $(this.items.slice(0, this.multiVars.numItems));
-  		  $items.attr("data-ss-state", "active");
-  		}
-  		else {
-  		  $(this.items[0]).attr("data-ss-state", "active");
-  		}
+        var $items = $(this.items.slice(0, this.multiVars.numItems));
+        $items.attr("data-ss-state", "active");
+      }
+      else {
+        $(this.items[0]).attr("data-ss-state", "active");
+      }
     }
-		
+    
     this.container.imagesLoaded(function(items) {
       var firstItem = self.items.first();
       var margin = parseInt(firstItem.css("margin-left"), 10) + parseInt(firstItem.css("margin-right"), 10);
@@ -2524,7 +2525,10 @@ soysauce.carousels = (function() {
       self.handleSwipe(e);
     });
 
-    this.container.on(TRANSITION_END, function() {
+    this.container.on(TRANSITION_END, function(e) {
+      if (Math.abs(e.timeStamp - self.lastTransitionEnd) < 300) return;
+
+      self.lastTransitionEnd = e.timeStamp;
       self.widget.trigger("slideEnd");
       self.ready = true;
       self.jumping = false;
@@ -2534,10 +2538,14 @@ soysauce.carousels = (function() {
       if (self.autoscroll && self.autoscrollRestartID === undefined) {
         self.autoscrollRestartID = window.setTimeout(function() {
           self.autoscrollOn();
-          }, 1000);
-        }
+        }, 1000);
+      }
+      
+      if (self.autoheight) {
+        self.widget.css("min-height", $(self.items[self.index]).outerHeight(true));
+      }
     });
-		
+    
     if (this.autoscroll) {
       var interval = this.widget.attr("data-ss-autoscroll-interval");
       this.autoscrollInterval = (!interval) ? AUTOSCROLL_INTERVAL : parseInt(interval, 10);
@@ -2548,7 +2556,7 @@ soysauce.carousels = (function() {
       var height = $(this.items[this.index]).outerHeight(true);
       this.widget.css("min-height", height);
     }
-		
+    
     this.widget.one("SSWidgetReady", function() {
       self.widget.attr("data-ss-state", "ready");
       self.ready = true;
@@ -2563,209 +2571,209 @@ soysauce.carousels = (function() {
           }, 300);
         }
       });
-	} // End Constructor
-	
-	Carousel.prototype.gotoPos = function(x, fast, jumping, resettingPosition) {
-		var self = this;
+  } // End Constructor
+  
+  Carousel.prototype.gotoPos = function(x, fast, jumping, resettingPosition) {
+    var self = this;
 
-		this.offset = x;
-		setTranslate(this.container[0], x);
-		
-		if (this.ready) {
-			this.container.attr("data-ss-state", "ready");
-		}
-		else {
-			this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
-		}
-		
-		if (self.autoscroll) {
-			self.autoscrollOff();
-			if (self.autoscrollRestartID !== undefined) {
-				window.clearInterval(self.autoscrollRestartID);
-				self.autoscrollRestartID = undefined;
-			}
-		}
-		
-		if (this.infinite) {
-			var duration = 0, xcoord = 0;
-			
-			duration = parseFloat(this.container.css(PREFIX + "transition-duration").replace(/s$/,"")) * 1000;
-			
-			duration = (!duration) ? 650 : duration;
-			// Slide Backward Rewind
-			if (!resettingPosition && !jumping && this.index === this.numChildren - 2 && !this.forward) {
-				this.infiniteID = window.setTimeout(function() {
-					xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
-					self.container.attr("data-ss-state", "notransition");
-					self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
-					setTranslate(self.container[0], self.offset);
-					window.setTimeout(function() {
-						self.container.attr("data-ss-state", "intransit");
-						if (self.peek && /left/.test(self.peekAlign)) {
-						  self.offset = -self.index*self.itemWidth;
-						}
-						else {
-						  self.offset = -self.index*self.itemWidth + self.peekWidth;
-						}
-						setTranslate(self.container[0], self.offset);
-					}, 0);
-				}, 0);
-			}
-			// Slide Forward Rewind
-			else if (!resettingPosition && !jumping && this.index === 1 && this.forward) {
-				this.infiniteID = window.setTimeout(function() {
-					xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
-					self.container.attr("data-ss-state", "notransition");
-					self.offset = self.itemWidth*(self.numChildren - 2) + xcoord;
-					setTranslate(self.container[0], self.offset);
-					window.setTimeout(function() {
-						self.container.attr("data-ss-state", "intransit");
-						if (self.peek && /left/.test(self.peekAlign)) {
-						  self.offset = -self.itemWidth;
-						}
-						else {
-						  self.offset = -self.itemWidth + self.peekWidth;
-						}
-						setTranslate(self.container[0], self.offset);
-					}, 0);
-				}, 0);
-			}
-			else {
-				this.infiniteID = undefined;
-			}
-		}
-	};
-	
-	Carousel.prototype.slideForward = function(fast) {
-		var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]),
-		    lastInfiniteIndex = this.numChildren - 1,
-		    stepSize = (this.multi) ? this.multiVars.stepSize * this.itemWidth : this.itemWidth;
-		
-		if (!this.ready || this.isZooming ||
-			(!this.infinite && this.index === lastInfiniteIndex) ||
-			(!this.infinite && this.multi && this.index === this.maxIndex - 1)) return false;
-		
-		$dots.attr("data-ss-state", "inactive");
-			
-		if (this.multi) {
-		  var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
-		  $items.attr("data-ss-state", "inactive");
-		  this.index++;
-		}
-		else {
-		  $(this.items[this.index++]).attr("data-ss-state", "inactive");
-		}
-		
-		if (this.infinite && this.index === lastInfiniteIndex) {
-			$(this.items[1]).attr("data-ss-state", "active");
-			this.index = 1;
-		}
-		else {
-		  if (this.multi) {
-		    var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
-		    $items.attr("data-ss-state", "active");
-		  }
-		  else {
-		    $(this.items[this.index]).attr("data-ss-state", "active");
-		  }
-		}
-		
-		$dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]);
-		$dots.attr("data-ss-state", "active");
+    this.offset = x;
+    setTranslate(this.container[0], x);
+    
+    if (this.ready) {
+      this.container.attr("data-ss-state", "ready");
+    }
+    else {
+      this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
+    }
+    
+    if (self.autoscroll) {
+      self.autoscrollOff();
+      if (self.autoscrollRestartID !== undefined) {
+        window.clearInterval(self.autoscrollRestartID);
+        self.autoscrollRestartID = undefined;
+      }
+    }
+    
+    if (this.infinite) {
+      var duration = 0, xcoord = 0;
+      
+      duration = parseFloat(this.container.css(PREFIX + "transition-duration").replace(/s$/,"")) * 1000;
+      
+      duration = (!duration) ? 650 : duration;
+      // Slide Backward Rewind
+      if (!resettingPosition && !jumping && this.index === this.numChildren - 2 && !this.forward) {
+        this.infiniteID = window.setTimeout(function() {
+          xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
+          self.container.attr("data-ss-state", "notransition");
+          self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
+          setTranslate(self.container[0], self.offset);
+          window.setTimeout(function() {
+            self.container.attr("data-ss-state", "intransit");
+            if (self.peek && /left/.test(self.peekAlign)) {
+              self.offset = -self.index*self.itemWidth;
+            }
+            else {
+              self.offset = -self.index*self.itemWidth + self.peekWidth;
+            }
+            setTranslate(self.container[0], self.offset);
+          }, 0);
+        }, 0);
+      }
+      // Slide Forward Rewind
+      else if (!resettingPosition && !jumping && this.index === 1 && this.forward) {
+        this.infiniteID = window.setTimeout(function() {
+          xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
+          self.container.attr("data-ss-state", "notransition");
+          self.offset = self.itemWidth*(self.numChildren - 2) + xcoord;
+          setTranslate(self.container[0], self.offset);
+          window.setTimeout(function() {
+            self.container.attr("data-ss-state", "intransit");
+            if (self.peek && /left/.test(self.peekAlign)) {
+              self.offset = -self.itemWidth;
+            }
+            else {
+              self.offset = -self.itemWidth + self.peekWidth;
+            }
+            setTranslate(self.container[0], self.offset);
+          }, 0);
+        }, 0);
+      }
+      else {
+        this.infiniteID = undefined;
+      }
+    }
+  };
+  
+  Carousel.prototype.slideForward = function(fast) {
+    var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]),
+        lastInfiniteIndex = this.numChildren - 1,
+        stepSize = (this.multi) ? this.multiVars.stepSize * this.itemWidth : this.itemWidth;
+    
+    if (!this.ready || this.isZooming ||
+      (!this.infinite && this.index === lastInfiniteIndex) ||
+      (!this.infinite && this.multi && this.index === this.maxIndex - 1)) return false;
+    
+    $dots.attr("data-ss-state", "inactive");
+      
+    if (this.multi) {
+      var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
+      $items.attr("data-ss-state", "inactive");
+      this.index++;
+    }
+    else {
+      $(this.items[this.index++]).attr("data-ss-state", "inactive");
+    }
+    
+    if (this.infinite && this.index === lastInfiniteIndex) {
+      $(this.items[1]).attr("data-ss-state", "active");
+      this.index = 1;
+    }
+    else {
+      if (this.multi) {
+        var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
+        $items.attr("data-ss-state", "active");
+      }
+      else {
+        $(this.items[this.index]).attr("data-ss-state", "active");
+      }
+    }
+    
+    $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]);
+    $dots.attr("data-ss-state", "active");
 
-		if (!this.infinite) {
-			if (this.index === lastInfiniteIndex || (this.multi && this.index === this.maxIndex - 1)) {
-			  this.nextBtn.attr("data-ss-state", "disabled");
-			}
-			if (this.numChildren > 1) {
-			  this.prevBtn.attr("data-ss-state", "enabled");
-			}
-		}
-		
-		this.ready = false;
-		this.forward = true;
-		this.gotoPos(this.offset - stepSize, fast);
-		
-		return true;
-	};
-	
-	Carousel.prototype.slideBackward = function(fast) {
-	  var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]),
-	      lastInfiniteIndex = this.numChildren - 1,
-	      stepSize = (this.multi) ? this.multiVars.stepSize * this.itemWidth : this.itemWidth;
-	  
-		if (!this.ready || (!this.infinite && this.index === 0) || this.isZooming) return false;
-		
-		$dots.attr("data-ss-state", "inactive");
-		
-		if (this.multi) {
-		  var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
-		  $items.attr("data-ss-state", "inactive");
-		  this.index--;
-		}
-		else {
-		  $(this.items[this.index--]).attr("data-ss-state", "inactive");
-		}
-		
-		if (this.infinite && this.index === 0) {
-			$(this.items[lastInfiniteIndex - 1]).attr("data-ss-state", "active");
-			this.index = lastInfiniteIndex - 1;
-		}
-		else {
-		  if (this.multi) {
-		    var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
-		    $items.attr("data-ss-state", "active");
-		  }
-		  else {
-		    $(this.items[this.index]).attr("data-ss-state", "active");
-		  }
-		}
-		
-		$dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]);
-		$dots.attr("data-ss-state", "active");
-		
-		if (!this.infinite) {
-			if (this.index === 0) {
-			  this.prevBtn.attr("data-ss-state", "disabled");
-			}
-			if (this.numChildren > 1) {
-			  this.nextBtn.attr("data-ss-state", "enabled");
-			}
-		}
-			
-		this.ready = false;
-		this.forward = false;
-		this.gotoPos(this.offset + stepSize, fast);
-		
-		return true;
-	};
-	
-	Carousel.prototype.initPanLimits = function() {
-	  var self = this, extraPadding = 2;
-	  
+    if (!this.infinite) {
+      if (this.index === lastInfiniteIndex || (this.multi && this.index === this.maxIndex - 1)) {
+        this.nextBtn.attr("data-ss-state", "disabled");
+      }
+      if (this.numChildren > 1) {
+        this.prevBtn.attr("data-ss-state", "enabled");
+      }
+    }
+    
+    this.ready = false;
+    this.forward = true;
+    this.gotoPos(this.offset - stepSize, fast);
+    
+    return true;
+  };
+  
+  Carousel.prototype.slideBackward = function(fast) {
+    var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]),
+        lastInfiniteIndex = this.numChildren - 1,
+        stepSize = (this.multi) ? this.multiVars.stepSize * this.itemWidth : this.itemWidth;
+    
+    if (!this.ready || (!this.infinite && this.index === 0) || this.isZooming) return false;
+    
+    $dots.attr("data-ss-state", "inactive");
+    
+    if (this.multi) {
+      var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
+      $items.attr("data-ss-state", "inactive");
+      this.index--;
+    }
+    else {
+      $(this.items[this.index--]).attr("data-ss-state", "inactive");
+    }
+    
+    if (this.infinite && this.index === 0) {
+      $(this.items[lastInfiniteIndex - 1]).attr("data-ss-state", "active");
+      this.index = lastInfiniteIndex - 1;
+    }
+    else {
+      if (this.multi) {
+        var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
+        $items.attr("data-ss-state", "active");
+      }
+      else {
+        $(this.items[this.index]).attr("data-ss-state", "active");
+      }
+    }
+    
+    $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]);
+    $dots.attr("data-ss-state", "active");
+    
+    if (!this.infinite) {
+      if (this.index === 0) {
+        this.prevBtn.attr("data-ss-state", "disabled");
+      }
+      if (this.numChildren > 1) {
+        this.nextBtn.attr("data-ss-state", "enabled");
+      }
+    }
+      
+    this.ready = false;
+    this.forward = false;
+    this.gotoPos(this.offset + stepSize, fast);
+    
+    return true;
+  };
+  
+  Carousel.prototype.initPanLimits = function() {
+    var self = this, extraPadding = 2;
+    
     this.panMax.y = Math.abs(((self.items.first().height() * self.scale) - self.widgetHeight) / DEFAULT_SCALE);
     this.panMax.x = Math.abs((self.widgetWidth - ((self.itemWidth*self.scale) - (self.itemPadding*2))) / DEFAULT_SCALE);
 
-		if (this.panMax.y === 0) {
-			this.container.imagesLoaded(function() {
-				self.panMax.y = Math.abs(((self.items.first().height() * self.scale) - self.widgetHeight) / DEFAULT_SCALE);
-			});
-		}
-	};
-	
-	Carousel.prototype.handleResize = function() {
-	  var parentWidgetContainer;
-	  
-	  this.widgetWidth = this.widget.outerWidth();
-	  
-	  // Assumption: parent is a toggler
-	  if (!this.widgetWidth) parentWidgetContainer = this.widget.parents().closest("[data-ss-widget='toggler'] [data-ss-component='content']");
-	  
+    if (this.panMax.y === 0) {
+      this.container.imagesLoaded(function() {
+        self.panMax.y = Math.abs(((self.items.first().height() * self.scale) - self.widgetHeight) / DEFAULT_SCALE);
+      });
+    }
+  };
+  
+  Carousel.prototype.handleResize = function() {
+    var parentWidgetContainer;
+    
+    this.widgetWidth = this.widget.outerWidth();
+    
+    // Assumption: parent is a toggler
+    if (!this.widgetWidth) parentWidgetContainer = this.widget.parents().closest("[data-ss-widget='toggler'] [data-ss-component='content']");
+    
     if (parentWidgetContainer) {
       parentWidgetContainer.css("display", "block");
       this.widgetWidth = this.widgetWidth || parentWidgetContainer.outerWidth();
     }
-	  
+    
     if (this.fade) {
       return;
     }
@@ -2810,155 +2818,159 @@ soysauce.carousels = (function() {
     }
 
     this.container.css("width", (this.itemWidth * this.numChildren) + "px");
-	};
-	
-	Carousel.prototype.handleInterrupt = function(e) {
-		if (this.isZooming || this.isZoomed || !this.swipe) {
-			soysauce.stifle(e);
-			return;
-		}
-		
-		var self = this;
-		var coords1, coords2, ret;
-		var xcoord = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(this.container.css(PREFIX + "transform"))[4], 10);
-		
-		this.interrupted = true;
-		
-		if (this.autoscroll) {
-			this.autoscrollOff();
-			if (this.autoscrollRestartID !== undefined) {
-				window.clearInterval(self.autoscrollRestartID);
-				self.autoscrollRestartID = undefined;
-			}
-		}
-		
-		self.container.attr("data-ss-state", "notransition");
-		
-		// Loop Interrupt
-		if ((this.infinite && this.index === 1 && this.forward) || (this.infinite && (this.index === this.numChildren - 2) && !this.forward)) {
-			this.looping = true;
-		}
-		else {
-			this.looping = false;
-		}
-		
-		window.clearInterval(this.infiniteID);
-		setTranslate(this.container[0], xcoord);
-		
-		coords1 = soysauce.getCoords(e);
-		
-		this.widget.on("touchmove mousemove", function(e2) {
-			var dragOffset;
-			
-			if (self.isZoomed) {
-				soysauce.stifle(e);
-				soysauce.stifle(e2);
-				return;
-			}
-			
-			ret = coords2 = soysauce.getCoords(e2);
-			
-			if (!self.lockScroll) {
-				if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2) {
-					self.lockScroll = "y";
-				}
-				else {
-					self.lockScroll = "x";
-				}
-			}
-			
-			if (/^y$/.test(self.lockScroll)) {
-				return;
-			}
-			
-			soysauce.stifle(e2);
-			dragOffset = coords1.x - coords2.x;
-			
-			setTranslate(self.container[0], xcoord - dragOffset);
-		});
-		
-		if (this.infiniteID !== undefined) this.widget.one("touchend mouseup", function(e2) {
-			self.infiniteID = undefined;
-			
-			if (self.index === self.numChildren - 2) {
-			  if (self.peek && /left/.test(self.peekAlign)) {
-			    self.offset = -self.index*self.itemWidth;
-			  }
-			  else {
-			    self.offset = -self.index*self.itemWidth + self.peekWidth;
-			  }
-			}
-			else if (self.index === 1) {
-			  if (self.peek && /left/.test(self.peekAlign)) {
-			    self.offset = -self.itemWidth;
-			  }
-			  else {
-			    self.offset = -self.itemWidth + self.peekWidth;
-			  }
-			}
-			
-			window.setTimeout(function() {
-				self.container.attr("data-ss-state", "intransit");
-				setTranslate(self.container[0], self.offset);
-			}, 0);
-		});
-		
-		return ret;
-	};
-	
-	Carousel.prototype.handleSwipe = function(e1) {
-		var self = this;
-		var coords1, coords2, lastX, originalDist = 0, prevDist = -1;
-		var newX2 = 0, newY2 = 0;
-		var zoomingIn = null;
-		
-		if (this.infinite) {
-			if (new Date().getTime() - this.lastSlideTime < 225) return;
-			this.lastSlideTime = new Date().getTime();
-		}
-		
-		coords1 = soysauce.getCoords(e1);
-		
-		this.coords1x = coords1.x;
-		this.coords1y = coords1.y;
-		
-		if (coords1.y2 && coords1.x2) {
-			var xs = 0, ys = 0, dist = 0;
-			
-			ys = (coords1.y2 - coords1.y)*(coords1.y2 - coords1.y);
-			xs = (coords1.x2 - coords1.x)*(coords1.x2 - coords1.x);
-			
-			originalDist = Math.sqrt(ys + xs);
-		}
-		
-		if (e1.type.match(/mousedown/) !== null) soysauce.stifle(e1); // for desktop debugging
+    
+    if (this.autoheight) {
+      this.widget.css("min-height", $(this.items[this.index]).outerHeight(true));
+    }
+  };
+  
+  Carousel.prototype.handleInterrupt = function(e) {
+    if (this.isZooming || this.isZoomed || !this.swipe) {
+      soysauce.stifle(e);
+      return;
+    }
+    
+    var self = this;
+    var coords1, coords2, ret;
+    var xcoord = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(this.container.css(PREFIX + "transform"))[4], 10);
+    
+    this.interrupted = true;
+    
+    if (this.autoscroll) {
+      this.autoscrollOff();
+      if (this.autoscrollRestartID !== undefined) {
+        window.clearInterval(self.autoscrollRestartID);
+        self.autoscrollRestartID = undefined;
+      }
+    }
+    
+    self.container.attr("data-ss-state", "notransition");
+    
+    // Loop Interrupt
+    if ((this.infinite && this.index === 1 && this.forward) || (this.infinite && (this.index === this.numChildren - 2) && !this.forward)) {
+      this.looping = true;
+    }
+    else {
+      this.looping = false;
+    }
+    
+    window.clearInterval(this.infiniteID);
+    setTranslate(this.container[0], xcoord);
+    
+    coords1 = soysauce.getCoords(e);
+    
+    this.widget.on("touchmove mousemove", function(e2) {
+      var dragOffset;
+      
+      if (self.isZoomed) {
+        soysauce.stifle(e);
+        soysauce.stifle(e2);
+        return;
+      }
+      
+      ret = coords2 = soysauce.getCoords(e2);
+      
+      if (!self.lockScroll) {
+        if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2) {
+          self.lockScroll = "y";
+        }
+        else {
+          self.lockScroll = "x";
+        }
+      }
+      
+      if (/^y$/.test(self.lockScroll)) {
+        return;
+      }
+      
+      soysauce.stifle(e2);
+      dragOffset = coords1.x - coords2.x;
+      
+      setTranslate(self.container[0], xcoord - dragOffset);
+    });
+    
+    if (this.infiniteID !== undefined) this.widget.one("touchend mouseup", function(e2) {
+      self.infiniteID = undefined;
+      
+      if (self.index === self.numChildren - 2) {
+        if (self.peek && /left/.test(self.peekAlign)) {
+          self.offset = -self.index*self.itemWidth;
+        }
+        else {
+          self.offset = -self.index*self.itemWidth + self.peekWidth;
+        }
+      }
+      else if (self.index === 1) {
+        if (self.peek && /left/.test(self.peekAlign)) {
+          self.offset = -self.itemWidth;
+        }
+        else {
+          self.offset = -self.itemWidth + self.peekWidth;
+        }
+      }
+      
+      window.setTimeout(function() {
+        self.container.attr("data-ss-state", "intransit");
+        setTranslate(self.container[0], self.offset);
+      }, 0);
+    });
+    
+    return ret;
+  };
+  
+  Carousel.prototype.handleSwipe = function(e1) {
+    var self = this;
+    var coords1, coords2, lastX, originalDist = 0, prevDist = -1;
+    var newX2 = 0, newY2 = 0;
+    var zoomingIn = null;
+    
+    if (this.infinite) {
+      if (new Date().getTime() - this.lastSlideTime < 225) return;
+      this.lastSlideTime = new Date().getTime();
+    }
+    
+    coords1 = soysauce.getCoords(e1);
+    
+    this.coords1x = coords1.x;
+    this.coords1y = coords1.y;
+    
+    if (coords1.y2 && coords1.x2) {
+      var xs = 0, ys = 0, dist = 0;
+      
+      ys = (coords1.y2 - coords1.y)*(coords1.y2 - coords1.y);
+      xs = (coords1.x2 - coords1.x)*(coords1.x2 - coords1.x);
+      
+      originalDist = Math.sqrt(ys + xs);
+    }
+    
+    if (e1.type.match(/mousedown/) !== null) soysauce.stifle(e1); // for desktop debugging
 
-		this.lockScroll = undefined;
+    this.lockScroll = undefined;
 
-		if (!this.ready) 
-			lastX = this.handleInterrupt(e1);
-		else {
-			// Pan or Pinch Zooming
-			if (this.zoom && this.isZoomed) {
-			  var prevScale = self.scale;
-				this.widget.one("touchend mouseup", function(e2) {
-					var array = soysauce.getArrayFromMatrix($(e2.target).css(PREFIX + "transform")),
-					    panX = parseInt(array[4], 10), panY = parseInt(array[5], 10), $target = $(e2.target),
-					    buttonName = $(e2.target).attr("data-ss-button-type"),
+    if (!this.ready) 
+      lastX = this.handleInterrupt(e1);
+    else {
+      // Pan or Pinch Zooming
+      if (this.zoom && this.isZoomed) {
+        var prevScale = self.scale;
+        this.widget.one("touchend mouseup", function(e2) {
+          var array = soysauce.getArrayFromMatrix($(e2.target).css(PREFIX + "transform")),
+              panX = parseInt(array[4], 10), panY = parseInt(array[5], 10), $target = $(e2.target),
+              buttonName = $(e2.target).attr("data-ss-button-type"),
               componentName = $(e2.target).attr("data-ss-component"),
               $zoomImg = $(self.items[self.index]).find("img"),
               event = e2.originalEvent;
-					
-					if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
-					
-					self.panCoordsStart.x = (Math.abs(panX) > 0) ? panX : 0;
-					self.panCoordsStart.y = (Math.abs(panY) > 0) ? panY : 0;
-					zoomingIn = null;
-					
-					$zoomImg.attr("data-ss-state", "ready");
-					
-					if (self.pinch && event.changedTouches && event.changedTouches.length > 1) {
-					  var scale = prevScale + event.scale - 1;
+          
+          if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
+          
+          self.panCoordsStart.x = (Math.abs(panX) > 0) ? panX : 0;
+          self.panCoordsStart.y = (Math.abs(panY) > 0) ? panY : 0;
+          zoomingIn = null;
+          
+          $zoomImg.attr("data-ss-state", "ready");
+          
+          if (self.pinch && event.changedTouches && event.changedTouches.length > 1) {
+            var scale = prevScale + event.scale - 1;
             if (scale > self.zoomMax) {
               self.scale = self.zoomMax;
             }
@@ -2968,210 +2980,210 @@ soysauce.carousels = (function() {
             else {
               self.scale += event.scale - 1;
             }
-					}
-					
-					self.widget.off("touchmove mousemove");
-				});
-				this.widget.on("touchmove mousemove", function(e2) {
-				  var event = e2.originalEvent, 
-				      zoomImg = self.items[self.index],
-				      buttonName = $(e2.target).attr("data-ss-button-type"),
-				      componentName = $(e2.target).attr("data-ss-component");
-				  
-					soysauce.stifle(e2);
-					
-					if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
-					
-					zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
-					
-					coords2 = soysauce.getCoords(e2);
-					
-					$(zoomImg).attr("data-ss-state", "panning");
+          }
+          
+          self.widget.off("touchmove mousemove");
+        });
+        this.widget.on("touchmove mousemove", function(e2) {
+          var event = e2.originalEvent, 
+              zoomImg = self.items[self.index],
+              buttonName = $(e2.target).attr("data-ss-button-type"),
+              componentName = $(e2.target).attr("data-ss-component");
+          
+          soysauce.stifle(e2);
+          
+          if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
+          
+          zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
+          
+          coords2 = soysauce.getCoords(e2);
+          
+          $(zoomImg).attr("data-ss-state", "panning");
 
-					// Pinch Zooming
-					if (self.pinch && event.changedTouches.length > 1) {
-						var startCoords = soysauce.getCoords(event);
-						var scale = prevScale + event.scale - 1;
+          // Pinch Zooming
+          if (self.pinch && event.changedTouches.length > 1) {
+            var startCoords = soysauce.getCoords(event);
+            var scale = prevScale + event.scale - 1;
 
             self.initPanLimits();
             
             if (scale >= self.zoomMin && scale <= self.zoomMax) {
               setMatrix(zoomImg, scale, self.panCoordsStart.x, self.panCoordsStart.y);
             }
-					}
-					// Panning
-					else {
-						self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
-						self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
+          }
+          // Panning
+          else {
+            self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
+            self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
 
-						self.checkPanLimits();
-						setMatrix(e2.target, self.scale, self.panCoords.x, self.panCoords.y);
-					}
-				});
-			}
-			// Swipe Forward/Backward or Lock Scroll
-			else if (this.swipe) this.widget.on("touchmove mousemove", function(e2) {
-				var dragOffset,
-				    target_name = $(e2.target).attr("data-ss-component");
-				
-				coords2 = soysauce.getCoords(e2);
-				
-				if (/^zoom_icon$/.test(target_name)) return;
-				
-				if (!self.lockScroll) {
-					if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) >= 1) {
-						self.lockScroll = "y";
-					}
-					else {
-						self.lockScroll = "x";
-					}
-				}
-				
-				if (/^y$/.test(self.lockScroll)) {
-					return;
-				}
-				
-				soysauce.stifle(e2);
-				self.panning = true;
-				lastX = coords2.x;
-				dragOffset = coords1.x - coords2.x;
-				self.container.attr("data-ss-state", "notransition");
-				setTranslate(self.container[0], self.offset - dragOffset);
-			});
-		}
-
-		// Decides whether to zoom or move to next/prev item
-		this.widget.one("touchend mouseup", function(e2) {
-			var forceZoom;
-			var targetComponent = $(e2.target).attr("data-ss-component");
-			
-			self.widget.off("touchmove mousemove");
-			
-			if (self.jumping) return;
-			
-			soysauce.stifle(e2);
-			
-			if (/^button$/.test(targetComponent)) {
-				return;
-			}
-			
-			forceZoom = (/^zoom_icon$/.test(targetComponent)) ? true : false;
-			
-			coords2 = soysauce.getCoords(e2);
-			
-			if (coords2 !== null) lastX = coords2.x;
-
-			var xDist = self.coords1x - lastX;
-			var yDist = self.coords1y - coords2.y;
-			
-			var time = Math.abs(e2.timeStamp - e1.timeStamp);
-			
-			var velocity = xDist / time;
-			var fast = (velocity > 0.9) ? true : false;
-			
-			if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
-				self.ready = true;
-				self.container.attr("data-ss-state", "ready");
-				
-				if (e2.target.tagName.match(/^a$/i) !== null) {
-					window.location.href = $(e2.target).attr("href");
-				}
-				else if ($(e2.target).closest("a").length > 0) {
-					window.location.href = $(e2.target).closest("a").attr("href");
-				}
-				
-			}
-			else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed || forceZoom)) {
-				soysauce.stifle(e1);
-				self.toggleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
-			}
-			else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25)) {
-				if (self.looping) return;
-				soysauce.stifle(e1);
-				self.ready = true;
-				self.container.attr("data-ss-state", "ready");
-				self.gotoPos(self.offset, true, false, true);
-			}
-			else if (Math.abs(xDist) > 3 && self.swipe) {
-				self.ready = true;
-				self.container.attr("data-ss-state", "ready");
+            self.checkPanLimits();
+            setMatrix(e2.target, self.scale, self.panCoords.x, self.panCoords.y);
+          }
+        });
+      }
+      // Swipe Forward/Backward or Lock Scroll
+      else if (this.swipe) this.widget.on("touchmove mousemove", function(e2) {
+        var dragOffset,
+            target_name = $(e2.target).attr("data-ss-component");
         
-				if (self.lockScroll === "y") {
-					return;
-				}
-				
-				if (xDist > 0) {
-					if (!self.infinite && ((self.index === self.numChildren - 1) 
-					    || (self.multi && self.index === self.maxIndex - Math.floor(self.multiVars.numItems / self.multiVars.stepSize)))) {
-					  if (self.multi)  {
-					    self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
-					  }
-					  else {
-    					self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
-					  }
-					}
-					else {
-						if (soysauce.vars.degrade) {
-							self.rewindCoord = parseInt(self.container.css("left"), 10);
-						}
-						self.slideForward(fast);
-					}
-				}
-				else {
-					if (!self.infinite && self.index === 0) {
-						self.gotoPos(self.peekWidth);
-					}
-					else {
-						if (soysauce.vars.degrade) {
-							self.rewindCoord = parseInt(self.container.css("left"), 10);
-						}
-						self.slideBackward(fast);
-					}
-				}
-			}
-		});
-	};
-	
-	Carousel.prototype.checkPanLimits = function() {
-		if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x > 0) {
-			this.panCoords.x = this.panMax.x;
-		}
-		else if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x < 0) {
-			this.panCoords.x = -this.panMax.x;
-		}
+        coords2 = soysauce.getCoords(e2);
+        
+        if (/^zoom_icon$/.test(target_name)) return;
+        
+        if (!self.lockScroll) {
+          if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) >= 1) {
+            self.lockScroll = "y";
+          }
+          else {
+            self.lockScroll = "x";
+          }
+        }
+        
+        if (/^y$/.test(self.lockScroll)) {
+          return;
+        }
+        
+        soysauce.stifle(e2);
+        self.panning = true;
+        lastX = coords2.x;
+        dragOffset = coords1.x - coords2.x;
+        self.container.attr("data-ss-state", "notransition");
+        setTranslate(self.container[0], self.offset - dragOffset);
+      });
+    }
 
-		if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y > 0) {
-			this.panCoords.y = this.panMax.y;
-		}
-		else if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y < 0) {
-			this.panCoords.y = -this.panMax.y;
-		}
-			
-		if (this.isZoomed) {
-			var img = this.items[this.index];
-			
-			if (!/img/i.test(img.tagName)) {
-			  img = $(img).find("img")[0];
-			}
-			
-			$(img).attr("data-ss-state", "panning");
+    // Decides whether to zoom or move to next/prev item
+    this.widget.one("touchend mouseup", function(e2) {
+      var forceZoom;
+      var targetComponent = $(e2.target).attr("data-ss-component");
+      
+      self.widget.off("touchmove mousemove");
+      
+      if (self.jumping) return;
+      
+      soysauce.stifle(e2);
+      
+      if (/^button$/.test(targetComponent)) {
+        return;
+      }
+      
+      forceZoom = (/^zoom_icon$/.test(targetComponent)) ? true : false;
+      
+      coords2 = soysauce.getCoords(e2);
+      
+      if (coords2 !== null) lastX = coords2.x;
+
+      var xDist = self.coords1x - lastX;
+      var yDist = self.coords1y - coords2.y;
+      
+      var time = Math.abs(e2.timeStamp - e1.timeStamp);
+      
+      var velocity = xDist / time;
+      var fast = (velocity > 0.9) ? true : false;
+      
+      if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
+        self.ready = true;
+        self.container.attr("data-ss-state", "ready");
+        
+        if (e2.target.tagName.match(/^a$/i) !== null) {
+          window.location.href = $(e2.target).attr("href");
+        }
+        else if ($(e2.target).closest("a").length > 0) {
+          window.location.href = $(e2.target).closest("a").attr("href");
+        }
+        
+      }
+      else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed || forceZoom)) {
+        soysauce.stifle(e1);
+        self.toggleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
+      }
+      else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25)) {
+        if (self.looping) return;
+        soysauce.stifle(e1);
+        self.ready = true;
+        self.container.attr("data-ss-state", "ready");
+        self.gotoPos(self.offset, true, false, true);
+      }
+      else if (Math.abs(xDist) > 3 && self.swipe) {
+        self.ready = true;
+        self.container.attr("data-ss-state", "ready");
+        
+        if (self.lockScroll === "y") {
+          return;
+        }
+        
+        if (xDist > 0) {
+          if (!self.infinite && ((self.index === self.numChildren - 1) 
+              || (self.multi && self.index === self.maxIndex - Math.floor(self.multiVars.numItems / self.multiVars.stepSize)))) {
+            if (self.multi)  {
+              self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
+            }
+            else {
+              self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
+            }
+          }
+          else {
+            if (soysauce.vars.degrade) {
+              self.rewindCoord = parseInt(self.container.css("left"), 10);
+            }
+            self.slideForward(fast);
+          }
+        }
+        else {
+          if (!self.infinite && self.index === 0) {
+            self.gotoPos(self.peekWidth);
+          }
+          else {
+            if (soysauce.vars.degrade) {
+              self.rewindCoord = parseInt(self.container.css("left"), 10);
+            }
+            self.slideBackward(fast);
+          }
+        }
+      }
+    });
+  };
+  
+  Carousel.prototype.checkPanLimits = function() {
+    if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x > 0) {
+      this.panCoords.x = this.panMax.x;
+    }
+    else if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x < 0) {
+      this.panCoords.x = -this.panMax.x;
+    }
+
+    if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y > 0) {
+      this.panCoords.y = this.panMax.y;
+    }
+    else if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y < 0) {
+      this.panCoords.y = -this.panMax.y;
+    }
+      
+    if (this.isZoomed) {
+      var img = this.items[this.index];
+      
+      if (!/img/i.test(img.tagName)) {
+        img = $(img).find("img")[0];
+      }
+      
+      $(img).attr("data-ss-state", "panning");
       setMatrix(img, this.scale, this.panCoords.x, this.panCoords.y);
-		}
-	};
-	
-	Carousel.prototype.toggleZoom = function(e1, e2, xDist, yDist) {
-		if (!this.ready && !(this.isZoomed && xDist < 2 && yDist < 2) || (e1.type.match(/touch/) !== null && e2.type.match(/mouse/) !== null)) {
-			soysauce.stifle(e1);
-			soysauce.stifle(e2);
-			return;
-		}
+    }
+  };
+  
+  Carousel.prototype.toggleZoom = function(e1, e2, xDist, yDist) {
+    if (!this.ready && !(this.isZoomed && xDist < 2 && yDist < 2) || (e1.type.match(/touch/) !== null && e2.type.match(/mouse/) !== null)) {
+      soysauce.stifle(e1);
+      soysauce.stifle(e2);
+      return;
+    }
 
-		var zoomImg = this.items[this.index];
-		zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
-		
-		var self = this;
-		$(zoomImg).attr("data-ss-state", "ready");
-		
+    var zoomImg = this.items[this.index];
+    zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
+    
+    var self = this;
+    $(zoomImg).attr("data-ss-state", "ready");
+    
     // Zoom In
     if (!this.isZoomed) {
       var offset = 0, 
@@ -3255,74 +3267,74 @@ soysauce.carousels = (function() {
         }
       });
     }
-		// Zoom Out
-		else if (xDist < 2 && yDist < 2) {
-			this.dots.first().parent().css("visibility", "visible");
-			this.nextBtn.show();
-			this.prevBtn.show();
-			this.isZooming = true;
-			this.ready = false;
-			this.widget.attr("data-ss-state", "ready");
-			this.zoomIcon.attr("data-ss-state", "out");
-			this.scale = 1;
-			this.widget.off("touchmove mousemove");
-			
-			if (self.peek && /left/.test(self.peekAlign)) {
+    // Zoom Out
+    else if (xDist < 2 && yDist < 2) {
+      this.dots.first().parent().css("visibility", "visible");
+      this.nextBtn.show();
+      this.prevBtn.show();
+      this.isZooming = true;
+      this.ready = false;
+      this.widget.attr("data-ss-state", "ready");
+      this.zoomIcon.attr("data-ss-state", "out");
+      this.scale = 1;
+      this.widget.off("touchmove mousemove");
+      
+      if (self.peek && /left/.test(self.peekAlign)) {
         $(zoomImg).css({
           "left": "0px"
         });
       }
       
-			setMatrix(zoomImg, this.scale, 0, 0);
-			$(zoomImg).on(TRANSITION_END, function() {
-				self.isZoomed = false;
-				self.isZooming = false;
-			});
-		}
-		
-		$(zoomImg).on(TRANSITION_END, function() {
-			self.ready = true;
-			self.interrupted = false;
-			self.isZooming = false;
-		});
-	};
-	
-	Carousel.prototype.autoscrollOn = function() {
-		var self = this;
-		
-		if (!this.autoscrollID) {
-			this.autoscrollID = window.setInterval(function() {
-				if (soysauce.vars.degrade) {
-					self.rewindCoord = -self.itemWidth*3 - self.peekWidth;
-				}
-				self.slideForward();
-			}, self.autoscrollInterval);
-			return true;
-		}
-		
-		return false;
-	};
-	
-	Carousel.prototype.autoscrollOff = function() {
-		var self = this;
-		
-		if (!this.autoscrollID) return false;
-		
-		window.clearInterval(self.autoscrollID);
-		this.autoscrollID = undefined;
-		
-		return true;
-	};
-	
-	Carousel.prototype.handleFreeze = function() {
-		this.freeze = true;
-	};
-	
-	Carousel.prototype.handleUnfreeze = function() {
-		this.freeze = false;
-	};
-	
-	Carousel.prototype.jumpTo = function(index) {
+      setMatrix(zoomImg, this.scale, 0, 0);
+      $(zoomImg).on(TRANSITION_END, function() {
+        self.isZoomed = false;
+        self.isZooming = false;
+      });
+    }
+    
+    $(zoomImg).on(TRANSITION_END, function() {
+      self.ready = true;
+      self.interrupted = false;
+      self.isZooming = false;
+    });
+  };
+  
+  Carousel.prototype.autoscrollOn = function() {
+    var self = this;
+    
+    if (!this.autoscrollID) {
+      this.autoscrollID = window.setInterval(function() {
+        if (soysauce.vars.degrade) {
+          self.rewindCoord = -self.itemWidth*3 - self.peekWidth;
+        }
+        self.slideForward();
+      }, self.autoscrollInterval);
+      return true;
+    }
+    
+    return false;
+  };
+  
+  Carousel.prototype.autoscrollOff = function() {
+    var self = this;
+    
+    if (!this.autoscrollID) return false;
+    
+    window.clearInterval(self.autoscrollID);
+    this.autoscrollID = undefined;
+    
+    return true;
+  };
+  
+  Carousel.prototype.handleFreeze = function() {
+    this.freeze = true;
+  };
+  
+  Carousel.prototype.handleUnfreeze = function() {
+    this.freeze = false;
+  };
+  
+  Carousel.prototype.jumpTo = function(index) {
     var self = this;
 
     if (index === this.index) return false;
@@ -3335,7 +3347,7 @@ soysauce.carousels = (function() {
       if (index < 0 || index > this.maxIndex - 1)
         return false;
     }
-		
+    
     this.jumping = true;
     this.ready = false;
 
@@ -3386,24 +3398,24 @@ soysauce.carousels = (function() {
 
     return true;
   };
-	
-	// Helper Functions
-	function setTranslate(element, x, y) {
-		x = x || 0;
-		y = y || 0;
-		if (soysauce.vars.degrade) {
-			element.style.left = x + "px";
-		}
-		else {
-			element.style.webkitTransform = 
-			element.style.msTransform = 
-			element.style.OTransform = 
-			element.style.MozTransform = 
-			element.style.transform =
-				"translate3d(" + x + "px," + y + "px,0)";
-		}
-	}
-	
+  
+  // Helper Functions
+  function setTranslate(element, x, y) {
+    x = x || 0;
+    y = y || 0;
+    if (soysauce.vars.degrade) {
+      element.style.left = x + "px";
+    }
+    else {
+      element.style.webkitTransform = 
+      element.style.msTransform = 
+      element.style.OTransform = 
+      element.style.MozTransform = 
+      element.style.transform =
+        "translate3d(" + x + "px," + y + "px,0)";
+    }
+  }
+  
   function setMatrix(element, scale, x, y) {
     x = x || 0;
     y = y || 0;
@@ -3415,90 +3427,90 @@ soysauce.carousels = (function() {
     element.style.transform = 
       "matrix(" + scale + ",0,0," + scale + "," + x + "," + y + ")";
   }
-	
-	function createClones(carousel, cloneDepth) {
-		var items = carousel.container.find("[data-ss-component='item']");
-		var cloneSet1, cloneSet2;
-		
-		if (cloneDepth > carousel.maxIndex) return;
-		
-		carousel.cloneDepth = cloneDepth;
-		
-		cloneSet1 = items.slice(0, cloneDepth).clone();
-		cloneSet2 = items.slice(carousel.maxIndex - cloneDepth, carousel.maxIndex).clone();
+  
+  function createClones(carousel, cloneDepth) {
+    var items = carousel.container.find("[data-ss-component='item']");
+    var cloneSet1, cloneSet2;
+    
+    if (cloneDepth > carousel.maxIndex) return;
+    
+    carousel.cloneDepth = cloneDepth;
+    
+    cloneSet1 = items.slice(0, cloneDepth).clone();
+    cloneSet2 = items.slice(carousel.maxIndex - cloneDepth, carousel.maxIndex).clone();
 
-		cloneSet1.appendTo(carousel.container);
-		cloneSet2.prependTo(carousel.container);
-	}
-	
-	return {
-		init: function(selector) {
-			return new Carousel(selector);
-		}
-	};
-	
+    cloneSet1.appendTo(carousel.container);
+    cloneSet2.prependTo(carousel.container);
+  }
+  
+  return {
+    init: function(selector) {
+      return new Carousel(selector);
+    }
+  };
+  
 })();
 
 soysauce.inputClear = (function() {
-	
-	function inputClear(selector) {
-		var options = soysauce.getOptions(selector),
-		    self = this,
-		    iconFocus = false;
-		
-		this.widget = $(selector);
-		this.icon;
-		
-		this.widget.on("focus keyup", function() {
-			self.handleIcon();
-		});
-		
-		this.widget.on("blur", function() {
-			if (iconFocus) return;
-			self.widget.attr("data-ss-clear", "off");
-		});
-		
-		this.widget.wrap("<div data-ss-component='input-wrapper'></div>");
-		
+  
+  function inputClear(selector) {
+    var options = soysauce.getOptions(selector),
+        self = this,
+        iconFocus = false;
+    
+    this.widget = $(selector);
+    this.icon;
+    
+    this.widget.on("focus keyup", function() {
+      self.handleIcon();
+    });
+    
+    this.widget.on("blur", function() {
+      if (iconFocus) return;
+      self.widget.attr("data-ss-clear", "off");
+    });
+    
+    this.widget.wrap("<div data-ss-component='input-wrapper'></div>");
+    
     this.widget.parent().css({
       "display": self.widget.css("display"),
       "width": self.widget.css("width")
     });
-		
-		this.widget.attr("data-ss-clear", "off");
-		this.widget.after("<span data-ss-component='icon'></span>");
-		
-		this.icon = this.widget.find("+ [data-ss-component='icon']");
-		
-		this.icon.on("mousedown touchstart", function() {
-			iconFocus = true;
-			self.icon.one("mouseup touchend", function() {
-				self.clear();
-				iconFocus = false;
-			});
-		});
-	}
-	
-	inputClear.prototype.clear = function() {
-		this.widget.val("").attr("data-ss-clear", "off");
-	};
-	
-	inputClear.prototype.handleIcon = function() {
-		this.widget.attr("data-ss-clear", (!this.widget.val().length) ? "off" : "on");
-	};
-	
-	return {
-		init: function(selector) {
-			return new inputClear(selector);
-		}
-	};
-	
+    
+    this.widget.attr("data-ss-clear", "off");
+    this.widget.after("<span data-ss-component='icon'></span>");
+    
+    this.icon = this.widget.find("+ [data-ss-component='icon']");
+    
+    this.icon.on("mousedown touchstart", function() {
+      iconFocus = true;
+      self.icon.one("mouseup touchend", function() {
+        self.clear();
+        iconFocus = false;
+      });
+    });
+  }
+  
+  inputClear.prototype.clear = function() {
+    this.widget.val("").attr("data-ss-clear", "off");
+  };
+  
+  inputClear.prototype.handleIcon = function() {
+    this.widget.attr("data-ss-clear", (!this.widget.val().length) ? "off" : "on");
+  };
+  
+  return {
+    init: function(selector) {
+      return new inputClear(selector);
+    }
+  };
+  
 })();
 
 soysauce.lazyloader = (function() {
   var THROTTLE = 100; // milliseconds
 
-	function Lazyloader(selector) {
+  function Lazyloader(selector) {
     var options = soysauce.getOptions(selector);
     var self = this;
 
@@ -3532,7 +3544,7 @@ soysauce.lazyloader = (function() {
         break;
       }
     });
-		
+    
     if (this.cache) {
       var unloaded = false;
       if (this.isCached) {
@@ -3549,7 +3561,7 @@ soysauce.lazyloader = (function() {
         self.widget.trigger("SSSaveState");
       });
     }
-		
+    
     this.processNextBatch(this.initialLoad);
 
     if (this.button.length) {
@@ -3564,7 +3576,7 @@ soysauce.lazyloader = (function() {
         update(e, self);
       });
     }
-		
+    
     function update(e, context) {
       if ((e.timeStamp - self.timeStamp) > THROTTLE) {
         var widgetPositionThreshold = context.widget.height() + context.widget.offset().top - context.threshold,
@@ -3576,8 +3588,8 @@ soysauce.lazyloader = (function() {
         }
       }
     }
-	};
-	
+  };
+  
   Lazyloader.prototype.processNextBatch = function(batchSize) {
     var batchSize = batchSize || this.batchSize,
       $items = $(this.items.splice(0, batchSize)),
@@ -3615,338 +3627,338 @@ soysauce.lazyloader = (function() {
       });
     }
   };
-	
+  
   Lazyloader.prototype.reload = function(processBatch) {
     this.items = this.widget.find("[data-ss-component='item']:not([data-ss-state])");
     if (processBatch !== false) {
       this.processNextBatch();
     }
   };
-	
+  
   return {
     init: function(selector) {
       return new Lazyloader(selector);
     }
   };
-	
+  
 })();
 
 soysauce.togglers = (function() {
-	var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
-	
-	// Togglers
-	function Toggler(selector, orphan) {
-		var self = this;
-		var options = soysauce.getOptions(selector);
+  var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
+  
+  // Togglers
+  function Toggler(selector, orphan) {
+    var self = this;
+    var options = soysauce.getOptions(selector);
 
-		// Base
-		if (orphan) {
-		  var button = $(selector);
-			var togglerID = button.attr("data-ss-toggler-id");
-			var query = "[data-ss-toggler-id='" + togglerID + "']";
-			
-			this.orphan = true;
-			this.widget = $(query);
-			
-			this.widget.each(function(i, component) {
-				var type = $(component).attr("data-ss-component");
-				switch (type) {
-					case "button":
-						self.button = $(component);
-						break;
-					case "content":
-						self.content = $(component);
-						break;
-				}
-			});
-			
-			if (!this.content) {
-				console.warn("Soysauce: No content found for toggler-id '" + togglerID + "'. Toggler may not work.");
-				return;
-			}
-			
-			this.button.click(function(e) {
-				self.toggle(e);
-			});
-			
-			this.setState("closed");
-			this.content.attr("data-ss-id", button.attr("data-ss-id"));
-		}
-		else {
-			this.widget = $(selector);
-			this.orphan = false;
-			this.allButtons = this.widget.find("> [data-ss-component='button']");
-			this.button = this.allButtons.first();
-			this.allContent = this.widget.find("> [data-ss-component='content']");
-			this.content = this.allContent.first();
-		}
-		
-		this.parentID = 0;
-		this.tabID;
-		this.state = "closed";
-		this.isChildToggler = false;
-		this.hasTogglers = false;
-		this.parent = undefined;
-		this.ready = true;
-		this.adjustFlag = false;
-		this.freeze = false;
-		this.opened = false;
-		
-		// Slide
-		this.slide = false;
-		this.height = 0;
-		this.prevChildHeight = 0;
-		
-		// Ajax
-		this.ajax = false;
-		this.ajaxData;
-		this.ajaxing = false;
-		this.ajaxOnLoad = false;
-		
-		// Tab
-		this.tab = false;
-		this.childTabOpen = false;
-		this.nocollapse = false;
-		
-		// Responsive
-		this.responsive = false;
-		this.responsiveVars = {
-			threshold: parseInt(this.widget.attr("data-ss-responsive-threshold"), 10) || 768,
-			accordions: true
-		};
-		
-		if (options) options.forEach(function(option) {
-			switch(option) {
-				case "ajax":
-					self.ajax = true;
-					self.ajaxOnLoad = /true/.test(self.widget.attr("data-ss-ajax-onload"));
-					break;
-				case "tabs":
-					self.tab = true;
-					break;
-				case "nocollapse":
-					self.nocollapse = true;
-					break;
-				case "slide":
-					self.slide = (soysauce.vars.degrade) ? false : true;
-					break;
-				case "responsive":
-					self.responsive = true;
-					self.tab = true;
-					break;
-			}
-		});
+    // Base
+    if (orphan) {
+      var button = $(selector);
+      var togglerID = button.attr("data-ss-toggler-id");
+      var query = "[data-ss-toggler-id='" + togglerID + "']";
+      
+      this.orphan = true;
+      this.widget = $(query);
+      
+      this.widget.each(function(i, component) {
+        var type = $(component).attr("data-ss-component");
+        switch (type) {
+          case "button":
+            self.button = $(component);
+            break;
+          case "content":
+            self.content = $(component);
+            break;
+        }
+      });
+      
+      if (!this.content) {
+        console.warn("Soysauce: No content found for toggler-id '" + togglerID + "'. Toggler may not work.");
+        return;
+      }
+      
+      this.button.click(function(e) {
+        self.toggle(null, e);
+      });
+      
+      this.setState("closed");
+      this.content.attr("data-ss-id", button.attr("data-ss-id"));
+    }
+    else {
+      this.widget = $(selector);
+      this.orphan = false;
+      this.allButtons = this.widget.find("> [data-ss-component='button']");
+      this.button = this.allButtons.first();
+      this.allContent = this.widget.find("> [data-ss-component='content']");
+      this.content = this.allContent.first();
+    }
+    
+    this.parentID = 0;
+    this.tabID;
+    this.state = "closed";
+    this.isChildToggler = false;
+    this.hasTogglers = false;
+    this.parent = undefined;
+    this.ready = true;
+    this.adjustFlag = false;
+    this.freeze = false;
+    this.opened = false;
+    
+    // Slide
+    this.slide = false;
+    this.height = 0;
+    this.prevChildHeight = 0;
+    
+    // Ajax
+    this.ajax = false;
+    this.ajaxData;
+    this.ajaxing = false;
+    this.ajaxOnLoad = false;
+    
+    // Tab
+    this.tab = false;
+    this.childTabOpen = false;
+    this.nocollapse = false;
+    
+    // Responsive
+    this.responsive = false;
+    this.responsiveVars = {
+      threshold: parseInt(this.widget.attr("data-ss-responsive-threshold"), 10) || 768,
+      accordions: true
+    };
+    
+    if (options) options.forEach(function(option) {
+      switch(option) {
+        case "ajax":
+          self.ajax = true;
+          self.ajaxOnLoad = /true/.test(self.widget.attr("data-ss-ajax-onload"));
+          break;
+        case "tabs":
+          self.tab = true;
+          break;
+        case "nocollapse":
+          self.nocollapse = true;
+          break;
+        case "slide":
+          self.slide = (soysauce.vars.degrade) ? false : true;
+          break;
+        case "responsive":
+          self.responsive = true;
+          self.tab = true;
+          break;
+      }
+    });
 
-		if (this.orphan) {
-			this.content.on(TRANSITION_END, function() {
-				self.content.trigger("slideEnd");
-				self.ready = true;
-			});
-			return this;
-		}
+    if (this.orphan) {
+      this.content.on(TRANSITION_END, function() {
+        self.content.trigger("slideEnd");
+        self.ready = true;
+      });
+      return this;
+    }
 
-		this.allButtons.append("<span class='icon'></span>");
-		this.allContent.wrapInner("<div data-ss-component='wrapper'/>");
+    this.allButtons.append("<span class='icon'></span>");
+    this.allContent.wrapInner("<div data-ss-component='wrapper'/>");
 
-		this.hasTogglers = (this.widget.has("[data-ss-widget='toggler']").length > 0) ? true : false; 
-		this.isChildToggler = (this.widget.parents("[data-ss-widget='toggler']").length > 0) ? true : false;
+    this.hasTogglers = (this.widget.has("[data-ss-widget='toggler']").length > 0) ? true : false; 
+    this.isChildToggler = (this.widget.parents("[data-ss-widget='toggler']").length > 0) ? true : false;
 
-		if (this.isChildToggler) {
-			var parent = this.widget.parents("[data-ss-widget='toggler']");
-			this.parentID = parseInt(parent.attr("data-ss-id"), 10);
-			this.parent = soysauce.fetch(this.parentID);
-		}
+    if (this.isChildToggler) {
+      var parent = this.widget.parents("[data-ss-widget='toggler']");
+      this.parentID = parseInt(parent.attr("data-ss-id"), 10);
+      this.parent = soysauce.fetch(this.parentID);
+    }
 
-		if (this.widget.attr("data-ss-state") !== undefined && this.widget.attr("data-ss-state") === "open") {
-			this.allButtons.each(function() {
-				var button = $(this);
-				if (!button.attr("data-ss-state"))  {
-					button.attr("data-ss-state", "closed");
-					button.find("+ [data-ss-component='content']").attr("data-ss-state", "closed");
-				}
-				else if (button.attr("data-ss-state") === "open") {
-					this.button = button;
-					this.content = button.find("+ [data-ss-component='content']");
-				}
-			});
-			this.opened = true;
-		}
-		else {
-			this.allButtons.attr("data-ss-state", "closed");
-			this.allContent.attr("data-ss-state", "closed");
-			this.widget.attr("data-ss-state", "closed");
-			this.opened = false;
-		}
-		
-		if (this.slide) {
-			this.allContent.attr("data-ss-state", "open");
+    if (this.widget.attr("data-ss-state") !== undefined && this.widget.attr("data-ss-state") === "open") {
+      this.allButtons.each(function() {
+        var button = $(this);
+        if (!button.attr("data-ss-state"))  {
+          button.attr("data-ss-state", "closed");
+          button.find("+ [data-ss-component='content']").attr("data-ss-state", "closed");
+        }
+        else if (button.attr("data-ss-state") === "open") {
+          this.button = button;
+          this.content = button.find("+ [data-ss-component='content']");
+        }
+      });
+      this.opened = true;
+    }
+    else {
+      this.allButtons.attr("data-ss-state", "closed");
+      this.allContent.attr("data-ss-state", "closed");
+      this.widget.attr("data-ss-state", "closed");
+      this.opened = false;
+    }
+    
+    if (this.slide) {
+      this.allContent.attr("data-ss-state", "open");
 
-			if (this.hasTogglers) {
-				this.allContent.each(function() {
-					var content = $(this);
-					content.imagesLoaded(function() {
-						var height;
-						content.find("[data-ss-component='content']").attr("data-ss-state", "closed");
-						height = content.outerHeight(true);
-						self.height = height;
-						content.attr("data-ss-slide-height", height);
-						content.css("height", "0px");
-						content.attr("data-ss-state", "closed");
-						content.find("[data-ss-component='content']").removeAttr("data-ss-state");
-					});
-				});
-			}
-			else {
-				this.allContent.each(function() {
-					var content = $(this);
-					content.imagesLoaded(function() {
-						content.attr("data-ss-slide-height", content.outerHeight(true));
-						content.css("height", "0px");
-						content.attr("data-ss-state", "closed");
-					});
-				});
-			}
-			this.allContent.on(TRANSITION_END, function() {
-				if (!self.orphan) {
-					self.widget.trigger("slideEnd");
-				}
-				self.ready = true;
-			});
-		}
-		
-		this.allButtons.click(function(e) {
-			self.toggle(e);
-		});
-		
-		if (this.responsive) {
-			this.handleResponsive();
-		}
-		
-		if (this.ajax) {
-			var obj = this.widget;
-			var content = this.widget.find("> [data-ss-component='content'][data-ss-ajax-url]");
-			var ajaxButton;
-			var url = "";
-			var callback;
-			var self = this;
-			var firstTime = false;
-			
-			if (content.length === 0) {
-				console.warn("Soysauce: 'data-ss-ajax-url' tag required on content. Must be on the same domain if site doesn't support CORS.");
-				return;
-			}
-			
-			content.each(function(i, contentItem) {
-				ajaxButton = $(contentItem.previousElementSibling);
-				if (self.ajaxOnLoad) {
-				  obj.on("SSWidgetReady", function() {
-				    injectAjaxContent(self, contentItem);
-				  });
-				}
-				else {
-				  ajaxButton.click(function() {
-  					injectAjaxContent(self, contentItem);
-  				});
-				}
-			});
-			
-			function injectAjaxContent(self, contentItem) {
-			  url = $(contentItem).attr("data-ss-ajax-url");
-			  
-				self.setState("ajaxing");
-				self.ready = false;
-				self.ajaxing = true;
-				
-				self.ajaxData = soysauce.ajax(url);
-				
-				self.setAjaxComplete();
-			}
-		}
-		
-		if (this.tab && this.nocollapse) {
-			this.content.imagesLoaded(function() {
-				self.widget.css("min-height", self.button.outerHeight(true) + self.content.outerHeight(true));
-			});
-		}
-	} // End constructor
-	
-	Toggler.prototype.open = function() {
-		var slideOpenWithTab = this.responsiveVars.accordions;
+      if (this.hasTogglers) {
+        this.allContent.each(function() {
+          var content = $(this);
+          content.imagesLoaded(function() {
+            var height;
+            content.find("[data-ss-component='content']").attr("data-ss-state", "closed");
+            height = content.outerHeight(true);
+            self.height = height;
+            content.attr("data-ss-slide-height", height);
+            content.css("height", "0px");
+            content.attr("data-ss-state", "closed");
+            content.find("[data-ss-component='content']").removeAttr("data-ss-state");
+          });
+        });
+      }
+      else {
+        this.allContent.each(function() {
+          var content = $(this);
+          content.imagesLoaded(function() {
+            content.attr("data-ss-slide-height", content.outerHeight(true));
+            content.css("height", "0px");
+            content.attr("data-ss-state", "closed");
+          });
+        });
+      }
+      this.allContent.on(TRANSITION_END, function() {
+        if (!self.orphan) {
+          self.widget.trigger("slideEnd");
+        }
+        self.ready = true;
+      });
+    }
+    
+    this.allButtons.click(function(e) {
+      self.toggle(null, e);
+    });
+    
+    if (this.responsive) {
+      this.handleResponsive();
+    }
+    
+    if (this.ajax) {
+      var obj = this.widget;
+      var content = this.widget.find("> [data-ss-component='content'][data-ss-ajax-url]");
+      var ajaxButton;
+      var url = "";
+      var callback;
+      var self = this;
+      var firstTime = false;
+      
+      if (content.length === 0) {
+        console.warn("Soysauce: 'data-ss-ajax-url' tag required on content. Must be on the same domain if site doesn't support CORS.");
+        return;
+      }
+      
+      content.each(function(i, contentItem) {
+        ajaxButton = $(contentItem.previousElementSibling);
+        if (self.ajaxOnLoad) {
+          obj.on("SSWidgetReady", function() {
+            injectAjaxContent(self, contentItem);
+          });
+        }
+        else {
+          ajaxButton.click(function() {
+            injectAjaxContent(self, contentItem);
+          });
+        }
+      });
+      
+      function injectAjaxContent(self, contentItem) {
+        url = $(contentItem).attr("data-ss-ajax-url");
+        
+        self.setState("ajaxing");
+        self.ready = false;
+        self.ajaxing = true;
+        
+        self.ajaxData = soysauce.ajax(url);
+        
+        self.setAjaxComplete();
+      }
+    }
+    
+    if (this.tab && this.nocollapse) {
+      this.content.imagesLoaded(function() {
+        self.widget.css("min-height", self.button.outerHeight(true) + self.content.outerHeight(true));
+      });
+    }
+  } // End constructor
+  
+  Toggler.prototype.open = function() {
+    var slideOpenWithTab = this.responsiveVars.accordions;
 
-		if (!this.ready && !slideOpenWithTab) return;
+    if (!this.ready && !slideOpenWithTab) return;
 
-		var self = this;
-		var prevHeight = 0;
+    var self = this;
+    var prevHeight = 0;
 
-		if (this.slide) {
-			if (this.responsive && !slideOpenWithTab) return;
+    if (this.slide) {
+      if (this.responsive && !slideOpenWithTab) return;
 
-			this.ready = false;
+      this.ready = false;
 
-			if (this.adjustFlag || slideOpenWithTab) this.content.one(TRANSITION_END, function() {
-				self.adjustHeight();
-			});
+      if (this.adjustFlag || slideOpenWithTab) this.content.one(TRANSITION_END, function() {
+        self.adjustHeight();
+      });
 
-			if (this.isChildToggler && this.parent.slide) {
-				if (this.tab) {
-					this.parent.setHeight(this.parent.height + this.height - this.parent.prevChildHeight);
-				}
-				else {
-					this.parent.addHeight(this.height);
-				}
-				this.parent.prevChildHeight = this.height;
-			}
+      if (this.isChildToggler && this.parent.slide) {
+        if (this.tab) {
+          this.parent.setHeight(this.parent.height + this.height - this.parent.prevChildHeight);
+        }
+        else {
+          this.parent.addHeight(this.height);
+        }
+        this.parent.prevChildHeight = this.height;
+      }
 
-			if (this.ajax && this.height === 0) {
-				$(this.content).imagesLoaded(function() {
-					self.content.css("height", "auto");
-					self.height = self.content.outerHeight(true);
-					self.content.css("height", self.height + "px");
-				});
-			}
-			else {
-				self.height = parseInt(self.content.attr("data-ss-slide-height"), 10);
-				self.content.css("height", self.height + "px");
-			}
-		}
-		
-		if (this.tab && this.nocollapse) {
-			this.widget.css("min-height", this.button.outerHeight(true) + this.content.outerHeight(true));
-		}
+      if (this.ajax && this.height === 0) {
+        $(this.content).imagesLoaded(function() {
+          self.content.css("height", "auto");
+          self.height = self.content.outerHeight(true);
+          self.content.css("height", self.height + "px");
+        });
+      }
+      else {
+        self.height = parseInt(self.content.attr("data-ss-slide-height"), 10);
+        self.content.css("height", self.height + "px");
+      }
+    }
+    
+    if (this.tab && this.nocollapse) {
+      this.widget.css("min-height", this.button.outerHeight(true) + this.content.outerHeight(true));
+    }
 
-		this.opened = true;
-		this.setState("open");
-	};
-	
-	Toggler.prototype.close = function(collapse) {
-		var self = this;
+    this.opened = true;
+    this.setState("open");
+  };
+  
+  Toggler.prototype.close = function(collapse) {
+    var self = this;
 
-		if (!this.ready) return;
+    if (!this.ready) return;
 
-		if (this.slide) {
-			this.ready = false;
-			if (this.isChildToggler && this.parent.slide && collapse) {
-				this.parent.addHeight(-this.height);
-			}
-			this.content.css("height", "0px");
-		}
+    if (this.slide) {
+      this.ready = false;
+      if (this.isChildToggler && this.parent.slide && collapse) {
+        this.parent.addHeight(-this.height);
+      }
+      this.content.css("height", "0px");
+    }
 
-		this.setState("closed");
-	};
-	
-	Toggler.prototype.doResize = function() {
-		this.adjustFlag = true;
-		if (this.opened) {
-			this.adjustHeight();
-		}
-		if (this.responsive) {
-			this.handleResponsive();
-		}
-	};
-	
-	Toggler.prototype.handleResize = function() {
-	  var self = this;
-	  
+    this.setState("closed");
+  };
+  
+  Toggler.prototype.doResize = function() {
+    this.adjustFlag = true;
+    if (this.opened) {
+      this.adjustHeight();
+    }
+    if (this.responsive) {
+      this.handleResponsive();
+    }
+  };
+  
+  Toggler.prototype.handleResize = function() {
+    var self = this;
+    
     if (this.defer) {
       var subWidgets = this.allContent.find("[data-ss-widget]");
       
@@ -3976,177 +3988,197 @@ soysauce.togglers = (function() {
       }
     }
     else {
-      this.doResize();	
+      this.doResize();  
     }
   };
-	
-	Toggler.prototype.adjustHeight = function() {
-		if (!this.slide) {
-			if (this.tab && this.nocollapse) {
-				this.widget.css("min-height", this.button.outerHeight(true) + this.content.outerHeight(true));
-			}
-			return;
-		}
-		if (this.opened) {
-			this.height = this.content.find("> [data-ss-component='wrapper']").outerHeight(true);
-			this.content.attr("data-ss-slide-height", this.height).height(this.height);
-		}
-	};
+  
+  Toggler.prototype.adjustHeight = function() {
+    if (!this.slide) {
+      if (this.tab && this.nocollapse) {
+        this.widget.css("min-height", this.button.outerHeight(true) + this.content.outerHeight(true));
+      }
+      return;
+    }
+    if (this.opened) {
+      this.height = this.content.find("> [data-ss-component='wrapper']").outerHeight(true);
+      this.content.attr("data-ss-slide-height", this.height).height(this.height);
+    }
+  };
 
-	Toggler.prototype.addHeight = function(height) {
-		this.height += height;
-		this.height = (this.height < 0) ? 0 : this.height;
-		if (this.slide) {
-			this.content.attr("data-ss-slide-height", this.height);
-		}
-		this.content.css("height", this.height + "px");
-	};
+  Toggler.prototype.addHeight = function(height) {
+    this.height += height;
+    this.height = (this.height < 0) ? 0 : this.height;
+    if (this.slide) {
+      this.content.attr("data-ss-slide-height", this.height);
+    }
+    this.content.css("height", this.height + "px");
+  };
 
-	Toggler.prototype.setHeight = function(height) {
-		this.height = height;
-		this.height = (this.height < 0) ? 0 : this.height;
-		if (this.slide) {
-			this.content.attr("data-ss-slide-height", this.height);
-		}
-		this.content.css("height", this.height + "px");
-	};
+  Toggler.prototype.setHeight = function(height) {
+    this.height = height;
+    this.height = (this.height < 0) ? 0 : this.height;
+    if (this.slide) {
+      this.content.attr("data-ss-slide-height", this.height);
+    }
+    this.content.css("height", this.height + "px");
+  };
 
-	Toggler.prototype.toggle = function(e) {
-		var self = this;
-		var target;
-		
-		if (this.freeze || this.ajaxing) return;
+  Toggler.prototype.toggle = function(component, e) {
+    var self = this;
+    var target;
+    
+    if (this.freeze || this.ajaxing) return;
 
-		if (!e) {
-			target = this.button[0];
-		}
-		else {
-			target = e.target;
-		}
+    if (e) {
+      target = e.target;
+    }
+    else {
+      if (component && !this.orphan) {
+        if (typeof(component) === "string") {
+          target = component = this.widget.find(component)[0];
+        }
+        try {
+          if (/content/.test(component.attributes["data-ss-component"].value)) {
+            var $component = this.widget.find(component);
+            target = component.previousElementSibling;
+          }
+        }
+        catch (e) {
+          console.warn("Soysauce: component passed is not a Soysauce component. Opening first toggler.");
+          target = this.button[0];
+        }
+      }
+      else {
+        if (!component.attributes["data-ss-component"]) {
+          console.warn("Soysauce: component passed is not a Soysauce component. Opening first toggler.");
+        }
+        target = this.button[0];
+      }
+    }
 
-		if (!$(target).attr("data-ss-component")) {
-			target = $(target).closest("[data-ss-component='button']")[0];
-		}
+    if (!$(target).attr("data-ss-component")) {
+      target = $(target).closest("[data-ss-component='button']")[0];
+    }
 
-		if (this.orphan) {
-			if (this.opened) {
-				this.opened = false;
-				this.setState("closed");
-			}
-			else {
-				this.opened = true;
-				this.setState("open");
-			}
-			return;
-		}
+    if (this.orphan) {
+      if (this.opened) {
+        this.opened = false;
+        this.setState("closed");
+      }
+      else {
+        this.opened = true;
+        this.setState("open");
+      }
+      return;
+    }
 
-		if (this.tab) {
-			var collapse = (this.button.attr("data-ss-state") === "open" &&
-											this.button[0] === target) ? true : false;
+    if (this.tab) {
+      var collapse = (this.button.attr("data-ss-state") === "open" &&
+                      this.button[0] === target) ? true : false;
 
-			if ((this.responsive && !this.responsiveVars.accordions || this.nocollapse) && (this.button[0] === target)) return;
+      if ((this.responsive && !this.responsiveVars.accordions || this.nocollapse) && (this.button[0] === target)) return;
 
-			if (this.isChildToggler && this.tab) {
-				this.parent.childTabOpen = !collapse;
-				if (collapse) {
-					this.parent.prevChildHeight = 0;
-				}
-			}
+      if (this.isChildToggler && this.tab) {
+        this.parent.childTabOpen = !collapse;
+        if (collapse) {
+          this.parent.prevChildHeight = 0;
+        }
+      }
 
-			this.close(collapse);
+      this.close(collapse);
 
-			this.button = $(target);
-			this.content = $(target).find("+ [data-ss-component='content']");
+      this.button = $(target);
+      this.content = $(target).find("+ [data-ss-component='content']");
 
-			if (this.slide) {
-				self.height = parseInt(self.content.attr("data-ss-slide-height"), 10);
-			}
+      if (this.slide) {
+        self.height = parseInt(self.content.attr("data-ss-slide-height"), 10);
+      }
 
-			if (collapse) {
-				this.widget.attr("data-ss-state", "closed");
-				this.opened = false;
-				return;
-			}
+      if (collapse) {
+        this.widget.attr("data-ss-state", "closed");
+        this.opened = false;
+        return;
+      }
 
-			this.open();
-		}
-		else {
-			this.button = $(target);
-			this.content = $(target).find("+ [data-ss-component='content']");
+      this.open();
+    }
+    else {
+      this.button = $(target);
+      this.content = $(target).find("+ [data-ss-component='content']");
 
-			var collapse = (this.button.attr("data-ss-state") === "open" &&
-											this.widget.find("[data-ss-component='button'][data-ss-state='open']").length === 1) ? true : false;
-			
-			if (collapse) {
-				this.opened = false;
-			}
-			
-			(this.button.attr("data-ss-state") === "closed") ? this.open() : this.close();
-		}
-	};
+      var collapse = (this.button.attr("data-ss-state") === "open" &&
+                      this.widget.find("[data-ss-component='button'][data-ss-state='open']").length === 1) ? true : false;
+      
+      if (collapse) {
+        this.opened = false;
+      }
+      
+      (this.button.attr("data-ss-state") === "closed") ? this.open() : this.close();
+    }
+  };
 
-	Toggler.prototype.setState = function(state) {
-		this.state = state;
-		this.button.attr("data-ss-state", state);
-		this.content.attr("data-ss-state", state);
+  Toggler.prototype.setState = function(state) {
+    this.state = state;
+    this.button.attr("data-ss-state", state);
+    this.content.attr("data-ss-state", state);
 
-		if (this.orphan) return;
-		
-		if (this.opened) {
-			this.widget.attr("data-ss-state", "open");
-		}
-		else {
-			this.widget.attr("data-ss-state", "closed");
-		}
+    if (this.orphan) return;
+    
+    if (this.opened) {
+      this.widget.attr("data-ss-state", "open");
+    }
+    else {
+      this.widget.attr("data-ss-state", "closed");
+    }
 
-		if (this.responsive && this.opened) {
-			this.handleResponsive();
-		}
-	};
+    if (this.responsive && this.opened) {
+      this.handleResponsive();
+    }
+  };
 
-	Toggler.prototype.setAjaxComplete = function() {
-		this.ajaxing = false;
-		this.ready = true;
-		if (this.opened) {
-			this.setState("open");
-		}
-		else {
-		  this.setState("closed");
-		}
-		this.widget.trigger("SSAjaxComplete");
-	};
+  Toggler.prototype.setAjaxComplete = function() {
+    this.ajaxing = false;
+    this.ready = true;
+    if (this.opened) {
+      this.setState("open");
+    }
+    else {
+      this.setState("closed");
+    }
+    this.widget.trigger("SSAjaxComplete");
+  };
 
-	Toggler.prototype.handleFreeze = function() {
-		this.freeze = true;
-	};
+  Toggler.prototype.handleFreeze = function() {
+    this.freeze = true;
+  };
 
-	Toggler.prototype.handleUnfreeze = function() {
-		this.freeze = false;
-	};
+  Toggler.prototype.handleUnfreeze = function() {
+    this.freeze = false;
+  };
 
-	Toggler.prototype.handleResponsive = function() {
-		if (!this.responsive) return;
-		if (window.innerWidth >= this.responsiveVars.threshold) {
-			this.responsiveVars.accordions = false;
-			this.widget.attr("data-ss-responsive-type", "tabs");
-			if (!this.opened) {
-				this.button = this.widget.find("[data-ss-component='button']").first();
-				this.content = this.widget.find("[data-ss-component='content']").first();
-				this.open();
-			}
-			this.widget.css("min-height", this.button.outerHeight(true) + this.content.outerHeight(true) + "px");
-		}
-		else {
-			this.responsiveVars.accordions = true;
-			this.widget.attr("data-ss-responsive-type", "accordions");
-			this.widget.css("min-height", "0");
-		}
-	};
-	
-	return {
-		init: function(selector, orphan) {
-			return new Toggler(selector, orphan);
-		}
-	};
-	
+  Toggler.prototype.handleResponsive = function() {
+    if (!this.responsive) return;
+    if (window.innerWidth >= this.responsiveVars.threshold) {
+      this.responsiveVars.accordions = false;
+      this.widget.attr("data-ss-responsive-type", "tabs");
+      if (!this.opened) {
+        this.button = this.widget.find("[data-ss-component='button']").first();
+        this.content = this.widget.find("[data-ss-component='content']").first();
+        this.open();
+      }
+      this.widget.css("min-height", this.button.outerHeight(true) + this.content.outerHeight(true) + "px");
+    }
+    else {
+      this.responsiveVars.accordions = true;
+      this.widget.attr("data-ss-responsive-type", "accordions");
+      this.widget.css("min-height", "0");
+    }
+  };
+  
+  return {
+    init: function(selector, orphan) {
+      return new Toggler(selector, orphan);
+    }
+  };
+  
 })();
