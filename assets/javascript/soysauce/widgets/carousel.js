@@ -405,8 +405,12 @@ soysauce.carousels = (function() {
       if (self.autoscroll && self.autoscrollRestartID === undefined) {
         self.autoscrollRestartID = window.setTimeout(function() {
           self.autoscrollOn();
-          }, 1000);
-        }
+        }, 1000);
+      }
+      
+      if (self.autoheight) {
+        self.widget.css("min-height", $(self.items[self.index]).outerHeight(true));
+      }
     });
     
     if (this.autoscroll) {
@@ -681,6 +685,10 @@ soysauce.carousels = (function() {
     }
 
     this.container.css("width", (this.itemWidth * this.numChildren) + "px");
+    
+    if (this.autoheight) {
+      this.widget.css("min-height", $(this.items[this.index]).outerHeight(true));
+    }
   };
   
   Carousel.prototype.handleInterrupt = function(e) {
