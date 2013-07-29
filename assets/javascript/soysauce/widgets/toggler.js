@@ -33,7 +33,7 @@ soysauce.togglers = (function() {
       }
       
       this.button.click(function(e) {
-        self.toggle(e);
+        self.toggle(null, e);
       });
       
       this.setState("closed");
@@ -182,7 +182,7 @@ soysauce.togglers = (function() {
     }
     
     this.allButtons.click(function(e) {
-      self.toggle(e);
+      self.toggle(null, e);
     });
     
     if (this.responsive) {
@@ -378,17 +378,37 @@ soysauce.togglers = (function() {
     this.content.css("height", this.height + "px");
   };
 
-  Toggler.prototype.toggle = function(e) {
+  Toggler.prototype.toggle = function(component, e) {
     var self = this;
     var target;
     
     if (this.freeze || this.ajaxing) return;
 
-    if (!e) {
-      target = this.button[0];
+    if (e) {
+      target = e.target;
     }
     else {
-      target = e.target;
+      if (component && !this.orphan) {
+        if (typeof(component) === "string") {
+          target = component = this.widget.find(component)[0];
+        }
+        try {
+          if (/content/.test(component.attributes["data-ss-component"].value)) {
+            var $component = this.widget.find(component);
+            target = component.previousElementSibling;
+          }
+        }
+        catch (e) {
+          console.warn("Soysauce: component passed is not a Soysauce component. Opening first toggler.");
+          target = this.button[0];
+        }
+      }
+      else {
+        if (!component.attributes["data-ss-component"]) {
+          console.warn("Soysauce: component passed is not a Soysauce component. Opening first toggler.");
+        }
+        target = this.button[0];
+      }
     }
 
     if (!$(target).attr("data-ss-component")) {
