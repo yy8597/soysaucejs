@@ -2411,7 +2411,7 @@ soysauce.carousels = (function() {
       }
       
       if (self.autoheight) {
-        self.widget.css("min-height", $(self.items[self.index]).outerHeight(true));
+        self.widget.css("height", $(self.items[self.index]).outerHeight(true));
       }
     });
     
@@ -2689,7 +2689,7 @@ soysauce.carousels = (function() {
     this.container.css("width", (this.itemWidth * this.numChildren) + "px");
     
     if (this.autoheight) {
-      this.widget.css("min-height", $(this.items[this.index]).outerHeight(true));
+      this.widget.css("height", $(this.items[this.index]).outerHeight(true));
     }
   };
   
