@@ -1,7 +1,7 @@
 soysauce.lazyloader = (function() {
   var THROTTLE = 100; // milliseconds
 
-	function Lazyloader(selector) {
+  function Lazyloader(selector) {
     var options = soysauce.getOptions(selector);
     var self = this;
 
@@ -35,7 +35,7 @@ soysauce.lazyloader = (function() {
         break;
       }
     });
-		
+    
     if (this.cache) {
       var unloaded = false;
       if (this.isCached) {
@@ -52,7 +52,7 @@ soysauce.lazyloader = (function() {
         self.widget.trigger("SSSaveState");
       });
     }
-		
+    
     this.processNextBatch(this.initialLoad);
 
     if (this.button.length) {
@@ -67,7 +67,7 @@ soysauce.lazyloader = (function() {
         update(e, self);
       });
     }
-		
+    
     function update(e, context) {
       if ((e.timeStamp - self.timeStamp) > THROTTLE) {
         var widgetPositionThreshold = context.widget.height() + context.widget.offset().top - context.threshold,
@@ -79,8 +79,8 @@ soysauce.lazyloader = (function() {
         }
       }
     }
-	};
-	
+  };
+  
   Lazyloader.prototype.processNextBatch = function(batchSize) {
     var batchSize = batchSize || this.batchSize,
       $items = $(this.items.splice(0, batchSize)),
@@ -118,18 +118,18 @@ soysauce.lazyloader = (function() {
       });
     }
   };
-	
+  
   Lazyloader.prototype.reload = function(processBatch) {
     this.items = this.widget.find("[data-ss-component='item']:not([data-ss-state])");
     if (processBatch !== false) {
       this.processNextBatch();
     }
   };
-	
+  
   return {
     init: function(selector) {
       return new Lazyloader(selector);
     }
   };
-	
+  
 })();
