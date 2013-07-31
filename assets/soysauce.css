@@ -220,6 +220,6 @@
 [data-ss-widget="lazyloader"] {
   -webkit-backface-visibility: hidden;
 }
-[data-ss-widget="lazyloader"] [data-ss-component="item"]:not([data-ss-state="loaded"]) {
+[data-ss-widget="lazyloader"]:not([data-ss-options*="hover"]) [data-ss-component="item"]:not([data-ss-state="loaded"]) {
   display: none !important;
 }

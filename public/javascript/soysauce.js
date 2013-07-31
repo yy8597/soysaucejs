@@ -3378,24 +3378,35 @@ soysauce.inputClear = (function() {
 
 soysauce.lazyloader = (function() {
   var THROTTLE = 100; // milliseconds
+  var $window = $(window);
+  var MIN_THRESHOLD = 800;
 
   function Lazyloader(selector) {
     var options = soysauce.getOptions(selector);
     var self = this;
 
+    // Base Variables
     this.widget = $(selector);
     this.items = this.widget.find("[data-ss-component='item']");
-    this.threshold = parseInt(this.widget.attr("data-ss-threshold"), 10) || 800;
+    this.threshold = parseInt(this.widget.attr("data-ss-threshold"), 10) || MIN_THRESHOLD;
     this.timeStamp = 0; // for throttling
     this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load"), 10) || 10;
     this.initialBatchLoaded = false;
     this.batchSize = parseInt(this.widget.attr("data-ss-batch-size"), 10) || 5;
-    this.autoload = false;
+    this.processing = false;
     this.button = this.widget.find("[data-ss-component='button']");
+    
+    // Autoload Variables
+    this.autoload = false;
+    
+    // Cache Variables
     this.cache = false;
     this.cacheInput = $("[data-ss-component='cache']");
     this.isCached = false;
-    this.processing = false;
+    
+    // Hover Variables
+    this.hover = false;
+    this.continueProcessing = false;
 
     if (options) options.forEach(function(option) {
       switch(option) {
@@ -3411,6 +3422,10 @@ soysauce.lazyloader = (function() {
             self.isCached = (parseInt(self.cacheInput.val(), 10) === 1) ? true : false;
           }
         break;
+        case "hover":
+          self.hover = true;
+          self.autoload = true;
+        break;
       }
     });
     
@@ -3424,7 +3439,7 @@ soysauce.lazyloader = (function() {
       else {
         this.cacheInput.val(1);
       }
-      $(window).on("beforeunload unload", function(e) {
+      $window.on("beforeunload unload", function(e) {
         if (unloaded) return;
         unloaded = true;
         self.widget.trigger("SSSaveState");
@@ -3440,19 +3455,29 @@ soysauce.lazyloader = (function() {
     }
 
     if (this.autoload) {
-      $(window).scroll(function(e) {
+      $window.scroll(function(e) {
         if (self.processing) return;
-        update(e, self);
+        update(e);
       });
     }
     
-    function update(e, context) {
-      if ((e.timeStamp - self.timeStamp) > THROTTLE) {
-        var widgetPositionThreshold = context.widget.height() + context.widget.offset().top - context.threshold,
-            windowPosition = $(window).scrollTop() + $(window).height();
+    function update(e) {
+      if ((self.hover && self.continueProcessing) || (e.timeStamp - self.timeStamp) > THROTTLE) {
+        var widgetPositionThreshold = self.widget.height() + self.widget.offset().top - self.threshold;
+        var windowPosition = $window.scrollTop() + $window.height();
+        
         self.timeStamp = e.timeStamp;
         
-        if ((windowPosition > widgetPositionThreshold) && Math.abs(e.timeStamp - soysauce.browserInfo.pageLoad) > 1500) {
+        if ((self.hover && self.continueProcessing) || (windowPosition > widgetPositionThreshold) && Math.abs(e.timeStamp - soysauce.browserInfo.pageLoad) > 1500) {
+          if (self.hover && self.items.length && (windowPosition > self.items.first().offset().top)) {
+            self.widget.one("SSBatchLoaded", function() {
+              self.continueProcessing = true;
+              $window.trigger("scroll");
+            });
+          }
+          else {
+            self.continueProcessing = false;
+          }
           self.processNextBatch();
         }
       }
@@ -3483,13 +3508,21 @@ soysauce.lazyloader = (function() {
         $item.imagesLoaded(function(e) {
           $item.attr("data-ss-state", "loaded");
           if (++count === $items.length) {
-            self.widget.trigger("SSBatchLoaded");
             self.processing = false;
+            self.widget.trigger("SSBatchLoaded");
+            
+            if (self.hover && self.items.length && self.initialBatchLoaded) {
+              self.calcHoverThreshold();
+            }
+            
             if (!self.items.length) {
               self.widget.trigger("SSItemsEmpty");
             }
-            else if (!self.initialBatchLoaded){
+            else if (!self.initialBatchLoaded) {
               self.initialBatchLoaded = true;
+              if (self.hover) {
+                self.calcHoverThreshold();
+              }
             }
           }
         });
@@ -3497,11 +3530,22 @@ soysauce.lazyloader = (function() {
     }
   };
   
+  Lazyloader.prototype.calcHoverThreshold = function() {
+    if (!this.hover) return;
+    this.threshold = this.widget.height() + this.widget.offset().top - this.items.first().offset().top;
+    this.threshold = (this.threshold < MIN_THRESHOLD) ? MIN_THRESHOLD : this.threshold;
+  };
+  
   Lazyloader.prototype.reload = function(processBatch) {
     this.items = this.widget.find("[data-ss-component='item']:not([data-ss-state])");
     if (processBatch !== false) {
       this.processNextBatch();
     }
+  };
+  
+  Lazyloader.prototype.handleResize = function() {
+    if (!this.hover) return;
+    this.calcHoverThreshold();
   };
   
   return {
