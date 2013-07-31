@@ -3395,6 +3395,7 @@ soysauce.lazyloader = (function() {
     this.batchSize = parseInt(this.widget.attr("data-ss-batch-size"), 10) || 5;
     this.processing = false;
     this.button = this.widget.find("[data-ss-component='button']");
+    this.complete = (this.items.length) ? false : true;
     
     // Autoload Variables
     this.autoload = false;
@@ -3456,7 +3457,7 @@ soysauce.lazyloader = (function() {
 
     if (this.autoload) {
       $window.scroll(function(e) {
-        if (self.processing) return;
+        if (self.processing || self.complete) return;
         update(e);
       });
     }
@@ -3469,16 +3470,21 @@ soysauce.lazyloader = (function() {
         self.timeStamp = e.timeStamp;
         
         if ((self.hover && self.continueProcessing) || (windowPosition > widgetPositionThreshold) && Math.abs(e.timeStamp - soysauce.browserInfo.pageLoad) > 1500) {
-          if (self.hover && self.items.length && (windowPosition > self.items.first().offset().top)) {
-            self.widget.one("SSBatchLoaded", function() {
+          if (self.hover) {
+            if (self.items.length && (windowPosition > self.items.first().offset().top)) {
               self.continueProcessing = true;
-              $window.trigger("scroll");
-            });
+              self.widget.one("SSBatchLoaded", function() {
+                $window.trigger("scroll");
+              });
+              self.processNextBatch();
+            }
+            else {
+              self.continueProcessing = false;
+            }
           }
           else {
-            self.continueProcessing = false;
+            self.processNextBatch();
           }
-          self.processNextBatch();
         }
       }
     }
@@ -3490,13 +3496,15 @@ soysauce.lazyloader = (function() {
       self = this,
       count = 0;
     
-    if (this.processing) return;
+    if (this.processing || this.complete) return;
     
     this.processing = true;
     this.widget.trigger("SSBatchStart");
     
     if ($items.length === 0) {
       this.processing = false;
+      this.complete = true;
+      this.continueProcessing = false;
       this.widget.trigger("SSItemsEmpty");
     }
     else {
@@ -3516,6 +3524,8 @@ soysauce.lazyloader = (function() {
             }
             
             if (!self.items.length) {
+              self.complete = true;
+              self.continueProcessing = false;
               self.widget.trigger("SSItemsEmpty");
             }
             else if (!self.initialBatchLoaded) {
@@ -3538,8 +3548,11 @@ soysauce.lazyloader = (function() {
   
   Lazyloader.prototype.reload = function(processBatch) {
     this.items = this.widget.find("[data-ss-component='item']:not([data-ss-state])");
-    if (processBatch !== false) {
-      this.processNextBatch();
+    if (this.items.length) {
+      this.complete = false;
+      if (processBatch !== false) {
+        this.processNextBatch();
+      }
     }
   };
   
