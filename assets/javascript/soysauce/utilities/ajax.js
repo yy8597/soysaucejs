@@ -1,4 +1,4 @@
-soysauce.ajax = function(url, forceAjax) {
+soysauce.ajax = function(url, forceAjax, forceAsync) {
   var result = false;
   if (soysauce.browserInfo.supportsSessionStorage && sessionStorage[url]) {
     try {
@@ -9,7 +9,7 @@ soysauce.ajax = function(url, forceAjax) {
   }
   $.ajax({
     url: url,
-    async: false
+    async: (!forceAsync) ? false : true
   }).success(function(data) {
     try {
       var resultString = JSON.stringify(data);
