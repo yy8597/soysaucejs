@@ -872,7 +872,7 @@ soysauce = {
   vars: {
     idCount: 0,
     currentViewportWidth: window.innerWidth,
-    degrade: (/Android [12]|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent)) ? true : false,
+    degrade: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent)) ? true : false,
     lastResizeTime: 0,
     lastResizeTimerID: 0,
     fastclick: []
@@ -1059,7 +1059,7 @@ $(window).load(function() {
 
 }
 
-soysauce.ajax = function(url, forceAjax) {
+soysauce.ajax = function(url, forceAjax, forceAsync) {
   var result = false;
   if (soysauce.browserInfo.supportsSessionStorage && sessionStorage[url]) {
     try {
@@ -1070,12 +1070,14 @@ soysauce.ajax = function(url, forceAjax) {
   }
   $.ajax({
     url: url,
-    async: false
-  }).success(function(data) {
+    async: (!forceAsync) ? false : true
+  }).success(function(data, status, jqXHR) {
     try {
       var resultString = JSON.stringify(data);
       result = JSON.parse(resultString);
-      sessionStorage.setItem(url, resultString);
+      if (!jqXHR.getResponseHeader("Cache-Control")) {
+        sessionStorage.setItem(url, resultString);
+      }
     }
     catch(e) {
       if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
@@ -3431,19 +3433,30 @@ soysauce.lazyloader = (function() {
     });
     
     if (this.cache) {
-      var unloaded = false;
+      var triggeredLoad = false;
+
       if (this.isCached) {
         this.widget.one("SSWidgetReady", function() {
+          $window.trigger("scroll");
           self.widget.trigger("SSLoadState");
+          triggeredLoad = true;
         });
       }
       else {
         this.cacheInput.val(1);
       }
-      $window.on("beforeunload unload", function(e) {
-        if (unloaded) return;
-        unloaded = true;
+
+      $window.one("beforeunload unload pagehide", function(e) {
+        triggeredLoad = false;
         self.widget.trigger("SSSaveState");
+      });
+      
+      $window.on("pageshow", function(e) {
+        if (!e.originalEvent.persisted || triggeredLoad) return;
+        $(document).ready(function() {
+          $window.trigger("scroll");
+          self.widget.trigger("SSLoadState");
+        });
       });
     }
     
