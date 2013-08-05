@@ -53,19 +53,30 @@ soysauce.lazyloader = (function() {
     });
     
     if (this.cache) {
-      var unloaded = false;
+      var triggeredLoad = false;
+
       if (this.isCached) {
         this.widget.one("SSWidgetReady", function() {
+          $window.trigger("scroll");
           self.widget.trigger("SSLoadState");
+          triggeredLoad = true;
         });
       }
       else {
         this.cacheInput.val(1);
       }
-      $window.on("beforeunload unload", function(e) {
-        if (unloaded) return;
-        unloaded = true;
+
+      $window.one("beforeunload unload pagehide", function(e) {
+        triggeredLoad = false;
         self.widget.trigger("SSSaveState");
+      });
+      
+      $window.on("pageshow", function(e) {
+        if (!e.originalEvent.persisted || triggeredLoad) return;
+        $(document).ready(function() {
+          $window.trigger("scroll");
+          self.widget.trigger("SSLoadState");
+        });
       });
     }
     
