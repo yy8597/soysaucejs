@@ -10,11 +10,13 @@ soysauce.ajax = function(url, forceAjax, forceAsync) {
   $.ajax({
     url: url,
     async: (!forceAsync) ? false : true
-  }).success(function(data) {
+  }).success(function(data, status, jqXHR) {
     try {
       var resultString = JSON.stringify(data);
       result = JSON.parse(resultString);
-      sessionStorage.setItem(url, resultString);
+      if (!jqXHR.getResponseHeader("Cache-Control")) {
+        sessionStorage.setItem(url, resultString);
+      }
     }
     catch(e) {
       if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
