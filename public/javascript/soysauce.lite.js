@@ -2138,10 +2138,10 @@ soysauce.togglers = (function() {
         }
       }
       else {
-        if (!component.attributes["data-ss-component"]) {
+        target = this.button[0];
+        if (target && !target.attributes["data-ss-component"]) {
           console.warn("Soysauce: component passed is not a Soysauce component. Opening first toggler.");
         }
-        target = this.button[0];
       }
     }
 
