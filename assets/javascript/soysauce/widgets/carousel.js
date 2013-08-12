@@ -1205,7 +1205,7 @@ soysauce.carousels = (function() {
     this.freeze = false;
   };
   
-  Carousel.prototype.jumpTo = function(index) {
+  Carousel.prototype.jumpTo = function(index, noZoomTransition) {
     var self = this;
 
     if (index === this.index) return false;
@@ -1243,7 +1243,7 @@ soysauce.carousels = (function() {
     }
 
     if (this.autoheight) {
-      var newHeight = $(self.items[index]).outerHeight(true);
+      var newHeight = $(this.items[index]).outerHeight(true);
       this.widget.height(newHeight);
     }
 
@@ -1257,11 +1257,18 @@ soysauce.carousels = (function() {
       this.ready = false;
       this.widget.attr("data-ss-state", "ready");
       this.zoomIcon.attr("data-ss-state", "out");
+      if (noZoomTransition) {
+        this.isZoomed = false;
+        this.isZooming = false;
+        $(zoomImg).attr("data-ss-state", "notransition");
+      }
+      else {
+        $(zoomImg).one(TRANSITION_END, function() {
+          self.isZoomed = false;
+          self.isZooming = false;
+        });
+      }
       setMatrix(zoomImg, 1, 0, 0);
-      $(zoomImg).on(TRANSITION_END, function() {
-        self.isZoomed = false;
-        self.isZooming = false;
-      });
     }
 
     this.gotoPos(newOffset, false, true);
