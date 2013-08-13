@@ -75,6 +75,7 @@ soysauce.autodetectCC = (function() {
         $(e.target).trigger("SSPrediction");
       }
       else {
+        $(e.target).trigger("SSEmpty");
         self.prediction = undefined;
       }
     
