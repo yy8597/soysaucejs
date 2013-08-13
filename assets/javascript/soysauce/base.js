@@ -132,7 +132,9 @@ soysauce = {
   vars: {
     idCount: 0,
     currentViewportWidth: window.innerWidth,
-    degrade: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747|SCH-I535/.test(navigator.userAgent)) ? true : false,
+    degradeAll: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747|SCH-I535/.test(navigator.userAgent)) ? true : false,
+    degrade: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent)) ? true : false,
+    degrade2: (/SCH-I535/.test(navigator.userAgent)) ? true : false,
     lastResizeTime: 0,
     lastResizeTimerID: 0,
     fastclick: []
@@ -150,9 +152,10 @@ soysauce = {
   },
   stifle: function(e, onlyPropagation) {
     if (!e) return false;
-    if (e.stopImmediatePropagation) {
+    try {
       e.stopImmediatePropagation();
-    } else {
+    }
+    catch(err) {
       e.propagationStopped = true;
     }
     if (onlyPropagation) return false;
@@ -282,7 +285,7 @@ $(window).on("resize orientationchange", function(e) {
 // Widget Initialization
 $(document).ready(function() {
   soysauce.init();
-  if (soysauce.vars.degrade) {
+  if (soysauce.vars.degradeAll) {
     $("body").attr("data-ss-degrade", "true");
   }
   soysauce.widgets.forEach(function(obj) {
