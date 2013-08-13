@@ -14,7 +14,7 @@ soysauce.autodetectCC = (function() {
     if (options) options.forEach(function(option) {
       switch(option) {
         case "format":
-          self.format = true;
+          self.format = (soysauce.vars.degrade2) ? false : true;
           break;
       }
     });
@@ -40,7 +40,6 @@ soysauce.autodetectCC = (function() {
       var card_num = e.target.value.replace(/[-\s]+/g, "");
       var keycode = e.keyCode ? e.keyCode : e.which;
       var result;
-
 
       // State 1 - Prediction
       if (card_num.length) {
@@ -140,7 +139,6 @@ soysauce.autodetectCC = (function() {
         $(e.target).trigger("SSResult");
       }
       else {
-        // var resultChanged = (!self.result) ? false : true;
         self.result = undefined;
         if (!self.prediction && card_num.length === 16 ||
             /visa/.test(self.prediction) && card_num.length === 13 ||
@@ -154,7 +152,6 @@ soysauce.autodetectCC = (function() {
         keycode !== 8 && keycode !== 46 && keycode !== 91 && keycode !== 17 && keycode !== 189) {
         self.formatInput(e);
       }
-      
     });
   }
   
