@@ -872,7 +872,9 @@ soysauce = {
   vars: {
     idCount: 0,
     currentViewportWidth: window.innerWidth,
-    degrade: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747|SCH-I535/.test(navigator.userAgent)) ? true : false,
+    degradeAll: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747|SCH-I535/.test(navigator.userAgent)) ? true : false,
+    degrade: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent)) ? true : false,
+    degrade2: (/SCH-I535/.test(navigator.userAgent)) ? true : false,
     lastResizeTime: 0,
     lastResizeTimerID: 0,
     fastclick: []
@@ -890,9 +892,10 @@ soysauce = {
   },
   stifle: function(e, onlyPropagation) {
     if (!e) return false;
-    if (e.stopImmediatePropagation) {
+    try {
       e.stopImmediatePropagation();
-    } else {
+    }
+    catch(err) {
       e.propagationStopped = true;
     }
     if (onlyPropagation) return false;
@@ -1022,7 +1025,7 @@ $(window).on("resize orientationchange", function(e) {
 // Widget Initialization
 $(document).ready(function() {
   soysauce.init();
-  if (soysauce.vars.degrade) {
+  if (soysauce.vars.degradeAll) {
     $("body").attr("data-ss-degrade", "true");
   }
   soysauce.widgets.forEach(function(obj) {
@@ -1338,7 +1341,7 @@ soysauce.autodetectCC = (function() {
     if (options) options.forEach(function(option) {
       switch(option) {
         case "format":
-          self.format = true;
+          self.format = (soysauce.vars.degrade2) ? false : true;
           break;
       }
     });
@@ -1364,7 +1367,6 @@ soysauce.autodetectCC = (function() {
       var card_num = e.target.value.replace(/[-\s]+/g, "");
       var keycode = e.keyCode ? e.keyCode : e.which;
       var result;
-
 
       // State 1 - Prediction
       if (card_num.length) {
@@ -1399,6 +1401,7 @@ soysauce.autodetectCC = (function() {
         $(e.target).trigger("SSPrediction");
       }
       else {
+        $(e.target).trigger("SSEmpty");
         self.prediction = undefined;
       }
     
@@ -1463,7 +1466,6 @@ soysauce.autodetectCC = (function() {
         $(e.target).trigger("SSResult");
       }
       else {
-        // var resultChanged = (!self.result) ? false : true;
         self.result = undefined;
         if (!self.prediction && card_num.length === 16 ||
             /visa/.test(self.prediction) && card_num.length === 13 ||
@@ -1477,7 +1479,6 @@ soysauce.autodetectCC = (function() {
         keycode !== 8 && keycode !== 46 && keycode !== 91 && keycode !== 17 && keycode !== 189) {
         self.formatInput(e);
       }
-      
     });
   }
   
