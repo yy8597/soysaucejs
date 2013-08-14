@@ -174,7 +174,7 @@ soysauce.lazyloader = (function() {
   };
   
   Lazyloader.prototype.calcHoverThreshold = function() {
-    if (!this.hover) return;
+    if (!this.hover || !this.items.length) return;
     this.threshold = this.widget.height() + this.widget.offset().top - this.items.first().offset().top;
     this.threshold = (this.threshold < MIN_THRESHOLD) ? MIN_THRESHOLD : this.threshold;
   };
