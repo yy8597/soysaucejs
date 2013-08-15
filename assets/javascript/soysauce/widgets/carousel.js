@@ -410,6 +410,7 @@ soysauce.carousels = (function() {
       self.jumping = false;
       self.interrupted = false;
       self.container.attr("data-ss-state", "ready");
+      self.widget.attr("data-ss-state", "ready");
 
       if (self.autoscroll && self.autoscrollRestartID === undefined) {
         self.autoscrollRestartID = window.setTimeout(function() {
@@ -457,9 +458,11 @@ soysauce.carousels = (function() {
     
     if (this.ready) {
       this.container.attr("data-ss-state", "ready");
+      this.widget.attr("data-ss-state", "ready");
     }
     else {
       this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
+      this.widget.attr("data-ss-state", "intransit");
     }
     
     if (self.autoscroll) {
@@ -704,6 +707,7 @@ soysauce.carousels = (function() {
       }
       
       this.container.attr("data-ss-state", "notransition");
+      this.widget.attr("data-ss-state", "intransit");
 
       this.items.css("width", this.itemWidth + "px");
 
@@ -738,6 +742,7 @@ soysauce.carousels = (function() {
     }
     
     self.container.attr("data-ss-state", "notransition");
+    self.widget.attr("data-ss-state", "intransit");
     
     // Loop Interrupt
     if ((this.infinite && this.index === 1 && this.forward) || (this.infinite && (this.index === this.numChildren - 2) && !this.forward)) {
@@ -941,6 +946,7 @@ soysauce.carousels = (function() {
         lastX = coords2.x;
         dragOffset = coords1.x - coords2.x;
         self.container.attr("data-ss-state", "notransition");
+        self.widget.attr("data-ss-state", "intransit");
         setTranslate(self.container[0], self.offset - dragOffset);
       });
     }
