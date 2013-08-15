@@ -8,7 +8,7 @@ soysauce.carousels = (function() {
   var PREFIX = soysauce.getPrefix();
   
   function Carousel(selector) {
-    var options = soysauce.getOptions(selector);
+    var options;
     var self = this;
     var wrapper;
     var dotsHtml = "";
@@ -98,6 +98,14 @@ soysauce.carousels = (function() {
 
     // Fade Variables
     this.fade = false;
+    
+    // Single-item Options
+    if (this.widget.attr("data-ss-single-options") && this.widget.find("[data-ss-component='item']").length === 1) {
+      options = this.widget.attr("data-ss-single-options").split(" ");
+    }
+    else {
+      options = soysauce.getOptions(selector);
+    }
     
     if (options) options.forEach(function(option) {
       switch(option) {
