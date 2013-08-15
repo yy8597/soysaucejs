@@ -89,7 +89,8 @@ soysauce.carousels = (function() {
     this.multiVars = {
       numItems: 2,
       stepSize: 1,
-      minWidth: 0
+      minWidth: 0,
+      even: false
     };
 
     // Autoheight Variables
@@ -232,8 +233,12 @@ soysauce.carousels = (function() {
     this.items = this.widget.find("[data-ss-component='item']");
     this.itemPadding = parseInt(this.items.first().css("padding-left"), 10) + parseInt(this.items.first().css("padding-right"), 10);
 
+    if (this.multi) {
+      this.multiVars.even = (this.items.length % this.multiVars.numItems === 0) ? true : false;
+    }
+
     if (!this.items.length) {
-      console.warn("Soysauce: No [data-ss-component='item'] attributes found with widget id " + this.id);
+      console.warn("Soysauce: Carousel cannot be instantiated; no items found.");
       return;
     }
 
@@ -541,7 +546,13 @@ soysauce.carousels = (function() {
     }
     else {
       if (this.multi) {
-        var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
+        var $items;
+        if (!this.multiVars.even && this.index === this.maxIndex - 1) {
+          $items = $(this.items.slice(this.items.length - this.multiVars.stepSize, this.items.length));
+        }
+        else {
+          $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
+        }
         $items.attr("data-ss-state", "active");
       }
       else {
@@ -563,6 +574,11 @@ soysauce.carousels = (function() {
     
     this.ready = false;
     this.forward = true;
+    
+    if (this.multi && !this.multiVars.even && this.index === this.maxIndex - 1) {
+      stepSize -= (this.multiVars.stepSize - (this.items.length % this.multiVars.stepSize)) * this.itemWidth;
+    }
+    
     this.gotoPos(this.offset - stepSize, fast);
     
     return true;
@@ -614,7 +630,13 @@ soysauce.carousels = (function() {
       
     this.ready = false;
     this.forward = false;
-    this.gotoPos(this.offset + stepSize, fast);
+    
+    if (this.multi && !this.multiVars.even && this.index === 0) {
+      this.gotoPos(0 + this.peekWidth, fast);
+    }
+    else {
+      this.gotoPos(this.offset + stepSize, fast);
+    }
     
     return true;
   };
@@ -987,7 +1009,12 @@ soysauce.carousels = (function() {
           if (!self.infinite && ((self.index === self.numChildren - 1) 
               || (self.multi && self.index === self.maxIndex - Math.floor(self.multiVars.numItems / self.multiVars.stepSize)))) {
             if (self.multi)  {
-              self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
+              if (self.index === self.maxIndex - 1) {
+                self.gotoPos(self.offset);
+              }
+              else {
+                self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
+              }
             }
             else {
               self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
