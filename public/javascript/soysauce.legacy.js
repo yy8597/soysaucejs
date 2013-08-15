@@ -2140,7 +2140,7 @@ soysauce.carousels = (function() {
   var PREFIX = soysauce.getPrefix();
   
   function Carousel(selector) {
-    var options = soysauce.getOptions(selector);
+    var options;
     var self = this;
     var wrapper;
     var dotsHtml = "";
@@ -2221,7 +2221,8 @@ soysauce.carousels = (function() {
     this.multiVars = {
       numItems: 2,
       stepSize: 1,
-      minWidth: 0
+      minWidth: 0,
+      even: false
     };
 
     // Autoheight Variables
@@ -2229,6 +2230,14 @@ soysauce.carousels = (function() {
 
     // Fade Variables
     this.fade = false;
+    
+    // Single-item Options
+    if (this.widget.attr("data-ss-single-options") && this.widget.find("[data-ss-component='item']").length === 1) {
+      options = this.widget.attr("data-ss-single-options").split(" ");
+    }
+    else {
+      options = soysauce.getOptions(selector);
+    }
     
     if (options) options.forEach(function(option) {
       switch(option) {
@@ -2364,8 +2373,12 @@ soysauce.carousels = (function() {
     this.items = this.widget.find("[data-ss-component='item']");
     this.itemPadding = parseInt(this.items.first().css("padding-left"), 10) + parseInt(this.items.first().css("padding-right"), 10);
 
+    if (this.multi) {
+      this.multiVars.even = (this.items.length % this.multiVars.numItems === 0) ? true : false;
+    }
+
     if (!this.items.length) {
-      console.warn("Soysauce: No [data-ss-component='item'] attributes found with widget id " + this.id);
+      console.warn("Soysauce: Carousel cannot be instantiated; no items found.");
       return;
     }
 
@@ -2537,6 +2550,7 @@ soysauce.carousels = (function() {
       self.jumping = false;
       self.interrupted = false;
       self.container.attr("data-ss-state", "ready");
+      self.widget.attr("data-ss-state", "ready");
 
       if (self.autoscroll && self.autoscrollRestartID === undefined) {
         self.autoscrollRestartID = window.setTimeout(function() {
@@ -2584,9 +2598,11 @@ soysauce.carousels = (function() {
     
     if (this.ready) {
       this.container.attr("data-ss-state", "ready");
+      this.widget.attr("data-ss-state", "ready");
     }
     else {
       this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
+      this.widget.attr("data-ss-state", "intransit");
     }
     
     if (self.autoscroll) {
@@ -2673,7 +2689,13 @@ soysauce.carousels = (function() {
     }
     else {
       if (this.multi) {
-        var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
+        var $items;
+        if (!this.multiVars.even && this.index === this.maxIndex - 1) {
+          $items = $(this.items.slice(this.items.length - this.multiVars.stepSize, this.items.length));
+        }
+        else {
+          $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
+        }
         $items.attr("data-ss-state", "active");
       }
       else {
@@ -2695,6 +2717,11 @@ soysauce.carousels = (function() {
     
     this.ready = false;
     this.forward = true;
+    
+    if (this.multi && !this.multiVars.even && this.index === this.maxIndex - 1) {
+      stepSize -= (this.multiVars.stepSize - (this.items.length % this.multiVars.stepSize)) * this.itemWidth;
+    }
+    
     this.gotoPos(this.offset - stepSize, fast);
     
     return true;
@@ -2746,7 +2773,13 @@ soysauce.carousels = (function() {
       
     this.ready = false;
     this.forward = false;
-    this.gotoPos(this.offset + stepSize, fast);
+    
+    if (this.multi && !this.multiVars.even && this.index === 0) {
+      this.gotoPos(0 + this.peekWidth, fast);
+    }
+    else {
+      this.gotoPos(this.offset + stepSize, fast);
+    }
     
     return true;
   };
@@ -2814,6 +2847,7 @@ soysauce.carousels = (function() {
       }
       
       this.container.attr("data-ss-state", "notransition");
+      this.widget.attr("data-ss-state", "intransit");
 
       this.items.css("width", this.itemWidth + "px");
 
@@ -2848,6 +2882,7 @@ soysauce.carousels = (function() {
     }
     
     self.container.attr("data-ss-state", "notransition");
+    self.widget.attr("data-ss-state", "intransit");
     
     // Loop Interrupt
     if ((this.infinite && this.index === 1 && this.forward) || (this.infinite && (this.index === this.numChildren - 2) && !this.forward)) {
@@ -3051,6 +3086,7 @@ soysauce.carousels = (function() {
         lastX = coords2.x;
         dragOffset = coords1.x - coords2.x;
         self.container.attr("data-ss-state", "notransition");
+        self.widget.attr("data-ss-state", "intransit");
         setTranslate(self.container[0], self.offset - dragOffset);
       });
     }
@@ -3119,7 +3155,12 @@ soysauce.carousels = (function() {
           if (!self.infinite && ((self.index === self.numChildren - 1) 
               || (self.multi && self.index === self.maxIndex - Math.floor(self.multiVars.numItems / self.multiVars.stepSize)))) {
             if (self.multi)  {
-              self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
+              if (self.index === self.maxIndex - 1) {
+                self.gotoPos(self.offset);
+              }
+              else {
+                self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
+              }
             }
             else {
               self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
@@ -3693,7 +3734,7 @@ soysauce.lazyloader = (function() {
   };
   
   Lazyloader.prototype.calcHoverThreshold = function() {
-    if (!this.hover) return;
+    if (!this.hover || !this.items.length) return;
     this.threshold = this.widget.height() + this.widget.offset().top - this.items.first().offset().top;
     this.threshold = (this.threshold < MIN_THRESHOLD) ? MIN_THRESHOLD : this.threshold;
   };
