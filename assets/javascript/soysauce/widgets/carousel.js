@@ -1105,23 +1105,12 @@ soysauce.carousels = (function() {
       if (hqZoomSrc) {
         zoomImg.src = $(zoomImg).attr("data-ss-zoom-src");
         $(zoomImg).removeAttr("data-ss-zoom-src");
-        $(this.items[this.index]).append("<div data-ss-component='loading'>Loading...</div>");
-        $(this.items[this.index]).find("[data-ss-component='loading']").css({
-          "position": "absolute",
-          "z-index": "7",
-          "top": "50%",
-          "left": "50%",
-          "margin": "-10px -10px -5px -40px",
-          "padding": "5px 10px",
-          "background": "rgba(0,0,0,0.3)",
-          "color": "white",
-          "border": "1px solid #777"
-        });
+        $(this.items[this.index]).append("<div data-ss-component='loader'>Loading...</div>");
       }
       
       $(zoomImg).imagesLoaded(function() {
         if (hqZoomSrc) {
-          $(self.items[self.index]).find("[data-ss-component='loading']").hide();
+          $(self.items[self.index]).find("[data-ss-component='loader']").hide();
         }
         
         if (/^zoom_icon$/.test(targetComponent)) {
@@ -1172,7 +1161,8 @@ soysauce.carousels = (function() {
           }
           
           setMatrix(zoomImg, self.scale, self.panCoords.x, self.panCoords.y);
-          $(zoomImg).on(TRANSITION_END, function() {
+          
+          $(zoomImg).one(TRANSITION_END, function() {
             self.isZoomed = true;
             self.isZooming = false;
           });
