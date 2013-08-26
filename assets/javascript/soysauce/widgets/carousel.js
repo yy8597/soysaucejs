@@ -64,9 +64,6 @@ soysauce.carousels = (function() {
     this.coords1x = 0;
     this.coords1y = 0;
 
-    // CMS Variables
-    this.cms = false;
-
     // Zoom Variables
     this.zoom = false;
     this.zoomMin;
@@ -109,9 +106,6 @@ soysauce.carousels = (function() {
     
     if (options) options.forEach(function(option) {
       switch(option) {
-        case "cms":
-          self.cms = true;
-          break;
         case "peek":
           self.peek = true;
           break;
@@ -147,22 +141,6 @@ soysauce.carousels = (function() {
           break;
       }
     });
-
-    if (this.cms) {
-      var img_src = "";
-      this.widget.find("style").each(function(e) {
-        var styleTag = $(this);
-        var img = "";
-        img_src = styleTag.html().match(/\/\/[\w_\.\/-]+-2x[\w\.\/]+/i)[0];
-        img = "<img src='" + img_src + "'>"
-        styleTag.before(img);
-
-        styleTag.closest("li").attr("data-ss-component", "item")
-
-        styleTag.find("+ *").remove();
-        styleTag.remove();
-      });
-    }
 
     if (this.swipe) this.widget.find("a").click(function(e) {
       soysauce.stifle(e);
