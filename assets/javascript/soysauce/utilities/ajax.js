@@ -1,4 +1,4 @@
-soysauce.ajax = function(url, forceAjax, forceAsync) {
+soysauce.ajax = function(url, forceAjax, callback) {
   var result = false;
   if (soysauce.browserInfo.supportsSessionStorage && sessionStorage[url]) {
     try {
@@ -9,7 +9,7 @@ soysauce.ajax = function(url, forceAjax, forceAsync) {
   }
   $.ajax({
     url: url,
-    async: (!forceAsync) ? false : true
+    async: (!callback) ? false : true
   }).success(function(data, status, jqXHR) {
     try {
       var resultString = JSON.stringify(data);
@@ -26,6 +26,9 @@ soysauce.ajax = function(url, forceAjax, forceAsync) {
         console.warn("Soysauce: error fetching url '" + url + "'. Data returned needs to be JSON.");
         result = false;
       }
+    }
+    if (typeof(callback) === "function") {
+      callback(data);
     }
   }).fail(function(data) {
     console.warn("Soysauce: error fetching url '" + url + "'. Message: " + data.status + " " + data.statusText);
