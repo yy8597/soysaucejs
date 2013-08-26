@@ -1193,7 +1193,7 @@ $(window).load(function() {
 
 }
 
-soysauce.ajax = function(url, forceAjax, forceAsync) {
+soysauce.ajax = function(url, forceAjax, callback) {
   var result = false;
   if (soysauce.browserInfo.supportsSessionStorage && sessionStorage[url]) {
     try {
@@ -1204,7 +1204,7 @@ soysauce.ajax = function(url, forceAjax, forceAsync) {
   }
   $.ajax({
     url: url,
-    async: (!forceAsync) ? false : true
+    async: (!callback) ? false : true
   }).success(function(data, status, jqXHR) {
     try {
       var resultString = JSON.stringify(data);
@@ -1221,6 +1221,9 @@ soysauce.ajax = function(url, forceAjax, forceAsync) {
         console.warn("Soysauce: error fetching url '" + url + "'. Data returned needs to be JSON.");
         result = false;
       }
+    }
+    if (typeof(callback) === "function") {
+      callback(data);
     }
   }).fail(function(data) {
     console.warn("Soysauce: error fetching url '" + url + "'. Message: " + data.status + " " + data.statusText);
@@ -2196,9 +2199,6 @@ soysauce.carousels = (function() {
     this.coords1x = 0;
     this.coords1y = 0;
 
-    // CMS Variables
-    this.cms = false;
-
     // Zoom Variables
     this.zoom = false;
     this.zoomMin;
@@ -2241,9 +2241,6 @@ soysauce.carousels = (function() {
     
     if (options) options.forEach(function(option) {
       switch(option) {
-        case "cms":
-          self.cms = true;
-          break;
         case "peek":
           self.peek = true;
           break;
@@ -2279,22 +2276,6 @@ soysauce.carousels = (function() {
           break;
       }
     });
-
-    if (this.cms) {
-      var img_src = "";
-      this.widget.find("style").each(function(e) {
-        var styleTag = $(this);
-        var img = "";
-        img_src = styleTag.html().match(/\/\/[\w_\.\/-]+-2x[\w\.\/]+/i)[0];
-        img = "<img src='" + img_src + "'>"
-        styleTag.before(img);
-
-        styleTag.closest("li").attr("data-ss-component", "item")
-
-        styleTag.find("+ *").remove();
-        styleTag.remove();
-      });
-    }
 
     if (this.swipe) this.widget.find("a").click(function(e) {
       soysauce.stifle(e);
@@ -3237,23 +3218,12 @@ soysauce.carousels = (function() {
       if (hqZoomSrc) {
         zoomImg.src = $(zoomImg).attr("data-ss-zoom-src");
         $(zoomImg).removeAttr("data-ss-zoom-src");
-        $(this.items[this.index]).append("<div data-ss-component='loading'>Loading...</div>");
-        $(this.items[this.index]).find("[data-ss-component='loading']").css({
-          "position": "absolute",
-          "z-index": "7",
-          "top": "50%",
-          "left": "50%",
-          "margin": "-10px -10px -5px -40px",
-          "padding": "5px 10px",
-          "background": "rgba(0,0,0,0.3)",
-          "color": "white",
-          "border": "1px solid #777"
-        });
+        $(this.items[this.index]).append("<div data-ss-component='loader'>Loading...</div>");
       }
       
       $(zoomImg).imagesLoaded(function() {
         if (hqZoomSrc) {
-          $(self.items[self.index]).find("[data-ss-component='loading']").hide();
+          $(self.items[self.index]).find("[data-ss-component='loader']").hide();
         }
         
         if (/^zoom_icon$/.test(targetComponent)) {
@@ -3304,7 +3274,8 @@ soysauce.carousels = (function() {
           }
           
           setMatrix(zoomImg, self.scale, self.panCoords.x, self.panCoords.y);
-          $(zoomImg).on(TRANSITION_END, function() {
+          
+          $(zoomImg).one(TRANSITION_END, function() {
             self.isZoomed = true;
             self.isZooming = false;
           });
