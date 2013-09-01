@@ -86,6 +86,17 @@
 [data-ss-widget="carousel"] [data-ss-component="item"][data-ss-state="active"] {
   z-index: 6;
 }
+[data-ss-widget="carousel"] [data-ss-component="loader"] {
+  position: absolute;
+  z-index: 7;
+  top: 50%;
+  left: 50%;
+  margin: -10px -10px -5px -40px;
+  padding: 5px 10px;
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  border: 1px solid #777;
+}
 [data-ss-widget="carousel"]:not([data-ss-state]) {
   opacity: 0;
   max-height: 400px;

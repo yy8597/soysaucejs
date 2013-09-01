@@ -1899,33 +1899,32 @@ soysauce.togglers = (function() {
     }
     
     if (this.slide) {
+      this.widget.find("> [data-ss-component='content'][data-ss-state='open']").attr("data-ss-open-onload", "true");
       this.allContent.attr("data-ss-state", "open");
 
-      if (this.hasTogglers) {
-        this.allContent.each(function() {
-          var content = $(this);
-          content.imagesLoaded(function() {
-            var height;
+      this.allContent.each(function() {
+        var content = $(this);
+        content.imagesLoaded(function() {
+          var height;
+          if (self.hasTogglers) {
             content.find("[data-ss-component='content']").attr("data-ss-state", "closed");
-            height = content.outerHeight(true);
+          }
+          height = content.outerHeight(true);
+          content.attr("data-ss-slide-height", height);
+          if (!content.attr("data-ss-open-onload")) {
+            content.css("height", "0px");
+            content.attr("data-ss-state", "closed");
+          }
+          else {
             self.height = height;
-            content.attr("data-ss-slide-height", height);
-            content.css("height", "0px");
-            content.attr("data-ss-state", "closed");
+            content.css("height", self.height);
+          }
+          if (self.hasTogglers) {
             content.find("[data-ss-component='content']").removeAttr("data-ss-state");
-          });
+          }
         });
-      }
-      else {
-        this.allContent.each(function() {
-          var content = $(this);
-          content.imagesLoaded(function() {
-            content.attr("data-ss-slide-height", content.outerHeight(true));
-            content.css("height", "0px");
-            content.attr("data-ss-state", "closed");
-          });
-        });
-      }
+      });
+
       this.allContent.on(TRANSITION_END, function() {
         if (!self.orphan) {
           self.widget.trigger("slideEnd");
