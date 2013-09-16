@@ -6,6 +6,7 @@ soysauce.carousels = (function() {
   var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
   var PINCH_SENSITIVITY = 1500; // lower to increase sensitivity for pinch zoom
   var PREFIX = soysauce.getPrefix();
+  var SWIPE_THRESHOLD = 35;
   
   function Carousel(selector) {
     var options;
@@ -369,23 +370,113 @@ soysauce.carousels = (function() {
         self.initPanLimits();
       }
     });
-
-    if (this.swipe || this.zoom) this.widget.on("touchstart mousedown", function(e) {
-      var targetComponent = $(e.target).attr("data-ss-component");
-
-      if (/^(zoom_icon|dot|thumbnail)$/.test(targetComponent) && self.interrupted) {
-        var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
-        if (currXPos === self.offset) {
-          self.interrupted = false;
+    
+    if (this.links) {
+      this.container.find("a[href]").each(function(e) {
+        var $this = $(this);
+        var href = $this.attr("href");
+        $this.attr("data-ss-href", href).attr("href", "");
+      });
+      this.container.hammer().on("tap click", function(e) {
+        var $target;
+        
+        if (!self.ready || e.type === "click") return false;
+        
+        $target = $(e.target);
+        
+        if (e.target.tagName === "A" || $target.find("a").length) {
+          window.location.href = $target.attr("data-ss-href") || $target.find("a").attr("data-ss-href");
         }
-      }
-      
-      if (self.jumping || self.freeze || /^(button|dot|dots|thumbnail)$/.test(targetComponent)) {
-        return;
-      }
+      });
+    }
 
-      self.handleSwipe(e);
-    });
+    if (this.swipe || this.zoom) {
+      this.container.hammer().on("drag dragend swipe", function(e) {
+        var targetComponent = $(e.target).attr("data-ss-component");
+        
+        soysauce.stifle(e);
+
+        if (!self.ready && e.type === "dragend" && e.gesture.velocityX >= Hammer.gestures.Swipe.defaults.swipe_velocity) return;
+        
+        // if (/^(zoom_icon|dot|thumbnail)$/.test(targetComponent) && self.interrupted) {
+        //           var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
+        //           if (currXPos === self.offset) {
+        //             self.interrupted = false;
+        //           }
+        //         }
+        // 
+        //         if (self.jumping || self.freeze || /^(button|dot|dots|thumbnail)$/.test(targetComponent)) {
+        //           return;
+        //         }
+        
+        // scroll lock code goes here
+        
+        if (e.gesture.eventType === "end") {
+          var doSwipe = (/swipe/.test(e.type) || Math.abs(e.gesture.deltaX) >= SWIPE_THRESHOLD) ? true : false;
+
+          self.ready = true;
+          self.container.attr("data-ss-state", "ready");
+          
+          if (doSwipe && e.gesture.direction === "left") {
+            if (!self.infinite && ((self.index === self.numChildren - 1) 
+            || (self.multi && self.index === self.maxIndex - Math.floor(self.multiVars.numItems / self.multiVars.stepSize)))) {
+              if (self.multi)  {
+                if (self.index === self.maxIndex - 1) {
+                  self.gotoPos(self.offset);
+                }
+                else {
+                  self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
+                }
+              }
+              else {
+                self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
+              }
+            }
+            else {
+              if (soysauce.vars.degrade) {
+                self.rewindCoord = parseInt(self.container.css("left"), 10);
+              }
+              self.slideForward();
+            }
+          }
+          else if (doSwipe && e.gesture.direction === "right") {
+            if (!self.infinite && self.index === 0) {
+              self.gotoPos(self.peekWidth);
+            }
+            else {
+              if (soysauce.vars.degrade) {
+                self.rewindCoord = parseInt(self.container.css("left"), 10);
+              }
+              self.slideBackward();
+            }
+          }
+          else {
+            setTranslate(self.container[0], self.offset);
+          }
+        }
+        else if (e.gesture.eventType === "move") {
+          self.container.attr("data-ss-state", "notransition");
+          self.widget.attr("data-ss-state", "intransit");
+          setTranslate(self.container[0], self.offset + e.gesture.deltaX);
+        }
+      });
+      // this.widget.on("touchstart mousedown", function(e) {
+      //         var targetComponent = $(e.target).attr("data-ss-component");
+      // 
+      //         if (/^(zoom_icon|dot|thumbnail)$/.test(targetComponent) && self.interrupted) {
+      //           var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
+      //           if (currXPos === self.offset) {
+      //             self.interrupted = false;
+      //           }
+      //         }
+      // 
+      //         if (self.jumping || self.freeze || /^(button|dot|dots|thumbnail)$/.test(targetComponent)) {
+      //           return;
+      //         }
+      // 
+      //         self.handleSwipe(e);
+      //       });
+    }
 
     this.container.on(TRANSITION_END, function(e) {
       if (Math.abs(e.timeStamp - self.lastTransitionEnd) < 300) return;
@@ -436,7 +527,7 @@ soysauce.carousels = (function() {
       });
   } // End Constructor
   
-  Carousel.prototype.gotoPos = function(x, fast, jumping, resettingPosition) {
+  Carousel.prototype.gotoPos = function(x, jumping, resettingPosition) {
     var self = this;
 
     this.offset = x;
@@ -447,7 +538,7 @@ soysauce.carousels = (function() {
       this.widget.attr("data-ss-state", "ready");
     }
     else {
-      this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
+      this.container.attr("data-ss-state", "intransit");
       this.widget.attr("data-ss-state", "intransit");
     }
     
@@ -509,7 +600,7 @@ soysauce.carousels = (function() {
     }
   };
   
-  Carousel.prototype.slideForward = function(fast) {
+  Carousel.prototype.slideForward = function() {
     var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]),
         lastInfiniteIndex = this.numChildren - 1,
         stepSize = (this.multi) ? this.multiVars.stepSize * this.itemWidth : this.itemWidth;
@@ -568,12 +659,12 @@ soysauce.carousels = (function() {
       stepSize -= (this.multiVars.stepSize - (this.items.length % this.multiVars.stepSize)) * this.itemWidth;
     }
     
-    this.gotoPos(this.offset - stepSize, fast);
+    this.gotoPos(this.offset - stepSize);
     
     return true;
   };
   
-  Carousel.prototype.slideBackward = function(fast) {
+  Carousel.prototype.slideBackward = function() {
     var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]),
         lastInfiniteIndex = this.numChildren - 1,
         stepSize = (this.multi) ? this.multiVars.stepSize * this.itemWidth : this.itemWidth;
@@ -621,10 +712,10 @@ soysauce.carousels = (function() {
     this.forward = false;
     
     if (this.multi && !this.multiVars.even && this.index === 0) {
-      this.gotoPos(0 + this.peekWidth, fast);
+      this.gotoPos(0 + this.peekWidth);
     }
     else {
-      this.gotoPos(this.offset + stepSize, fast);
+      this.gotoPos(this.offset + stepSize);
     }
     
     return true;
@@ -802,238 +893,240 @@ soysauce.carousels = (function() {
     return ret;
   };
   
-  Carousel.prototype.handleSwipe = function(e1) {
-    var self = this;
-    var coords1, coords2, lastX, originalDist = 0, prevDist = -1;
-    var newX2 = 0, newY2 = 0;
-    var zoomingIn = null;
-    
-    if (this.infinite) {
-      if (new Date().getTime() - this.lastSlideTime < 225) return;
-      this.lastSlideTime = new Date().getTime();
-    }
-    
-    coords1 = soysauce.getCoords(e1);
-    
-    this.coords1x = coords1.x;
-    this.coords1y = coords1.y;
-    
-    if (coords1.y2 && coords1.x2) {
-      var xs = 0, ys = 0, dist = 0;
-      
-      ys = (coords1.y2 - coords1.y)*(coords1.y2 - coords1.y);
-      xs = (coords1.x2 - coords1.x)*(coords1.x2 - coords1.x);
-      
-      originalDist = Math.sqrt(ys + xs);
-    }
-    
-    if (e1.type.match(/mousedown/) !== null) soysauce.stifle(e1); // for desktop debugging
-
-    this.lockScroll = undefined;
-
-    if (!this.ready) 
-      lastX = this.handleInterrupt(e1);
-    else {
-      // Pan or Pinch Zooming
-      if (this.zoom && this.isZoomed) {
-        var prevScale = self.scale;
-        this.widget.one("touchend mouseup", function(e2) {
-          var array = soysauce.getArrayFromMatrix($(e2.target).css(PREFIX + "transform")),
-              panX = parseInt(array[4], 10), panY = parseInt(array[5], 10), $target = $(e2.target),
-              buttonName = $(e2.target).attr("data-ss-button-type"),
-              componentName = $(e2.target).attr("data-ss-component"),
-              $zoomImg = $(self.items[self.index]).find("img"),
-              event = e2.originalEvent;
-          
-          if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
-          
-          self.panCoordsStart.x = (Math.abs(panX) > 0) ? panX : 0;
-          self.panCoordsStart.y = (Math.abs(panY) > 0) ? panY : 0;
-          zoomingIn = null;
-          
-          $zoomImg.attr("data-ss-state", "ready");
-          
-          if (self.pinch && event.changedTouches && event.changedTouches.length > 1) {
-            var scale = prevScale + event.scale - 1;
-            if (scale > self.zoomMax) {
-              self.scale = self.zoomMax;
-            }
-            else if (scale < self.zoomMin) {
-              self.scale = self.zoomMin;
-            }
-            else {
-              self.scale += event.scale - 1;
-            }
-          }
-          
-          self.widget.off("touchmove mousemove");
-        });
-        this.widget.on("touchmove mousemove", function(e2) {
-          var event = e2.originalEvent, 
-              zoomImg = self.items[self.index],
-              buttonName = $(e2.target).attr("data-ss-button-type"),
-              componentName = $(e2.target).attr("data-ss-component");
-          
-          soysauce.stifle(e2);
-          
-          if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
-          
-          zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
-          
-          coords2 = soysauce.getCoords(e2);
-          
-          $(zoomImg).attr("data-ss-state", "panning");
-
-          // Pinch Zooming
-          if (self.pinch && event.changedTouches.length > 1) {
-            var startCoords = soysauce.getCoords(event);
-            var scale = prevScale + event.scale - 1;
-
-            self.initPanLimits();
-            
-            if (scale >= self.zoomMin && scale <= self.zoomMax) {
-              setMatrix(zoomImg, scale, self.panCoordsStart.x, self.panCoordsStart.y);
-            }
-          }
-          // Panning
-          else {
-            self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
-            self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
-
-            self.checkPanLimits();
-            setMatrix(e2.target, self.scale, self.panCoords.x, self.panCoords.y);
-          }
-        });
-      }
-      // Swipe Forward/Backward or Lock Scroll
-      else if (this.swipe) this.widget.on("touchmove mousemove", function(e2) {
-        var dragOffset,
-            target_name = $(e2.target).attr("data-ss-component");
-        
-        coords2 = soysauce.getCoords(e2);
-        
-        if (/^zoom_icon$/.test(target_name)) return;
-        
-        if (!self.lockScroll) {
-          if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) >= 1) {
-            self.lockScroll = "y";
-          }
-          else {
-            self.lockScroll = "x";
-          }
-        }
-        
-        if (/^y$/.test(self.lockScroll)) {
-          return;
-        }
-        
-        soysauce.stifle(e2);
-        self.panning = true;
-        lastX = coords2.x;
-        dragOffset = coords1.x - coords2.x;
-        self.container.attr("data-ss-state", "notransition");
-        self.widget.attr("data-ss-state", "intransit");
-        setTranslate(self.container[0], self.offset - dragOffset);
-      });
-    }
-
-    // Decides whether to zoom or move to next/prev item
-    this.widget.one("touchend mouseup", function(e2) {
-      var forceZoom;
-      var targetComponent = $(e2.target).attr("data-ss-component");
-      
-      self.widget.off("touchmove mousemove");
-      
-      if (self.jumping) return;
-      
-      soysauce.stifle(e2);
-      
-      if (/^button$/.test(targetComponent)) {
-        return;
-      }
-      
-      forceZoom = (/^zoom_icon$/.test(targetComponent)) ? true : false;
-      
-      coords2 = soysauce.getCoords(e2);
-      
-      if (coords2 !== null) lastX = coords2.x;
-
-      var xDist = self.coords1x - lastX;
-      var yDist = self.coords1y - coords2.y;
-      
-      var time = Math.abs(e2.timeStamp - e1.timeStamp);
-      
-      var velocity = xDist / time;
-      var fast = (velocity > 0.9) ? true : false;
-      
-      if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
-        self.ready = true;
-        self.container.attr("data-ss-state", "ready");
-        
-        if (e2.target.tagName.match(/^a$/i) !== null) {
-          window.location.href = $(e2.target).attr("href");
-        }
-        else if ($(e2.target).closest("a").length > 0) {
-          window.location.href = $(e2.target).closest("a").attr("href");
-        }
-        
-      }
-      else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed || forceZoom)) {
-        soysauce.stifle(e1);
-        self.toggleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
-      }
-      else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25)) {
-        if (self.looping) return;
-        soysauce.stifle(e1);
-        self.ready = true;
-        self.container.attr("data-ss-state", "ready");
-        self.gotoPos(self.offset, true, false, true);
-      }
-      else if (Math.abs(xDist) > 3 && self.swipe) {
-        self.ready = true;
-        self.container.attr("data-ss-state", "ready");
-        
-        if (self.lockScroll === "y") {
-          return;
-        }
-        
-        if (xDist > 0) {
-          if (!self.infinite && ((self.index === self.numChildren - 1) 
-              || (self.multi && self.index === self.maxIndex - Math.floor(self.multiVars.numItems / self.multiVars.stepSize)))) {
-            if (self.multi)  {
-              if (self.index === self.maxIndex - 1) {
-                self.gotoPos(self.offset);
-              }
-              else {
-                self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
-              }
-            }
-            else {
-              self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
-            }
-          }
-          else {
-            if (soysauce.vars.degrade) {
-              self.rewindCoord = parseInt(self.container.css("left"), 10);
-            }
-            self.slideForward(fast);
-          }
-        }
-        else {
-          if (!self.infinite && self.index === 0) {
-            self.gotoPos(self.peekWidth);
-          }
-          else {
-            if (soysauce.vars.degrade) {
-              self.rewindCoord = parseInt(self.container.css("left"), 10);
-            }
-            self.slideBackward(fast);
-          }
-        }
-      }
-    });
-  };
-  
+  // Carousel.prototype.handleSwipe = function(e1) {
+  //     var self = this;
+  //     var coords1, coords2, lastX, originalDist = 0, prevDist = -1;
+  //     var newX2 = 0, newY2 = 0;
+  //     var zoomingIn = null;
+  //     
+  //     if (this.infinite) {
+  //       if (new Date().getTime() - this.lastSlideTime < 225) return;
+  //       this.lastSlideTime = new Date().getTime();
+  //     }
+  //     
+  //     coords1 = soysauce.getCoords(e1);
+  //     
+  //     this.coords1x = coords1.x;
+  //     this.coords1y = coords1.y;
+  //     
+  //     if (coords1.y2 && coords1.x2) {
+  //       var xs = 0, ys = 0, dist = 0;
+  //       
+  //       ys = (coords1.y2 - coords1.y)*(coords1.y2 - coords1.y);
+  //       xs = (coords1.x2 - coords1.x)*(coords1.x2 - coords1.x);
+  //       
+  //       originalDist = Math.sqrt(ys + xs);
+  //     }
+  //     
+  //     if (e1.type.match(/mousedown/) !== null) soysauce.stifle(e1); // for desktop debugging
+  // 
+  //     this.lockScroll = undefined;
+  // 
+  //     if (!this.ready) 
+  //       lastX = this.handleInterrupt(e1);
+  //     else {
+  //       // Pan or Pinch Zooming
+  //       if (this.zoom && this.isZoomed) {
+  //         var prevScale = self.scale;
+  //         this.widget.one("touchend mouseup", function(e2) {
+  //           var array = soysauce.getArrayFromMatrix($(e2.target).css(PREFIX + "transform")),
+  //               panX = parseInt(array[4], 10), panY = parseInt(array[5], 10), $target = $(e2.target),
+  //               buttonName = $(e2.target).attr("data-ss-button-type"),
+  //               componentName = $(e2.target).attr("data-ss-component"),
+  //               $zoomImg = $(self.items[self.index]).find("img"),
+  //               event = e2.originalEvent;
+  //           
+  //           if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
+  //           
+  //           self.panCoordsStart.x = (Math.abs(panX) > 0) ? panX : 0;
+  //           self.panCoordsStart.y = (Math.abs(panY) > 0) ? panY : 0;
+  //           zoomingIn = null;
+  //           
+  //           $zoomImg.attr("data-ss-state", "ready");
+  //           
+  //           if (self.pinch && event.changedTouches && event.changedTouches.length > 1) {
+  //             var scale = prevScale + event.scale - 1;
+  //             if (scale > self.zoomMax) {
+  //               self.scale = self.zoomMax;
+  //             }
+  //             else if (scale < self.zoomMin) {
+  //               self.scale = self.zoomMin;
+  //             }
+  //             else {
+  //               self.scale += event.scale - 1;
+  //             }
+  //           }
+  //           
+  //           self.widget.off("touchmove mousemove");
+  //         });
+  //         this.widget.on("touchmove mousemove", function(e2) {
+  //           var event = e2.originalEvent, 
+  //               zoomImg = self.items[self.index],
+  //               buttonName = $(e2.target).attr("data-ss-button-type"),
+  //               componentName = $(e2.target).attr("data-ss-component");
+  //           
+  //           soysauce.stifle(e2);
+  //           
+  //           if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
+  //           
+  //           zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
+  //           
+  //           coords2 = soysauce.getCoords(e2);
+  //           
+  //           $(zoomImg).attr("data-ss-state", "panning");
+  // 
+  //           // Pinch Zooming
+  //           if (self.pinch && event.changedTouches.length > 1) {
+  //             var startCoords = soysauce.getCoords(event);
+  //             var scale = prevScale + event.scale - 1;
+  // 
+  //             self.initPanLimits();
+  //             
+  //             if (scale >= self.zoomMin && scale <= self.zoomMax) {
+  //               setMatrix(zoomImg, scale, self.panCoordsStart.x, self.panCoordsStart.y);
+  //             }
+  //           }
+  //           // Panning
+  //           else {
+  //             self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
+  //             self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
+  // 
+  //             self.checkPanLimits();
+  //             setMatrix(e2.target, self.scale, self.panCoords.x, self.panCoords.y);
+  //           }
+  //         });
+  //       }
+  //       // Swipe Forward/Backward or Lock Scroll
+  //       else if (this.swipe) this.widget.on("touchmove mousemove", function(e2) {
+  //         var dragOffset,
+  //             target_name = $(e2.target).attr("data-ss-component");
+  //         
+  //         coords2 = soysauce.getCoords(e2);
+  //         
+  //         if (/^zoom_icon$/.test(target_name)) return;
+  //         
+  //         if (!self.lockScroll) {
+  //           if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) >= 1) {
+  //             self.lockScroll = "y";
+  //           }
+  //           else {
+  //             self.lockScroll = "x";
+  //           }
+  //         }
+  //         
+  //         if (/^y$/.test(self.lockScroll)) {
+  //           return;
+  //         }
+  //         
+  //         soysauce.stifle(e2);
+  //         self.panning = true;
+  //         lastX = coords2.x;
+  //         dragOffset = coords1.x - coords2.x;
+  //         self.container.attr("data-ss-state", "notransition");
+  //         self.widget.attr("data-ss-state", "intransit");
+  //         setTranslate(self.container[0], self.offset - dragOffset);
+  //       });
+  //     }
+  // 
+  //     // Decides whether to zoom or move to next/prev item
+  //     this.widget.one("touchend mouseup", function(e2) {
+  //       var forceZoom;
+  //       var targetComponent = $(e2.target).attr("data-ss-component");
+  //       
+  //       console.log("swipe!");
+  //       
+  //       self.widget.off("touchmove mousemove");
+  //       
+  //       if (self.jumping) return;
+  //       
+  //       soysauce.stifle(e2);
+  //       
+  //       if (/^button$/.test(targetComponent)) {
+  //         return;
+  //       }
+  //       
+  //       forceZoom = (/^zoom_icon$/.test(targetComponent)) ? true : false;
+  //       
+  //       coords2 = soysauce.getCoords(e2);
+  //       
+  //       if (coords2 !== null) lastX = coords2.x;
+  // 
+  //       var xDist = self.coords1x - lastX;
+  //       var yDist = self.coords1y - coords2.y;
+  //       
+  //       var time = Math.abs(e2.timeStamp - e1.timeStamp);
+  //       
+  //       var velocity = xDist / time;
+  //       var fast = (velocity > 0.9) ? true : false;
+  //       
+  //       if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
+  //         self.ready = true;
+  //         self.container.attr("data-ss-state", "ready");
+  //         
+  //         if (e2.target.tagName.match(/^a$/i) !== null) {
+  //           window.location.href = $(e2.target).attr("href");
+  //         }
+  //         else if ($(e2.target).closest("a").length > 0) {
+  //           window.location.href = $(e2.target).closest("a").attr("href");
+  //         }
+  //         
+  //       }
+  //       else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed || forceZoom)) {
+  //         soysauce.stifle(e1);
+  //         self.toggleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
+  //       }
+  //       else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25)) {
+  //         if (self.looping) return;
+  //         soysauce.stifle(e1);
+  //         self.ready = true;
+  //         self.container.attr("data-ss-state", "ready");
+  //         self.gotoPos(self.offset, true, false, true);
+  //       }
+  //       else if (Math.abs(xDist) > 3 && self.swipe) {
+  //         self.ready = true;
+  //         self.container.attr("data-ss-state", "ready");
+  //         
+  //         if (self.lockScroll === "y") {
+  //           return;
+  //         }
+  //         
+  //         if (xDist > 0) {
+  //           if (!self.infinite && ((self.index === self.numChildren - 1) 
+  //               || (self.multi && self.index === self.maxIndex - Math.floor(self.multiVars.numItems / self.multiVars.stepSize)))) {
+  //             if (self.multi)  {
+  //               if (self.index === self.maxIndex - 1) {
+  //                 self.gotoPos(self.offset);
+  //               }
+  //               else {
+  //                 self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
+  //               }
+  //             }
+  //             else {
+  //               self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
+  //             }
+  //           }
+  //           else {
+  //             if (soysauce.vars.degrade) {
+  //               self.rewindCoord = parseInt(self.container.css("left"), 10);
+  //             }
+  //             self.slideForward(fast);
+  //           }
+  //         }
+  //         else {
+  //           if (!self.infinite && self.index === 0) {
+  //             self.gotoPos(self.peekWidth);
+  //           }
+  //           else {
+  //             if (soysauce.vars.degrade) {
+  //               self.rewindCoord = parseInt(self.container.css("left"), 10);
+  //             }
+  //             self.slideBackward(fast);
+  //           }
+  //         }
+  //       }
+  //     });
+  //   };
+  //   
   Carousel.prototype.checkPanLimits = function() {
     if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x > 0) {
       this.panCoords.x = this.panMax.x;
@@ -1280,7 +1373,7 @@ soysauce.carousels = (function() {
       setMatrix(zoomImg, 1, 0, 0);
     }
 
-    this.gotoPos(newOffset, false, true);
+    this.gotoPos(newOffset, true);
     this.index = index;
 
     return true;
