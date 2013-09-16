@@ -9,16 +9,19 @@ javascript_compressor:  closure               # (yui, closure)
 javascripts:
   soysauce.min:
       - assets/javascript/fastclick.js
+      - assets/javascript/hammer.js
       - assets/javascript/soysauce/base.js
       - assets/javascript/soysauce/utilities/*.js
       - assets/javascript/soysauce/widgets/*.js
   soysauce.legacy.min:
       - assets/javascript/fastclick.js
+      - assets/javascript/hammer.js
       - assets/javascript/legacy-support.js
       - assets/javascript/soysauce/base.js
       - assets/javascript/soysauce/utilities/*.js
       - assets/javascript/soysauce/widgets/*.js
   soysauce.lite.min:
+      - assets/javascript/hammer.js
       - assets/javascript/soysauce/base.js
       - assets/javascript/soysauce/utilities/init.js
       - assets/javascript/soysauce/widgets/carousel.js
