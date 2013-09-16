@@ -320,7 +320,7 @@ $(document).ready(function() {
   });
   // Set HammerJS Options
   try {
-    Hammer.gestures.Swipe.defaults.swipe_velocity = 0.4;
+    Hammer.gestures.Swipe.defaults.swipe_velocity = 0.35;
     Hammer.gestures.Drag.defaults.drag_min_distance = 1;
     Hammer.gestures.Drag.defaults.drag_lock_min_distance = 1;
     Hammer.gestures.Drag.defaults.drag_lock_to_axis = true;

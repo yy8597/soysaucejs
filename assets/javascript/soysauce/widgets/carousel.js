@@ -6,7 +6,7 @@ soysauce.carousels = (function() {
   var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
   var PINCH_SENSITIVITY = 1500; // lower to increase sensitivity for pinch zoom
   var PREFIX = soysauce.getPrefix();
-  var SWIPE_THRESHOLD = 35;
+  var SWIPE_THRESHOLD = 60;
   
   function Carousel(selector) {
     var options;
