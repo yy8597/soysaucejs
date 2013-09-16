@@ -28,11 +28,12 @@ soysauce.carousels = (function() {
     this.widgetWidth = 0;
     this.widgetHeight = 0;
     this.itemWidth = 0;
+    this.interruptedOffset = 0;
     this.offset = 0;
     this.ready = false;
     this.interrupted = false;
     this.links = false;
-    this.lockScroll = undefined;
+    this.lockScroll = false;
     this.nextBtn;
     this.prevBtn;
     this.freeze = false;
@@ -391,7 +392,7 @@ soysauce.carousels = (function() {
     }
 
     if (this.swipe || this.zoom) {
-      this.container.hammer().on("drag dragend swipe", function(e) {
+      this.container.hammer().on("touch drag dragend swipe", function(e) {
         var targetComponent = $(e.target).attr("data-ss-component");
         
         if (!self.ready && e.type === "dragend" && e.gesture.velocityX >= Hammer.gestures.Swipe.defaults.swipe_velocity) return;
@@ -407,6 +408,7 @@ soysauce.carousels = (function() {
         //           return;
         //         }
         
+        
         if (self.lockScroll && e.type === "dragend") {
           self.ready = true;
           self.container.attr("data-ss-state", "ready");
@@ -415,12 +417,24 @@ soysauce.carousels = (function() {
           return;
         }
         
-        if (self.lockScroll || Math.abs(e.gesture.angle) >= 75 && Math.abs(e.gesture.angle) <= 105) {
-          self.lockScroll = true
+        self.lockScroll = (self.lockScroll || Math.abs(e.gesture.angle) >= 75 && Math.abs(e.gesture.angle) <= 105) ? true : false;
+        
+        if (self.lockScroll) {
           return;
         }
         
-        soysauce.stifle(e);
+        if (!self.ready && e.type === "touch") {
+          self.interruptedOffset = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
+          self.interrupted = true;
+          self.container.attr("data-ss-state", "notransition");
+          self.widget.attr("data-ss-state", "intransit");
+          setTranslate(self.container[0], self.interruptedOffset);
+          return;
+        }
+        
+        if (e.type !== "touch") {
+          soysauce.stifle(e);
+        }
         
         if (e.gesture.eventType === "end") {
           var doSwipe = (/swipe/.test(e.type) || Math.abs(e.gesture.deltaX) >= SWIPE_THRESHOLD) ? true : false;
@@ -468,7 +482,13 @@ soysauce.carousels = (function() {
         else if (e.gesture.eventType === "move") {
           self.container.attr("data-ss-state", "notransition");
           self.widget.attr("data-ss-state", "intransit");
-          setTranslate(self.container[0], self.offset + e.gesture.deltaX);
+          
+          if (self.interrupted) {
+            setTranslate(self.container[0], self.interruptedOffset + e.gesture.deltaX);
+          }
+          else {
+            setTranslate(self.container[0], self.offset + e.gesture.deltaX);
+          }
         }
       });
       // this.widget.on("touchstart mousedown", function(e) {
@@ -621,7 +641,7 @@ soysauce.carousels = (function() {
       (!this.infinite && this.multi && this.index === this.maxIndex - 1)) return false;
     
     $dots.attr("data-ss-state", "inactive");
-      
+    
     if (this.multi) {
       var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
       $items.attr("data-ss-state", "inactive");
