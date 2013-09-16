@@ -394,8 +394,6 @@ soysauce.carousels = (function() {
       this.container.hammer().on("drag dragend swipe", function(e) {
         var targetComponent = $(e.target).attr("data-ss-component");
         
-        soysauce.stifle(e);
-
         if (!self.ready && e.type === "dragend" && e.gesture.velocityX >= Hammer.gestures.Swipe.defaults.swipe_velocity) return;
         
         // if (/^(zoom_icon|dot|thumbnail)$/.test(targetComponent) && self.interrupted) {
@@ -409,7 +407,20 @@ soysauce.carousels = (function() {
         //           return;
         //         }
         
-        // scroll lock code goes here
+        if (self.lockScroll && e.type === "dragend") {
+          self.ready = true;
+          self.container.attr("data-ss-state", "ready");
+          self.lockScroll = false;
+          setTranslate(self.container[0], self.offset);
+          return;
+        }
+        
+        if (self.lockScroll || Math.abs(e.gesture.angle) >= 75 && Math.abs(e.gesture.angle) <= 105) {
+          self.lockScroll = true
+          return;
+        }
+        
+        soysauce.stifle(e);
         
         if (e.gesture.eventType === "end") {
           var doSwipe = (/swipe/.test(e.type) || Math.abs(e.gesture.deltaX) >= SWIPE_THRESHOLD) ? true : false;
