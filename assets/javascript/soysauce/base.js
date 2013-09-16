@@ -154,12 +154,21 @@ soysauce = {
     if (!e) return false;
     try {
       e.stopImmediatePropagation();
+      if (e.gesture) {
+        e.gesture.stopPropagation();
+      }
     }
     catch(err) {
+      console.log(e);
+      console.warn("Soysauce: Error occurred calling soysauce.stifle() " + err.message);
+      e.stopPropagation();
       e.propagationStopped = true;
     }
     if (onlyPropagation) return false;
     e.preventDefault();
+    if (e.gesture) {
+      e.gesture.preventDefault();
+    }
   },
   fetch: function(selector) {
     var query, ret;
