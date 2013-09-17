@@ -392,10 +392,10 @@ soysauce.carousels = (function() {
     }
 
     if (this.swipe || this.zoom) {
-      this.container.hammer().on("touch drag dragend swipe", function(e) {
+      this.container.hammer().on("touch release drag swipe", function(e) {
         var targetComponent = $(e.target).attr("data-ss-component");
         
-        if (!self.ready && e.type === "dragend" && e.gesture.velocityX >= Hammer.gestures.Swipe.defaults.swipe_velocity) return;
+        if (!self.ready && e.type === "release" && e.gesture.velocityX >= Hammer.gestures.Swipe.defaults.swipe_velocity) return;
         
         // if (/^(zoom_icon|dot|thumbnail)$/.test(targetComponent) && self.interrupted) {
         //           var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
@@ -408,8 +408,7 @@ soysauce.carousels = (function() {
         //           return;
         //         }
         
-        
-        if (self.lockScroll && e.type === "dragend") {
+        if (self.lockScroll && e.type === "release") {
           self.ready = true;
           self.container.attr("data-ss-state", "ready");
           self.lockScroll = false;
