@@ -6,7 +6,7 @@ soysauce.carousels = (function() {
   var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
   var PINCH_SENSITIVITY = 1500; // lower to increase sensitivity for pinch zoom
   var PREFIX = soysauce.getPrefix();
-  var SWIPE_THRESHOLD = 60;
+  var SWIPE_THRESHOLD = 100;
   
   function Carousel(selector) {
     var options;
@@ -395,7 +395,7 @@ soysauce.carousels = (function() {
       this.container.hammer().on("touch release drag swipe", function(e) {
         var targetComponent = $(e.target).attr("data-ss-component");
         
-        if (!self.ready && e.type === "release" && e.gesture.velocityX >= Hammer.gestures.Swipe.defaults.swipe_velocity) return;
+        if (e.type === "swipe" && e.gesture.eventType === "end") return;
         
         // if (/^(zoom_icon|dot|thumbnail)$/.test(targetComponent) && self.interrupted) {
         //           var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
@@ -436,10 +436,11 @@ soysauce.carousels = (function() {
         }
         
         if (e.gesture.eventType === "end") {
-          var doSwipe = (/swipe/.test(e.type) || Math.abs(e.gesture.deltaX) >= SWIPE_THRESHOLD) ? true : false;
+          var swiped = (e.gesture.velocityX >= Hammer.gestures.Swipe.defaults.swipe_velocity) ? true : false;
+          var doSwipe = (swiped || e.gesture.distance >= SWIPE_THRESHOLD) ? true : false;
 
           self.ready = true;
-          self.container.attr("data-ss-state", "ready");
+          self.container.attr("data-ss-state", "intransit");
           
           if (doSwipe && e.gesture.direction === "left") {
             if (!self.infinite && ((self.index === self.numChildren - 1) 
