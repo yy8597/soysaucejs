@@ -4,7 +4,6 @@ soysauce.carousels = (function() {
   var DEFAULT_SCALE = 2; // on initial zoom
   var PEEK_WIDTH = 20;
   var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
-  var PINCH_SENSITIVITY = 1500; // lower to increase sensitivity for pinch zoom
   var PREFIX = soysauce.getPrefix();
   var SWIPE_THRESHOLD = 100;
   
@@ -75,7 +74,6 @@ soysauce.carousels = (function() {
     this.panCoordsStart = {x:0, y:0};
     this.panning = false;
     this.zoomIcon;
-    this.pinch = false;
     this.scale;
 
     // Multi Item Variables
@@ -118,9 +116,6 @@ soysauce.carousels = (function() {
         case "zoom":
           self.zoom = true;
           break;
-        case "pinch":
-          self.pinch = true;
-          break
         case "multi":
           self.multi = true;
           break;
