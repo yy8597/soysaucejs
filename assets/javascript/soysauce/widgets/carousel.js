@@ -143,10 +143,6 @@ soysauce.carousels = (function() {
           break;
       }
     });
-
-    if (this.swipe) this.widget.find("a").click(function(e) {
-      soysauce.stifle(e);
-    });
     
     this.widgetWidth = this.widget.outerWidth();
     this.widget.wrapInner("<div data-ss-component='container' />");
