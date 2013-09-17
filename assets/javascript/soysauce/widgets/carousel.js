@@ -354,144 +354,14 @@ soysauce.carousels = (function() {
       });
     }
 
-    if (this.swipe || this.zoom) {
+    if (this.swipe) {
       this.container.hammer().on("touch release drag swipe", function(e) {
-        var targetComponent = $(e.target).attr("data-ss-component");
-        
-        if (e.type === "swipe" && e.gesture.eventType === "end") return;
-        
-        // if (/^(zoom_icon|dot|thumbnail)$/.test(targetComponent) && self.interrupted) {
-        //           var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
-        //           if (currXPos === self.offset) {
-        //             self.interrupted = false;
-        //           }
-        //         }
-        // 
-        //         if (self.jumping || self.freeze || /^(button|dot|dots|thumbnail)$/.test(targetComponent)) {
-        //           return;
-        //         }
-        
-        if (self.lockScroll && e.type === "release") {
-          self.ready = true;
-          self.container.attr("data-ss-state", "ready");
-          self.lockScroll = false;
-          setTranslate(self.container[0], self.offset);
-          return;
-        }
-        
-        self.lockScroll = (self.lockScroll || Math.abs(e.gesture.angle) >= 75 && Math.abs(e.gesture.angle) <= 105) ? true : false;
-        
-        if (self.lockScroll) {
-          return;
-        }
-        
-        if (!self.ready && e.type === "touch") {
-          self.interruptedOffset = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
-          self.interrupted = true;
-          self.container.attr("data-ss-state", "notransition");
-          self.widget.attr("data-ss-state", "intransit");
-          setTranslate(self.container[0], self.interruptedOffset);
-          return;
-        }
-        
-        if (e.type !== "touch") {
-          soysauce.stifle(e);
-        }
-        
-        if (e.gesture.eventType === "end") {
-          var swiped = (e.gesture.velocityX >= Hammer.gestures.Swipe.defaults.swipe_velocity) ? true : false;
-          var doSwipe = (swiped || e.gesture.distance >= SWIPE_THRESHOLD) ? true : false;
-
-          self.ready = true;
-          self.container.attr("data-ss-state", "intransit");
-          
-          if (doSwipe && e.gesture.direction === "left") {
-            if (!self.infinite && ((self.index === self.numChildren - 1) 
-            || (self.multi && self.index === self.maxIndex - Math.floor(self.multiVars.numItems / self.multiVars.stepSize)))) {
-              if (self.multi)  {
-                if (self.index === self.maxIndex - 1) {
-                  self.gotoPos(self.offset);
-                }
-                else {
-                  self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
-                }
-              }
-              else {
-                self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
-              }
-            }
-            else {
-              if (soysauce.vars.degrade) {
-                self.rewindCoord = parseInt(self.container.css("left"), 10);
-              }
-              self.slideForward();
-            }
-          }
-          else if (doSwipe && e.gesture.direction === "right") {
-            if (!self.infinite && self.index === 0) {
-              self.gotoPos(self.peekWidth);
-            }
-            else {
-              if (soysauce.vars.degrade) {
-                self.rewindCoord = parseInt(self.container.css("left"), 10);
-              }
-              self.slideBackward();
-            }
-          }
-          else {
-            setTranslate(self.container[0], self.offset);
-          }
-        }
-        else if (e.gesture.eventType === "move") {
-          self.container.attr("data-ss-state", "notransition");
-          self.widget.attr("data-ss-state", "intransit");
-          
-          if (self.interrupted) {
-            setTranslate(self.container[0], self.interruptedOffset + e.gesture.deltaX);
-          }
-          else {
-            setTranslate(self.container[0], self.offset + e.gesture.deltaX);
-          }
-        }
+        self.handleSwipe(e);
       });
-      // this.widget.on("touchstart mousedown", function(e) {
-      //         var targetComponent = $(e.target).attr("data-ss-component");
-      // 
-      //         if (/^(zoom_icon|dot|thumbnail)$/.test(targetComponent) && self.interrupted) {
-      //           var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
-      //           if (currXPos === self.offset) {
-      //             self.interrupted = false;
-      //           }
-      //         }
-      // 
-      //         if (self.jumping || self.freeze || /^(button|dot|dots|thumbnail)$/.test(targetComponent)) {
-      //           return;
-      //         }
-      // 
-      //         self.handleSwipe(e);
-      //       });
     }
 
     this.container.on(TRANSITION_END, function(e) {
-      if (Math.abs(e.timeStamp - self.lastTransitionEnd) < 300) return;
-
-      self.lastTransitionEnd = e.timeStamp;
-      self.widget.trigger("slideEnd");
-      self.ready = true;
-      self.jumping = false;
-      self.interrupted = false;
-      self.container.attr("data-ss-state", "ready");
-      self.widget.attr("data-ss-state", "ready");
-
-      if (self.autoscroll && self.autoscrollRestartID === undefined) {
-        self.autoscrollRestartID = window.setTimeout(function() {
-          self.autoscrollOn();
-        }, 1000);
-      }
-      
-      if (self.autoheight) {
-        self.widget.css("height", $(self.items[self.index]).outerHeight(true));
-      }
+      self.setTransitionedStates(e);
     });
     
     if (this.autoscroll) {
@@ -520,6 +390,96 @@ soysauce.carousels = (function() {
         }
       });
   } // End Constructor
+  
+  Carousel.prototype.handleSwipe = function(e) {
+    var targetComponent = $(e.target).attr("data-ss-component");
+    var self = this;
+    
+    if (e.type === "swipe" && e.gesture.eventType === "end" || self.jumping || self.freeze) return;
+    
+    if (self.lockScroll && e.type === "release") {
+      self.ready = true;
+      self.container.attr("data-ss-state", "ready");
+      self.lockScroll = false;
+      setTranslate(self.container[0], self.offset);
+      return;
+    }
+    
+    self.lockScroll = (self.lockScroll || Math.abs(e.gesture.angle) >= 75 && Math.abs(e.gesture.angle) <= 105) ? true : false;
+    
+    if (self.lockScroll) {
+      return;
+    }
+    
+    if (!self.ready && e.type === "touch") {
+      self.interruptedOffset = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
+      self.interrupted = true;
+      self.container.attr("data-ss-state", "notransition");
+      self.widget.attr("data-ss-state", "intransit");
+      setTranslate(self.container[0], self.interruptedOffset);
+      return;
+    }
+    
+    if (e.type !== "touch") {
+      soysauce.stifle(e);
+    }
+    
+    if (e.gesture.eventType === "end") {
+      var swiped = (e.gesture.velocityX >= Hammer.gestures.Swipe.defaults.swipe_velocity) ? true : false;
+      var doSwipe = (swiped || e.gesture.distance >= SWIPE_THRESHOLD) ? true : false;
+
+      self.ready = true;
+      self.container.attr("data-ss-state", "intransit");
+      
+      if (doSwipe && e.gesture.direction === "left") {
+        if (!self.infinite && ((self.index === self.numChildren - 1) 
+        || (self.multi && self.index === self.maxIndex - Math.floor(self.multiVars.numItems / self.multiVars.stepSize)))) {
+          if (self.multi)  {
+            if (self.index === self.maxIndex - 1) {
+              self.gotoPos(self.offset);
+            }
+            else {
+              self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
+            }
+          }
+          else {
+            self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
+          }
+        }
+        else {
+          if (soysauce.vars.degrade) {
+            self.rewindCoord = parseInt(self.container.css("left"), 10);
+          }
+          self.slideForward();
+        }
+      }
+      else if (doSwipe && e.gesture.direction === "right") {
+        if (!self.infinite && self.index === 0) {
+          self.gotoPos(self.peekWidth);
+        }
+        else {
+          if (soysauce.vars.degrade) {
+            self.rewindCoord = parseInt(self.container.css("left"), 10);
+          }
+          self.slideBackward();
+        }
+      }
+      else {
+        setTranslate(self.container[0], self.offset);
+      }
+    }
+    else if (e.gesture.eventType === "move") {
+      self.container.attr("data-ss-state", "notransition");
+      self.widget.attr("data-ss-state", "intransit");
+      
+      if (self.interrupted) {
+        setTranslate(self.container[0], self.interruptedOffset + e.gesture.deltaX);
+      }
+      else {
+        setTranslate(self.container[0], self.offset + e.gesture.deltaX);
+      }
+    }
+  };
   
   Carousel.prototype.gotoPos = function(x, jumping, resettingPosition) {
     var self = this;
@@ -1370,6 +1330,30 @@ soysauce.carousels = (function() {
     this.index = index;
 
     return true;
+  };
+  
+  Carousel.prototype.setTransitionedStates = function(e) {
+    var self = this;
+    
+    if (Math.abs(e.timeStamp - self.lastTransitionEnd) < 300) return;
+
+    self.lastTransitionEnd = e.timeStamp;
+    self.widget.trigger("slideEnd");
+    self.ready = true;
+    self.jumping = false;
+    self.interrupted = false;
+    self.container.attr("data-ss-state", "ready");
+    self.widget.attr("data-ss-state", "ready");
+
+    if (self.autoscroll && self.autoscrollRestartID === undefined) {
+      self.autoscrollRestartID = window.setTimeout(function() {
+        self.autoscrollOn();
+      }, 1000);
+    }
+    
+    if (self.autoheight) {
+      self.widget.css("height", $(self.items[self.index]).outerHeight(true));
+    }
   };
   
   // Helper Functions
