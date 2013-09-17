@@ -14,7 +14,6 @@ soysauce.carousels = (function() {
     var wrapper;
     var dotsHtml = "";
     var numDots;
-    var thumbnails;
 
     // Base Variables
     this.widget = $(selector);
@@ -79,9 +78,6 @@ soysauce.carousels = (function() {
     this.pinch = false;
     this.scale;
 
-    // Thumbnail Variables
-    this.thumbs = false;
-
     // Multi Item Variables
     this.multi = false;
     this.multiVars = {
@@ -125,9 +121,6 @@ soysauce.carousels = (function() {
         case "pinch":
           self.pinch = true;
           break
-        case "thumbs":
-          self.thumbs = true;
-          break;
         case "multi":
           self.multi = true;
           break;
@@ -244,39 +237,11 @@ soysauce.carousels = (function() {
 
     this.links = (!this.items[0].tagName.match(/^a$/i) && !this.items.find("a[href]").length) ? false : true;
 
-    if (this.thumbs) {
-      var c = 0;
-
-      if (this.container.find("[data-ss-component='thumbnail']").length > 0) return;
-
-      this.items.each(function(i, item){ 
-        var src = (/img/i.test(item.tagName)) ? $(this).attr("src") : $(this).find("img").attr("src");
-
-        ++c;
-
-        // Skip first and last, as they are clones.
-        if (self.infinite && (c === 1 || c === self.numChildren)) {
-          return; 
-        }
-
-        self.container.append("<img data-ss-component='thumbnail' src='" + src + "'>");
-      });
-    }
-
     numDots = (this.infinite) ? this.numChildren - 2 : this.numChildren;
     numDots = (this.multi) ? this.maxIndex : numDots;
-    thumbnails = this.container.find("[data-ss-component='thumbnail']");
 
-    if (thumbnails.length > 0) {
-      thumbnails.each(function(i, thumbnail) {
-        dotsHtml += "<div data-ss-component='dot'>" + thumbnail.outerHTML + "</div>";
-        $(this).remove();
-      });
-    }
-    else {
-      for (i = 0; i < numDots; i++) {
-        dotsHtml += "<div data-ss-component='dot'></div>";
-      }
+    for (i = 0; i < numDots; i++) {
+      dotsHtml += "<div data-ss-component='dot'></div>";
     }
 
     this.dots.html(dotsHtml);
