@@ -53,8 +53,7 @@ soysauce.carousels = (function() {
     this.looping = false;
     this.rewindCoord = 0;
 
-    // Fullscreen & Peek Variables
-    this.fullscreen = true;
+    // Peek Variables
     this.peek = false;
     this.peekWidth = 0;
     this.peekAlign;
@@ -116,9 +115,6 @@ soysauce.carousels = (function() {
           break;
         case "autoscroll":
           self.autoscroll = true;
-          break;
-        case "nofullscreen":
-          self.fullscreen = false;
           break;
         case "noswipe":
           self.swipe = false;
@@ -774,17 +770,19 @@ soysauce.carousels = (function() {
   
   Carousel.prototype.handleResize = function() {
     var parentWidgetContainer;
-    
+    var diff = 0;
+    var prevState = "";
+
     this.widgetWidth = this.widget.outerWidth();
-    
+
     // Assumption: parent is a toggler
     if (!this.widgetWidth) parentWidgetContainer = this.widget.parents().closest("[data-ss-widget='toggler'] [data-ss-component='content']");
-    
+
     if (parentWidgetContainer) {
       parentWidgetContainer.css("display", "block");
       this.widgetWidth = this.widgetWidth || parentWidgetContainer.outerWidth();
     }
-    
+
     if (this.fade) {
       return;
     }
@@ -796,41 +794,38 @@ soysauce.carousels = (function() {
       this.itemWidth = this.widgetWidth / this.multiVars.numItems;
     }
 
-    if (this.fullscreen) {
-      var diff;
-      var prevState = this.container.attr("data-ss-state");
+    prevState = this.container.attr("data-ss-state");
 
-      if (this.multi) {
-        diff = this.widgetWidth - (this.itemWidth * this.multiVars.numItems);
-      }
-      else {
-        diff = this.widgetWidth - this.itemWidth;
-      }
-
-      if (this.peek) {
-        this.itemWidth -= this.peekWidth*2;
-        this.checkPanLimits();
-      }
-
-      this.itemWidth += diff;
-      
-      if (this.peek && /left/.test(this.peekAlign)) {
-        this.offset = -this.index * this.itemWidth;
-      }
-      else {
-        this.offset = -this.index * this.itemWidth + this.peekWidth;
-      }
-      
-      this.container.attr("data-ss-state", "notransition");
-      this.widget.attr("data-ss-state", "intransit");
-
-      this.items.css("width", this.itemWidth + "px");
-
-      setTranslate(this.container[0], this.offset);
+    if (this.multi) {
+      diff = this.widgetWidth - (this.itemWidth * this.multiVars.numItems);
+    }
+    else {
+      diff = this.widgetWidth - this.itemWidth;
     }
 
+    if (this.peek) {
+      this.itemWidth -= this.peekWidth*2;
+      this.checkPanLimits();
+    }
+
+    this.itemWidth += diff;
+
+    if (this.peek && /left/.test(this.peekAlign)) {
+      this.offset = -this.index * this.itemWidth;
+    }
+    else {
+      this.offset = -this.index * this.itemWidth + this.peekWidth;
+    }
+
+    this.container.attr("data-ss-state", "notransition");
+    this.widget.attr("data-ss-state", "intransit");
+
+    this.items.css("width", this.itemWidth + "px");
+
+    setTranslate(this.container[0], this.offset);
+
     this.container.css("width", (this.itemWidth * this.numChildren) + "px");
-    
+
     if (this.autoheight) {
       this.widget.css("height", $(this.items[this.index]).outerHeight(true));
     }
