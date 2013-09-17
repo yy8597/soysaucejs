@@ -9,7 +9,12 @@ soysauce.init = function(selector, manual) {
   fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='dots']";
   
   $(fastclickSelectors).each(function() {
-    soysauce.vars.fastclick.push(FastClick.attach(this));
+    try {
+      soysauce.vars.fastclick.push(FastClick.attach(this));
+    }
+    catch(e) {
+      console.warn("Soysauce: Could not attach Fastclick listener on soysauce component. " + e.message);
+    }
   });
   
   if (!selector) {
