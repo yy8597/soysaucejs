@@ -11,15 +11,13 @@
   z-index: 1000;
   &[data-ss-state="active"] {
     opacity: 0.7;
-    [data-ss-component] {
-      display: block;
-    }
   }
-  [data-ss-component] {
-    display: none;
+  &:not([data-ss-state]) > [data-ss-component] {
+    opacity: 0;
   }
   [data-ss-component="close"] {
     @include border-radius(5px);
+    @include transition(opacity 0.3s ease-in-out);
     position: absolute;
     color: white;
     padding: 5px;
@@ -27,5 +25,14 @@
     top: 5px;
     right: 5px;
     z-index: 1100;
+    opacity: 1;
+  }
+  [data-ss-component="content"] {
+    position: relative;
+    z-index: 1100;
+    top: 60px;
+    > [data-ss-widget="carousel"] {
+      margin: 0 auto;
+    }
   }
 }
