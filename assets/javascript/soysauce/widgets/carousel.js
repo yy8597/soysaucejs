@@ -355,6 +355,15 @@ soysauce.carousels = (function() {
     }
 
     if (this.swipe) {
+      // Temporary Fix - Fixes iOS 7 swipe issue
+      var $ios7fix = $("#ios7fix");
+      if (!$ios7fix.length) {
+        $("body").append("<div id='ios7fix' style='color: transparent; z-index: -1; height: 1px; width: 1px; position: absolute; top: 0; left: 0;'></div>");
+      } 
+      this.container.on("touchmove touchend", function(e) {
+        $ios7fix.html(e.type);
+      });
+      // end of temp fix
       this.container.hammer().on("touch release drag swipe", function(e) {
         self.handleSwipe(e);
       });
