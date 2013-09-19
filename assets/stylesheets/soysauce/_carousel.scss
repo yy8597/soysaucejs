@@ -9,14 +9,20 @@
     max-width: 100%;
     -webkit-user-drag: none;
   }
-  &:not([data-ss-options*="nofullscreen"]) img {
+  img {
     width: 100%;
+    margin: 0 auto;
   }
   [data-ss-component="item"] {
     list-style-type: none;
     float: left;
     &[data-ss-state="active"] {
       z-index: 6;
+    }
+  }
+  &[data-ss-options*="overlay"] {
+    [data-ss-component="item"][data-ss-state="active"] {
+      @include transition(transform .2s cubic-bezier(0.15, 0.3, 0.3, 2.2));
     }
   }
   [data-ss-component="loader"] {
