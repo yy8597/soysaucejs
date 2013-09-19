@@ -102,7 +102,7 @@ soysauce.lazyloader = (function() {
         
         self.timeStamp = e.timeStamp;
         
-        if ((self.hover && self.continueProcessing) || (windowPosition > widgetPositionThreshold) && Math.abs(e.timeStamp - soysauce.browserInfo.pageLoad) > 1500) {
+        if ((self.hover && self.continueProcessing) || (windowPosition > widgetPositionThreshold) && Math.abs(e.timeStamp - soysauce.browser.pageLoad) > 1500) {
           if (self.hover) {
             if (self.items.length && (windowPosition > self.items.first().offset().top)) {
               self.continueProcessing = true;

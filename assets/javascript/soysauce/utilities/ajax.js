@@ -1,6 +1,6 @@
 soysauce.ajax = function(url, forceAjax, callback) {
   var result = false;
-  if (soysauce.browserInfo.supportsSessionStorage && sessionStorage[url]) {
+  if (soysauce.browser.supportsSessionStorage && sessionStorage[url]) {
     try {
       result = JSON.parse(sessionStorage[url]);
       if (!forceAjax) return result;
