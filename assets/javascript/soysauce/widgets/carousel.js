@@ -126,6 +126,10 @@ soysauce.carousels = (function() {
       }
     });
     
+    if (this.multi) {
+      this.infinite = false;
+    }
+    
     this.widgetWidth = this.widget.outerWidth();
     this.widget.wrapInner("<div data-ss-component='container' />");
     this.widget.wrapInner("<div data-ss-component='container_wrapper' />");
