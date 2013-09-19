@@ -3,8 +3,9 @@ soysauce.carousels = (function() {
   var AUTOSCROLL_INTERVAL = 5000;
   var PEEK_WIDTH = 20;
   var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
-  var PREFIX = soysauce.getPrefix();
+  var VENDOR_PREFIX = soysauce.getPrefix();
   var SWIPE_THRESHOLD = 100;
+  var ZOOM_SENSITIVITY = 0.2;
   
   function Carousel(selector) {
     var options;
@@ -19,6 +20,7 @@ soysauce.carousels = (function() {
     this.maxIndex;
     this.container;
     this.items;
+    this.currentItem;
     this.itemPadding;
     this.dots;
     this.numChildren = 0;
@@ -57,16 +59,17 @@ soysauce.carousels = (function() {
 
     // Swipe Variables
     this.swipe = true;
-
-    // Misc Variables
-    this.coords1x = 0;
-    this.coords1y = 0;
+    this.swiping = false;
 
     // Zoom Variables
     this.zoom = false;
     this.zoomIcon;
     this.overlay = false;
     this.isZoomed = false;
+    this.zoomElement = null;
+    this.zoomScale = 1;
+    this.zoomScaleStart = 1;
+    this.pinchEventsReady = false;
 
     // Multi Item Variables
     this.multi = false;
@@ -212,7 +215,7 @@ soysauce.carousels = (function() {
     this.dots.attr("data-ss-state", "inactive")
     this.dots.first().attr("data-ss-state", "active");
     this.dots.on("click", function(e) {
-      var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
+      var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(VENDOR_PREFIX + "transform"))[4], 10);
       var index = 0;
 
       if (currXPos === self.offset) {
@@ -320,16 +323,18 @@ soysauce.carousels = (function() {
 
     if (this.swipe) {
       // Temporary Fix - Fixes iOS 7 swipe issue
-      var $ios7fix = $("#ios7fix");
-      if (!$ios7fix.length) {
-        $("body").append("<div id='ios7fix' style='color: transparent; z-index: -1; height: 1px; width: 1px; position: absolute; top: 0; left: 0;'></div>");
-      } 
-      this.container.on("touchmove touchend", function(e) {
-        $ios7fix.html(e.type);
-      });
+      if (/iphone os 7/i.test(navigator.userAgent)) {
+        var $ios7fix = $("#ios7fix");
+        if (!$ios7fix.length) {
+          $("body").append("<div id='ios7fix' style='color: transparent; z-index: -1; height: 1px; width: 1px; position: absolute; top: 0; left: 0;'></div>");
+        } 
+        this.container.on("touchmove touchend", function(e) {
+          $ios7fix.html(e.type);
+        });
+      }
       // end of temp fix
       this.container.hammer().on("touch release drag swipe", function(e) {
-        if (self.freeze || e.gesture.touches.length > 1) return;
+        if (self.freeze) return;
         self.handleSwipe(e);
       });
     }
@@ -341,9 +346,12 @@ soysauce.carousels = (function() {
         self.zoomIn(e);
       });
     }
+    
+    this.currentItem = $(this.items.get(self.index));
 
     if (this.overlay) {
-      this.container.hammer().on("touch", function(e) {
+      this.zoomElement = this.currentItem;
+      this.container.hammer().on("pinch", function(e) {
         if (e.gesture.touches.length !== 2) return;
         self.handleZoom(e);
       });
@@ -378,26 +386,57 @@ soysauce.carousels = (function() {
       });
   } // End Constructor
   
-  Carousel.prototype.handleZoom = function(touchEvent) {
+  Carousel.prototype.handleZoom = function(e) {
     var self = this;
     
-    soysauce.overlay.hideAssets();
+    if (this.swiping) return;
     
-    this.container.hammer().one("release", function(releaseEvent) {
-      soysauce.stifle(releaseEvent);
-      window.setTimeout(function() {
-        if (window.innerWidth < screen.width) {
-          self.handleFreeze();
-        }
-        else {
+    // To be implemented:
+    //  * center focused zooming
+    //  * panning
+    if (!this.pinchEventsReady) {
+      this.zoomElement = this.currentItem;
+      this.zoomElement.attr("data-ss-state", "zooming");
+      this.handleFreeze();
+      soysauce.overlay.hideAssets();
+      this.container.one("touchend", function() {
+        self.zoomElement.attr("data-ss-state", "active");
+      });
+      this.container.hammer().one("release", function(releaseEvent) {
+        soysauce.stifle(releaseEvent);
+        
+        if (self.zoomScale <= 1) {
+          self.zoomScale = 1;
           self.handleUnfreeze();
           soysauce.overlay.showAssets();
         }
-      }, 0);
-    });
+        else if (self.zoomScale >= 2) {
+          self.zoomScale = 2;
+        }
+        
+        self.zoomScaleStart = self.zoomScale;
+        self.pinchEventsReady = false;
+        
+        setMatrix(self.zoomElement[0], self.zoomScale);
+      });
+      this.pinchEventsReady = true;
+    }
+
+    if (e.gesture.scale < 1) {
+      this.zoomScale = this.zoomScaleStart - ((this.zoomScaleStart - e.gesture.scale) * (1 - ZOOM_SENSITIVITY));
+    }
+    else {
+      this.zoomScale = ((e.gesture.scale - 1) * (1 - ZOOM_SENSITIVITY)) + this.zoomScaleStart;
+    }
+    
+    this.zoomScale = (this.zoomScale < 0.3) ? 0.3 : this.zoomScale;
+    this.zoomElement.attr("data-ss-state", "zooming");
+
+    setMatrix(this.zoomElement[0], this.zoomScale);
   };
   
   Carousel.prototype.zoomIn = function(e) {
+    if (this.overlay) return;
     soysauce.stifle(e);
     soysauce.overlay.injectCarousel(this, {
       "background": "black",
@@ -405,36 +444,59 @@ soysauce.carousels = (function() {
     });
   };
   
+  Carousel.prototype.resetZoomState = function() {
+    this.zoomElement.css((VENDOR_PREFIX + "transform"), "");
+    this.zoomScale = 1;
+    this.zoomScaleStart = 1;
+    this.zoomElement = this.currentItem;
+  };
+  
   Carousel.prototype.handleSwipe = function(e) {
     var targetComponent = $(e.target).attr("data-ss-component");
     var self = this;
     
-    if (e.type === "swipe" && e.gesture.eventType === "end" || self.jumping || self.freeze || self.zoomed || self.zooming) return;
-    
-    if (self.lockScroll && e.type === "release") {
+    if (self.jumping || self.freeze || self.looping) return;
+
+    if (e.type === "swipe" && e.gesture.eventType === "end" && !self.ready) {
       self.ready = true;
+      self.interrupted = false;
+      self.swiping = false;
+      self.widget.attr("data-ss-state", "ready");
       self.container.attr("data-ss-state", "ready");
-      self.lockScroll = false;
-      setTranslate(self.container[0], self.offset);
       return;
     }
     
-    self.lockScroll = (self.lockScroll || Math.abs(e.gesture.angle) >= 75 && Math.abs(e.gesture.angle) <= 105) ? true : false;
+    if (self.lockScroll && e.type === "release") {
+      self.lockScroll = false;
+      self.widget.attr("data-ss-state", "ready");
+      self.container.attr("data-ss-state", "ready");
+      window.setTimeout(function() {
+        setTranslate(self.container[0], self.offset);
+      }, 0);
+      return;
+    }
     
     if (self.lockScroll) {
       return;
     }
     
+    self.lockScroll = (Math.abs(e.gesture.angle) >= 75 && Math.abs(e.gesture.angle) <= 105) ? true : false;
+    
+    if (self.lockScroll) {
+      return;
+    }
+
     if (!self.ready && e.type === "touch") {
-      self.interruptedOffset = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
+      self.interruptedOffset = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(VENDOR_PREFIX + "transform"))[4], 10);
       self.interrupted = true;
+      self.looping = false;
       self.container.attr("data-ss-state", "notransition");
       self.widget.attr("data-ss-state", "intransit");
       setTranslate(self.container[0], self.interruptedOffset);
       return;
     }
     
-    if (e.type !== "touch") {
+    if (e.type !== "touch" && !self.overlay) {
       soysauce.stifle(e);
     }
     
@@ -443,6 +505,9 @@ soysauce.carousels = (function() {
       var doSwipe = (swiped || e.gesture.distance >= SWIPE_THRESHOLD) ? true : false;
 
       self.ready = true;
+      self.swiping = false;
+      
+      self.widget.attr("data-ss-state", "intransit");
       self.container.attr("data-ss-state", "intransit");
       
       if (doSwipe && e.gesture.direction === "left") {
@@ -483,6 +548,9 @@ soysauce.carousels = (function() {
       }
     }
     else if (e.gesture.eventType === "move") {
+      self.swiping = true;
+      self.ready = false;
+      
       self.container.attr("data-ss-state", "notransition");
       self.widget.attr("data-ss-state", "intransit");
       
@@ -498,36 +566,37 @@ soysauce.carousels = (function() {
   Carousel.prototype.gotoPos = function(x, jumping, resettingPosition) {
     var self = this;
 
+    if (this.overlay) {
+      this.currentItem = $(this.items.get(self.index));
+      this.resetZoomState();
+    }
+
     this.offset = x;
     setTranslate(this.container[0], x);
     
-    if (this.ready) {
-      this.container.attr("data-ss-state", "ready");
-      this.widget.attr("data-ss-state", "ready");
-    }
-    else {
-      this.container.attr("data-ss-state", "intransit");
-      this.widget.attr("data-ss-state", "intransit");
-    }
+    this.container.attr("data-ss-state", "intransit");
+    this.widget.attr("data-ss-state", "intransit");
+    this.ready = true;
     
-    if (self.autoscroll) {
-      self.autoscrollOff();
-      if (self.autoscrollRestartID) {
+    if (this.autoscroll) {
+      this.autoscrollOff();
+      if (this.autoscrollRestartID) {
         window.clearInterval(self.autoscrollRestartID);
-        self.autoscrollRestartID = null;
+        this.autoscrollRestartID = null;
       }
     }
     
     if (this.infinite) {
       var duration = 0, xcoord = 0;
       
-      duration = parseFloat(this.container.css(PREFIX + "transition-duration").replace(/s$/,"")) * 1000;
+      duration = parseFloat(this.container.css(VENDOR_PREFIX + "transition-duration").replace(/s$/,"")) * 1000;
       
       duration = (!duration) ? 650 : duration;
       // Slide Backward Rewind
       if (!resettingPosition && !jumping && this.index === this.numChildren - 2 && !this.forward) {
+        this.looping = true;
         this.infiniteID = window.setTimeout(function() {
-          xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
+          xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(VENDOR_PREFIX + "transform"))[4], 10);
           self.container.attr("data-ss-state", "notransition");
           self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
           setTranslate(self.container[0], self.offset);
@@ -540,13 +609,15 @@ soysauce.carousels = (function() {
               self.offset = -self.index*self.itemWidth + self.peekWidth;
             }
             setTranslate(self.container[0], self.offset);
+            self.looping = false;
           }, 0);
         }, 0);
       }
       // Slide Forward Rewind
       else if (!resettingPosition && !jumping && this.index === 1 && this.forward) {
+        this.looping = true;
         this.infiniteID = window.setTimeout(function() {
-          xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
+          xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(VENDOR_PREFIX + "transform"))[4], 10);
           self.container.attr("data-ss-state", "notransition");
           self.offset = self.itemWidth*(self.numChildren - 2) + xcoord;
           setTranslate(self.container[0], self.offset);
@@ -559,6 +630,7 @@ soysauce.carousels = (function() {
               self.offset = -self.itemWidth + self.peekWidth;
             }
             setTranslate(self.container[0], self.offset);
+            self.looping = false;
           }, 0);
         }, 0);
       }
@@ -693,6 +765,8 @@ soysauce.carousels = (function() {
     var parentWidgetContainer;
     var diff = 0;
     var prevState = "";
+    
+    if (this.widget.is(":hidden") && !this.defer) return;
 
     this.widgetWidth = this.widget.outerWidth();
 
@@ -707,7 +781,7 @@ soysauce.carousels = (function() {
     if (this.fade) {
       return;
     }
-
+    
     if (this.multi) {
       if (this.multiVars.minWidth) {
         this.multiVars.numItems = Math.floor(this.widgetWidth / this.multiVars.minWidth)
@@ -855,6 +929,8 @@ soysauce.carousels = (function() {
     self.ready = true;
     self.jumping = false;
     self.interrupted = false;
+    self.swiping = false;
+    self.looping = false;
     self.container.attr("data-ss-state", "ready");
     self.widget.attr("data-ss-state", "ready");
 
