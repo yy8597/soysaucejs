@@ -131,7 +131,6 @@ soysauce = {
   widgets: new Array(),
   vars: {
     idCount: 0,
-    currentViewportWidth: window.innerWidth,
     degradeAll: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747|SCH-I535/.test(navigator.userAgent)) ? true : false,
     degrade: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent)) ? true : false,
     degrade2: (/SCH-I535/.test(navigator.userAgent)) ? true : false,
@@ -259,6 +258,18 @@ soysauce = {
       catch(err) { 
         return false;
       }
+    }(),
+    orientation: function() {
+      return (window.orientation !== 0) ? "landscape" : "portrait";
+    }(),
+    ios7BarsVisible: function() {
+      if (!/(ipod|iphone).*(7\.0 mobile)/i.test(navigator.userAgent)) return false;
+      if (window.orientation !== 0) {
+        return (window.innerHeight < 320);
+      }
+      else {
+        return (window.innerHeight < 529);
+      }
     }()
   },
   scrollTop: function() {
@@ -269,12 +280,11 @@ soysauce = {
 }
 
 // Widget Resize Handler
-$(window).on("resize orientationchange", function(e) {
-  if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
+$(window).on("orientationchange", function(e) {
+  if (e.type === "orientationchange") {
     if (soysauce.vars.lastResizeID) clearTimeout(soysauce.vars.lastResizeID);
     soysauce.vars.lastResizeID = window.setTimeout(function() {
       soysauce.vars.lastResizeTime = e.timeStamp;
-      soysauce.vars.currentViewportWidth = window.innerWidth;
       soysauce.widgets.forEach(function(widget) {
         if (!widget.handleResize) return;
         widget.handleResize();
