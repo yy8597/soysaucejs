@@ -225,9 +225,7 @@ soysauce = {
   getArrayFromMatrix: function(matrix) {
     return matrix.substr(7, matrix.length - 8).split(', ');
   },
-  browserInfo: {
-    pageLoad: new Date().getTime(),
-    userAgent: navigator.userAgent,
+  browser: {
     supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,
     supportsLocalStorage: function() {
       try { 
