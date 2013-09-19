@@ -58,17 +58,12 @@ soysauce.overlay = (function() {
   };
   
   Overlay.prototype.off = function() {
-    var viewportContent = "";
-    
     if (!this.isOn) return;
     
     this.isOn = false;
     this.overlay.attr("data-ss-state","inactive").removeAttr("style").hide();
     this.content.empty();
     
-    viewportContent = $viewport.attr("content");
-    $viewport.attr("content", viewportContent.replace(/(user-scalable=)([\w\.]+)/, "$1" + "no"));
-    viewportContent = viewportContent.replace(/(maximum-scale=)([\w\.]+)/, "$1" + "1.0");
     $body.css({
       "overflow": "",
       "height": ""
@@ -108,16 +103,12 @@ soysauce.overlay = (function() {
     
     this.overlay.one(TRANSITION_END, function() {
       $carousel.one("SSWidgetReady", function() {
-        var viewportContent = $viewport.attr("content");
         $body.css({
           "overflow": "hidden",
           "height": "100%"
         });
         self.hiddenItems = $body.find("> *:not([data-ss-utility]):not(#ios7fix)");
         self.hiddenItems.hide();
-        viewportContent = viewportContent.replace(/(user-scalable=)([\w\.]+)/, "$1" + "yes");
-        viewportContent = viewportContent.replace(/(maximum-scale=)([\w\.]+)/, "$1" + "4.0");
-        $viewport.attr("content", viewportContent);
       });
       soysauce.init($carousel[0]);
     });
