@@ -456,6 +456,10 @@ soysauce.carousels = (function() {
       
       window.setTimeout(function() {
         setMatrix(self.zoomElement[0], self.zoomScale, self.zoomTranslateX, self.zoomTranslateY);
+        if (self.zoomScale === 1) {
+          self.handleUnfreeze();
+          soysauce.overlay.showAssets();
+        }
       }, 0);
     }
     else {
