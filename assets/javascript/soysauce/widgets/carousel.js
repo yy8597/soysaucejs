@@ -479,6 +479,8 @@ soysauce.carousels = (function() {
 
           if (self.zoomScale <= 1) {
             self.zoomScale = 1;
+            self.zoomTranslateX = 0;
+            self.zoomTranslateY = 0;
             self.handleUnfreeze();
             soysauce.overlay.showAssets();
           }
