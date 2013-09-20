@@ -96,7 +96,7 @@ soysauce.overlay = (function() {
     }
     
     items.removeAttr("data-ss-state").removeAttr("style");
-    this.content.wrapInner("<div data-ss-widget='carousel' data-ss-options='overlay'/>");
+    this.content.wrapInner("<div data-ss-widget='carousel' data-ss-options='overlay' data-ss-index=" + carousel.index + "/>");
     
     $carousel = this.content.find("[data-ss-widget='carousel']");
     $carousel.append(items);
