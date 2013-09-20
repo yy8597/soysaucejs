@@ -410,9 +410,6 @@ soysauce.carousels = (function() {
     
     if (this.swiping) return;
     
-    console.log("type: " + e.type);
-    console.log(e);
-    
     // To be implemented:
     //  * center focused zooming (needs work)
     //  * panning
