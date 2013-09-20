@@ -5,7 +5,7 @@ soysauce.carousels = (function() {
   var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
   var VENDOR_PREFIX = soysauce.getPrefix();
   var SWIPE_THRESHOLD = 100;
-  var ZOOM_SENSITIVITY = 0.2;
+  var ZOOM_SENSITIVITY = 0.8;
   
   function Carousel(selector) {
     var options;
@@ -360,8 +360,8 @@ soysauce.carousels = (function() {
 
     if (this.overlay) {
       this.zoomElement = this.currentItem;
-      this.container.hammer().on("pinch", function(e) {
-        if (e.gesture.touches.length !== 2) return;
+      this.container.hammer().on("pinch doubletap", function(e) {
+        if (!/pinch|doubletap/.test(e.type)) return;
         self.handleZoom(e);
       });
     }
@@ -403,45 +403,73 @@ soysauce.carousels = (function() {
     // To be implemented:
     //  * center focused zooming
     //  * panning
-    if (!this.pinchEventsReady) {
+    
+    if (e.type === "doubletap") {
       this.zoomElement = this.currentItem;
-      this.zoomElement.attr("data-ss-state", "zooming");
+
       this.handleFreeze();
       soysauce.overlay.hideAssets();
-      this.container.one("touchend", function() {
-        self.zoomElement.attr("data-ss-state", "active");
-      });
-      this.container.hammer().one("release", function(releaseEvent) {
-        soysauce.stifle(releaseEvent);
-        
-        if (self.zoomScale <= 1) {
-          self.zoomScale = 1;
-          self.handleUnfreeze();
-          soysauce.overlay.showAssets();
-        }
-        else if (self.zoomScale >= 2) {
-          self.zoomScale = 2;
-        }
-        
-        self.zoomScaleStart = self.zoomScale;
-        self.pinchEventsReady = false;
-        
+      
+      if (this.zoomScale < 1.5) {
+        this.zoomElement.attr("data-ss-state", "zooming");
+        this.zoomScale = 1.5
+      }
+      else if (this.zoomScale < 2.5) {
+        this.zoomElement.attr("data-ss-state", "zooming");
+        this.zoomScale = 2.5;
+      }
+      else {
+        this.zoomElement.attr("data-ss-state", "active");
+        this.zoomScale = 1;
+      }
+      
+      this.zoomScaleStart = this.zoomScale;
+      
+      // get offset coords
+      
+      window.setTimeout(function() {
         setMatrix(self.zoomElement[0], self.zoomScale);
-      });
-      this.pinchEventsReady = true;
-    }
-
-    if (e.gesture.scale < 1) {
-      this.zoomScale = this.zoomScaleStart - ((this.zoomScaleStart - e.gesture.scale) * (1 - ZOOM_SENSITIVITY));
+      }, 0);
     }
     else {
-      this.zoomScale = ((e.gesture.scale - 1) * (1 - ZOOM_SENSITIVITY)) + this.zoomScaleStart;
-    }
-    
-    this.zoomScale = (this.zoomScale < 0.3) ? 0.3 : this.zoomScale;
-    this.zoomElement.attr("data-ss-state", "zooming");
+      if (!this.pinchEventsReady) {
+        this.zoomElement = this.currentItem;
+        this.zoomElement.attr("data-ss-state", "zooming");
 
-    setMatrix(this.zoomElement[0], this.zoomScale);
+        this.handleFreeze();
+        soysauce.overlay.hideAssets();
+        
+        this.container.one("touchend", function() {
+          self.zoomElement.attr("data-ss-state", "active");
+        });
+        
+        this.container.hammer().one("release", function(releaseEvent) {
+          soysauce.stifle(releaseEvent);
+
+          if (self.zoomScale <= 1) {
+            self.zoomScale = 1;
+            self.handleUnfreeze();
+            soysauce.overlay.showAssets();
+          }
+          else if (self.zoomScale >= 4) {
+            self.zoomScale = 4;
+          }
+
+          self.zoomScaleStart = self.zoomScale;
+          self.pinchEventsReady = false;
+
+          setMatrix(self.zoomElement[0], self.zoomScale);
+        });
+        
+        this.pinchEventsReady = true;
+      }
+      
+      this.zoomScale = ((e.gesture.scale - 1) * ZOOM_SENSITIVITY) + this.zoomScaleStart;
+      this.zoomScale = (this.zoomScale < 0.3) ? 0.3 : this.zoomScale;
+      
+      this.zoomElement.attr("data-ss-state", "zooming");
+      setMatrix(this.zoomElement[0], this.zoomScale);
+    }
   };
   
   Carousel.prototype.zoomIn = function(e) {
@@ -505,13 +533,11 @@ soysauce.carousels = (function() {
       return;
     }
     
-    if (e.type !== "touch" && !self.overlay) {
-      soysauce.stifle(e);
-    }
-    
     if (e.gesture.eventType === "end") {
       var swiped = (e.gesture.velocityX >= Hammer.gestures.Swipe.defaults.swipe_velocity) ? true : false;
       var doSwipe = (swiped || e.gesture.distance >= SWIPE_THRESHOLD) ? true : false;
+
+      soysauce.stifle(e);
 
       self.ready = true;
       self.swiping = false;
@@ -557,6 +583,8 @@ soysauce.carousels = (function() {
       }
     }
     else if (e.gesture.eventType === "move") {
+      soysauce.stifle(e);
+      
       self.swiping = true;
       self.ready = false;
       
