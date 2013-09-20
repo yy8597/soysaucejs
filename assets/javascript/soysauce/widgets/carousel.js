@@ -249,9 +249,16 @@ soysauce.carousels = (function() {
     
     this.items.attr("data-ss-state", "inactive");
 
+    this.index = parseInt(this.widget.attr("data-ss-index"), 10) || 0;
+
     if (this.infinite) {
-      $(this.items[1]).attr("data-ss-state", "active");
-      this.index++;
+      if (!this.index) {
+        this.index++;
+      }
+      else if (this.index > this.maxIndex) {
+        this.index = this.maxIndex;
+      }
+      $(this.items[this.index]).attr("data-ss-state", "active");
     }
     else {
       if (this.multi) {
@@ -259,7 +266,7 @@ soysauce.carousels = (function() {
         $items.attr("data-ss-state", "active");
       }
       else {
-        $(this.items[0]).attr("data-ss-state", "active");
+        $(this.items[this.index]).attr("data-ss-state", "active");
       }
     }
     
@@ -296,9 +303,7 @@ soysauce.carousels = (function() {
         self.items.css("width", self.itemWidth + "px");
       }
 
-      if (self.infinite) {
-        self.offset -= self.itemWidth;
-      }
+      self.offset -= (self.itemWidth * self.index);
       
       self.container.attr("data-ss-state", "notransition");
       setTranslate(self.container[0], self.offset);
