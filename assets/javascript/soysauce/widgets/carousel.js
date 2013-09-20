@@ -495,7 +495,7 @@ soysauce.carousels = (function() {
         this.pinchEventsReady = true;
       }
       
-      this.zoomScale = ((e.gesture.scale - 1) * ZOOM_SENSITIVITY) + this.zoomScaleStart;
+      this.zoomScale = (((e.gesture.scale - 1) * ZOOM_SENSITIVITY) * this.zoomScaleStart) + this.zoomScaleStart;
       this.zoomScale = (this.zoomScale < 0.3) ? 0.3 : this.zoomScale;
       
       this.zoomElement.attr("data-ss-state", "zooming");
