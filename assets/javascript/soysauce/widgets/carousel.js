@@ -424,19 +424,21 @@ soysauce.carousels = (function() {
       this.lastZoomTap = e.timeStamp;
 
       this.handleFreeze();
-      soysauce.overlay.hideAssets();
       
       if (this.zoomScale < 1.5) {
         this.zoomElement.attr("data-ss-state", "zooming");
         this.zoomScale = 1.5
+        this.isZoomed = true;
       }
       else if (this.zoomScale < 2.5) {
         this.zoomElement.attr("data-ss-state", "zooming");
         this.zoomScale = 2.5;
+        this.isZoomed = true;
       }
       else {
         this.zoomElement.attr("data-ss-state", "active");
         this.zoomScale = 1;
+        this.isZoomed = false;
       }
       
       this.zoomScaleStart = this.zoomScale;
@@ -453,7 +455,6 @@ soysauce.carousels = (function() {
         setMatrix(self.zoomElement[0], self.zoomScale, self.zoomTranslateX, self.zoomTranslateY);
         if (self.zoomScale === 1) {
           self.handleUnfreeze();
-          soysauce.overlay.showAssets();
         }
       }, 0);
     }
@@ -465,7 +466,6 @@ soysauce.carousels = (function() {
         this.zoomScaleStart = this.zoomScale;
 
         this.handleFreeze();
-        soysauce.overlay.hideAssets();
         
         this.container.one("touchend", function() {
           self.zoomElement.attr("data-ss-state", "active");
@@ -479,12 +479,12 @@ soysauce.carousels = (function() {
             self.zoomTranslateX = 0;
             self.zoomTranslateY = 0;
             self.handleUnfreeze();
-            soysauce.overlay.showAssets();
           }
           else if (self.zoomScale >= 4) {
             self.zoomScale = 4;
           }
-
+          
+          self.isZoomed =  (self.zoomScale <= 1) ? true : false;
           self.zoomScaleStart = self.zoomScale;
           self.pinchEventsReady = false;
 
@@ -537,14 +537,12 @@ soysauce.carousels = (function() {
   };
   
   Carousel.prototype.resetZoomState = function() {
-    this.zoomElement.css((VENDOR_PREFIX + "transform"), "");
     this.zoomTranslateX = 0;
     this.zoomTranslateY = 0;
     this.zoomScale = 1;
     this.zoomScaleStart = 1;
     this.zoomElement = this.currentItem;
-    this.zoomOffsetX = this.zoomElement.offset().left;
-    this.zoomOffsetY = this.zoomElement.offset().top;
+    setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
   };
   
   Carousel.prototype.handleSwipe = function(e) {
@@ -876,6 +874,10 @@ soysauce.carousels = (function() {
 
     if (this.fade) {
       return;
+    }
+    
+    if (this.overlay && this.isZoomed) {
+      this.resetZoomState();
     }
     
     if (this.multi) {
