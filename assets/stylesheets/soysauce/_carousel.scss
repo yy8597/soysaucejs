@@ -22,7 +22,7 @@
   }
   &[data-ss-options*="overlay"] {
     [data-ss-component="item"][data-ss-state="active"] {
-      @include transition(transform .2s cubic-bezier(0.15, 0.3, 0.3, 2.2));
+      @include transition(transform .15s cubic-bezier(0.15, 0.3, 0.3, 1.4));
     }
   }
   [data-ss-component="loader"] {
