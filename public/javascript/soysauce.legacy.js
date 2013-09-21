@@ -760,6 +760,1535 @@ if (typeof define !== 'undefined' && define.amd) {
 	window.FastClick = FastClick;
 }
 
+/*! Hammer.JS - v1.0.5 - 2013-04-07
+ * http://eightmedia.github.com/hammer.js
+ *
+ * Copyright (c) 2013 Jorik Tangelder <j.tangelder@gmail.com>;
+ * Licensed under the MIT license */
+
+(function(window, undefined) {
+    'use strict';
+
+/**
+ * Hammer
+ * use this to create instances
+ * @param   {HTMLElement}   element
+ * @param   {Object}        options
+ * @returns {Hammer.Instance}
+ * @constructor
+ */
+var Hammer = function(element, options) {
+    return new Hammer.Instance(element, options || {});
+};
+
+// default settings
+Hammer.defaults = {
+    // add styles and attributes to the element to prevent the browser from doing
+    // its native behavior. this doesnt prevent the scrolling, but cancels
+    // the contextmenu, tap highlighting etc
+    // set to false to disable this
+    stop_browser_behavior: {
+		// this also triggers onselectstart=false for IE
+        userSelect: 'none',
+		// this makes the element blocking in IE10 >, you could experiment with the value
+		// see for more options this issue; https://github.com/EightMedia/hammer.js/issues/241
+        touchAction: 'none',
+		touchCallout: 'none',
+        contentZooming: 'none',
+        userDrag: 'none',
+        tapHighlightColor: 'rgba(0,0,0,0)'
+    }
+
+    // more settings are defined per gesture at gestures.js
+};
+
+// detect touchevents
+Hammer.HAS_POINTEREVENTS = navigator.pointerEnabled || navigator.msPointerEnabled;
+Hammer.HAS_TOUCHEVENTS = ('ontouchstart' in window);
+
+// dont use mouseevents on mobile devices
+Hammer.MOBILE_REGEX = /mobile|tablet|ip(ad|hone|od)|android/i;
+Hammer.NO_MOUSEEVENTS = Hammer.HAS_TOUCHEVENTS && navigator.userAgent.match(Hammer.MOBILE_REGEX);
+
+// eventtypes per touchevent (start, move, end)
+// are filled by Hammer.event.determineEventTypes on setup
+Hammer.EVENT_TYPES = {};
+
+// direction defines
+Hammer.DIRECTION_DOWN = 'down';
+Hammer.DIRECTION_LEFT = 'left';
+Hammer.DIRECTION_UP = 'up';
+Hammer.DIRECTION_RIGHT = 'right';
+
+// pointer type
+Hammer.POINTER_MOUSE = 'mouse';
+Hammer.POINTER_TOUCH = 'touch';
+Hammer.POINTER_PEN = 'pen';
+
+// touch event defines
+Hammer.EVENT_START = 'start';
+Hammer.EVENT_MOVE = 'move';
+Hammer.EVENT_END = 'end';
+
+// hammer document where the base events are added at
+Hammer.DOCUMENT = document;
+
+// plugins namespace
+Hammer.plugins = {};
+
+// if the window events are set...
+Hammer.READY = false;
+
+/**
+ * setup events to detect gestures on the document
+ */
+function setup() {
+    if(Hammer.READY) {
+        return;
+    }
+
+    // find what eventtypes we add listeners to
+    Hammer.event.determineEventTypes();
+
+    // Register all gestures inside Hammer.gestures
+    for(var name in Hammer.gestures) {
+        if(Hammer.gestures.hasOwnProperty(name)) {
+            Hammer.detection.register(Hammer.gestures[name]);
+        }
+    }
+
+    // Add touch events on the document
+    Hammer.event.onTouch(Hammer.DOCUMENT, Hammer.EVENT_MOVE, Hammer.detection.detect);
+    Hammer.event.onTouch(Hammer.DOCUMENT, Hammer.EVENT_END, Hammer.detection.detect);
+
+    // Hammer is ready...!
+    Hammer.READY = true;
+}
+
+/**
+ * create new hammer instance
+ * all methods should return the instance itself, so it is chainable.
+ * @param   {HTMLElement}       element
+ * @param   {Object}            [options={}]
+ * @returns {Hammer.Instance}
+ * @constructor
+ */
+Hammer.Instance = function(element, options) {
+    var self = this;
+
+    // setup HammerJS window events and register all gestures
+    // this also sets up the default options
+    setup();
+
+    this.element = element;
+
+    // start/stop detection option
+    this.enabled = true;
+
+    // merge options
+    this.options = Hammer.utils.extend(
+        Hammer.utils.extend({}, Hammer.defaults),
+        options || {});
+
+    // add some css to the element to prevent the browser from doing its native behavoir
+    if(this.options.stop_browser_behavior) {
+        Hammer.utils.stopDefaultBrowserBehavior(this.element, this.options.stop_browser_behavior);
+    }
+
+    // start detection on touchstart
+    Hammer.event.onTouch(element, Hammer.EVENT_START, function(ev) {
+        if(self.enabled) {
+            Hammer.detection.startDetect(self, ev);
+        }
+    });
+
+    // return instance
+    return this;
+};
+
+
+Hammer.Instance.prototype = {
+    /**
+     * bind events to the instance
+     * @param   {String}      gesture
+     * @param   {Function}    handler
+     * @returns {Hammer.Instance}
+     */
+    on: function onEvent(gesture, handler){
+        var gestures = gesture.split(' ');
+        for(var t=0; t<gestures.length; t++) {
+            this.element.addEventListener(gestures[t], handler, false);
+        }
+        return this;
+    },
+
+
+    /**
+     * unbind events to the instance
+     * @param   {String}      gesture
+     * @param   {Function}    handler
+     * @returns {Hammer.Instance}
+     */
+    off: function offEvent(gesture, handler){
+        var gestures = gesture.split(' ');
+        for(var t=0; t<gestures.length; t++) {
+            this.element.removeEventListener(gestures[t], handler, false);
+        }
+        return this;
+    },
+
+
+    /**
+     * trigger gesture event
+     * @param   {String}      gesture
+     * @param   {Object}      eventData
+     * @returns {Hammer.Instance}
+     */
+    trigger: function triggerEvent(gesture, eventData){
+        // create DOM event
+        var event = Hammer.DOCUMENT.createEvent('Event');
+		event.initEvent(gesture, true, true);
+		event.gesture = eventData;
+
+        // trigger on the target if it is in the instance element,
+        // this is for event delegation tricks
+        var element = this.element;
+        if(Hammer.utils.hasParent(eventData.target, element)) {
+            element = eventData.target;
+        }
+
+        element.dispatchEvent(event);
+        return this;
+    },
+
+
+    /**
+     * enable of disable hammer.js detection
+     * @param   {Boolean}   state
+     * @returns {Hammer.Instance}
+     */
+    enable: function enable(state) {
+        this.enabled = state;
+        return this;
+    }
+};
+
+/**
+ * this holds the last move event,
+ * used to fix empty touchend issue
+ * see the onTouch event for an explanation
+ * @type {Object}
+ */
+var last_move_event = null;
+
+
+/**
+ * when the mouse is hold down, this is true
+ * @type {Boolean}
+ */
+var enable_detect = false;
+
+
+/**
+ * when touch events have been fired, this is true
+ * @type {Boolean}
+ */
+var touch_triggered = false;
+
+
+Hammer.event = {
+    /**
+     * simple addEventListener
+     * @param   {HTMLElement}   element
+     * @param   {String}        type
+     * @param   {Function}      handler
+     */
+    bindDom: function(element, type, handler) {
+        var types = type.split(' ');
+        for(var t=0; t<types.length; t++) {
+            element.addEventListener(types[t], handler, false);
+        }
+    },
+
+
+    /**
+     * touch events with mouse fallback
+     * @param   {HTMLElement}   element
+     * @param   {String}        eventType        like Hammer.EVENT_MOVE
+     * @param   {Function}      handler
+     */
+    onTouch: function onTouch(element, eventType, handler) {
+		var self = this;
+
+        this.bindDom(element, Hammer.EVENT_TYPES[eventType], function bindDomOnTouch(ev) {
+            var sourceEventType = ev.type.toLowerCase();
+
+            // onmouseup, but when touchend has been fired we do nothing.
+            // this is for touchdevices which also fire a mouseup on touchend
+            if(sourceEventType.match(/mouse/) && touch_triggered) {
+                return;
+            }
+
+            // mousebutton must be down or a touch event
+            else if( sourceEventType.match(/touch/) ||   // touch events are always on screen
+                sourceEventType.match(/pointerdown/) || // pointerevents touch
+                (sourceEventType.match(/mouse/) && ev.which === 1)   // mouse is pressed
+            ){
+                enable_detect = true;
+            }
+
+            // we are in a touch event, set the touch triggered bool to true,
+            // this for the conflicts that may occur on ios and android
+            if(sourceEventType.match(/touch|pointer/)) {
+                touch_triggered = true;
+            }
+
+            // count the total touches on the screen
+            var count_touches = 0;
+
+            // when touch has been triggered in this detection session
+            // and we are now handling a mouse event, we stop that to prevent conflicts
+            if(enable_detect) {
+                // update pointerevent
+                if(Hammer.HAS_POINTEREVENTS && eventType != Hammer.EVENT_END) {
+                    count_touches = Hammer.PointerEvent.updatePointer(eventType, ev);
+                }
+                // touch
+                else if(sourceEventType.match(/touch/)) {
+                    count_touches = ev.touches.length;
+                }
+                // mouse
+                else if(!touch_triggered) {
+                    count_touches = sourceEventType.match(/up/) ? 0 : 1;
+                }
+
+                // if we are in a end event, but when we remove one touch and
+                // we still have enough, set eventType to move
+                if(count_touches > 0 && eventType == Hammer.EVENT_END) {
+                    eventType = Hammer.EVENT_MOVE;
+                }
+                // no touches, force the end event
+                else if(!count_touches) {
+                    eventType = Hammer.EVENT_END;
+                }
+
+                // because touchend has no touches, and we often want to use these in our gestures,
+                // we send the last move event as our eventData in touchend
+                if(!count_touches && last_move_event !== null) {
+                    ev = last_move_event;
+                }
+                // store the last move event
+                else {
+                    last_move_event = ev;
+                }
+
+                // trigger the handler
+                handler.call(Hammer.detection, self.collectEventData(element, eventType, ev));
+
+                // remove pointerevent from list
+                if(Hammer.HAS_POINTEREVENTS && eventType == Hammer.EVENT_END) {
+                    count_touches = Hammer.PointerEvent.updatePointer(eventType, ev);
+                }
+            }
+
+            //debug(sourceEventType +" "+ eventType);
+
+            // on the end we reset everything
+            if(!count_touches) {
+                last_move_event = null;
+                enable_detect = false;
+                touch_triggered = false;
+                Hammer.PointerEvent.reset();
+            }
+        });
+    },
+
+
+    /**
+     * we have different events for each device/browser
+     * determine what we need and set them in the Hammer.EVENT_TYPES constant
+     */
+    determineEventTypes: function determineEventTypes() {
+        // determine the eventtype we want to set
+        var types;
+
+        // pointerEvents magic
+        if(Hammer.HAS_POINTEREVENTS) {
+            types = Hammer.PointerEvent.getEvents();
+        }
+        // on Android, iOS, blackberry, windows mobile we dont want any mouseevents
+        else if(Hammer.NO_MOUSEEVENTS) {
+            types = [
+                'touchstart',
+                'touchmove',
+                'touchend touchcancel'];
+        }
+        // for non pointer events browsers and mixed browsers,
+        // like chrome on windows8 touch laptop
+        else {
+            types = [
+                'touchstart mousedown',
+                'touchmove mousemove',
+                'touchend touchcancel mouseup'];
+        }
+
+        Hammer.EVENT_TYPES[Hammer.EVENT_START]  = types[0];
+        Hammer.EVENT_TYPES[Hammer.EVENT_MOVE]   = types[1];
+        Hammer.EVENT_TYPES[Hammer.EVENT_END]    = types[2];
+    },
+
+
+    /**
+     * create touchlist depending on the event
+     * @param   {Object}    ev
+     * @param   {String}    eventType   used by the fakemultitouch plugin
+     */
+    getTouchList: function getTouchList(ev/*, eventType*/) {
+        // get the fake pointerEvent touchlist
+        if(Hammer.HAS_POINTEREVENTS) {
+            return Hammer.PointerEvent.getTouchList();
+        }
+        // get the touchlist
+        else if(ev.touches) {
+            return ev.touches;
+        }
+        // make fake touchlist from mouse position
+        else {
+            return [{
+                identifier: 1,
+                pageX: ev.pageX,
+                pageY: ev.pageY,
+                target: ev.target
+            }];
+        }
+    },
+
+
+    /**
+     * collect event data for Hammer js
+     * @param   {HTMLElement}   element
+     * @param   {String}        eventType        like Hammer.EVENT_MOVE
+     * @param   {Object}        eventData
+     */
+    collectEventData: function collectEventData(element, eventType, ev) {
+        var touches = this.getTouchList(ev, eventType);
+
+        // find out pointerType
+        var pointerType = Hammer.POINTER_TOUCH;
+        if(ev.type.match(/mouse/) || Hammer.PointerEvent.matchType(Hammer.POINTER_MOUSE, ev)) {
+            pointerType = Hammer.POINTER_MOUSE;
+        }
+
+        return {
+            center      : Hammer.utils.getCenter(touches),
+            timeStamp   : new Date().getTime(),
+            target      : ev.target,
+            touches     : touches,
+            eventType   : eventType,
+            pointerType : pointerType,
+            srcEvent    : ev,
+
+            /**
+             * prevent the browser default actions
+             * mostly used to disable scrolling of the browser
+             */
+            preventDefault: function() {
+                if(this.srcEvent.preventManipulation) {
+                    this.srcEvent.preventManipulation();
+                }
+
+                if(this.srcEvent.preventDefault) {
+                    this.srcEvent.preventDefault();
+                }
+            },
+
+            /**
+             * stop bubbling the event up to its parents
+             */
+            stopPropagation: function() {
+                this.srcEvent.stopPropagation();
+            },
+
+            /**
+             * immediately stop gesture detection
+             * might be useful after a swipe was detected
+             * @return {*}
+             */
+            stopDetect: function() {
+                return Hammer.detection.stopDetect();
+            }
+        };
+    }
+};
+
+Hammer.PointerEvent = {
+    /**
+     * holds all pointers
+     * @type {Object}
+     */
+    pointers: {},
+
+    /**
+     * get a list of pointers
+     * @returns {Array}     touchlist
+     */
+    getTouchList: function() {
+        var self = this;
+        var touchlist = [];
+
+        // we can use forEach since pointerEvents only is in IE10
+        Object.keys(self.pointers).sort().forEach(function(id) {
+            touchlist.push(self.pointers[id]);
+        });
+        return touchlist;
+    },
+
+    /**
+     * update the position of a pointer
+     * @param   {String}   type             Hammer.EVENT_END
+     * @param   {Object}   pointerEvent
+     */
+    updatePointer: function(type, pointerEvent) {
+        if(type == Hammer.EVENT_END) {
+            this.pointers = {};
+        }
+        else {
+            pointerEvent.identifier = pointerEvent.pointerId;
+            this.pointers[pointerEvent.pointerId] = pointerEvent;
+        }
+
+        return Object.keys(this.pointers).length;
+    },
+
+    /**
+     * check if ev matches pointertype
+     * @param   {String}        pointerType     Hammer.POINTER_MOUSE
+     * @param   {PointerEvent}  ev
+     */
+    matchType: function(pointerType, ev) {
+        if(!ev.pointerType) {
+            return false;
+        }
+
+        var types = {};
+        types[Hammer.POINTER_MOUSE] = (ev.pointerType == ev.MSPOINTER_TYPE_MOUSE || ev.pointerType == Hammer.POINTER_MOUSE);
+        types[Hammer.POINTER_TOUCH] = (ev.pointerType == ev.MSPOINTER_TYPE_TOUCH || ev.pointerType == Hammer.POINTER_TOUCH);
+        types[Hammer.POINTER_PEN] = (ev.pointerType == ev.MSPOINTER_TYPE_PEN || ev.pointerType == Hammer.POINTER_PEN);
+        return types[pointerType];
+    },
+
+
+    /**
+     * get events
+     */
+    getEvents: function() {
+        return [
+            'pointerdown MSPointerDown',
+            'pointermove MSPointerMove',
+            'pointerup pointercancel MSPointerUp MSPointerCancel'
+        ];
+    },
+
+    /**
+     * reset the list
+     */
+    reset: function() {
+        this.pointers = {};
+    }
+};
+
+
+Hammer.utils = {
+    /**
+     * extend method,
+     * also used for cloning when dest is an empty object
+     * @param   {Object}    dest
+     * @param   {Object}    src
+	 * @parm	{Boolean}	merge		do a merge
+     * @returns {Object}    dest
+     */
+    extend: function extend(dest, src, merge) {
+        for (var key in src) {
+			if(dest[key] !== undefined && merge) {
+				continue;
+			}
+            dest[key] = src[key];
+        }
+        return dest;
+    },
+
+
+    /**
+     * find if a node is in the given parent
+     * used for event delegation tricks
+     * @param   {HTMLElement}   node
+     * @param   {HTMLElement}   parent
+     * @returns {boolean}       has_parent
+     */
+    hasParent: function(node, parent) {
+        while(node){
+            if(node == parent) {
+                return true;
+            }
+            node = node.parentNode;
+        }
+        return false;
+    },
+
+
+    /**
+     * get the center of all the touches
+     * @param   {Array}     touches
+     * @returns {Object}    center
+     */
+    getCenter: function getCenter(touches) {
+        var valuesX = [], valuesY = [];
+
+        for(var t= 0,len=touches.length; t<len; t++) {
+            valuesX.push(touches[t].pageX);
+            valuesY.push(touches[t].pageY);
+        }
+
+        return {
+            pageX: ((Math.min.apply(Math, valuesX) + Math.max.apply(Math, valuesX)) / 2),
+            pageY: ((Math.min.apply(Math, valuesY) + Math.max.apply(Math, valuesY)) / 2)
+        };
+    },
+
+
+    /**
+     * calculate the velocity between two points
+     * @param   {Number}    delta_time
+     * @param   {Number}    delta_x
+     * @param   {Number}    delta_y
+     * @returns {Object}    velocity
+     */
+    getVelocity: function getVelocity(delta_time, delta_x, delta_y) {
+        return {
+            x: Math.abs(delta_x / delta_time) || 0,
+            y: Math.abs(delta_y / delta_time) || 0
+        };
+    },
+
+
+    /**
+     * calculate the angle between two coordinates
+     * @param   {Touch}     touch1
+     * @param   {Touch}     touch2
+     * @returns {Number}    angle
+     */
+    getAngle: function getAngle(touch1, touch2) {
+        var y = touch2.pageY - touch1.pageY,
+            x = touch2.pageX - touch1.pageX;
+        return Math.atan2(y, x) * 180 / Math.PI;
+    },
+
+
+    /**
+     * angle to direction define
+     * @param   {Touch}     touch1
+     * @param   {Touch}     touch2
+     * @returns {String}    direction constant, like Hammer.DIRECTION_LEFT
+     */
+    getDirection: function getDirection(touch1, touch2) {
+        var x = Math.abs(touch1.pageX - touch2.pageX),
+            y = Math.abs(touch1.pageY - touch2.pageY);
+
+        if(x >= y) {
+            return touch1.pageX - touch2.pageX > 0 ? Hammer.DIRECTION_LEFT : Hammer.DIRECTION_RIGHT;
+        }
+        else {
+            return touch1.pageY - touch2.pageY > 0 ? Hammer.DIRECTION_UP : Hammer.DIRECTION_DOWN;
+        }
+    },
+
+
+    /**
+     * calculate the distance between two touches
+     * @param   {Touch}     touch1
+     * @param   {Touch}     touch2
+     * @returns {Number}    distance
+     */
+    getDistance: function getDistance(touch1, touch2) {
+        var x = touch2.pageX - touch1.pageX,
+            y = touch2.pageY - touch1.pageY;
+        return Math.sqrt((x*x) + (y*y));
+    },
+
+
+    /**
+     * calculate the scale factor between two touchLists (fingers)
+     * no scale is 1, and goes down to 0 when pinched together, and bigger when pinched out
+     * @param   {Array}     start
+     * @param   {Array}     end
+     * @returns {Number}    scale
+     */
+    getScale: function getScale(start, end) {
+        // need two fingers...
+        if(start.length >= 2 && end.length >= 2) {
+            return this.getDistance(end[0], end[1]) /
+                this.getDistance(start[0], start[1]);
+        }
+        return 1;
+    },
+
+
+    /**
+     * calculate the rotation degrees between two touchLists (fingers)
+     * @param   {Array}     start
+     * @param   {Array}     end
+     * @returns {Number}    rotation
+     */
+    getRotation: function getRotation(start, end) {
+        // need two fingers
+        if(start.length >= 2 && end.length >= 2) {
+            return this.getAngle(end[1], end[0]) -
+                this.getAngle(start[1], start[0]);
+        }
+        return 0;
+    },
+
+
+    /**
+     * boolean if the direction is vertical
+     * @param    {String}    direction
+     * @returns  {Boolean}   is_vertical
+     */
+    isVertical: function isVertical(direction) {
+        return (direction == Hammer.DIRECTION_UP || direction == Hammer.DIRECTION_DOWN);
+    },
+
+
+    /**
+     * stop browser default behavior with css props
+     * @param   {HtmlElement}   element
+     * @param   {Object}        css_props
+     */
+    stopDefaultBrowserBehavior: function stopDefaultBrowserBehavior(element, css_props) {
+        var prop,
+            vendors = ['webkit','khtml','moz','ms','o',''];
+
+        if(!css_props || !element.style) {
+            return;
+        }
+
+        // with css properties for modern browsers
+        for(var i = 0; i < vendors.length; i++) {
+            for(var p in css_props) {
+                if(css_props.hasOwnProperty(p)) {
+                    prop = p;
+
+                    // vender prefix at the property
+                    if(vendors[i]) {
+                        prop = vendors[i] + prop.substring(0, 1).toUpperCase() + prop.substring(1);
+                    }
+
+                    // set the style
+                    element.style[prop] = css_props[p];
+                }
+            }
+        }
+
+        // also the disable onselectstart
+        if(css_props.userSelect == 'none') {
+            element.onselectstart = function() {
+                return false;
+            };
+        }
+    }
+};
+
+Hammer.detection = {
+    // contains all registred Hammer.gestures in the correct order
+    gestures: [],
+
+    // data of the current Hammer.gesture detection session
+    current: null,
+
+    // the previous Hammer.gesture session data
+    // is a full clone of the previous gesture.current object
+    previous: null,
+
+    // when this becomes true, no gestures are fired
+    stopped: false,
+
+
+    /**
+     * start Hammer.gesture detection
+     * @param   {Hammer.Instance}   inst
+     * @param   {Object}            eventData
+     */
+    startDetect: function startDetect(inst, eventData) {
+        // already busy with a Hammer.gesture detection on an element
+        if(this.current) {
+            return;
+        }
+
+        this.stopped = false;
+
+        this.current = {
+            inst        : inst, // reference to HammerInstance we're working for
+            startEvent  : Hammer.utils.extend({}, eventData), // start eventData for distances, timing etc
+            lastEvent   : false, // last eventData
+            name        : '' // current gesture we're in/detected, can be 'tap', 'hold' etc
+        };
+
+        this.detect(eventData);
+    },
+
+
+    /**
+     * Hammer.gesture detection
+     * @param   {Object}    eventData
+     * @param   {Object}    eventData
+     */
+    detect: function detect(eventData) {
+        if(!this.current || this.stopped) {
+            return;
+        }
+
+        // extend event data with calculations about scale, distance etc
+        eventData = this.extendEventData(eventData);
+
+        // instance options
+        var inst_options = this.current.inst.options;
+
+        // call Hammer.gesture handlers
+        for(var g=0,len=this.gestures.length; g<len; g++) {
+            var gesture = this.gestures[g];
+
+            // only when the instance options have enabled this gesture
+            if(!this.stopped && inst_options[gesture.name] !== false) {
+                // if a handler returns false, we stop with the detection
+                if(gesture.handler.call(gesture, eventData, this.current.inst) === false) {
+                    this.stopDetect();
+                    break;
+                }
+            }
+        }
+
+        // store as previous event event
+        if(this.current) {
+            this.current.lastEvent = eventData;
+        }
+
+        // endevent, but not the last touch, so dont stop
+        if(eventData.eventType == Hammer.EVENT_END && !eventData.touches.length-1) {
+            this.stopDetect();
+        }
+
+        return eventData;
+    },
+
+
+    /**
+     * clear the Hammer.gesture vars
+     * this is called on endDetect, but can also be used when a final Hammer.gesture has been detected
+     * to stop other Hammer.gestures from being fired
+     */
+    stopDetect: function stopDetect() {
+        // clone current data to the store as the previous gesture
+        // used for the double tap gesture, since this is an other gesture detect session
+        this.previous = Hammer.utils.extend({}, this.current);
+
+        // reset the current
+        this.current = null;
+
+        // stopped!
+        this.stopped = true;
+    },
+
+
+    /**
+     * extend eventData for Hammer.gestures
+     * @param   {Object}   ev
+     * @returns {Object}   ev
+     */
+    extendEventData: function extendEventData(ev) {
+        var startEv = this.current.startEvent;
+
+        // if the touches change, set the new touches over the startEvent touches
+        // this because touchevents don't have all the touches on touchstart, or the
+        // user must place his fingers at the EXACT same time on the screen, which is not realistic
+        // but, sometimes it happens that both fingers are touching at the EXACT same time
+        if(startEv && (ev.touches.length != startEv.touches.length || ev.touches === startEv.touches)) {
+            // extend 1 level deep to get the touchlist with the touch objects
+            startEv.touches = [];
+            for(var i=0,len=ev.touches.length; i<len; i++) {
+                startEv.touches.push(Hammer.utils.extend({}, ev.touches[i]));
+            }
+        }
+
+        var delta_time = ev.timeStamp - startEv.timeStamp,
+            delta_x = ev.center.pageX - startEv.center.pageX,
+            delta_y = ev.center.pageY - startEv.center.pageY,
+            velocity = Hammer.utils.getVelocity(delta_time, delta_x, delta_y);
+
+        Hammer.utils.extend(ev, {
+            deltaTime   : delta_time,
+
+            deltaX      : delta_x,
+            deltaY      : delta_y,
+
+            velocityX   : velocity.x,
+            velocityY   : velocity.y,
+
+            distance    : Hammer.utils.getDistance(startEv.center, ev.center),
+            angle       : Hammer.utils.getAngle(startEv.center, ev.center),
+            direction   : Hammer.utils.getDirection(startEv.center, ev.center),
+
+            scale       : Hammer.utils.getScale(startEv.touches, ev.touches),
+            rotation    : Hammer.utils.getRotation(startEv.touches, ev.touches),
+
+            startEvent  : startEv
+        });
+
+        return ev;
+    },
+
+
+    /**
+     * register new gesture
+     * @param   {Object}    gesture object, see gestures.js for documentation
+     * @returns {Array}     gestures
+     */
+    register: function register(gesture) {
+        // add an enable gesture options if there is no given
+        var options = gesture.defaults || {};
+        if(options[gesture.name] === undefined) {
+            options[gesture.name] = true;
+        }
+
+        // extend Hammer default options with the Hammer.gesture options
+        Hammer.utils.extend(Hammer.defaults, options, true);
+
+        // set its index
+        gesture.index = gesture.index || 1000;
+
+        // add Hammer.gesture to the list
+        this.gestures.push(gesture);
+
+        // sort the list by index
+        this.gestures.sort(function(a, b) {
+            if (a.index < b.index) {
+                return -1;
+            }
+            if (a.index > b.index) {
+                return 1;
+            }
+            return 0;
+        });
+
+        return this.gestures;
+    }
+};
+
+
+Hammer.gestures = Hammer.gestures || {};
+
+/**
+ * Custom gestures
+ * ==============================
+ *
+ * Gesture object
+ * --------------------
+ * The object structure of a gesture:
+ *
+ * { name: 'mygesture',
+ *   index: 1337,
+ *   defaults: {
+ *     mygesture_option: true
+ *   }
+ *   handler: function(type, ev, inst) {
+ *     // trigger gesture event
+ *     inst.trigger(this.name, ev);
+ *   }
+ * }
+
+ * @param   {String}    name
+ * this should be the name of the gesture, lowercase
+ * it is also being used to disable/enable the gesture per instance config.
+ *
+ * @param   {Number}    [index=1000]
+ * the index of the gesture, where it is going to be in the stack of gestures detection
+ * like when you build an gesture that depends on the drag gesture, it is a good
+ * idea to place it after the index of the drag gesture.
+ *
+ * @param   {Object}    [defaults={}]
+ * the default settings of the gesture. these are added to the instance settings,
+ * and can be overruled per instance. you can also add the name of the gesture,
+ * but this is also added by default (and set to true).
+ *
+ * @param   {Function}  handler
+ * this handles the gesture detection of your custom gesture and receives the
+ * following arguments:
+ *
+ *      @param  {Object}    eventData
+ *      event data containing the following properties:
+ *          timeStamp   {Number}        time the event occurred
+ *          target      {HTMLElement}   target element
+ *          touches     {Array}         touches (fingers, pointers, mouse) on the screen
+ *          pointerType {String}        kind of pointer that was used. matches Hammer.POINTER_MOUSE|TOUCH
+ *          center      {Object}        center position of the touches. contains pageX and pageY
+ *          deltaTime   {Number}        the total time of the touches in the screen
+ *          deltaX      {Number}        the delta on x axis we haved moved
+ *          deltaY      {Number}        the delta on y axis we haved moved
+ *          velocityX   {Number}        the velocity on the x
+ *          velocityY   {Number}        the velocity on y
+ *          angle       {Number}        the angle we are moving
+ *          direction   {String}        the direction we are moving. matches Hammer.DIRECTION_UP|DOWN|LEFT|RIGHT
+ *          distance    {Number}        the distance we haved moved
+ *          scale       {Number}        scaling of the touches, needs 2 touches
+ *          rotation    {Number}        rotation of the touches, needs 2 touches *
+ *          eventType   {String}        matches Hammer.EVENT_START|MOVE|END
+ *          srcEvent    {Object}        the source event, like TouchStart or MouseDown *
+ *          startEvent  {Object}        contains the same properties as above,
+ *                                      but from the first touch. this is used to calculate
+ *                                      distances, deltaTime, scaling etc
+ *
+ *      @param  {Hammer.Instance}    inst
+ *      the instance we are doing the detection for. you can get the options from
+ *      the inst.options object and trigger the gesture event by calling inst.trigger
+ *
+ *
+ * Handle gestures
+ * --------------------
+ * inside the handler you can get/set Hammer.detection.current. This is the current
+ * detection session. It has the following properties
+ *      @param  {String}    name
+ *      contains the name of the gesture we have detected. it has not a real function,
+ *      only to check in other gestures if something is detected.
+ *      like in the drag gesture we set it to 'drag' and in the swipe gesture we can
+ *      check if the current gesture is 'drag' by accessing Hammer.detection.current.name
+ *
+ *      @readonly
+ *      @param  {Hammer.Instance}    inst
+ *      the instance we do the detection for
+ *
+ *      @readonly
+ *      @param  {Object}    startEvent
+ *      contains the properties of the first gesture detection in this session.
+ *      Used for calculations about timing, distance, etc.
+ *
+ *      @readonly
+ *      @param  {Object}    lastEvent
+ *      contains all the properties of the last gesture detect in this session.
+ *
+ * after the gesture detection session has been completed (user has released the screen)
+ * the Hammer.detection.current object is copied into Hammer.detection.previous,
+ * this is usefull for gestures like doubletap, where you need to know if the
+ * previous gesture was a tap
+ *
+ * options that have been set by the instance can be received by calling inst.options
+ *
+ * You can trigger a gesture event by calling inst.trigger("mygesture", event).
+ * The first param is the name of your gesture, the second the event argument
+ *
+ *
+ * Register gestures
+ * --------------------
+ * When an gesture is added to the Hammer.gestures object, it is auto registered
+ * at the setup of the first Hammer instance. You can also call Hammer.detection.register
+ * manually and pass your gesture object as a param
+ *
+ */
+
+/**
+ * Hold
+ * Touch stays at the same place for x time
+ * @events  hold
+ */
+Hammer.gestures.Hold = {
+    name: 'hold',
+    index: 10,
+    defaults: {
+        hold_timeout	: 500,
+        hold_threshold	: 1
+    },
+    timer: null,
+    handler: function holdGesture(ev, inst) {
+        switch(ev.eventType) {
+            case Hammer.EVENT_START:
+                // clear any running timers
+                clearTimeout(this.timer);
+
+                // set the gesture so we can check in the timeout if it still is
+                Hammer.detection.current.name = this.name;
+
+                // set timer and if after the timeout it still is hold,
+                // we trigger the hold event
+                this.timer = setTimeout(function() {
+                    if(Hammer.detection.current.name == 'hold') {
+                        inst.trigger('hold', ev);
+                    }
+                }, inst.options.hold_timeout);
+                break;
+
+            // when you move or end we clear the timer
+            case Hammer.EVENT_MOVE:
+                if(ev.distance > inst.options.hold_threshold) {
+                    clearTimeout(this.timer);
+                }
+                break;
+
+            case Hammer.EVENT_END:
+                clearTimeout(this.timer);
+                break;
+        }
+    }
+};
+
+
+/**
+ * Tap/DoubleTap
+ * Quick touch at a place or double at the same place
+ * @events  tap, doubletap
+ */
+Hammer.gestures.Tap = {
+    name: 'tap',
+    index: 100,
+    defaults: {
+        tap_max_touchtime	: 250,
+        tap_max_distance	: 10,
+		tap_always			: true,
+        doubletap_distance	: 20,
+        doubletap_interval	: 300
+    },
+    handler: function tapGesture(ev, inst) {
+        if(ev.eventType == Hammer.EVENT_END) {
+            // previous gesture, for the double tap since these are two different gesture detections
+            var prev = Hammer.detection.previous,
+				did_doubletap = false;
+
+            // when the touchtime is higher then the max touch time
+            // or when the moving distance is too much
+            if(ev.deltaTime > inst.options.tap_max_touchtime ||
+                ev.distance > inst.options.tap_max_distance) {
+                return;
+            }
+
+            // check if double tap
+            if(prev && prev.name == 'tap' &&
+                (ev.timeStamp - prev.lastEvent.timeStamp) < inst.options.doubletap_interval &&
+                ev.distance < inst.options.doubletap_distance) {
+				inst.trigger('doubletap', ev);
+				did_doubletap = true;
+            }
+
+			// do a single tap
+			if(!did_doubletap || inst.options.tap_always) {
+				Hammer.detection.current.name = 'tap';
+				inst.trigger(Hammer.detection.current.name, ev);
+			}
+        }
+    }
+};
+
+
+/**
+ * Swipe
+ * triggers swipe events when the end velocity is above the threshold
+ * @events  swipe, swipeleft, swiperight, swipeup, swipedown
+ */
+Hammer.gestures.Swipe = {
+    name: 'swipe',
+    index: 40,
+    defaults: {
+        // set 0 for unlimited, but this can conflict with transform
+        swipe_max_touches  : 1,
+        swipe_velocity     : 0.7
+    },
+    handler: function swipeGesture(ev, inst) {
+        if(ev.eventType == Hammer.EVENT_END) {
+            // max touches
+            if(inst.options.swipe_max_touches > 0 &&
+                ev.touches.length > inst.options.swipe_max_touches) {
+                return;
+            }
+
+            // when the distance we moved is too small we skip this gesture
+            // or we can be already in dragging
+            if(ev.velocityX > inst.options.swipe_velocity ||
+                ev.velocityY > inst.options.swipe_velocity) {
+                // trigger swipe events
+                inst.trigger(this.name, ev);
+                inst.trigger(this.name + ev.direction, ev);
+            }
+        }
+    }
+};
+
+
+/**
+ * Drag
+ * Move with x fingers (default 1) around on the page. Blocking the scrolling when
+ * moving left and right is a good practice. When all the drag events are blocking
+ * you disable scrolling on that area.
+ * @events  drag, drapleft, dragright, dragup, dragdown
+ */
+Hammer.gestures.Drag = {
+    name: 'drag',
+    index: 50,
+    defaults: {
+        drag_min_distance : 10,
+        // set 0 for unlimited, but this can conflict with transform
+        drag_max_touches  : 1,
+        // prevent default browser behavior when dragging occurs
+        // be careful with it, it makes the element a blocking element
+        // when you are using the drag gesture, it is a good practice to set this true
+        drag_block_horizontal   : false,
+        drag_block_vertical     : false,
+        // drag_lock_to_axis keeps the drag gesture on the axis that it started on,
+        // It disallows vertical directions if the initial direction was horizontal, and vice versa.
+        drag_lock_to_axis       : false,
+        // drag lock only kicks in when distance > drag_lock_min_distance
+        // This way, locking occurs only when the distance has become large enough to reliably determine the direction
+        drag_lock_min_distance : 25
+    },
+    triggered: false,
+    handler: function dragGesture(ev, inst) {
+        // current gesture isnt drag, but dragged is true
+        // this means an other gesture is busy. now call dragend
+        if(Hammer.detection.current.name != this.name && this.triggered) {
+            inst.trigger(this.name +'end', ev);
+            this.triggered = false;
+            return;
+        }
+
+        // max touches
+        if(inst.options.drag_max_touches > 0 &&
+            ev.touches.length > inst.options.drag_max_touches) {
+            return;
+        }
+
+        switch(ev.eventType) {
+            case Hammer.EVENT_START:
+                this.triggered = false;
+                break;
+
+            case Hammer.EVENT_MOVE:
+                // when the distance we moved is too small we skip this gesture
+                // or we can be already in dragging
+                if(ev.distance < inst.options.drag_min_distance &&
+                    Hammer.detection.current.name != this.name) {
+                    return;
+                }
+
+                // we are dragging!
+                Hammer.detection.current.name = this.name;
+
+                // lock drag to axis?
+                if(Hammer.detection.current.lastEvent.drag_locked_to_axis || (inst.options.drag_lock_to_axis && inst.options.drag_lock_min_distance<=ev.distance)) {
+                    ev.drag_locked_to_axis = true;
+                }
+                var last_direction = Hammer.detection.current.lastEvent.direction;
+                if(ev.drag_locked_to_axis && last_direction !== ev.direction) {
+                    // keep direction on the axis that the drag gesture started on
+                    if(Hammer.utils.isVertical(last_direction)) {
+                        ev.direction = (ev.deltaY < 0) ? Hammer.DIRECTION_UP : Hammer.DIRECTION_DOWN;
+                    }
+                    else {
+                        ev.direction = (ev.deltaX < 0) ? Hammer.DIRECTION_LEFT : Hammer.DIRECTION_RIGHT;
+                    }
+                }
+
+                // first time, trigger dragstart event
+                if(!this.triggered) {
+                    inst.trigger(this.name +'start', ev);
+                    this.triggered = true;
+                }
+
+                // trigger normal event
+                inst.trigger(this.name, ev);
+
+                // direction event, like dragdown
+                inst.trigger(this.name + ev.direction, ev);
+
+                // block the browser events
+                if( (inst.options.drag_block_vertical && Hammer.utils.isVertical(ev.direction)) ||
+                    (inst.options.drag_block_horizontal && !Hammer.utils.isVertical(ev.direction))) {
+                    ev.preventDefault();
+                }
+                break;
+
+            case Hammer.EVENT_END:
+                // trigger dragend
+                if(this.triggered) {
+                    inst.trigger(this.name +'end', ev);
+                }
+
+                this.triggered = false;
+                break;
+        }
+    }
+};
+
+
+/**
+ * Transform
+ * User want to scale or rotate with 2 fingers
+ * @events  transform, pinch, pinchin, pinchout, rotate
+ */
+Hammer.gestures.Transform = {
+    name: 'transform',
+    index: 45,
+    defaults: {
+        // factor, no scale is 1, zoomin is to 0 and zoomout until higher then 1
+        transform_min_scale     : 0.01,
+        // rotation in degrees
+        transform_min_rotation  : 1,
+        // prevent default browser behavior when two touches are on the screen
+        // but it makes the element a blocking element
+        // when you are using the transform gesture, it is a good practice to set this true
+        transform_always_block  : false
+    },
+    triggered: false,
+    handler: function transformGesture(ev, inst) {
+        // current gesture isnt drag, but dragged is true
+        // this means an other gesture is busy. now call dragend
+        if(Hammer.detection.current.name != this.name && this.triggered) {
+            inst.trigger(this.name +'end', ev);
+            this.triggered = false;
+            return;
+        }
+
+        // atleast multitouch
+        if(ev.touches.length < 2) {
+            return;
+        }
+
+        // prevent default when two fingers are on the screen
+        if(inst.options.transform_always_block) {
+            ev.preventDefault();
+        }
+
+        switch(ev.eventType) {
+            case Hammer.EVENT_START:
+                this.triggered = false;
+                break;
+
+            case Hammer.EVENT_MOVE:
+                var scale_threshold = Math.abs(1-ev.scale);
+                var rotation_threshold = Math.abs(ev.rotation);
+
+                // when the distance we moved is too small we skip this gesture
+                // or we can be already in dragging
+                if(scale_threshold < inst.options.transform_min_scale &&
+                    rotation_threshold < inst.options.transform_min_rotation) {
+                    return;
+                }
+
+                // we are transforming!
+                Hammer.detection.current.name = this.name;
+
+                // first time, trigger dragstart event
+                if(!this.triggered) {
+                    inst.trigger(this.name +'start', ev);
+                    this.triggered = true;
+                }
+
+                inst.trigger(this.name, ev); // basic transform event
+
+                // trigger rotate event
+                if(rotation_threshold > inst.options.transform_min_rotation) {
+                    inst.trigger('rotate', ev);
+                }
+
+                // trigger pinch event
+                if(scale_threshold > inst.options.transform_min_scale) {
+                    inst.trigger('pinch', ev);
+                    inst.trigger('pinch'+ ((ev.scale < 1) ? 'in' : 'out'), ev);
+                }
+                break;
+
+            case Hammer.EVENT_END:
+                // trigger dragend
+                if(this.triggered) {
+                    inst.trigger(this.name +'end', ev);
+                }
+
+                this.triggered = false;
+                break;
+        }
+    }
+};
+
+
+/**
+ * Touch
+ * Called as first, tells the user has touched the screen
+ * @events  touch
+ */
+Hammer.gestures.Touch = {
+    name: 'touch',
+    index: -Infinity,
+    defaults: {
+        // call preventDefault at touchstart, and makes the element blocking by
+        // disabling the scrolling of the page, but it improves gestures like
+        // transforming and dragging.
+        // be careful with using this, it can be very annoying for users to be stuck
+        // on the page
+        prevent_default: false,
+
+        // disable mouse events, so only touch (or pen!) input triggers events
+        prevent_mouseevents: false
+    },
+    handler: function touchGesture(ev, inst) {
+        if(inst.options.prevent_mouseevents && ev.pointerType == Hammer.POINTER_MOUSE) {
+            ev.stopDetect();
+            return;
+        }
+
+        if(inst.options.prevent_default) {
+            ev.preventDefault();
+        }
+
+        if(ev.eventType ==  Hammer.EVENT_START) {
+            inst.trigger(this.name, ev);
+        }
+    }
+};
+
+
+/**
+ * Release
+ * Called as last, tells the user has released the screen
+ * @events  release
+ */
+Hammer.gestures.Release = {
+    name: 'release',
+    index: Infinity,
+    handler: function releaseGesture(ev, inst) {
+        if(ev.eventType ==  Hammer.EVENT_END) {
+            inst.trigger(this.name, ev);
+        }
+    }
+};
+
+// node export
+if(typeof module === 'object' && typeof module.exports === 'object'){
+    module.exports = Hammer;
+}
+// just window export
+else {
+    window.Hammer = Hammer;
+
+    // requireJS module definition
+    if(typeof window.define === 'function' && window.define.amd) {
+        window.define('hammer', [], function() {
+            return Hammer;
+        });
+    }
+}
+})(this);
+
+(function($, undefined) {
+    'use strict';
+
+    // no jQuery or Zepto!
+    if($ === undefined) {
+        return;
+    }
+
+    /**
+     * bind dom events
+     * this overwrites addEventListener
+     * @param   {HTMLElement}   element
+     * @param   {String}        eventTypes
+     * @param   {Function}      handler
+     */
+    Hammer.event.bindDom = function(element, eventTypes, handler) {
+        $(element).on(eventTypes, function(ev) {
+            var data = ev.originalEvent || ev;
+
+            // IE pageX fix
+            if(data.pageX === undefined) {
+                data.pageX = ev.pageX;
+                data.pageY = ev.pageY;
+            }
+
+            // IE target fix
+            if(!data.target) {
+                data.target = ev.target;
+            }
+
+            // IE button fix
+            if(data.which === undefined) {
+                data.which = data.button;
+            }
+
+            // IE preventDefault
+            if(!data.preventDefault) {
+                data.preventDefault = ev.preventDefault;
+            }
+
+            // IE stopPropagation
+            if(!data.stopPropagation) {
+                data.stopPropagation = ev.stopPropagation;
+            }
+
+            handler.call(this, data);
+        });
+    };
+
+    /**
+     * the methods are called by the instance, but with the jquery plugin
+     * we use the jquery event methods instead.
+     * @this    {Hammer.Instance}
+     * @return  {jQuery}
+     */
+    Hammer.Instance.prototype.on = function(types, handler) {
+        return $(this.element).on(types, handler);
+    };
+    Hammer.Instance.prototype.off = function(types, handler) {
+        return $(this.element).off(types, handler);
+    };
+
+
+    /**
+     * trigger events
+     * this is called by the gestures to trigger an event like 'tap'
+     * @this    {Hammer.Instance}
+     * @param   {String}    gesture
+     * @param   {Object}    eventData
+     * @return  {jQuery}
+     */
+    Hammer.Instance.prototype.trigger = function(gesture, eventData){
+        var el = $(this.element);
+        if(el.has(eventData.target).length) {
+            el = $(eventData.target);
+        }
+
+        return el.trigger({
+            type: gesture,
+            gesture: eventData
+        });
+    };
+
+
+    /**
+     * jQuery plugin
+     * create instance of Hammer and watch for gestures,
+     * and when called again you can change the options
+     * @param   {Object}    [options={}]
+     * @return  {jQuery}
+     */
+    $.fn.hammer = function(options) {
+        return this.each(function() {
+            var el = $(this);
+            var inst = el.data('hammer');
+            // start new hammer instance
+            if(!inst) {
+                el.data('hammer', new Hammer(this, options || {}));
+            }
+            // change the options
+            else if(inst && options) {
+                Hammer.utils.extend(inst.options, options);
+            }
+        });
+    };
+
+})(window.jQuery || window.Zepto);
 if (!jQuery.fn.find) {
   jQuery.fn.extend({
     find: function( selector ) {
@@ -1024,7 +2553,6 @@ soysauce = {
   widgets: new Array(),
   vars: {
     idCount: 0,
-    currentViewportWidth: window.innerWidth,
     degradeAll: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747|SCH-I535/.test(navigator.userAgent)) ? true : false,
     degrade: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent)) ? true : false,
     degrade2: (/SCH-I535/.test(navigator.userAgent)) ? true : false,
@@ -1047,12 +2575,21 @@ soysauce = {
     if (!e) return false;
     try {
       e.stopImmediatePropagation();
+      if (e.gesture) {
+        e.gesture.stopPropagation();
+      }
     }
     catch(err) {
+      console.log(e);
+      console.warn("Soysauce: Error occurred calling soysauce.stifle() " + err.message);
+      e.stopPropagation();
       e.propagationStopped = true;
     }
     if (onlyPropagation) return false;
     e.preventDefault();
+    if (e.gesture) {
+      e.gesture.preventDefault();
+    }
   },
   fetch: function(selector) {
     var query, ret;
@@ -1110,9 +2647,7 @@ soysauce = {
   getArrayFromMatrix: function(matrix) {
     return matrix.substr(7, matrix.length - 8).split(', ');
   },
-  browserInfo: {
-    pageLoad: new Date().getTime(),
-    userAgent: navigator.userAgent,
+  browser: {
     supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,
     supportsLocalStorage: function() {
       try { 
@@ -1143,6 +2678,18 @@ soysauce = {
       catch(err) { 
         return false;
       }
+    }(),
+    orientation: function() {
+      return (window.orientation !== 0) ? "landscape" : "portrait";
+    }(),
+    ios7BarsVisible: function() {
+      if (!/(ipod|iphone).*(7\.0 mobile)/i.test(navigator.userAgent)) return false;
+      if (window.orientation !== 0) {
+        return (window.innerHeight < 320);
+      }
+      else {
+        return (window.innerHeight < 529);
+      }
     }()
   },
   scrollTop: function() {
@@ -1153,12 +2700,11 @@ soysauce = {
 }
 
 // Widget Resize Handler
-$(window).on("resize orientationchange", function(e) {
-  if (e.type === "orientationchange" || window.innerWidth !== soysauce.vars.currentViewportWidth) {
+$(window).on("orientationchange", function(e) {
+  if (e.type === "orientationchange") {
     if (soysauce.vars.lastResizeID) clearTimeout(soysauce.vars.lastResizeID);
     soysauce.vars.lastResizeID = window.setTimeout(function() {
       soysauce.vars.lastResizeTime = e.timeStamp;
-      soysauce.vars.currentViewportWidth = window.innerWidth;
       soysauce.widgets.forEach(function(widget) {
         if (!widget.handleResize) return;
         widget.handleResize();
@@ -1202,6 +2748,18 @@ $(document).ready(function() {
       }
     });
   });
+  // Set HammerJS Options
+  try {
+    Hammer.gestures.Swipe.defaults.swipe_velocity = 0.35;
+    Hammer.gestures.Drag.defaults.drag_min_distance = 1;
+    Hammer.gestures.Drag.defaults.drag_lock_min_distance = 1;
+    Hammer.gestures.Drag.defaults.drag_lock_to_axis = true;
+  }
+  catch(e) {
+    console.warn("Soysauce: Error setting options with HammerJS");
+    console.error(e);
+  }
+  
   $(window).trigger("SSReady");
 });
 
@@ -1217,7 +2775,7 @@ $(window).load(function() {
 
 soysauce.ajax = function(url, forceAjax, callback) {
   var result = false;
-  if (soysauce.browserInfo.supportsSessionStorage && sessionStorage[url]) {
+  if (soysauce.browser.supportsSessionStorage && sessionStorage[url]) {
     try {
       result = JSON.parse(sessionStorage[url]);
       if (!forceAjax) return result;
@@ -1292,9 +2850,16 @@ soysauce.init = function(selector, manual) {
   
   fastclickSelectors = "[data-ss-widget='toggler'] > [data-ss-component='button']";
   fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='button']";
+  fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='dots']";
+  fastclickSelectors += ", [data-ss-utility='overlay'] [data-ss-component='close']";
   
   $(fastclickSelectors).each(function() {
-    soysauce.vars.fastclick.push(FastClick.attach(this));
+    try {
+      soysauce.vars.fastclick.push(FastClick.attach(this));
+    }
+    catch(e) {
+      console.warn("Soysauce: Could not attach Fastclick listener on soysauce component. " + e.message);
+    }
   });
   
   if (!selector) {
@@ -1406,81 +2971,133 @@ soysauce.lateload = function(selector) {
 soysauce.lateload();
 
 soysauce.overlay = (function() {
-  var overlay, done, caption;
-  var init = true;
-  var isOn = false;
+  var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
+  var $body = $("body");
+  var $viewport = $("meta[name='viewport']");
+  
+  function Overlay() {
+    this.overlay;
+    this.content;
+    this.close;
+    this.hiddenItems = null;
+    this.isOn = false;
+    
+    this.init();
+  };
+  
+  Overlay.prototype.init = function(selector) {
+    var div = document.createElement("div");
+    var self = this;
 
-  return {
-    init: function(selector) {
-      document.addEventListener("DOMContentLoaded", function() {
-        var div = document.createElement("div");
+    if ($("[data-ss-utility='overlay']").length) return false;
 
-        if (!init) return false;
+    div.setAttribute("data-ss-utility", "overlay");
+    div.setAttribute("data-ss-state", "inactive");
+    document.body.appendChild(div);
 
-        div.setAttribute("data-ss-utility", "overlay");
-        div.setAttribute("data-ss-state", "inactive");
-        document.body.appendChild(div);
+    this.overlay = $("[data-ss-utility='overlay']");
 
-        overlay = $("[data-ss-utility='overlay']");
+    this.overlay.append("<span data-ss-component='close'>close</span>");
+    this.close = this.overlay.find("[data-ss-component='close']");
+    
+    this.overlay.append("<div data-ss-component='content'></div>");
+    this.content = this.overlay.find("[data-ss-component='content']");
 
-        overlay.append("<span class='done'></span>");
-        done = overlay.find(".done");
+    this.close.on("click", function() {
+      self.off();
+    });
 
-        overlay.append("<div class='caption'></span>");
-        caption = overlay.find(".caption");
-
-        done.on("click", function() {
-          soysauce.overlay.off();
-        });
-
-        init = false;
-      });
-    },
-    on: function() {
-      if (isOn) return;
-      overlay.show();
-      window.setTimeout(function() {
-        overlay.attr("data-ss-state","active");
-        isOn = true;
-      }, 0);
-    },
-    off: function() {
-      if (!isOn) return;
-      overlay.attr("data-ss-state","inactive");
-      window.setTimeout(function() {
-        overlay.hide();
-        isOn = false;
-      }, 400);
-    },
-    toggle: function() {
-      if (isOn) {
-        soysauce.overlay.off();
+    return true;
+  };
+  
+  Overlay.prototype.on = function(css) {
+    var self = this;
+    if (this.isOn) return;
+    this.overlay.show();
+    window.setTimeout(function() {
+      if (css) {
+        try {
+          JSON.stringify(css);
+          self.overlay.css(css);
+        }
+        catch(e) {
+          console.warn("Soysauce: Could not attach css; need to pass JSON css object");
+        }
       }
-      else {
-        soysauce.overlay.on();
-      }
-    },
-    state: function() {
-      if (isOn) {
-        return "on";
-      }
-      else {
-        return "off";
-      }
-    },
-    caption: function(text) {
-      if (!text) {
-        caption.html("");
-      }
-      else {
-        caption.html(text);
-      }
+      self.overlay.attr("data-ss-state","active");
+      self.isOn = true;
+    }, 0);
+  };
+  
+  Overlay.prototype.off = function() {
+    if (!this.isOn) return;
+    
+    this.isOn = false;
+    this.overlay.attr("data-ss-state","inactive").removeAttr("style").hide();
+    this.content.empty();
+    
+    $body.css({
+      "overflow": "",
+      "height": ""
+    });
+    
+    if (this.hiddenItems) {
+      this.hiddenItems.show();
+      this.hiddenItems = null;
     }
   };
-
+  
+  Overlay.prototype.toggle = function() {
+    if (this.isOn) {
+      this.off();
+    }
+    else {
+      this.on();
+    }
+  };
+  
+  Overlay.prototype.injectCarousel = function(carousel, css) {
+    var items = carousel.items.clone();
+    var $carousel;
+    var self = this;
+    
+    this.on(css);
+    
+    if (carousel.infinite) {
+      items = items.slice(1, carousel.numChildren - 1);
+    }
+    
+    items.removeAttr("data-ss-state").removeAttr("style");
+    this.content.wrapInner("<div data-ss-widget='carousel' data-ss-options='overlay' data-ss-index=" + carousel.index + "/>");
+    
+    $carousel = this.content.find("[data-ss-widget='carousel']");
+    $carousel.append(items);
+    
+    this.overlay.one(TRANSITION_END, function() {
+      $carousel.one("SSWidgetReady", function() {
+        $body.css({
+          "overflow": "hidden",
+          "height": "100%"
+        });
+        self.hiddenItems = $body.find("> *:not([data-ss-utility]):not(#ios7fix)");
+        self.hiddenItems.hide();
+      });
+      soysauce.init($carousel[0]);
+    });
+  };
+  
+  Overlay.prototype.hideAssets = function() {
+    this.close.css("opacity", "0");
+  };
+  
+  Overlay.prototype.showAssets = function() {
+    this.close.css("opacity", "1");
+  };
+  
+  return new Overlay();
+  
 })();
 
-soysauce.overlay.init();
 soysauce.autodetectCC = (function() {
   
   function autodetectCC(selector) {
@@ -2158,11 +3775,11 @@ soysauce.autosuggest = (function() {
 soysauce.carousels = (function() {
   // Shared Default Globals
   var AUTOSCROLL_INTERVAL = 5000;
-  var DEFAULT_SCALE = 2; // on initial zoom
   var PEEK_WIDTH = 20;
   var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
-  var PINCH_SENSITIVITY = 1500; // lower to increase sensitivity for pinch zoom
-  var PREFIX = soysauce.getPrefix();
+  var VENDOR_PREFIX = soysauce.getPrefix();
+  var SWIPE_THRESHOLD = 100;
+  var ZOOM_SENSITIVITY = 0.8;
   
   function Carousel(selector) {
     var options;
@@ -2170,7 +3787,6 @@ soysauce.carousels = (function() {
     var wrapper;
     var dotsHtml = "";
     var numDots;
-    var thumbnails;
 
     // Base Variables
     this.widget = $(selector);
@@ -2178,17 +3794,19 @@ soysauce.carousels = (function() {
     this.maxIndex;
     this.container;
     this.items;
+    this.currentItem;
     this.itemPadding;
     this.dots;
     this.numChildren = 0;
     this.widgetWidth = 0;
     this.widgetHeight = 0;
     this.itemWidth = 0;
+    this.interruptedOffset = 0;
     this.offset = 0;
     this.ready = false;
     this.interrupted = false;
     this.links = false;
-    this.lockScroll = undefined;
+    this.lockScroll = false;
     this.nextBtn;
     this.prevBtn;
     this.freeze = false;
@@ -2208,35 +3826,33 @@ soysauce.carousels = (function() {
     this.looping = false;
     this.rewindCoord = 0;
 
-    // Fullscreen & Peek Variables
-    this.fullscreen = true;
+    // Peek Variables
     this.peek = false;
     this.peekWidth = 0;
     this.peekAlign;
 
     // Swipe Variables
     this.swipe = true;
-
-    // Misc Variables
-    this.coords1x = 0;
-    this.coords1y = 0;
+    this.swiping = false;
 
     // Zoom Variables
     this.zoom = false;
-    this.zoomMin;
-    this.zoomMax;
-    this.isZooming = false;
-    this.isZoomed = false;
-    this.panMax = {x:0, y:0};
-    this.panCoords = {x:0, y:0};
-    this.panCoordsStart = {x:0, y:0};
-    this.panning = false;
     this.zoomIcon;
-    this.pinch = false;
-    this.scale;
-
-    // Thumbnail Variables
-    this.thumbs = false;
+    this.overlay = false;
+    this.isZoomed = false;
+    this.zoomElement = null;
+    this.zoomOffsetX = 0;
+    this.zoomOffsetY = 0;
+    this.zoomTranslateX = 0;
+    this.zoomTranslateY = 0;
+    this.zoomTranslateMinX = 0;
+    this.zoomTranslateMinY = 0;
+    this.zoomTranslateMaxX = 0;
+    this.zoomTranslateMaxY = 0;
+    this.zoomScale = 1;
+    this.zoomScaleStart = 1;
+    this.pinchEventsReady = false;
+    this.lastZoomTap = 0;
 
     // Multi Item Variables
     this.multi = false;
@@ -2272,20 +3888,11 @@ soysauce.carousels = (function() {
         case "autoscroll":
           self.autoscroll = true;
           break;
-        case "nofullscreen":
-          self.fullscreen = false;
-          break;
         case "noswipe":
           self.swipe = false;
           break;
         case "zoom":
           self.zoom = true;
-          break;
-        case "pinch":
-          self.pinch = true;
-          break
-        case "thumbs":
-          self.thumbs = true;
           break;
         case "multi":
           self.multi = true;
@@ -2296,35 +3903,22 @@ soysauce.carousels = (function() {
         case "fade":
           self.fade = true;
           break;
+        case "overlay":
+          self.overlay = true;
+          break;
       }
     });
-
-    if (this.swipe) this.widget.find("a").click(function(e) {
-      soysauce.stifle(e);
-    });
+    
+    if (this.multi) {
+      this.infinite = false;
+    }
     
     this.widgetWidth = this.widget.outerWidth();
     this.widget.wrapInner("<div data-ss-component='container' />");
     this.widget.wrapInner("<div data-ss-component='container_wrapper' />");
     this.container = this.widget.find("[data-ss-component='container']");
-
+    
     wrapper = this.widget.find("[data-ss-component='container_wrapper']");
-
-    if (this.zoom) {
-      wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
-      this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
-      this.zoomMin = parseFloat(this.widget.attr("data-ss-zoom-min")) || 1.2;
-      this.zoomMax = parseFloat(this.widget.attr("data-ss-zoom-max")) || 4;
-      this.scale = DEFAULT_SCALE;
-
-      if (this.zoomMin < 1.2) {
-        this.zoomMin = 1.2;
-      }
-
-      if (this.zoomMin > this.zoomMax) {
-        console.warn("Soysauce: zoomMin is greater than zoomMax, errors may occur.");
-      }
-    }
 
     if (this.infinite) {
       wrapper.after("<div data-ss-component='button' data-ss-button-type='prev' data-ss-state='enabled'></div><div data-ss-component='button' data-ss-button-type='next'></div>");
@@ -2396,39 +3990,11 @@ soysauce.carousels = (function() {
 
     this.links = (!this.items[0].tagName.match(/^a$/i) && !this.items.find("a[href]").length) ? false : true;
 
-    if (this.thumbs) {
-      var c = 0;
-
-      if (this.container.find("[data-ss-component='thumbnail']").length > 0) return;
-
-      this.items.each(function(i, item){ 
-        var src = (/img/i.test(item.tagName)) ? $(this).attr("src") : $(this).find("img").attr("src");
-
-        ++c;
-
-        // Skip first and last, as they are clones.
-        if (self.infinite && (c === 1 || c === self.numChildren)) {
-          return; 
-        }
-
-        self.container.append("<img data-ss-component='thumbnail' src='" + src + "'>");
-      });
-    }
-
     numDots = (this.infinite) ? this.numChildren - 2 : this.numChildren;
     numDots = (this.multi) ? this.maxIndex : numDots;
-    thumbnails = this.container.find("[data-ss-component='thumbnail']");
 
-    if (thumbnails.length > 0) {
-      thumbnails.each(function(i, thumbnail) {
-        dotsHtml += "<div data-ss-component='dot'>" + thumbnail.outerHTML + "</div>";
-        $(this).remove();
-      });
-    }
-    else {
-      for (i = 0; i < numDots; i++) {
-        dotsHtml += "<div data-ss-component='dot'></div>";
-      }
+    for (i = 0; i < numDots; i++) {
+      dotsHtml += "<div data-ss-component='dot'></div>";
     }
 
     this.dots.html(dotsHtml);
@@ -2436,7 +4002,7 @@ soysauce.carousels = (function() {
     this.dots.attr("data-ss-state", "inactive")
     this.dots.first().attr("data-ss-state", "active");
     this.dots.on("click", function(e) {
-      var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
+      var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(VENDOR_PREFIX + "transform"))[4], 10);
       var index = 0;
 
       if (currXPos === self.offset) {
@@ -2466,9 +4032,16 @@ soysauce.carousels = (function() {
     
     this.items.attr("data-ss-state", "inactive");
 
+    this.index = parseInt(this.widget.attr("data-ss-index"), 10) || 0;
+
     if (this.infinite) {
-      $(this.items[1]).attr("data-ss-state", "active");
-      this.index++;
+      if (!this.index) {
+        this.index++;
+      }
+      else if (this.index > this.maxIndex) {
+        this.index = this.maxIndex;
+      }
+      $(this.items[this.index]).attr("data-ss-state", "active");
     }
     else {
       if (this.multi) {
@@ -2476,7 +4049,7 @@ soysauce.carousels = (function() {
         $items.attr("data-ss-state", "active");
       }
       else {
-        $(this.items[0]).attr("data-ss-state", "active");
+        $(this.items[this.index]).attr("data-ss-state", "active");
       }
     }
     
@@ -2513,62 +4086,79 @@ soysauce.carousels = (function() {
         self.items.css("width", self.itemWidth + "px");
       }
 
-      if (self.infinite) {
-        self.offset -= self.itemWidth;
-      }
+      self.offset -= (self.itemWidth * self.index);
       
       self.container.attr("data-ss-state", "notransition");
       setTranslate(self.container[0], self.offset);
       
       self.widgetHeight = self.widget.outerHeight(true);
       
-      if (self.zoom) {
-        self.initPanLimits();
-      }
-    });
-
-    if (this.swipe || this.zoom) this.widget.on("touchstart mousedown", function(e) {
-      var targetComponent = $(e.target).attr("data-ss-component");
-
-      if (/^(zoom_icon|dot|thumbnail)$/.test(targetComponent) && self.interrupted) {
-        var currXPos = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
-        if (currXPos === self.offset) {
-          self.interrupted = false;
-        }
-      }
-      
-      if (self.jumping || self.freeze || /^(button|dot|dots|thumbnail)$/.test(targetComponent)) {
-        return;
-      }
-
-      self.handleSwipe(e);
-    });
-
-    this.container.on(TRANSITION_END, function(e) {
-      if (Math.abs(e.timeStamp - self.lastTransitionEnd) < 300) return;
-
-      self.lastTransitionEnd = e.timeStamp;
-      self.widget.trigger("slideEnd");
-      self.ready = true;
-      self.jumping = false;
-      self.interrupted = false;
-      self.container.attr("data-ss-state", "ready");
-      self.widget.attr("data-ss-state", "ready");
-
-      if (self.autoscroll && self.autoscrollRestartID === undefined) {
-        self.autoscrollRestartID = window.setTimeout(function() {
-          self.autoscrollOn();
-        }, 1000);
-      }
-      
-      if (self.autoheight) {
-        self.widget.css("height", $(self.items[self.index]).outerHeight(true));
+      if (self.overlay) {
+        self.zoomOffsetX = self.zoomElement.offset().left;
+        self.zoomOffsetY = self.zoomElement.offset().top;
       }
     });
     
+    if (this.links) {
+      this.container.find("a[href]").each(function(e) {
+        var $this = $(this);
+        var href = $this.attr("href");
+        $this.attr("data-ss-href", href).attr("href", "");
+      });
+      this.container.hammer().on("tap click", function(e) {
+        var $target;
+        
+        if (!self.ready || e.type === "click") return false;
+        
+        $target = $(e.target);
+        
+        if (e.target.tagName === "A" || $target.find("a").length) {
+          window.location.href = $target.attr("data-ss-href") || $target.find("a").attr("data-ss-href");
+        }
+      });
+    }
+
+    if (this.swipe) {
+      // Temporary Fix - Fixes iOS 7 swipe issue
+      if (/iphone os 7/i.test(navigator.userAgent)) {
+        var $ios7fix = $("#ios7fix");
+        if (!$ios7fix.length) {
+          $("body").append("<div id='ios7fix' style='color: transparent; z-index: -1; height: 1px; width: 1px; position: absolute; top: 0; left: 0;'></div>");
+        } 
+        this.container.on("touchmove touchend", function(e) {
+          $ios7fix.html(e.type);
+        });
+      }
+      // end of temp fix
+      this.container.hammer().on("touch release drag swipe", function(e) {
+        if (self.freeze) return;
+        self.handleSwipe(e);
+      });
+    }
+    
+    if (this.zoom) {
+      wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
+      this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
+      this.container.hammer().on("tap", function(e) {
+        self.zoomIn(e);
+      });
+    }
+    
+    this.currentItem = $(this.items.get(self.index));
+
+    if (this.overlay) {
+      this.zoomElement = this.currentItem;
+      this.container.hammer().on("pinch doubletap", function(e) {
+        if (!/pinch|doubletap/.test(e.type)) return;
+        self.handleZoom(e);
+      });
+    }
+    
+    this.container.on(TRANSITION_END, function(e) {
+      self.setTransitionedStates(e);
+    });
+    
     if (this.autoscroll) {
-      var interval = this.widget.attr("data-ss-autoscroll-interval");
-      this.autoscrollInterval = (!interval) ? AUTOSCROLL_INTERVAL : parseInt(interval, 10);
       this.autoscrollOn();
     }
 
@@ -2593,39 +4183,290 @@ soysauce.carousels = (function() {
       });
   } // End Constructor
   
-  Carousel.prototype.gotoPos = function(x, fast, jumping, resettingPosition) {
+  Carousel.prototype.handleZoom = function(e) {
     var self = this;
+    
+    if (this.swiping) return;
+    
+    // To be implemented:
+    //  * panning
+    
+    if (e.type === "doubletap") {
+      if (e.timeStamp - this.lastZoomTap < 500) return;
+      
+      this.zoomElement = this.currentItem;
+      this.lastZoomTap = e.timeStamp;
+
+      this.handleFreeze();
+      soysauce.overlay.hideAssets();
+      
+      if (this.zoomScale < 1.5) {
+        this.zoomElement.attr("data-ss-state", "zooming");
+        this.zoomScale = 1.5
+      }
+      else if (this.zoomScale < 2.5) {
+        this.zoomElement.attr("data-ss-state", "zooming");
+        this.zoomScale = 2.5;
+      }
+      else {
+        this.zoomElement.attr("data-ss-state", "active");
+        this.zoomScale = 1;
+      }
+      
+      this.zoomScaleStart = this.zoomScale;
+
+      if (this.zoomScale > 1) {
+        this.calcTranslateLimits(e);
+      }
+      else {
+        this.zoomTranslateX = 0;
+        this.zoomTranslateY = 0;
+      }
+      
+      window.setTimeout(function() {
+        setMatrix(self.zoomElement[0], self.zoomScale, self.zoomTranslateX, self.zoomTranslateY);
+        if (self.zoomScale === 1) {
+          self.handleUnfreeze();
+          soysauce.overlay.showAssets();
+        }
+      }, 0);
+    }
+    else {
+      if (!this.pinchEventsReady) {
+        this.zoomElement = this.currentItem;
+        this.zoomElement.attr("data-ss-state", "zooming");
+
+        this.zoomScaleStart = this.zoomScale;
+
+        this.handleFreeze();
+        soysauce.overlay.hideAssets();
+        
+        this.container.one("touchend", function() {
+          self.zoomElement.attr("data-ss-state", "active");
+        });
+        
+        this.container.hammer().one("release", function(releaseEvent) {
+          soysauce.stifle(releaseEvent);
+
+          if (self.zoomScale <= 1) {
+            self.zoomScale = 1;
+            self.zoomTranslateX = 0;
+            self.zoomTranslateY = 0;
+            self.handleUnfreeze();
+            soysauce.overlay.showAssets();
+          }
+          else if (self.zoomScale >= 4) {
+            self.zoomScale = 4;
+          }
+
+          self.zoomScaleStart = self.zoomScale;
+          self.pinchEventsReady = false;
+
+          setMatrix(self.zoomElement[0], self.zoomScale, self.zoomTranslateX, self.zoomTranslateY);
+        });
+        
+        this.pinchEventsReady = true;
+      }
+      
+      this.zoomScale = (((e.gesture.scale - 1) * ZOOM_SENSITIVITY) * this.zoomScaleStart) + this.zoomScaleStart;
+      this.zoomScale = (this.zoomScale < 0.3) ? 0.3 : this.zoomScale;
+      
+      // this.calcTranslateLimits(e);
+      
+      this.zoomElement.attr("data-ss-state", "zooming");
+      setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
+    }
+  };
+  
+  Carousel.prototype.calcTranslateLimits = function(e) {
+    this.zoomTranslateX += ((this.zoomOffsetX - e.gesture.center.pageX + (this.itemWidth / 2)) * this.zoomScale);
+    this.zoomTranslateY += ((this.zoomOffsetY - e.gesture.center.pageY + (this.widgetHeight / 2)) * this.zoomScale);
+    
+    this.zoomTranslateMinX = ((this.itemWidth*this.zoomScale) - this.itemWidth) / 2;
+    this.zoomTranslateMaxX = -this.zoomTranslateMinX;
+    this.zoomTranslateMinY = ((this.widgetHeight*this.zoomScale) - this.widgetHeight) / 2;
+    this.zoomTranslateMaxY = -this.zoomTranslateMinY;
+    
+    if (this.zoomTranslateX > this.zoomTranslateMinX) {
+      this.zoomTranslateX = this.zoomTranslateMinX;
+    }
+    else if (this.zoomTranslateX < this.zoomTranslateMaxX) {
+      this.zoomTranslateX = this.zoomTranslateMaxX;
+    }
+    if (this.zoomTranslateY > this.zoomTranslateMinY) {
+      this.zoomTranslateY = this.zoomTranslateMinY;
+    }
+    else if (this.zoomTranslateY < this.zoomTranslateMaxY) {
+      this.zoomTranslateY = this.zoomTranslateMaxY;
+    }
+  };
+  
+  Carousel.prototype.zoomIn = function(e) {
+    if (this.overlay) return;
+    soysauce.stifle(e);
+    soysauce.overlay.injectCarousel(this, {
+      "background": "black",
+      "opacity": "1"
+    });
+  };
+  
+  Carousel.prototype.resetZoomState = function() {
+    this.zoomElement.css((VENDOR_PREFIX + "transform"), "");
+    this.zoomTranslateX = 0;
+    this.zoomTranslateY = 0;
+    this.zoomScale = 1;
+    this.zoomScaleStart = 1;
+    this.zoomElement = this.currentItem;
+    this.zoomOffsetX = this.zoomElement.offset().left;
+    this.zoomOffsetY = this.zoomElement.offset().top;
+  };
+  
+  Carousel.prototype.handleSwipe = function(e) {
+    var targetComponent = $(e.target).attr("data-ss-component");
+    var self = this;
+    
+    if (self.jumping || self.freeze || self.looping) return;
+
+    if (e.type === "swipe" && e.gesture.eventType === "end" && !self.ready) {
+      self.ready = true;
+      self.interrupted = false;
+      self.swiping = false;
+      self.widget.attr("data-ss-state", "ready");
+      self.container.attr("data-ss-state", "ready");
+      return;
+    }
+    
+    if (self.lockScroll && e.type === "release") {
+      self.lockScroll = false;
+      self.widget.attr("data-ss-state", "ready");
+      self.container.attr("data-ss-state", "ready");
+      window.setTimeout(function() {
+        setTranslate(self.container[0], self.offset);
+      }, 0);
+      return;
+    }
+    
+    if (self.lockScroll) {
+      return;
+    }
+    
+    self.lockScroll = (Math.abs(e.gesture.angle) >= 75 && Math.abs(e.gesture.angle) <= 105) ? true : false;
+    
+    if (self.lockScroll) {
+      return;
+    }
+
+    if (!self.ready && e.type === "touch") {
+      self.interruptedOffset = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(self.container.css(VENDOR_PREFIX + "transform"))[4], 10);
+      self.interrupted = true;
+      self.looping = false;
+      self.container.attr("data-ss-state", "notransition");
+      self.widget.attr("data-ss-state", "intransit");
+      setTranslate(self.container[0], self.interruptedOffset);
+      return;
+    }
+    
+    if (e.gesture.eventType === "end") {
+      var swiped = (e.gesture.velocityX >= Hammer.gestures.Swipe.defaults.swipe_velocity) ? true : false;
+      var doSwipe = (swiped || e.gesture.distance >= SWIPE_THRESHOLD) ? true : false;
+
+      soysauce.stifle(e);
+
+      self.ready = true;
+      self.swiping = false;
+      
+      self.widget.attr("data-ss-state", "intransit");
+      self.container.attr("data-ss-state", "intransit");
+      
+      if (doSwipe && e.gesture.direction === "left") {
+        if (!self.infinite && ((self.index === self.numChildren - 1) 
+        || (self.multi && self.index === self.maxIndex - Math.floor(self.multiVars.numItems / self.multiVars.stepSize)))) {
+          if (self.multi)  {
+            if (self.index === self.maxIndex - 1) {
+              self.gotoPos(self.offset);
+            }
+            else {
+              self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
+            }
+          }
+          else {
+            self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
+          }
+        }
+        else {
+          if (soysauce.vars.degrade) {
+            self.rewindCoord = parseInt(self.container.css("left"), 10);
+          }
+          self.slideForward();
+        }
+      }
+      else if (doSwipe && e.gesture.direction === "right") {
+        if (!self.infinite && self.index === 0) {
+          self.gotoPos(self.peekWidth);
+        }
+        else {
+          if (soysauce.vars.degrade) {
+            self.rewindCoord = parseInt(self.container.css("left"), 10);
+          }
+          self.slideBackward();
+        }
+      }
+      else {
+        setTranslate(self.container[0], self.offset);
+      }
+    }
+    else if (e.gesture.eventType === "move") {
+      soysauce.stifle(e);
+      
+      self.swiping = true;
+      self.ready = false;
+      
+      self.container.attr("data-ss-state", "notransition");
+      self.widget.attr("data-ss-state", "intransit");
+      
+      if (self.interrupted) {
+        setTranslate(self.container[0], self.interruptedOffset + e.gesture.deltaX);
+      }
+      else {
+        setTranslate(self.container[0], self.offset + e.gesture.deltaX);
+      }
+    }
+  };
+  
+  Carousel.prototype.gotoPos = function(x, jumping, resettingPosition) {
+    var self = this;
+
+    if (this.overlay) {
+      this.currentItem = $(this.items.get(self.index));
+      this.resetZoomState();
+    }
 
     this.offset = x;
     setTranslate(this.container[0], x);
     
-    if (this.ready) {
-      this.container.attr("data-ss-state", "ready");
-      this.widget.attr("data-ss-state", "ready");
-    }
-    else {
-      this.container.attr("data-ss-state", (fast) ? "intransit-fast" : "intransit");
-      this.widget.attr("data-ss-state", "intransit");
-    }
+    this.container.attr("data-ss-state", "intransit");
+    this.widget.attr("data-ss-state", "intransit");
+    this.ready = true;
     
-    if (self.autoscroll) {
-      self.autoscrollOff();
-      if (self.autoscrollRestartID !== undefined) {
+    if (this.autoscroll) {
+      this.autoscrollOff();
+      if (this.autoscrollRestartID) {
         window.clearInterval(self.autoscrollRestartID);
-        self.autoscrollRestartID = undefined;
+        this.autoscrollRestartID = null;
       }
     }
     
     if (this.infinite) {
       var duration = 0, xcoord = 0;
       
-      duration = parseFloat(this.container.css(PREFIX + "transition-duration").replace(/s$/,"")) * 1000;
+      duration = parseFloat(this.container.css(VENDOR_PREFIX + "transition-duration").replace(/s$/,"")) * 1000;
       
       duration = (!duration) ? 650 : duration;
       // Slide Backward Rewind
       if (!resettingPosition && !jumping && this.index === this.numChildren - 2 && !this.forward) {
+        this.looping = true;
         this.infiniteID = window.setTimeout(function() {
-          xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
+          xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(VENDOR_PREFIX + "transform"))[4], 10);
           self.container.attr("data-ss-state", "notransition");
           self.offset = xcoord - self.itemWidth*(self.numChildren - 2);
           setTranslate(self.container[0], self.offset);
@@ -2638,13 +4479,15 @@ soysauce.carousels = (function() {
               self.offset = -self.index*self.itemWidth + self.peekWidth;
             }
             setTranslate(self.container[0], self.offset);
+            self.looping = false;
           }, 0);
         }, 0);
       }
       // Slide Forward Rewind
       else if (!resettingPosition && !jumping && this.index === 1 && this.forward) {
+        this.looping = true;
         this.infiniteID = window.setTimeout(function() {
-          xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(PREFIX + "transform"))[4], 10);
+          xcoord = (soysauce.vars.degrade) ? self.rewindCoord : parseInt(soysauce.getArrayFromMatrix(self.container.css(VENDOR_PREFIX + "transform"))[4], 10);
           self.container.attr("data-ss-state", "notransition");
           self.offset = self.itemWidth*(self.numChildren - 2) + xcoord;
           setTranslate(self.container[0], self.offset);
@@ -2657,16 +4500,17 @@ soysauce.carousels = (function() {
               self.offset = -self.itemWidth + self.peekWidth;
             }
             setTranslate(self.container[0], self.offset);
+            self.looping = false;
           }, 0);
         }, 0);
       }
       else {
-        this.infiniteID = undefined;
+        this.infiniteID = null;
       }
     }
   };
   
-  Carousel.prototype.slideForward = function(fast) {
+  Carousel.prototype.slideForward = function() {
     var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]),
         lastInfiniteIndex = this.numChildren - 1,
         stepSize = (this.multi) ? this.multiVars.stepSize * this.itemWidth : this.itemWidth;
@@ -2676,7 +4520,7 @@ soysauce.carousels = (function() {
       (!this.infinite && this.multi && this.index === this.maxIndex - 1)) return false;
     
     $dots.attr("data-ss-state", "inactive");
-      
+    
     if (this.multi) {
       var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
       $items.attr("data-ss-state", "inactive");
@@ -2725,12 +4569,12 @@ soysauce.carousels = (function() {
       stepSize -= (this.multiVars.stepSize - (this.items.length % this.multiVars.stepSize)) * this.itemWidth;
     }
     
-    this.gotoPos(this.offset - stepSize, fast);
+    this.gotoPos(this.offset - stepSize);
     
     return true;
   };
   
-  Carousel.prototype.slideBackward = function(fast) {
+  Carousel.prototype.slideBackward = function() {
     var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]),
         lastInfiniteIndex = this.numChildren - 1,
         stepSize = (this.multi) ? this.multiVars.stepSize * this.itemWidth : this.itemWidth;
@@ -2778,45 +4622,36 @@ soysauce.carousels = (function() {
     this.forward = false;
     
     if (this.multi && !this.multiVars.even && this.index === 0) {
-      this.gotoPos(0 + this.peekWidth, fast);
+      this.gotoPos(0 + this.peekWidth);
     }
     else {
-      this.gotoPos(this.offset + stepSize, fast);
+      this.gotoPos(this.offset + stepSize);
     }
     
     return true;
   };
   
-  Carousel.prototype.initPanLimits = function() {
-    var self = this, extraPadding = 2;
-    
-    this.panMax.y = Math.abs(((self.items.first().height() * self.scale) - self.widgetHeight) / DEFAULT_SCALE);
-    this.panMax.x = Math.abs((self.widgetWidth - ((self.itemWidth*self.scale) - (self.itemPadding*2))) / DEFAULT_SCALE);
-
-    if (this.panMax.y === 0) {
-      this.container.imagesLoaded(function() {
-        self.panMax.y = Math.abs(((self.items.first().height() * self.scale) - self.widgetHeight) / DEFAULT_SCALE);
-      });
-    }
-  };
-  
   Carousel.prototype.handleResize = function() {
     var parentWidgetContainer;
+    var diff = 0;
+    var prevState = "";
     
+    if (this.widget.is(":hidden") && !this.defer) return;
+
     this.widgetWidth = this.widget.outerWidth();
-    
+
     // Assumption: parent is a toggler
     if (!this.widgetWidth) parentWidgetContainer = this.widget.parents().closest("[data-ss-widget='toggler'] [data-ss-component='content']");
-    
+
     if (parentWidgetContainer) {
       parentWidgetContainer.css("display", "block");
       this.widgetWidth = this.widgetWidth || parentWidgetContainer.outerWidth();
     }
-    
+
     if (this.fade) {
       return;
     }
-
+    
     if (this.multi) {
       if (this.multiVars.minWidth) {
         this.multiVars.numItems = Math.floor(this.widgetWidth / this.multiVars.minWidth)
@@ -2824,522 +4659,54 @@ soysauce.carousels = (function() {
       this.itemWidth = this.widgetWidth / this.multiVars.numItems;
     }
 
-    if (this.fullscreen) {
-      var diff;
-      var prevState = this.container.attr("data-ss-state");
+    prevState = this.container.attr("data-ss-state");
 
-      if (this.multi) {
-        diff = this.widgetWidth - (this.itemWidth * this.multiVars.numItems);
-      }
-      else {
-        diff = this.widgetWidth - this.itemWidth;
-      }
-
-      if (this.peek) {
-        this.itemWidth -= this.peekWidth*2;
-        this.checkPanLimits();
-      }
-
-      this.itemWidth += diff;
-      
-      if (this.peek && /left/.test(this.peekAlign)) {
-        this.offset = -this.index * this.itemWidth;
-      }
-      else {
-        this.offset = -this.index * this.itemWidth + this.peekWidth;
-      }
-      
-      this.container.attr("data-ss-state", "notransition");
-      this.widget.attr("data-ss-state", "intransit");
-
-      this.items.css("width", this.itemWidth + "px");
-
-      setTranslate(this.container[0], this.offset);
+    if (this.multi) {
+      diff = this.widgetWidth - (this.itemWidth * this.multiVars.numItems);
+    }
+    else {
+      diff = this.widgetWidth - this.itemWidth;
     }
 
+    if (this.peek) {
+      this.itemWidth -= this.peekWidth*2;
+    }
+
+    this.itemWidth += diff;
+
+    if (this.peek && /left/.test(this.peekAlign)) {
+      this.offset = -this.index * this.itemWidth;
+    }
+    else {
+      this.offset = -this.index * this.itemWidth + this.peekWidth;
+    }
+
+    this.container.attr("data-ss-state", "notransition");
+    this.widget.attr("data-ss-state", "intransit");
+
+    this.items.css("width", this.itemWidth + "px");
+
+    setTranslate(this.container[0], this.offset);
+
     this.container.css("width", (this.itemWidth * this.numChildren) + "px");
-    
+
     if (this.autoheight) {
       this.widget.css("height", $(this.items[this.index]).outerHeight(true));
     }
   };
   
-  Carousel.prototype.handleInterrupt = function(e) {
-    if (this.isZooming || this.isZoomed || !this.swipe) {
-      soysauce.stifle(e);
-      return;
-    }
-    
+  Carousel.prototype.autoscrollOn = function(forceEnable) {
     var self = this;
-    var coords1, coords2, ret;
-    var xcoord = (soysauce.vars.degrade) ? parseInt(self.container[0].style.left, 10) : parseInt(soysauce.getArrayFromMatrix(this.container.css(PREFIX + "transform"))[4], 10);
     
-    this.interrupted = true;
+    if (!this.autoscroll && !forceEnable) return false;
     
-    if (this.autoscroll) {
-      this.autoscrollOff();
-      if (this.autoscrollRestartID !== undefined) {
-        window.clearInterval(self.autoscrollRestartID);
-        self.autoscrollRestartID = undefined;
-      }
-    }
-    
-    self.container.attr("data-ss-state", "notransition");
-    self.widget.attr("data-ss-state", "intransit");
-    
-    // Loop Interrupt
-    if ((this.infinite && this.index === 1 && this.forward) || (this.infinite && (this.index === this.numChildren - 2) && !this.forward)) {
-      this.looping = true;
-    }
-    else {
-      this.looping = false;
-    }
-    
-    window.clearInterval(this.infiniteID);
-    setTranslate(this.container[0], xcoord);
-    
-    coords1 = soysauce.getCoords(e);
-    
-    this.widget.on("touchmove mousemove", function(e2) {
-      var dragOffset;
-      
-      if (self.isZoomed) {
-        soysauce.stifle(e);
-        soysauce.stifle(e2);
-        return;
-      }
-      
-      ret = coords2 = soysauce.getCoords(e2);
-      
-      if (!self.lockScroll) {
-        if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) > 1.2) {
-          self.lockScroll = "y";
-        }
-        else {
-          self.lockScroll = "x";
-        }
-      }
-      
-      if (/^y$/.test(self.lockScroll)) {
-        return;
-      }
-      
-      soysauce.stifle(e2);
-      dragOffset = coords1.x - coords2.x;
-      
-      setTranslate(self.container[0], xcoord - dragOffset);
-    });
-    
-    if (this.infiniteID !== undefined) this.widget.one("touchend mouseup", function(e2) {
-      self.infiniteID = undefined;
-      
-      if (self.index === self.numChildren - 2) {
-        if (self.peek && /left/.test(self.peekAlign)) {
-          self.offset = -self.index*self.itemWidth;
-        }
-        else {
-          self.offset = -self.index*self.itemWidth + self.peekWidth;
-        }
-      }
-      else if (self.index === 1) {
-        if (self.peek && /left/.test(self.peekAlign)) {
-          self.offset = -self.itemWidth;
-        }
-        else {
-          self.offset = -self.itemWidth + self.peekWidth;
-        }
-      }
-      
-      window.setTimeout(function() {
-        self.container.attr("data-ss-state", "intransit");
-        setTranslate(self.container[0], self.offset);
-      }, 0);
-    });
-    
-    return ret;
-  };
-  
-  Carousel.prototype.handleSwipe = function(e1) {
-    var self = this;
-    var coords1, coords2, lastX, originalDist = 0, prevDist = -1;
-    var newX2 = 0, newY2 = 0;
-    var zoomingIn = null;
-    
-    if (this.infinite) {
-      if (new Date().getTime() - this.lastSlideTime < 225) return;
-      this.lastSlideTime = new Date().getTime();
-    }
-    
-    coords1 = soysauce.getCoords(e1);
-    
-    this.coords1x = coords1.x;
-    this.coords1y = coords1.y;
-    
-    if (coords1.y2 && coords1.x2) {
-      var xs = 0, ys = 0, dist = 0;
-      
-      ys = (coords1.y2 - coords1.y)*(coords1.y2 - coords1.y);
-      xs = (coords1.x2 - coords1.x)*(coords1.x2 - coords1.x);
-      
-      originalDist = Math.sqrt(ys + xs);
-    }
-    
-    if (e1.type.match(/mousedown/) !== null) soysauce.stifle(e1); // for desktop debugging
-
-    this.lockScroll = undefined;
-
-    if (!this.ready) 
-      lastX = this.handleInterrupt(e1);
-    else {
-      // Pan or Pinch Zooming
-      if (this.zoom && this.isZoomed) {
-        var prevScale = self.scale;
-        this.widget.one("touchend mouseup", function(e2) {
-          var array = soysauce.getArrayFromMatrix($(e2.target).css(PREFIX + "transform")),
-              panX = parseInt(array[4], 10), panY = parseInt(array[5], 10), $target = $(e2.target),
-              buttonName = $(e2.target).attr("data-ss-button-type"),
-              componentName = $(e2.target).attr("data-ss-component"),
-              $zoomImg = $(self.items[self.index]).find("img"),
-              event = e2.originalEvent;
-          
-          if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
-          
-          self.panCoordsStart.x = (Math.abs(panX) > 0) ? panX : 0;
-          self.panCoordsStart.y = (Math.abs(panY) > 0) ? panY : 0;
-          zoomingIn = null;
-          
-          $zoomImg.attr("data-ss-state", "ready");
-          
-          if (self.pinch && event.changedTouches && event.changedTouches.length > 1) {
-            var scale = prevScale + event.scale - 1;
-            if (scale > self.zoomMax) {
-              self.scale = self.zoomMax;
-            }
-            else if (scale < self.zoomMin) {
-              self.scale = self.zoomMin;
-            }
-            else {
-              self.scale += event.scale - 1;
-            }
-          }
-          
-          self.widget.off("touchmove mousemove");
-        });
-        this.widget.on("touchmove mousemove", function(e2) {
-          var event = e2.originalEvent, 
-              zoomImg = self.items[self.index],
-              buttonName = $(e2.target).attr("data-ss-button-type"),
-              componentName = $(e2.target).attr("data-ss-component");
-          
-          soysauce.stifle(e2);
-          
-          if (/^(prev|next)$/.test(buttonName) || /^(dots|zoom_icon)$/.test(componentName)) return;
-          
-          zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
-          
-          coords2 = soysauce.getCoords(e2);
-          
-          $(zoomImg).attr("data-ss-state", "panning");
-
-          // Pinch Zooming
-          if (self.pinch && event.changedTouches.length > 1) {
-            var startCoords = soysauce.getCoords(event);
-            var scale = prevScale + event.scale - 1;
-
-            self.initPanLimits();
-            
-            if (scale >= self.zoomMin && scale <= self.zoomMax) {
-              setMatrix(zoomImg, scale, self.panCoordsStart.x, self.panCoordsStart.y);
-            }
-          }
-          // Panning
-          else {
-            self.panCoords.x = self.panCoordsStart.x + coords2.x - self.coords1x;
-            self.panCoords.y = self.panCoordsStart.y + coords2.y - self.coords1y;
-
-            self.checkPanLimits();
-            setMatrix(e2.target, self.scale, self.panCoords.x, self.panCoords.y);
-          }
-        });
-      }
-      // Swipe Forward/Backward or Lock Scroll
-      else if (this.swipe) this.widget.on("touchmove mousemove", function(e2) {
-        var dragOffset,
-            target_name = $(e2.target).attr("data-ss-component");
-        
-        coords2 = soysauce.getCoords(e2);
-        
-        if (/^zoom_icon$/.test(target_name)) return;
-        
-        if (!self.lockScroll) {
-          if (Math.abs((coords1.y - coords2.y)/(coords1.x - coords2.x)) >= 1) {
-            self.lockScroll = "y";
-          }
-          else {
-            self.lockScroll = "x";
-          }
-        }
-        
-        if (/^y$/.test(self.lockScroll)) {
-          return;
-        }
-        
-        soysauce.stifle(e2);
-        self.panning = true;
-        lastX = coords2.x;
-        dragOffset = coords1.x - coords2.x;
-        self.container.attr("data-ss-state", "notransition");
-        self.widget.attr("data-ss-state", "intransit");
-        setTranslate(self.container[0], self.offset - dragOffset);
-      });
-    }
-
-    // Decides whether to zoom or move to next/prev item
-    this.widget.one("touchend mouseup", function(e2) {
-      var forceZoom;
-      var targetComponent = $(e2.target).attr("data-ss-component");
-      
-      self.widget.off("touchmove mousemove");
-      
-      if (self.jumping) return;
-      
-      soysauce.stifle(e2);
-      
-      if (/^button$/.test(targetComponent)) {
-        return;
-      }
-      
-      forceZoom = (/^zoom_icon$/.test(targetComponent)) ? true : false;
-      
-      coords2 = soysauce.getCoords(e2);
-      
-      if (coords2 !== null) lastX = coords2.x;
-
-      var xDist = self.coords1x - lastX;
-      var yDist = self.coords1y - coords2.y;
-      
-      var time = Math.abs(e2.timeStamp - e1.timeStamp);
-      
-      var velocity = xDist / time;
-      var fast = (velocity > 0.9) ? true : false;
-      
-      if (!self.interrupted && self.links && Math.abs(xDist) === 0) {
-        self.ready = true;
-        self.container.attr("data-ss-state", "ready");
-        
-        if (e2.target.tagName.match(/^a$/i) !== null) {
-          window.location.href = $(e2.target).attr("href");
-        }
-        else if ($(e2.target).closest("a").length > 0) {
-          window.location.href = $(e2.target).closest("a").attr("href");
-        }
-        
-      }
-      else if (!self.interrupted && self.zoom && ((Math.abs(xDist) < 2 && Math.abs(yDist) < 2) || self.isZoomed || forceZoom)) {
-        soysauce.stifle(e1);
-        self.toggleZoom(e1, e2, Math.abs(xDist), Math.abs(yDist));
-      }
-      else if (Math.abs(xDist) < 15 || (self.interrupted && Math.abs(xDist) < 25)) {
-        if (self.looping) return;
-        soysauce.stifle(e1);
-        self.ready = true;
-        self.container.attr("data-ss-state", "ready");
-        self.gotoPos(self.offset, true, false, true);
-      }
-      else if (Math.abs(xDist) > 3 && self.swipe) {
-        self.ready = true;
-        self.container.attr("data-ss-state", "ready");
-        
-        if (self.lockScroll === "y") {
-          return;
-        }
-        
-        if (xDist > 0) {
-          if (!self.infinite && ((self.index === self.numChildren - 1) 
-              || (self.multi && self.index === self.maxIndex - Math.floor(self.multiVars.numItems / self.multiVars.stepSize)))) {
-            if (self.multi)  {
-              if (self.index === self.maxIndex - 1) {
-                self.gotoPos(self.offset);
-              }
-              else {
-                self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
-              }
-            }
-            else {
-              self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
-            }
-          }
-          else {
-            if (soysauce.vars.degrade) {
-              self.rewindCoord = parseInt(self.container.css("left"), 10);
-            }
-            self.slideForward(fast);
-          }
-        }
-        else {
-          if (!self.infinite && self.index === 0) {
-            self.gotoPos(self.peekWidth);
-          }
-          else {
-            if (soysauce.vars.degrade) {
-              self.rewindCoord = parseInt(self.container.css("left"), 10);
-            }
-            self.slideBackward(fast);
-          }
-        }
-      }
-    });
-  };
-  
-  Carousel.prototype.checkPanLimits = function() {
-    if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x > 0) {
-      this.panCoords.x = this.panMax.x;
-    }
-    else if (Math.abs(this.panCoords.x) > this.panMax.x && this.panCoords.x < 0) {
-      this.panCoords.x = -this.panMax.x;
-    }
-
-    if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y > 0) {
-      this.panCoords.y = this.panMax.y;
-    }
-    else if (Math.abs(this.panCoords.y) > this.panMax.y && this.panCoords.y < 0) {
-      this.panCoords.y = -this.panMax.y;
-    }
-      
-    if (this.isZoomed) {
-      var img = this.items[this.index];
-      
-      if (!/img/i.test(img.tagName)) {
-        img = $(img).find("img")[0];
-      }
-      
-      $(img).attr("data-ss-state", "panning");
-      setMatrix(img, this.scale, this.panCoords.x, this.panCoords.y);
-    }
-  };
-  
-  Carousel.prototype.toggleZoom = function(e1, e2, xDist, yDist) {
-    if (!this.ready && !(this.isZoomed && xDist < 2 && yDist < 2) || (e1.type.match(/touch/) !== null && e2.type.match(/mouse/) !== null)) {
-      soysauce.stifle(e1);
-      soysauce.stifle(e2);
-      return;
-    }
-
-    var zoomImg = this.items[this.index];
-    zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
-    
-    var self = this;
-    $(zoomImg).attr("data-ss-state", "ready");
-    
-    // Zoom In
-    if (!this.isZoomed) {
-      var offset = 0, 
-          targetComponent = $(e2.target).attr("data-ss-component"),
-          hqZoomSrc = ($(zoomImg).attr("data-ss-zoom-src") !== undefined);
-
-      if (hqZoomSrc) {
-        zoomImg.src = $(zoomImg).attr("data-ss-zoom-src");
-        $(zoomImg).removeAttr("data-ss-zoom-src");
-        $(this.items[this.index]).append("<div data-ss-component='loader'>Loading...</div>");
-      }
-      
-      $(zoomImg).imagesLoaded(function() {
-        if (hqZoomSrc) {
-          $(self.items[self.index]).find("[data-ss-component='loader']").hide();
-        }
-        
-        if (/^zoom_icon$/.test(targetComponent)) {
-          self.panCoords = {x: 0, y: 0};
-          self.panCoordsStart = {x: 0, y: 0};
-        }
-        else {
-          var halfHeight = self.container.find("[data-ss-component='item']").height() / 2;
-
-          self.panCoords = soysauce.getCoords(e2);
-          self.panCoords.x -= self.itemWidth/2;
-          self.panCoords.x *= -self.scale;
-          self.panCoords.y = (e2.originalEvent.changedTouches && e2.originalEvent.changedTouches.length) ? e2.originalEvent.changedTouches[0].pageY : e2.originalEvent.pageY;
-          
-          offset = self.panCoords.y - ((e2.originalEvent.changedTouches && e2.originalEvent.changedTouches.length) ? e2.originalEvent.changedTouches[0].target.y : e2.originalEvent.target.y);
-
-          if (offset < (self.container.find("[data-ss-component='item']").height() / 2)) {
-            offset = Math.abs(offset - halfHeight);
-          }
-          else {
-            offset = halfHeight - offset;
-          }
-
-          self.panCoords.y = offset;
-
-          self.checkPanLimits();
-
-          self.panCoordsStart.x = self.panCoords.x;
-          self.panCoordsStart.y = self.panCoords.y;
-        }
-
-        if (!isNaN(self.panCoords.x) && !isNaN(self.panCoords.y)) {
-          self.dots.first().parent().css("visibility", "hidden");
-          self.nextBtn.hide();
-          self.prevBtn.hide();
-          self.isZooming = true;
-          self.ready = false;
-          self.widget.attr("data-ss-state", "zoomed");
-          self.zoomIcon.attr("data-ss-state", "in");
-          self.scale = DEFAULT_SCALE;
-          self.initPanLimits();
-          
-          if (self.peek && /left/.test(self.peekAlign)) {
-            $(zoomImg).css({
-              "position": "relative",
-              "left": self.peekWidth + "px"
-            });
-          }
-          
-          setMatrix(zoomImg, self.scale, self.panCoords.x, self.panCoords.y);
-          
-          $(zoomImg).one(TRANSITION_END, function() {
-            self.isZoomed = true;
-            self.isZooming = false;
-          });
-        }
-      });
-    }
-    // Zoom Out
-    else if (xDist < 2 && yDist < 2) {
-      this.dots.first().parent().css("visibility", "visible");
-      this.nextBtn.show();
-      this.prevBtn.show();
-      this.isZooming = true;
-      this.ready = false;
-      this.widget.attr("data-ss-state", "ready");
-      this.zoomIcon.attr("data-ss-state", "out");
-      this.scale = 1;
-      this.widget.off("touchmove mousemove");
-      
-      if (self.peek && /left/.test(self.peekAlign)) {
-        $(zoomImg).css({
-          "left": "0px"
-        });
-      }
-      
-      setMatrix(zoomImg, this.scale, 0, 0);
-      $(zoomImg).on(TRANSITION_END, function() {
-        self.isZoomed = false;
-        self.isZooming = false;
-      });
-    }
-    
-    $(zoomImg).on(TRANSITION_END, function() {
-      self.ready = true;
-      self.interrupted = false;
-      self.isZooming = false;
-    });
-  };
-  
-  Carousel.prototype.autoscrollOn = function() {
-    var self = this;
+    this.autoscroll = !forceEnable ? this.autoscroll : true;
     
     if (!this.autoscrollID) {
+      if (!this.autoscrollInterval) {
+        var interval = this.widget.attr("data-ss-autoscroll-interval");
+        this.autoscrollInterval = (!interval) ? AUTOSCROLL_INTERVAL : parseInt(interval, 10);
+      }
       this.autoscrollID = window.setInterval(function() {
         if (soysauce.vars.degrade) {
           self.rewindCoord = -self.itemWidth*3 - self.peekWidth;
@@ -3352,23 +4719,26 @@ soysauce.carousels = (function() {
     return false;
   };
   
-  Carousel.prototype.autoscrollOff = function() {
+  Carousel.prototype.autoscrollOff = function(freezing) {
     var self = this;
-    
-    if (!this.autoscrollID) return false;
-    
+    if (!this.autoscroll || !this.autoscrollID && !freezing) return false;
     window.clearInterval(self.autoscrollID);
-    this.autoscrollID = undefined;
-    
+    this.autoscrollID = null;
     return true;
   };
   
   Carousel.prototype.handleFreeze = function() {
+    if (this.freeze) return;
     this.freeze = true;
+    this.autoscrollOff(true);
+    return true;
   };
   
   Carousel.prototype.handleUnfreeze = function() {
+    if (!this.freeze) return;
     this.freeze = false;
+    this.autoscrollOn();
+    return true;
   };
   
   Carousel.prototype.jumpTo = function(index, noZoomTransition) {
@@ -3413,34 +4783,36 @@ soysauce.carousels = (function() {
       this.widget.height(newHeight);
     }
 
-    if (this.isZoomed) {
-      var zoomImg = this.items[this.index];
-      zoomImg = (!/img/i.test(zoomImg.tagName)) ? $(zoomImg).find("img")[0] : zoomImg;
-      this.dots.first().parent().css("visibility", "visible");
-      this.nextBtn.show();
-      this.prevBtn.show();
-      this.isZooming = true;
-      this.ready = false;
-      this.widget.attr("data-ss-state", "ready");
-      this.zoomIcon.attr("data-ss-state", "out");
-      if (noZoomTransition) {
-        this.isZoomed = false;
-        this.isZooming = false;
-        $(zoomImg).attr("data-ss-state", "notransition");
-      }
-      else {
-        $(zoomImg).one(TRANSITION_END, function() {
-          self.isZoomed = false;
-          self.isZooming = false;
-        });
-      }
-      setMatrix(zoomImg, 1, 0, 0);
-    }
-
-    this.gotoPos(newOffset, false, true);
+    this.gotoPos(newOffset, true);
     this.index = index;
 
     return true;
+  };
+  
+  Carousel.prototype.setTransitionedStates = function(e) {
+    var self = this;
+    
+    if (Math.abs(e.timeStamp - self.lastTransitionEnd) < 300) return;
+
+    self.lastTransitionEnd = e.timeStamp;
+    self.widget.trigger("slideEnd");
+    self.ready = true;
+    self.jumping = false;
+    self.interrupted = false;
+    self.swiping = false;
+    self.looping = false;
+    self.container.attr("data-ss-state", "ready");
+    self.widget.attr("data-ss-state", "ready");
+
+    if (self.autoscroll && !self.autoscrollRestartID) {
+      self.autoscrollRestartID = window.setTimeout(function() {
+        self.autoscrollOn();
+      }, 1000);
+    }
+    
+    if (self.autoheight) {
+      self.widget.css("height", $(self.items[self.index]).outerHeight(true));
+    }
   };
   
   // Helper Functions
@@ -3463,7 +4835,6 @@ soysauce.carousels = (function() {
   function setMatrix(element, scale, x, y) {
     x = x || 0;
     y = y || 0;
-    scale = scale || DEFAULT_SCALE;
     element.style.webkitTransform = 
     element.style.msTransform = 
     element.style.OTransform = 
@@ -3655,7 +5026,7 @@ soysauce.lazyloader = (function() {
         
         self.timeStamp = e.timeStamp;
         
-        if ((self.hover && self.continueProcessing) || (windowPosition > widgetPositionThreshold) && Math.abs(e.timeStamp - soysauce.browserInfo.pageLoad) > 1500) {
+        if ((self.hover && self.continueProcessing) || (windowPosition > widgetPositionThreshold) && Math.abs(e.timeStamp - soysauce.browser.pageLoad) > 1500) {
           if (self.hover) {
             if (self.items.length && (windowPosition > self.items.first().offset().top)) {
               self.continueProcessing = true;

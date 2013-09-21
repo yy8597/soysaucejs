@@ -44,17 +44,47 @@
   -o-transition: opacity 0.3s ease-in-out;
   transition: opacity 0.3s ease-in-out;
   display: none;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background: black;
   opacity: 0;
-  z-index: 1;
+  z-index: 1000;
 }
 [data-ss-utility="overlay"][data-ss-state="active"] {
   opacity: 0.7;
+}
+[data-ss-utility="overlay"]:not([data-ss-state]) > [data-ss-component] {
+  opacity: 0;
+}
+[data-ss-utility="overlay"] [data-ss-component="close"] {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-transition: opacity 0.3s ease-in-out;
+  -moz-transition: opacity 0.3s ease-in-out;
+  -o-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
+  position: absolute;
+  color: white;
+  padding: 5px;
+  border: 1px solid white;
+  top: 5px;
+  right: 5px;
+  z-index: 1100;
+  opacity: 1;
+}
+[data-ss-utility="overlay"] [data-ss-component="content"] {
+  position: relative;
+  z-index: 1100;
+  top: 60px;
+}
+[data-ss-utility="overlay"] [data-ss-component="content"] > [data-ss-widget="carousel"] {
+  margin: 0 auto;
 }
 
 [data-ss-widget="carousel"] {
@@ -76,8 +106,9 @@
   max-width: 100%;
   -webkit-user-drag: none;
 }
-[data-ss-widget="carousel"]:not([data-ss-options*="nofullscreen"]) img {
+[data-ss-widget="carousel"] img {
   width: 100%;
+  margin: 0 auto;
 }
 [data-ss-widget="carousel"] [data-ss-component="item"] {
   list-style-type: none;
@@ -85,6 +116,12 @@
 }
 [data-ss-widget="carousel"] [data-ss-component="item"][data-ss-state="active"] {
   z-index: 6;
+}
+[data-ss-widget="carousel"][data-ss-options*="overlay"] [data-ss-component="item"][data-ss-state="active"] {
+  -webkit-transition: -webkit-transform 0.15s cubic-bezier(0.15, 0.3, 0.3, 1.4);
+  -moz-transition: -moz-transform 0.15s cubic-bezier(0.15, 0.3, 0.3, 1.4);
+  -o-transition: -o-transform 0.15s cubic-bezier(0.15, 0.3, 0.3, 1.4);
+  transition: transform 0.15s cubic-bezier(0.15, 0.3, 0.3, 1.4);
 }
 [data-ss-widget="carousel"] [data-ss-component="loader"] {
   position: absolute;
@@ -111,31 +148,14 @@
 [data-ss-widget="carousel"] [data-ss-component="container"] {
   overflow: hidden;
 }
-[data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"]) {
-  -webkit-transition: -webkit-transform 0.65s, left 0.65s;
-  -moz-transition: -moz-transform 0.65s, left 0.65s;
-  -o-transition: -o-transform 0.65s, left 0.65s;
-  transition: transform 0.65s, left 0.65s;
+[data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"]), [data-ss-widget="carousel"][data-ss-options*="zoom"] img[data-ss-state="ready"] {
+  -webkit-transition: -webkit-transform 0.45s cubic-bezier(0.15, 0.3, 0.3, 1), left 0.45s cubic-bezier(0.15, 0.3, 0.3, 1);
+  -moz-transition: -moz-transform 0.45s cubic-bezier(0.15, 0.3, 0.3, 1), left 0.45s cubic-bezier(0.15, 0.3, 0.3, 1);
+  -o-transition: -o-transform 0.45s cubic-bezier(0.15, 0.3, 0.3, 1), left 0.45s cubic-bezier(0.15, 0.3, 0.3, 1);
+  transition: transform 0.45s cubic-bezier(0.15, 0.3, 0.3, 1), left 0.45s cubic-bezier(0.15, 0.3, 0.3, 1);
 }
 @media (-webkit-transform-3d) {
-  [data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"]) {
-    -webkit-backface-visibility: hidden;
-  }
-}
-[data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"])[data-ss-state="intransit-fast"] {
-  -webkit-transition: -webkit-transform 0.4s, left 0.4s;
-  -moz-transition: -moz-transform 0.4s, left 0.4s;
-  -o-transition: -o-transform 0.4s, left 0.4s;
-  transition: transform 0.4s, left 0.4s;
-}
-[data-ss-widget="carousel"][data-ss-options*="zoom"] img[data-ss-state="ready"] {
-  -webkit-transition: -webkit-transform 0.5s, left 0.5s;
-  -moz-transition: -moz-transform 0.5s, left 0.5s;
-  -o-transition: -o-transform 0.5s, left 0.5s;
-  transition: transform 0.5s, left 0.5s;
-}
-@media (-webkit-transform-3d) {
-  [data-ss-widget="carousel"][data-ss-options*="zoom"] img[data-ss-state="ready"] {
+  [data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"]), [data-ss-widget="carousel"][data-ss-options*="zoom"] img[data-ss-state="ready"] {
     -webkit-backface-visibility: hidden;
   }
 }
