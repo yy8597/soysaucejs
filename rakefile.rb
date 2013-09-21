@@ -205,7 +205,7 @@ task :build do
   
 end
 
-task :upload do
+task :beta do
   # Check if config exists
   config_file = File.join(File.dirname(__FILE__), "/config/cdn.yml")
   
