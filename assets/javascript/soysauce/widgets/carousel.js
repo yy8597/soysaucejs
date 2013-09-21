@@ -415,15 +415,9 @@ soysauce.carousels = (function() {
     if (this.swiping) return;
     
     // To be implemented:
-    //  * center focused zooming (needs work)
     //  * panning
     
     if (e.type === "doubletap") {
-      var containerX = 0, containerY = 0;
-      var relativeOffsetX = this.zoomOffsetX - e.gesture.center.pageX;
-      var relativeOffsetY = this.zoomOffsetY - e.gesture.center.pageY;
-      var oldZoomScale = this.zoomScale;
-      
       if (e.timeStamp - this.lastZoomTap < 500) return;
       
       this.zoomElement = this.currentItem;
@@ -446,18 +440,14 @@ soysauce.carousels = (function() {
       }
       
       this.zoomScaleStart = this.zoomScale;
-      this.setTranslateLimits();
-      
+
       if (this.zoomScale > 1) {
-        this.zoomTranslateX = ((relativeOffsetX + (this.itemWidth / 2)) * this.zoomScale) + (this.zoomTranslateX * (this.zoomScale - oldZoomScale));
-        this.zoomTranslateY = ((relativeOffsetY + (this.widgetHeight / 2)) * this.zoomScale) + (this.zoomTranslateY * (this.zoomScale - oldZoomScale));
+        this.calcTranslateLimits(e);
       }
       else {
         this.zoomTranslateX = 0;
         this.zoomTranslateY = 0;
       }
-      
-      this.limitTranslate();
       
       window.setTimeout(function() {
         setMatrix(self.zoomElement[0], self.zoomScale, self.zoomTranslateX, self.zoomTranslateY);
@@ -471,6 +461,8 @@ soysauce.carousels = (function() {
       if (!this.pinchEventsReady) {
         this.zoomElement = this.currentItem;
         this.zoomElement.attr("data-ss-state", "zooming");
+
+        this.zoomScaleStart = this.zoomScale;
 
         this.handleFreeze();
         soysauce.overlay.hideAssets();
@@ -505,19 +497,22 @@ soysauce.carousels = (function() {
       this.zoomScale = (((e.gesture.scale - 1) * ZOOM_SENSITIVITY) * this.zoomScaleStart) + this.zoomScaleStart;
       this.zoomScale = (this.zoomScale < 0.3) ? 0.3 : this.zoomScale;
       
+      // this.calcTranslateLimits(e);
+      
       this.zoomElement.attr("data-ss-state", "zooming");
       setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
     }
   };
   
-  Carousel.prototype.setTranslateLimits = function() {
+  Carousel.prototype.calcTranslateLimits = function(e) {
+    this.zoomTranslateX += ((this.zoomOffsetX - e.gesture.center.pageX + (this.itemWidth / 2)) * this.zoomScale);
+    this.zoomTranslateY += ((this.zoomOffsetY - e.gesture.center.pageY + (this.widgetHeight / 2)) * this.zoomScale);
+    
     this.zoomTranslateMinX = ((this.itemWidth*this.zoomScale) - this.itemWidth) / 2;
     this.zoomTranslateMaxX = -this.zoomTranslateMinX;
     this.zoomTranslateMinY = ((this.widgetHeight*this.zoomScale) - this.widgetHeight) / 2;
     this.zoomTranslateMaxY = -this.zoomTranslateMinY;
-  };
-  
-  Carousel.prototype.limitTranslate = function() {
+    
     if (this.zoomTranslateX > this.zoomTranslateMinX) {
       this.zoomTranslateX = this.zoomTranslateMinX;
     }
