@@ -25,7 +25,7 @@ soysauce.overlay = (function() {
 
     this.overlay = $("[data-ss-utility='overlay']");
 
-    this.overlay.append("<span data-ss-component='close'>close</span>");
+    this.overlay.append("<div data-ss-component='close'>tap to close</div>");
     this.close = this.overlay.find("[data-ss-component='close']");
     
     this.overlay.append("<div data-ss-component='content'></div>");
