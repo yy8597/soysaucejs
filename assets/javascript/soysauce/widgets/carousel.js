@@ -324,6 +324,10 @@ soysauce.carousels = (function() {
       setTranslate(self.container[0], self.offset);
       
       self.widgetHeight = self.widget.outerHeight(true);
+      
+      if (self.overlay) {
+        self.setZoomCenterPoint();
+      }
     });
     
     if (this.links) {
@@ -415,9 +419,6 @@ soysauce.carousels = (function() {
     
     if (this.swiping) return;
     
-    // To be implemented:
-    //    * pinch zoom center focus
-    
     soysauce.stifle(e);
     
     if (e.type === "doubletap") {
@@ -447,6 +448,8 @@ soysauce.carousels = (function() {
       }
       
       this.zoomScaleStart = this.zoomScale;
+      this.zoomTranslateXStart = this.zoomTranslateX;
+      this.zoomTranslateYStart = this.zoomTranslateY;
 
       if (this.zoomScale > 1) {
         this.setFocusPoint(e);
@@ -472,7 +475,11 @@ soysauce.carousels = (function() {
         this.zoomElement = this.currentItem;
         this.zoomElement.attr("data-ss-state", "zooming");
 
+        this.zoomScalePrev = this.zoomScale;
         this.zoomScaleStart = this.zoomScale;
+        
+        this.zoomTranslateXStart = this.zoomTranslateX;
+        this.zoomTranslateYStart = this.zoomTranslateY;
         
         this.isZoomed = true;
         this.handleFreeze();
@@ -492,8 +499,11 @@ soysauce.carousels = (function() {
             self.resetZoomState();
             return;
           }
-          else if (self.zoomScale >= 4) {
+          
+          if (self.zoomScale > 4) {
             self.zoomScale = 4;
+            self.zoomScaleStart = self.zoomScale;
+            return;
           }
           
           self.zoomScaleStart = self.zoomScale;
@@ -507,12 +517,24 @@ soysauce.carousels = (function() {
       this.zoomScale = (((e.gesture.scale - 1) * ZOOM_SENSITIVITY) * this.zoomScaleStart) + this.zoomScaleStart;
       this.zoomScale = (this.zoomScale < 0.3) ? 0.3 : this.zoomScale;
       
-      // this.setFocusPoint(e);
+      if (this.zoomScale >= 4) {
+        this.zoomScale = 4;
+        return;
+      }
+      
+      this.setFocusPoint(e);
       this.calcTranslateLimits();
       this.setTranslateLimits();
       
       this.zoomElement.attr("data-ss-state", "zooming");
-      setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
+      
+      if (this.zoomScale < 1) {
+        var zoomScale = (((e.gesture.scale - 1) * ZOOM_SENSITIVITY) * this.zoomScaleStart) + this.zoomScaleStart;
+        setMatrix(this.zoomElement[0], zoomScale, 0, 0);
+      }
+      else {
+        setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
+      }
     }
     else if (this.isZoomed) {
       if (!this.panning) {
@@ -538,15 +560,14 @@ soysauce.carousels = (function() {
   Carousel.prototype.setZoomCenterPoint = function() {
     this.zoomElementWidth = this.zoomElement.width();
     this.zoomElementHeight = this.zoomElement.height();
-    this.zoomElementOffset = this.zoomElement.offset();
+    this.zoomElementOffset = this.widget.offset();
     this.zoomElementCenterX = (this.zoomElementWidth / 2) + this.zoomElementOffset.left;
-    this.zoomElementCenterY = (this.zoomElementHeight / 2) + this.container.offset().top;
+    this.zoomElementCenterY = (this.zoomElementHeight / 2) + this.zoomElementOffset.top;
   };
   
   Carousel.prototype.setFocusPoint = function(e) {
-    this.setZoomCenterPoint();
-    this.zoomTranslateX = (this.zoomElementCenterX - e.gesture.center.pageX + this.zoomTranslateX) * (this.zoomScale / this.zoomScalePrev);
-    this.zoomTranslateY = (this.zoomElementCenterY - e.gesture.center.pageY + this.zoomTranslateY) * (this.zoomScale / this.zoomScalePrev);
+    this.zoomTranslateX = (this.zoomElementCenterX - e.gesture.center.pageX + this.zoomTranslateXStart) * (this.zoomScale / this.zoomScalePrev);
+    this.zoomTranslateY = (this.zoomElementCenterY - e.gesture.center.pageY + this.zoomTranslateYStart) * (this.zoomScale / this.zoomScalePrev);
   };
   
   Carousel.prototype.calcTranslateLimits = function() {
@@ -587,17 +608,11 @@ soysauce.carousels = (function() {
     this.zoomTranslateY = 0;
     this.zoomScale = 1;
     this.zoomScaleStart = 1;
+    this.zoomScalePrev = 1;
     this.zoomElement = this.currentItem;
     this.isZoomed = false;
+    this.setZoomCenterPoint();
     setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
-    if (transitionReset) {
-      this.zoomElement.one(TRANSITION_END, function() {
-        self.setZoomCenterPoint();
-      });
-    }
-    else {
-      this.setZoomCenterPoint();
-    }
   };
   
   Carousel.prototype.handleSwipe = function(e) {
