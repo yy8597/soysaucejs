@@ -612,6 +612,7 @@ soysauce.carousels = (function() {
     this.zoomElement = this.currentItem;
     this.isZoomed = false;
     this.setZoomCenterPoint();
+    this.handleUnfreeze();
     setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
   };
   
