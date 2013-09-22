@@ -71,6 +71,8 @@ soysauce.carousels = (function() {
     this.zoomOffsetY = 0;
     this.zoomTranslateX = 0;
     this.zoomTranslateY = 0;
+    this.zoomTranslateXStart = 0;
+    this.zoomTranslateYStart = 0;
     this.zoomTranslateMinX = 0;
     this.zoomTranslateMinY = 0;
     this.zoomTranslateMaxX = 0;
@@ -374,8 +376,8 @@ soysauce.carousels = (function() {
 
     if (this.overlay) {
       this.zoomElement = this.currentItem;
-      this.container.hammer().on("pinch doubletap", function(e) {
-        if (!/pinch|doubletap/.test(e.type)) return;
+      this.container.hammer().on("pinch doubletap drag", function(e) {
+        if (!/pinch|doubletap|drag/.test(e.type)) return;
         self.handleZoom(e);
       });
     }
@@ -415,7 +417,9 @@ soysauce.carousels = (function() {
     if (this.swiping) return;
     
     // To be implemented:
-    //  * panning
+    //    * pinch zoom center focus
+    
+    soysauce.stifle(e);
     
     if (e.type === "doubletap") {
       if (e.timeStamp - this.lastZoomTap < 500) return;
@@ -444,7 +448,9 @@ soysauce.carousels = (function() {
       this.zoomScaleStart = this.zoomScale;
 
       if (this.zoomScale > 1) {
-        this.calcTranslateLimits(e);
+        this.setFocusPoint(e);
+        this.calcTranslateLimits();
+        this.setTranslateLimits();
       }
       else {
         this.zoomTranslateX = 0;
@@ -458,17 +464,20 @@ soysauce.carousels = (function() {
         }
       }, 0);
     }
-    else {
+    else if (e.type === "pinch") {
       if (!this.pinchEventsReady) {
         this.zoomElement = this.currentItem;
         this.zoomElement.attr("data-ss-state", "zooming");
 
         this.zoomScaleStart = this.zoomScale;
-
+        
+        this.isZoomed = true;
         this.handleFreeze();
         
         this.container.one("touchend", function() {
-          self.zoomElement.attr("data-ss-state", "active");
+          if (self.zoomScale <= 1) {
+            self.zoomElement.attr("data-ss-state", "active");
+          }
         });
         
         this.container.hammer().one("release", function(releaseEvent) {
@@ -479,12 +488,12 @@ soysauce.carousels = (function() {
             self.zoomTranslateX = 0;
             self.zoomTranslateY = 0;
             self.handleUnfreeze();
+            self.isZoomed = false;
           }
           else if (self.zoomScale >= 4) {
             self.zoomScale = 4;
           }
           
-          self.isZoomed =  (self.zoomScale <= 1) ? true : false;
           self.zoomScaleStart = self.zoomScale;
           self.pinchEventsReady = false;
 
@@ -497,22 +506,47 @@ soysauce.carousels = (function() {
       this.zoomScale = (((e.gesture.scale - 1) * ZOOM_SENSITIVITY) * this.zoomScaleStart) + this.zoomScaleStart;
       this.zoomScale = (this.zoomScale < 0.3) ? 0.3 : this.zoomScale;
       
-      // this.calcTranslateLimits(e);
+      // this.setFocusPoint(e);
+      this.calcTranslateLimits();
+      this.setTranslateLimits();
       
       this.zoomElement.attr("data-ss-state", "zooming");
       setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
     }
+    else if (this.isZoomed) {
+      if (!this.panning) {
+        this.panning = true;
+        
+        this.zoomTranslateXStart = this.zoomTranslateX;
+        this.zoomTranslateYStart = this.zoomTranslateY;
+        
+        this.container.hammer().one("release", function(releaseEvent) {
+          self.panning = false;
+        });
+      }
+      
+      this.zoomTranslateX = e.gesture.deltaX + this.zoomTranslateXStart;
+      this.zoomTranslateY = e.gesture.deltaY + this.zoomTranslateYStart;
+      
+      this.setTranslateLimits();
+      
+      setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
+    }
   };
   
-  Carousel.prototype.calcTranslateLimits = function(e) {
+  Carousel.prototype.setFocusPoint = function(e) {
     this.zoomTranslateX += ((this.zoomOffsetX - e.gesture.center.pageX + (this.itemWidth / 2)) * this.zoomScale);
     this.zoomTranslateY += ((this.zoomOffsetY - e.gesture.center.pageY + (this.widgetHeight / 2)) * this.zoomScale);
-    
+  };
+  
+  Carousel.prototype.calcTranslateLimits = function() {
     this.zoomTranslateMinX = ((this.itemWidth*this.zoomScale) - this.itemWidth) / 2;
     this.zoomTranslateMaxX = -this.zoomTranslateMinX;
     this.zoomTranslateMinY = ((this.widgetHeight*this.zoomScale) - this.widgetHeight) / 2;
     this.zoomTranslateMaxY = -this.zoomTranslateMinY;
-    
+  };
+  
+  Carousel.prototype.setTranslateLimits = function() {
     if (this.zoomTranslateX > this.zoomTranslateMinX) {
       this.zoomTranslateX = this.zoomTranslateMinX;
     }
@@ -542,6 +576,7 @@ soysauce.carousels = (function() {
     this.zoomScale = 1;
     this.zoomScaleStart = 1;
     this.zoomElement = this.currentItem;
+    this.isZoomed = false;
     setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
   };
   
