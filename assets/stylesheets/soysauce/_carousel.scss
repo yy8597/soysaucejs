@@ -11,6 +11,7 @@
   }
   img {
     width: 100%;
+    max-width: 100%;
     margin: 0 auto;
   }
   [data-ss-component="item"] {
@@ -23,6 +24,10 @@
   &[data-ss-options*="overlay"] {
     [data-ss-component="item"][data-ss-state="active"] {
       @include transition(transform .15s cubic-bezier(0.15, 0.3, 0.3, 1.4));
+    }
+    img {
+      max-height: 85%;
+      width: auto;
     }
   }
   [data-ss-component="loader"] {
