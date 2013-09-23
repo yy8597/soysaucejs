@@ -93,6 +93,14 @@ soysauce.lazyloader = (function() {
         if (self.processing || self.complete) return;
         update(e);
       });
+      if (this.hover) {
+        var scrollTimer = 0;
+        this.widget.hammer().on("release", function(e) {
+          if ((e.gesture.velocityY > 0.25 || e.gesture.distance > 10) && /up|down/.test(e.gesture.direction)) {
+            $window.trigger("scroll");
+          }
+        });
+      }
     }
     
     function update(e) {
