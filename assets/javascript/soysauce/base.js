@@ -226,6 +226,7 @@ soysauce = {
     return matrix.substr(7, matrix.length - 8).split(', ');
   },
   browser: {
+    pageLoad: new Date().getTime(),
     supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,
     supportsLocalStorage: function() {
       try { 
