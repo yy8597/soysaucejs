@@ -760,7 +760,7 @@ if (typeof define !== 'undefined' && define.amd) {
 	window.FastClick = FastClick;
 }
 
-/*! Hammer.JS - v1.0.5 - 2013-04-07
+/* Hammer.JS - v1.0.5 - 2013-04-07
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2013 Jorik Tangelder <j.tangelder@gmail.com>;
@@ -2866,7 +2866,7 @@ soysauce.overlay = (function() {
 
     this.overlay = $("[data-ss-utility='overlay']");
 
-    this.overlay.append("<span data-ss-component='close'>close</span>");
+    this.overlay.append("<div data-ss-component='close'>tap to close</div>");
     this.close = this.overlay.find("[data-ss-component='close']");
     
     this.overlay.append("<div data-ss-component='content'></div>");
@@ -3710,16 +3710,22 @@ soysauce.carousels = (function() {
     this.overlay = false;
     this.isZoomed = false;
     this.zoomElement = null;
-    this.zoomOffsetX = 0;
-    this.zoomOffsetY = 0;
+    this.zoomElementCenterX = 0;
+    this.zoomElementCenterY = 0;
+    this.zoomElementWidth = 0;
+    this.zoomElementHeight = 0;
+    this.zoomElementOffset = null;
     this.zoomTranslateX = 0;
     this.zoomTranslateY = 0;
+    this.zoomTranslateXStart = 0;
+    this.zoomTranslateYStart = 0;
     this.zoomTranslateMinX = 0;
     this.zoomTranslateMinY = 0;
     this.zoomTranslateMaxX = 0;
     this.zoomTranslateMaxY = 0;
     this.zoomScale = 1;
     this.zoomScaleStart = 1;
+    this.zoomScalePrev = 1;
     this.pinchEventsReady = false;
     this.lastZoomTap = 0;
 
@@ -3963,8 +3969,7 @@ soysauce.carousels = (function() {
       self.widgetHeight = self.widget.outerHeight(true);
       
       if (self.overlay) {
-        self.zoomOffsetX = self.zoomElement.offset().left;
-        self.zoomOffsetY = self.zoomElement.offset().top;
+        self.setZoomCenterPoint();
       }
     });
     
@@ -4017,8 +4022,8 @@ soysauce.carousels = (function() {
 
     if (this.overlay) {
       this.zoomElement = this.currentItem;
-      this.container.hammer().on("pinch doubletap", function(e) {
-        if (!/pinch|doubletap/.test(e.type)) return;
+      this.container.hammer().on("pinch doubletap drag", function(e) {
+        if (!/pinch|doubletap|drag/.test(e.type)) return;
         self.handleZoom(e);
       });
     }
@@ -4057,79 +4062,94 @@ soysauce.carousels = (function() {
     
     if (this.swiping) return;
     
-    // To be implemented:
-    //  * panning
+    soysauce.stifle(e);
     
     if (e.type === "doubletap") {
       if (e.timeStamp - this.lastZoomTap < 500) return;
       
       this.zoomElement = this.currentItem;
       this.lastZoomTap = e.timeStamp;
-
+      
       this.handleFreeze();
-      soysauce.overlay.hideAssets();
+      
+      this.zoomScalePrev = this.zoomScale;
       
       if (this.zoomScale < 1.5) {
         this.zoomElement.attr("data-ss-state", "zooming");
         this.zoomScale = 1.5
+        this.isZoomed = true;
       }
       else if (this.zoomScale < 2.5) {
         this.zoomElement.attr("data-ss-state", "zooming");
         this.zoomScale = 2.5;
+        this.isZoomed = true;
       }
       else {
         this.zoomElement.attr("data-ss-state", "active");
         this.zoomScale = 1;
+        this.isZoomed = false;
       }
       
       this.zoomScaleStart = this.zoomScale;
+      this.zoomTranslateXStart = this.zoomTranslateX;
+      this.zoomTranslateYStart = this.zoomTranslateY;
 
       if (this.zoomScale > 1) {
-        this.calcTranslateLimits(e);
+        this.setFocusPoint(e);
+        this.calcTranslateLimits();
+        this.setTranslateLimits();
       }
       else {
-        this.zoomTranslateX = 0;
-        this.zoomTranslateY = 0;
+        window.setTimeout(function() {
+          self.resetZoomState();
+        }, 0);
+        return;
       }
       
       window.setTimeout(function() {
         setMatrix(self.zoomElement[0], self.zoomScale, self.zoomTranslateX, self.zoomTranslateY);
         if (self.zoomScale === 1) {
           self.handleUnfreeze();
-          soysauce.overlay.showAssets();
         }
       }, 0);
     }
-    else {
+    else if (e.type === "pinch") {
       if (!this.pinchEventsReady) {
         this.zoomElement = this.currentItem;
         this.zoomElement.attr("data-ss-state", "zooming");
 
+        this.zoomScalePrev = this.zoomScale;
         this.zoomScaleStart = this.zoomScale;
-
+        
+        this.zoomTranslateXStart = this.zoomTranslateX;
+        this.zoomTranslateYStart = this.zoomTranslateY;
+        
+        this.isZoomed = true;
         this.handleFreeze();
-        soysauce.overlay.hideAssets();
         
         this.container.one("touchend", function() {
-          self.zoomElement.attr("data-ss-state", "active");
+          if (self.zoomScale <= 1) {
+            self.zoomElement.attr("data-ss-state", "active");
+          }
         });
         
         this.container.hammer().one("release", function(releaseEvent) {
           soysauce.stifle(releaseEvent);
 
-          if (self.zoomScale <= 1) {
-            self.zoomScale = 1;
-            self.zoomTranslateX = 0;
-            self.zoomTranslateY = 0;
-            self.handleUnfreeze();
-            soysauce.overlay.showAssets();
-          }
-          else if (self.zoomScale >= 4) {
-            self.zoomScale = 4;
-          }
-
-          self.zoomScaleStart = self.zoomScale;
           self.pinchEventsReady = false;
+
+          if (self.zoomScale <= 1) {
+            self.resetZoomState();
+            return;
+          }
+          
+          if (self.zoomScale > 4) {
+            self.zoomScale = 4;
+            self.zoomScaleStart = self.zoomScale;
+            return;
+          }
+          
+          self.zoomScaleStart = self.zoomScale;
 
           setMatrix(self.zoomElement[0], self.zoomScale, self.zoomTranslateX, self.zoomTranslateY);
         });
@@ -4140,22 +4160,67 @@ soysauce.carousels = (function() {
       this.zoomScale = (((e.gesture.scale - 1) * ZOOM_SENSITIVITY) * this.zoomScaleStart) + this.zoomScaleStart;
       this.zoomScale = (this.zoomScale < 0.3) ? 0.3 : this.zoomScale;
       
-      // this.calcTranslateLimits(e);
+      if (this.zoomScale >= 4) {
+        this.zoomScale = 4;
+        return;
+      }
+      
+      this.setFocusPoint(e);
+      this.calcTranslateLimits();
+      this.setTranslateLimits();
       
       this.zoomElement.attr("data-ss-state", "zooming");
+      
+      if (this.zoomScale < 1) {
+        var zoomScale = (((e.gesture.scale - 1) * ZOOM_SENSITIVITY) * this.zoomScaleStart) + this.zoomScaleStart;
+        setMatrix(this.zoomElement[0], zoomScale, 0, 0);
+      }
+      else {
+        setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
+      }
+    }
+    else if (this.isZoomed) {
+      if (!this.panning) {
+        this.panning = true;
+        
+        this.zoomTranslateXStart = this.zoomTranslateX;
+        this.zoomTranslateYStart = this.zoomTranslateY;
+        
+        this.container.hammer().one("release", function(releaseEvent) {
+          self.panning = false;
+        });
+      }
+      
+      this.zoomTranslateX = e.gesture.deltaX + this.zoomTranslateXStart;
+      this.zoomTranslateY = e.gesture.deltaY + this.zoomTranslateYStart;
+      
+      this.setTranslateLimits();
+      
       setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
     }
   };
   
-  Carousel.prototype.calcTranslateLimits = function(e) {
-    this.zoomTranslateX += ((this.zoomOffsetX - e.gesture.center.pageX + (this.itemWidth / 2)) * this.zoomScale);
-    this.zoomTranslateY += ((this.zoomOffsetY - e.gesture.center.pageY + (this.widgetHeight / 2)) * this.zoomScale);
-    
-    this.zoomTranslateMinX = ((this.itemWidth*this.zoomScale) - this.itemWidth) / 2;
+  Carousel.prototype.setZoomCenterPoint = function() {
+    this.zoomElementWidth = this.zoomElement.width();
+    this.zoomElementHeight = this.zoomElement.height();
+    this.zoomElementOffset = this.widget.offset();
+    this.zoomElementCenterX = (this.zoomElementWidth / 2) + this.zoomElementOffset.left;
+    this.zoomElementCenterY = (this.zoomElementHeight / 2) + this.zoomElementOffset.top;
+  };
+  
+  Carousel.prototype.setFocusPoint = function(e) {
+    this.zoomTranslateX = (this.zoomElementCenterX - e.gesture.center.pageX + this.zoomTranslateXStart) * (this.zoomScale / this.zoomScalePrev);
+    this.zoomTranslateY = (this.zoomElementCenterY - e.gesture.center.pageY + this.zoomTranslateYStart) * (this.zoomScale / this.zoomScalePrev);
+  };
+  
+  Carousel.prototype.calcTranslateLimits = function() {
+    this.zoomTranslateMinX = ((this.zoomElementWidth * this.zoomScale) - this.zoomElementWidth) / 2;
     this.zoomTranslateMaxX = -this.zoomTranslateMinX;
-    this.zoomTranslateMinY = ((this.widgetHeight*this.zoomScale) - this.widgetHeight) / 2;
+    this.zoomTranslateMinY = ((this.zoomElementHeight * this.zoomScale) - this.zoomElementHeight) / 2;
     this.zoomTranslateMaxY = -this.zoomTranslateMinY;
-    
+  };
+  
+  Carousel.prototype.setTranslateLimits = function() {
     if (this.zoomTranslateX > this.zoomTranslateMinX) {
       this.zoomTranslateX = this.zoomTranslateMinX;
     }
@@ -4180,14 +4245,18 @@ soysauce.carousels = (function() {
   };
   
   Carousel.prototype.resetZoomState = function() {
-    this.zoomElement.css((VENDOR_PREFIX + "transform"), "");
+    var self = this;
+    var transitionReset = (this.currentItem.attr("data-ss-state") === "active") ? true : false;
     this.zoomTranslateX = 0;
     this.zoomTranslateY = 0;
     this.zoomScale = 1;
     this.zoomScaleStart = 1;
+    this.zoomScalePrev = 1;
     this.zoomElement = this.currentItem;
-    this.zoomOffsetX = this.zoomElement.offset().left;
-    this.zoomOffsetY = this.zoomElement.offset().top;
+    this.isZoomed = false;
+    this.setZoomCenterPoint();
+    this.handleUnfreeze();
+    setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
   };
   
   Carousel.prototype.handleSwipe = function(e) {
@@ -4519,6 +4588,10 @@ soysauce.carousels = (function() {
 
     if (this.fade) {
       return;
+    }
+    
+    if (this.overlay && this.isZoomed) {
+      this.resetZoomState();
     }
     
     if (this.multi) {
