@@ -1,7 +1,4 @@
 [data-ss-widget="carousel"] {
-  @media (-webkit-transform-3d) {
-    -webkit-backface-visibility: hidden;
-  }
   @include transition(opacity 0.5s ease-in-out);
   a, img {
     @include box-sizing(border-box);
@@ -53,6 +50,9 @@
     max-height: 100%;
   }
   [data-ss-component="container"] {
+    @media (-webkit-transform-3d) {
+      -webkit-backface-visibility: hidden;
+    }
     overflow: hidden;
   }
   &[data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"]),
