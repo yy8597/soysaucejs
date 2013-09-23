@@ -29,7 +29,12 @@ task :build do
   begin
     Dir::mkdir("build/" + version)
   rescue
-    abort("Soysauce: " + version + " already exists. Aborting.")
+    puts "Soysauce: " + version + " already exists. Overwriting..."
+    begin 
+      FileUtils.rm_r "build/" + version, :force => true
+    rescue
+      abort("Soysauce: Unable to overwrite directory. Aborting.")
+    end
   end
 
   # Create soysauce.js, soysauce.min.js, and soysauce.css
@@ -195,8 +200,8 @@ task :build do
   pushTag = Thread.new {
     puts "Soysauce: Pushing tag to github..."
     system "git commit -am 'Creating build " + version + "'"
-    system "git tag -a " + version + " -m 'Creating build " + version + "'"
-    system "git push --tags"
+    system "git tag -a " + version + " -m 'Creating build " + version + "' -f"
+    system "git push --tags -f"
   }
 
   pushTag.join
@@ -228,9 +233,15 @@ task :beta do
   begin
     Dir::mkdir("build/" + version)
   rescue
-    abort("Soysauce: " + version + " already exists. Aborting.")
+    puts "Soysauce: " + version + " already exists. Overwriting..."
+    begin 
+      FileUtils.rm_r "build/" + version, :force => true
+      Dir::mkdir("build/" + version)
+    rescue
+      abort("Soysauce: Unable to overwrite directory. Aborting.")
+    end
   end
-
+  
   # Create soysauce.js, soysauce.min.js, and soysauce.css
   puts "Soysauce: Compiling assets..."
 
@@ -348,8 +359,8 @@ task :beta do
   pushTag = Thread.new {
     puts "Soysauce: Pushing tag to github..."
     system "git commit -am 'Creating build " + version + "'"
-    system "git tag -a " + version + " -m 'Creating build " + version + "'"
-    system "git push --tags"
+    system "git tag -a " + version + " -m 'Creating build " + version + "' -f"
+    system "git push --tags -f"
   }
 
   pushTag.join
