@@ -2517,6 +2517,7 @@ soysauce = {
     return matrix.substr(7, matrix.length - 8).split(', ');
   },
   browser: {
+    pageLoad: new Date().getTime(),
     supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,
     supportsLocalStorage: function() {
       try { 
@@ -3647,7 +3648,7 @@ soysauce.carousels = (function() {
   var PEEK_WIDTH = 20;
   var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
   var VENDOR_PREFIX = soysauce.getPrefix();
-  var SWIPE_THRESHOLD = 100;
+  var SWIPE_THRESHOLD = 120;
   var ZOOM_SENSITIVITY = 0.8;
   
   function Carousel(selector) {
@@ -4959,6 +4960,14 @@ soysauce.lazyloader = (function() {
         if (self.processing || self.complete) return;
         update(e);
       });
+      if (this.hover) {
+        var scrollTimer = 0;
+        this.widget.hammer().on("release", function(e) {
+          if ((e.gesture.velocityY > 0.25 || e.gesture.distance > 10) && /up|down/.test(e.gesture.direction)) {
+            $window.trigger("scroll");
+          }
+        });
+      }
     }
     
     function update(e) {
