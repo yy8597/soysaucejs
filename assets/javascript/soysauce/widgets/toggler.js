@@ -11,6 +11,7 @@ soysauce.togglers = (function() {
       var button = $(selector);
       var togglerID = button.attr("data-ss-toggler-id");
       var query = "[data-ss-toggler-id='" + togglerID + "']";
+      var tabGroupName = "";
       
       this.orphan = true;
       this.widget = $(query);
@@ -36,6 +37,11 @@ soysauce.togglers = (function() {
         self.toggle(null, e);
       });
       
+      tabGroupName = button.attr("data-ss-tab-group");
+      
+      this.orphanTabGroup = $("[data-ss-tab-group='" + tabGroupName  + "']");
+      this.orphanTabs = (this.orphanTabGroup.length > 1) ? true : false;
+      
       this.setState("closed");
       this.content.attr("data-ss-id", button.attr("data-ss-id"));
     }
@@ -49,7 +55,6 @@ soysauce.togglers = (function() {
     }
     
     this.parentID = 0;
-    this.tabID;
     this.state = "closed";
     this.isChildToggler = false;
     this.hasTogglers = false;
@@ -420,6 +425,14 @@ soysauce.togglers = (function() {
         this.setState("closed");
       }
       else {
+        if (this.orphanTabs) {
+          this.orphanTabGroup.each(function() {
+            var tab = soysauce.fetch(this);
+            if (tab.opened) {
+              tab.toggle();
+            }
+          }); 
+        }
         this.opened = true;
         this.setState("open");
       }
