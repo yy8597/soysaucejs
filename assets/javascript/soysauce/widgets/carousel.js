@@ -645,7 +645,7 @@ soysauce.carousels = (function() {
       return;
     }
     
-    self.lockScroll = (Math.abs(e.gesture.angle) >= 75 && Math.abs(e.gesture.angle) <= 105) ? true : false;
+    self.lockScroll = (Math.abs(e.gesture.angle) >= 75 && Math.abs(e.gesture.angle) <= 105 && !self.swiping) ? true : false;
     
     if (self.lockScroll) {
       return;
