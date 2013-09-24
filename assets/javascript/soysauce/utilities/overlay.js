@@ -38,10 +38,13 @@ soysauce.overlay = (function() {
     return true;
   };
   
-  Overlay.prototype.on = function(css) {
+  Overlay.prototype.on = function(css, showClose) {
     var self = this;
     if (this.isOn) return;
     this.overlay.show();
+    if (showClose) {
+      this.close.show();
+    }
     window.setTimeout(function() {
       if (css) {
         try {
@@ -89,7 +92,7 @@ soysauce.overlay = (function() {
     var $carousel;
     var self = this;
     
-    this.on(css);
+    this.on(css, true);
     
     if (carousel.infinite) {
       items = items.slice(1, carousel.numChildren - 1);
