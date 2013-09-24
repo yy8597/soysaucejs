@@ -5,6 +5,7 @@ soysauce.init = function(selector, manual) {
   var fastclickSelectors = "";
   
   fastclickSelectors = "[data-ss-widget='toggler'] > [data-ss-component='button']";
+  fastclickSelectors += ", [data-ss-component='button'][data-ss-toggler-id]";
   fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='button']";
   fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='dots']";
   fastclickSelectors += ", [data-ss-utility='overlay'] [data-ss-component='close']";
