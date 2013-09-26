@@ -44,6 +44,9 @@ soysauce.togglers = (function() {
       
       this.setState("closed");
       this.content.attr("data-ss-id", button.attr("data-ss-id"));
+      
+      this.button.append("<span class='icon'></span>");
+      this.content.wrapInner("<div data-ss-component='wrapper'/>");
     }
     else {
       this.widget = $(selector);
