@@ -1888,6 +1888,7 @@ soysauce.init = function(selector, manual) {
   var fastclickSelectors = "";
   
   fastclickSelectors = "[data-ss-widget='toggler'] > [data-ss-component='button']";
+  fastclickSelectors += ", [data-ss-component='button'][data-ss-toggler-id]";
   fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='button']";
   fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='dots']";
   fastclickSelectors += ", [data-ss-utility='overlay'] [data-ss-component='close']";
@@ -2178,7 +2179,7 @@ soysauce.carousels = (function() {
       this.lastSlideTime = new Date().getTime();
     }
 
-    this.items = this.widget.find("[data-ss-component='item']");
+    this.items = this.container.find("> [data-ss-component='item']");
     this.itemPadding = parseInt(this.items.first().css("padding-left"), 10) + parseInt(this.items.first().css("padding-right"), 10);
 
     if (this.multi) {
@@ -2382,15 +2383,15 @@ soysauce.carousels = (function() {
       self.ready = true;
       window.setTimeout(function() {
         self.container.attr("data-ss-state", "ready");
-        }, 0);
-        if (self.autoheight) {
-          var height = $(self.items[self.index]).outerHeight(true);
-          self.widget.css("height", height);
-          window.setTimeout(function() {
-            self.widget.css("min-height", "0px");
-          }, 300);
-        }
-      });
+      }, 0);
+      if (self.autoheight) {
+        var height = $(self.items[self.index]).outerHeight(true);
+        self.widget.css("height", height);
+        window.setTimeout(function() {
+          self.widget.css("min-height", "0px");
+        }, 300);
+      }
+    });
   } // End Constructor
   
   Carousel.prototype.handleZoom = function(e) {
@@ -2624,7 +2625,7 @@ soysauce.carousels = (function() {
       return;
     }
     
-    self.lockScroll = (Math.abs(e.gesture.angle) >= 75 && Math.abs(e.gesture.angle) <= 105) ? true : false;
+    self.lockScroll = (Math.abs(e.gesture.angle) >= 75 && Math.abs(e.gesture.angle) <= 105 && !self.swiping) ? true : false;
     
     if (self.lockScroll) {
       return;
@@ -3093,6 +3094,28 @@ soysauce.carousels = (function() {
     }
   };
   
+  Carousel.prototype.updateItems = function() {
+    var self = this;
+    
+    if (this.infinite) {
+      console.warn("Soysauce: infinite carousels are not yet supported with this function");
+      return;
+    }
+    
+    this.container.find("> [data-ss-component='item']:not([data-ss-state])").attr("data-ss-state", "inactive");
+    
+    if (!this.container.find("> [data-ss-component][data-ss-state='active']").length) {
+      this.items.first().attr("data-ss-state", "active");
+    }
+    
+    this.items = this.container.find("> [data-ss-component='item']");
+    this.items.css("width", this.itemWidth);
+    
+    this.numChildren = this.items.length;
+    
+    this.container.css("width", this.itemWidth * this.numChildren);
+  };
+  
   // Helper Functions
   function setTranslate(element, x, y) {
     x = x || 0;
@@ -3122,7 +3145,7 @@ soysauce.carousels = (function() {
   }
   
   function createClones(carousel, cloneDepth) {
-    var items = carousel.container.find("[data-ss-component='item']");
+    var items = carousel.container.find("> [data-ss-component='item']");
     var cloneSet1, cloneSet2;
     
     if (cloneDepth > carousel.maxIndex) return;
@@ -3157,6 +3180,7 @@ soysauce.togglers = (function() {
       var button = $(selector);
       var togglerID = button.attr("data-ss-toggler-id");
       var query = "[data-ss-toggler-id='" + togglerID + "']";
+      var tabGroupName = "";
       
       this.orphan = true;
       this.widget = $(query);
@@ -3182,8 +3206,16 @@ soysauce.togglers = (function() {
         self.toggle(null, e);
       });
       
+      tabGroupName = button.attr("data-ss-tab-group");
+      
+      this.orphanTabGroup = $("[data-ss-tab-group='" + tabGroupName  + "']");
+      this.orphanTabs = (this.orphanTabGroup.length > 1) ? true : false;
+      
       this.setState("closed");
       this.content.attr("data-ss-id", button.attr("data-ss-id"));
+      
+      this.button.append("<span class='icon'></span>");
+      this.content.wrapInner("<div data-ss-component='wrapper'/>");
     }
     else {
       this.widget = $(selector);
@@ -3195,7 +3227,6 @@ soysauce.togglers = (function() {
     }
     
     this.parentID = 0;
-    this.tabID;
     this.state = "closed";
     this.isChildToggler = false;
     this.hasTogglers = false;
@@ -3566,6 +3597,14 @@ soysauce.togglers = (function() {
         this.setState("closed");
       }
       else {
+        if (this.orphanTabs) {
+          this.orphanTabGroup.each(function() {
+            var tab = soysauce.fetch(this);
+            if (tab.opened) {
+              tab.toggle();
+            }
+          }); 
+        }
         this.opened = true;
         this.setState("open");
       }

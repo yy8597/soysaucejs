@@ -69,6 +69,7 @@
   -moz-transition: opacity 0.3s ease-in-out;
   -o-transition: opacity 0.3s ease-in-out;
   transition: opacity 0.3s ease-in-out;
+  display: none;
   position: relative;
   z-index: 1100;
   top: 0;
