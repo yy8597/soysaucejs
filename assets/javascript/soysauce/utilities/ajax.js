@@ -1,4 +1,4 @@
-soysauce.ajax = function(url, forceAjax, callback) {
+soysauce.ajax = function(url, callback, forceAjax) {
   var result = false;
   if (soysauce.browser.supportsSessionStorage && sessionStorage[url]) {
     try {
