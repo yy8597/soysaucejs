@@ -340,7 +340,7 @@ soysauce.carousels = (function() {
       }
       
       if (e.type === "release") {
-        if (self.ready && !self.swiping && !self.isZoomed && !self.lockScroll) {
+        if (e.gesture.distance === 0 && !self.swiping && !self.isZoomed && !self.lockScroll) {
           self.sendClick = true;
         }
         else {
