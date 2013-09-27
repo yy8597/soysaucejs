@@ -2570,25 +2570,23 @@ soysauce = {
 }
 
 // Widget Resize Handler
-$(window).on("orientationchange", function(e) {
-  if (e.type === "orientationchange") {
-    if (soysauce.vars.lastResizeID) clearTimeout(soysauce.vars.lastResizeID);
-    soysauce.vars.lastResizeID = window.setTimeout(function() {
-      soysauce.vars.lastResizeTime = e.timeStamp;
-      soysauce.widgets.forEach(function(widget) {
-        if (!widget.handleResize) return;
-        widget.handleResize();
-        if (/carousel/i.test(widget.type)) {
-          if (widget.itemWidth) {
-            $(widget.widget).trigger("SSWidgetResized");
-          }
-        }
-        else {
+$(window).on("resize", function(e) {
+  if (soysauce.vars.lastResizeID) clearTimeout(soysauce.vars.lastResizeID);
+  soysauce.vars.lastResizeID = window.setTimeout(function() {
+    soysauce.vars.lastResizeTime = e.timeStamp;
+    soysauce.widgets.forEach(function(widget) {
+      if (!widget.handleResize) return;
+      widget.handleResize();
+      if (/carousel/i.test(widget.type)) {
+        if (widget.itemWidth) {
           $(widget.widget).trigger("SSWidgetResized");
         }
-      });
-    }, 30);
-  }
+      }
+      else {
+        $(widget.widget).trigger("SSWidgetResized");
+      }
+    });
+  }, 30);
 });
 
 // Widget Initialization
@@ -3679,13 +3677,13 @@ soysauce.carousels = (function() {
     this.offset = 0;
     this.ready = false;
     this.interrupted = false;
-    this.links = false;
     this.lockScroll = false;
     this.nextBtn;
     this.prevBtn;
     this.freeze = false;
     this.jumping = false;
     this.lastTransitionEnd = 0;
+    this.sendClick = false;
 
     // Infinite Variables
     this.infinite = true;
@@ -3868,8 +3866,6 @@ soysauce.carousels = (function() {
       wrapper.find("~ [data-ss-button-type='next']").attr("data-ss-state", "enabled");
     }
 
-    this.links = (!this.items[0].tagName.match(/^a$/i) && !this.items.find("a[href]").length) ? false : true;
-
     numDots = (this.infinite) ? this.numChildren - 2 : this.numChildren;
     numDots = (this.multi) ? this.maxIndex : numDots;
 
@@ -3978,24 +3974,26 @@ soysauce.carousels = (function() {
       }
     });
     
-    if (this.links) {
-      this.container.find("a[href]").each(function(e) {
-        var $this = $(this);
-        var href = $this.attr("href");
-        $this.attr("data-ss-href", href).attr("href", "");
-      });
-      this.container.hammer().on("tap click", function(e) {
-        var $target;
-        
-        if (!self.ready || e.type === "click") return false;
-        
-        $target = $(e.target);
-        
-        if (e.target.tagName === "A" || $target.find("a").length) {
-          window.location.href = $target.attr("data-ss-href") || $target.find("a").attr("data-ss-href");
+    this.container.hammer().on("release click", function(e) {
+      if (e.type === "click") {
+        if (self.sendClick) {
+          return;
         }
-      });
-    }
+        else {
+          soysauce.stifle(e);
+          return false;
+        }
+      }
+      
+      if (e.type === "release") {
+        if (e.gesture.distance === 0 && !self.swiping && !self.isZoomed && !self.lockScroll) {
+          self.sendClick = true;
+        }
+        else {
+          self.sendClick = false;
+        }
+      }
+    });
 
     if (this.swipe) {
       // Temporary Fix - Fixes iOS 7 swipe issue
