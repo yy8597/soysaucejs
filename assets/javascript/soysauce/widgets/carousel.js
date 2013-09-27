@@ -1114,19 +1114,25 @@ soysauce.carousels = (function() {
     }
   };
   
+  // Known issues:
+  //  * Does not update dots
+  //  * Currently infinite only works with replacing all the images
   Carousel.prototype.updateItems = function() {
     var self = this;
     
-    if (this.infinite) {
-      console.warn("Soysauce: infinite carousels are not yet supported with this function");
-      return;
-    }
-    
     this.container.find("> [data-ss-component='item']:not([data-ss-state])").attr("data-ss-state", "inactive");
     
-    if (!this.container.find("> [data-ss-component][data-ss-state='active']").length) {
-      this.items.first().attr("data-ss-state", "active");
+    if (this.infinite) {
+      createClones(this, 1);
+      this.container.find("> [data-ss-component='item']:nth-of-type(2)").attr("data-ss-state", "active");
     }
+    else {
+      if (!this.container.find("> [data-ss-component][data-ss-state='active']").length) {
+        this.items.first().attr("data-ss-state", "active");
+      }
+    }
+    
+    this.index = this.container.find("> [data-ss-component][data-ss-state='active']").index();
     
     this.items = this.container.find("> [data-ss-component='item']");
     this.items.css("width", this.itemWidth);
