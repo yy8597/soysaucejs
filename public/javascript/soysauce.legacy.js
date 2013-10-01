@@ -4073,9 +4073,6 @@ soysauce.carousels = (function() {
       else {
         self.itemWidth = self.widgetWidth;
       }
-      
-      console.log("itemWidth: " + self.itemWidth);
-      console.log("carousel object", self);
 
       if (self.peek) {
         self.itemWidth -= self.peekWidth*2;
