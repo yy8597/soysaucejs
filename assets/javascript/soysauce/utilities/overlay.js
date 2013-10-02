@@ -4,13 +4,17 @@ soysauce.overlay = (function() {
   var $viewport = $("meta[name='viewport']");
   
   function Overlay() {
+    var self = this;
+    
     this.overlay;
     this.content;
     this.close;
     this.hiddenItems = null;
     this.isOn = false;
     
-    this.init();
+    $(document).ready(function() {
+      self.init();
+    });
   };
   
   Overlay.prototype.init = function(selector) {
