@@ -3100,12 +3100,11 @@ soysauce.carousels = (function() {
     
     this.container.find("> [data-ss-component='item']:not([data-ss-state])").attr("data-ss-state", "inactive");
     
-    if (this.infinite) {
-      createClones(this, 1);
-      this.container.find("> [data-ss-component='item']:nth-of-type(2)").attr("data-ss-state", "active");
-    }
-    else {
-      if (!this.container.find("> [data-ss-component][data-ss-state='active']").length) {
+    if (!this.container.find("> [data-ss-component][data-ss-state='active']").length) {
+      if (this.infinite) {
+        this.container.find("> [data-ss-component='item']:nth-of-type(2)").attr("data-ss-state", "active");
+      }
+      else {
         this.items.first().attr("data-ss-state", "active");
       }
     }
@@ -3116,6 +3115,13 @@ soysauce.carousels = (function() {
     this.items.css("width", this.itemWidth);
     
     this.numChildren = this.items.length;
+    
+    if (this.infinite) {
+      this.maxIndex = this.numChildren - 2;
+    }
+    else {
+      this.maxIndex = this.numChildren - 1;
+    }
     
     this.container.css("width", this.itemWidth * this.numChildren);
   };
