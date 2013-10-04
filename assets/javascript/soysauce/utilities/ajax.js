@@ -1,20 +1,29 @@
 soysauce.ajax = function(url, callback, forceAjax) {
   var result = false;
+  var success = true;
+  
   if (soysauce.browser.supportsSessionStorage && sessionStorage[url]) {
     try {
       result = JSON.parse(sessionStorage[url]);
-      if (!forceAjax) return result;
+      if (!forceAjax) {
+        if (typeof(callback) === "function") {
+          return callback(result, "success");
+        }
+        else {
+          return result;
+        }
+      }
     }
     catch(e) {}
   }
   $.ajax({
     url: url,
     async: (!callback) ? false : true
-  }).success(function(data, status, jqXHR) {
+  }).always(function(data, status, jqXHR) {
     try {
       var resultString = JSON.stringify(data);
       result = JSON.parse(resultString);
-      if (!jqXHR.getResponseHeader("Cache-Control")) {
+      if (jqXHR.getResponseHeader("Cache-Control") === "no-cache") {
         sessionStorage.setItem(url, resultString);
       }
     }
@@ -23,15 +32,14 @@ soysauce.ajax = function(url, callback, forceAjax) {
         console.warn("Soysauce: sessionStorage is full.");
       }
       else {
+        console.log("error message: " + e.message);
         console.warn("Soysauce: error fetching url '" + url + "'. Data returned needs to be JSON.");
         result = false;
       }
     }
     if (typeof(callback) === "function") {
-      callback(data);
+      return callback(result, status);
     }
-  }).fail(function(data) {
-    console.warn("Soysauce: error fetching url '" + url + "'. Message: " + data.status + " " + data.statusText);
   });
   return result;
 };
