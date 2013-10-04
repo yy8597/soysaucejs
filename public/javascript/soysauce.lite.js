@@ -3094,7 +3094,7 @@ soysauce.carousels = (function() {
   
   // Known issues:
   //  * Does not update dots
-  //  * Currently infinite only works with replacing all the images
+  //  * Currently infinite only works with replacing all the images (will make user do this)
   Carousel.prototype.updateItems = function() {
     var self = this;
     

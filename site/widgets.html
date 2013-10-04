@@ -58,10 +58,10 @@
 												<li><span class="snippet">soysauce.fetch(id or CSS selector)</span> - Use this function to obtain information about a widget; An ID is placed on every widget that contains the [data-ss-widget] attribute</li>
 												<li><span class="snippet">soysauce.init(CSS selector or Element, manual)</span> - Use this function on an element containing the [data-ss-widget] attribute to initialize the widget; Soysauce will initialize it depending on the value; set manual to true (boolean) if you've added data-ss-init="manual" on the widget container</li>
 												<li><span class="snippet">soysauce.widgets</span> - Returns an object that contains all the initialized widgets</li>
-												<li><span class="snippet">soysauce.browserInfo</span> - Returns an object that contains helpful browser information such as the user agent, local/session storage support, and SVG support</li>
+												<li><span class="snippet">soysauce.browser</span> - Returns an object that contains helpful browser information such as the user agent, local/session storage support, and SVG support</li>
 												<li><span class="snippet">soysauce.vars.degrade</span> - Programmatically determine if the current browser is degraded</li>
 												<li><span class="snippet">soysauce.stifle(event, onlyPropagation)</span> - Pass in an event to prevent the default action and to stop event propagation from occurring; passing true to "onlyPropagation" will allow the default action to occur but still prevent event propagation</li>
-												<li><span class="snippet">soysauce.ajax(url, forceAjax, callback)</span> - Simple way of returning a JSON object, only uses GET and only returns a JSON object. Set forceAjax to true if a particular item to avoid pulling from sessionStorage; returns false if data is not json or if fetch fails</li>
+												<li><span class="snippet">soysauce.ajax(url, callback, forceAjax)</span> - Simple way of returning a JSON object, only uses GET and only returns a JSON object. Set forceAjax to true if a particular item to avoid pulling from sessionStorage; returns false if data is not json or if fetch fails</li>
 											</ul>
 										</article>
 									</div>
@@ -153,12 +153,8 @@
 												<li><span class="snippet">finite</span> - Carousel will not loop</li>
 												<li><span class="snippet">autoscroll</span> - Timer-based scrolling; default is 5000ms</li>
 												<li><span class="snippet">zoom</span> - Allows the carousel to zoom the item</li>
-												<li><span class="snippet">pinch</span> - Must be paired with the zoom option; allows for the user to adjust the zoom modifier <span class="warn">(buggy)</span></li>
 												<li><span class="snippet">noswipe</span> - User cannot perform swipe gestures on the carousel</li>
-												<li><span class="snippet">cms</span> - Processes a CMS carousel <span class="warn">(deprecated as of v1.1.105)</span></li>
-												<li><span class="snippet">thumbs</span> - Carousel will use images as thumbnails for navigation <span class="alert">(untested)</span></li>
 												<li><span class="snippet">multi</span> - Allows for the carousel to show multiple items per screen</li>
-												<li><span class="snippet">nofullscreen</span> - Halts resizing of items <span class="alert">(untested)</span></li>
 												<li><span class="snippet">autoheight</span> - Automatically adjusts height of carousel</li>
 											</ul>
 										</article>
@@ -243,9 +239,11 @@
 4) data-ss-state="open"
    If placed on the widget and a button, the toggler will know
    to keep the button/content opened on initialization
-2) data-ss-ajax-onload="true"
+5) data-ss-ajax-onload="true"
    Used with the ajax option; place this on the "widget" component
-   if you would like to load the ajax content on page load</xmp></pre>
+   if you would like to load the ajax content on page load
+2) data-ss-tab-group="VALUE"
+   Used with orphan togglers; place these on buttons and the orphan togglers will act like the "tabs" option</xmp></pre>
 										</article>
 									</div>
 									<div class="options">

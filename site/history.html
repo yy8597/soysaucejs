@@ -23,22 +23,58 @@
 				<section>
 					<h1>Version History</h1>
 					<article>
-						<h2>v1.2.0<em> DATE</em></h2>
+						<h2>v1.2.1<em> October 4, 2013</em></h2>
+						<h4>Overlay</h4>
+						<ul>
+							<li>Fixing error when appending overlay to body before it's ready</li>
+							<li>overlay.on(selector) now takes a parameter where you pass in a context to where to move the overlay while it's on</li>
+						</ul>
+					</article>
+					<article>
+						<h2>v1.2.0<em> October 1, 2013</em></h2>
 						<h4>General</h4>
 						<ul>
-							<li>HammerJS - Added to Soysauce for easier event handling</li>
+							<li>HammerJS - Added to Soysauce for better event handling</li>
 							<li>soysauce.stifle() now supports HammerJS events</li>
+							<li>widget.handleResize() no longer listens on both "orientationchange" and "resize" events; instead, listens on just "resize" events</li>
+							<li>***IMPORTANT*** soysauce.browserInfo renamed to soysauce.browser</li>
+							<li>***IMPORTANT*** soysauce.ajax(url, callback, forceAjax) had its parameters changed in priority of usage</li>
 						</ul>
 						<h4>Fastclick</h4>
 						<ul>
 							<li>Added listeners to carousel dots</li>
 							<li>Error handling - using try/catch block when attaching listeners</li>
+							<li>Carousel - zoom overlay "close" button added</li>
+							<li>Toggler - now supports orphan toggler buttons</li>
 						</ul>
 						<h4>Carousel</h4>
 						<ul>
+						  <li>Re-coded entirely; should maintain same functionality</li>
 							<li>Increased transition speed slightly from 0.65s to 0.5s</li>
-							<li>Increased swipe distance threshold to 100px from 3px</li>
-							<li>Index transitions now occur on two separate events: velocity and distance</li>
+							<li>Transitions now use a custom cubic-bezier function</li>
+							<li>Increased swipe distance threshold from 3px to 120px</li>
+							<li>Index transitions (changing from item to item) now occur on two separate events: velocity and distance</li>
+							<li>Fixed issue with iOS7 touchend events not firing on carousel</li>
+							<li>Deprecated "pinch" option (built into new re-coded "zoom" option)</li>
+							<li>Deprecated "nofullscreen" option</li>
+							<li>Deprecated "thumbs" option</li>
+							<li>"zoom" option re-coded, now supports doubletap and pinch-zoom; in addition, no longer zooms within widget bounds but instead uses an overlay carousel</li>
+							<li>carousel.updateItems() - new function that is to be used dynamically to update the items in the carousel if items are added/removed</li>
+							<li>Now passes through click events (events longer stopped on widget wrapper due to Android 2.x support)</li>
+						</ul>
+						<h4>Toggler</h4>
+						<ul>
+						  <li>Orphan togglers now have icons and wrappers (as they appear in non-orphan togglers)</li>
+						  <li>Orphan togglers have a new attribute [data-ss-tab-group] which now can act as the "tabs" option for regular togglers; place these on buttons and assign a common value</li>
+						</ul>
+						<h4>Overlay</h4>
+						<ul>
+						  <li>Re-written entirely, same usage applies</li>
+						  <li>***IMPORTANT*** z-index now using position: fixed; with a z-index of 1000</li>
+						</ul>
+						<h4>Lazyloader</h4>
+						<ul>
+						  <li>Now triggers scroll events while scrolling down the page; Note: Safari halts javascript  during native scrolling until momentum is complete</li>
 						</ul>
 					</article>
 					<article>

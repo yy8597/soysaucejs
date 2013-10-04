@@ -2845,13 +2845,17 @@ soysauce.overlay = (function() {
   var $viewport = $("meta[name='viewport']");
   
   function Overlay() {
+    var self = this;
+    
     this.overlay;
     this.content;
     this.close;
     this.hiddenItems = null;
     this.isOn = false;
     
-    this.init();
+    $(document).ready(function() {
+      self.init();
+    });
   };
   
   Overlay.prototype.init = function(selector) {
@@ -2862,6 +2866,7 @@ soysauce.overlay = (function() {
 
     div.setAttribute("data-ss-utility", "overlay");
     div.setAttribute("data-ss-state", "inactive");
+    
     document.body.appendChild(div);
 
     this.overlay = $("[data-ss-utility='overlay']");
@@ -2879,13 +2884,21 @@ soysauce.overlay = (function() {
     return true;
   };
   
-  Overlay.prototype.on = function(css, showClose) {
+  Overlay.prototype.on = function(selector, css, showClose) {
     var self = this;
+    
     if (this.isOn) return;
+    
+    if (typeof(selector) === "string") {
+      this.overlay.appendTo(selector);
+    }
+    
     this.overlay.show();
+    
     if (showClose) {
       this.close.show();
     }
+    
     window.setTimeout(function() {
       if (css) {
         try {
@@ -2906,6 +2919,9 @@ soysauce.overlay = (function() {
     
     this.isOn = false;
     this.overlay.attr("data-ss-state","inactive").removeAttr("style").hide();
+    this.overlay.appendTo("body");
+    
+    // Todo: destroy soysauce objects
     this.content.empty();
     
     $body.css({
@@ -2932,8 +2948,9 @@ soysauce.overlay = (function() {
     var items = carousel.items.clone();
     var $carousel;
     var self = this;
+    var showCloseButton = true;
     
-    this.on(css, true);
+    this.on(null, css, showCloseButton);
     
     if (carousel.infinite) {
       items = items.slice(1, carousel.numChildren - 1);
@@ -4762,7 +4779,7 @@ soysauce.carousels = (function() {
   
   // Known issues:
   //  * Does not update dots
-  //  * Currently infinite only works with replacing all the images
+  //  * Currently infinite only works with replacing all the images (will make user do this)
   Carousel.prototype.updateItems = function() {
     var self = this;
     
