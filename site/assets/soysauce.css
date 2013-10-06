@@ -141,6 +141,7 @@
 [data-ss-widget="carousel"]:not([data-ss-state]) {
   opacity: 0;
   max-height: 400px;
+  overflow: hidden;
 }
 [data-ss-widget="carousel"][data-ss-state] {
   opacity: 1;

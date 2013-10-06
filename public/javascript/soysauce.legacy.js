@@ -2618,6 +2618,7 @@ soysauce = {
     }
 
     soysauce.widgets.forEach(function(widget) {
+      if (!widget) return;
       if (widget.id === selector) {
         ret = widget;
       }
@@ -2629,6 +2630,28 @@ soysauce = {
     else {
       return ret;
     }
+  },
+  destroy: function(selector) {
+    try {
+      var widget = soysauce.fetch(selector);
+      var $widget = widget.widget;
+      
+      $widget.off("*");
+      $widget.hammer().off("*");
+      $widget.empty();
+      $widget.off();
+      $widget.hammer().off();
+      $widget.remove();
+      
+      delete soysauce.widgets[widget.id - 1];
+      
+      return true;
+    }
+    catch(e) {
+      console.warn("Soysauce: could not destroy widget with id '" + widget.id + "'. Possible memory leaks. Message: " + e.message);
+    }
+    
+    return false;
   },
   getCoords: function(e) {
     if (!e) return;
@@ -3840,6 +3863,7 @@ soysauce.carousels = (function() {
     this.jumping = false;
     this.lastTransitionEnd = 0;
     this.sendClick = false;
+    this.resizeID = 0;
 
     // Infinite Variables
     this.infinite = true;
@@ -4732,6 +4756,9 @@ soysauce.carousels = (function() {
     var parentWidgetContainer;
     var diff = 0;
     var prevState = "";
+    var self = this;
+    
+    window.clearTimeout(this.resizeID);
     
     if (this.widget.is(":hidden") && !this.defer) return;
 
@@ -4783,7 +4810,9 @@ soysauce.carousels = (function() {
     }
 
     this.container.attr("data-ss-state", "notransition");
-    this.widget.attr("data-ss-state", "intransit");
+    if (this.widget.attr("data-ss-state")) {
+      this.widget.attr("data-ss-state", "intransit");
+    }
 
     this.items.css("width", this.itemWidth + "px");
 
@@ -4794,6 +4823,13 @@ soysauce.carousels = (function() {
     if (this.autoheight) {
       this.widget.css("height", $(this.items[this.index]).outerHeight(true));
     }
+    
+    this.resizeID = window.setTimeout(function() {
+      self.container.attr("data-ss-state", "ready");
+      if (self.widget.attr("data-ss-state")) {
+        self.widget.attr("data-ss-state", "ready");
+      }
+    }, 300);
   };
   
   Carousel.prototype.autoscrollOn = function(forceEnable) {
@@ -4918,10 +4954,10 @@ soysauce.carousels = (function() {
   
   // Known issues:
   //  * Does not update dots
-  //  * Currently infinite only works with replacing all the images (will make user do this)
   Carousel.prototype.updateItems = function() {
     var self = this;
     
+    this.ready = false;
     this.container.find("> [data-ss-component='item']:not([data-ss-state])").attr("data-ss-state", "inactive");
     
     if (!this.container.find("> [data-ss-component][data-ss-state='active']").length) {
@@ -4948,6 +4984,9 @@ soysauce.carousels = (function() {
     }
     
     this.container.css("width", this.itemWidth * this.numChildren);
+    this.container.imagesLoaded(function() {
+      self.ready = true;
+    });
   };
   
   // Helper Functions
