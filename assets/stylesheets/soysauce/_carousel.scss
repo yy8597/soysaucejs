@@ -41,6 +41,7 @@
   &:not([data-ss-state]) {
     opacity: 0;
     max-height: 400px;
+    overflow: hidden;
   }
   &[data-ss-state] {
     opacity: 1;
