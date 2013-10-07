@@ -80,7 +80,10 @@ soysauce.overlay = (function() {
     this.overlay.attr("data-ss-state","inactive").removeAttr("style").hide();
     this.overlay.appendTo("body");
     
-    // Todo: destroy soysauce objects
+    this.content.find("[data-ss-widget]").each(function() {
+      soysauce.destroy(this);
+    });
+    
     this.content.empty();
     
     $body.css({
