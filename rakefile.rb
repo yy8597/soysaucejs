@@ -195,6 +195,13 @@ task :build do
   File.open("site/home.html", "w") {
     |file| file.write(home)
   }
+  
+  # Update bower.json
+  bower = File.read("bower.json")
+  bower = bower.gsub(/"version":\s+"[\d\.]+"/, '"version": "' + ENV["v"] + '"')
+  File.open("bower.json", "w") {
+    |file| file.write(bower)
+  }
 
   # Create build tag
   pushTag = Thread.new {
@@ -202,6 +209,7 @@ task :build do
     system "git commit -am 'Creating build " + version + "'"
     system "git tag -a " + version + " -m 'Creating build " + version + "' -f"
     system "git push --tags -f"
+    system "git push origin master"
   }
 
   pushTag.join
