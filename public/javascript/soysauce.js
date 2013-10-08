@@ -2952,7 +2952,10 @@ soysauce.overlay = (function() {
     this.overlay.attr("data-ss-state","inactive").removeAttr("style").hide();
     this.overlay.appendTo("body");
     
-    // Todo: destroy soysauce objects
+    this.content.find("[data-ss-widget]").each(function() {
+      soysauce.destroy(this);
+    });
+    
     this.content.empty();
     
     $body.css({
@@ -2980,6 +2983,7 @@ soysauce.overlay = (function() {
     var $carousel;
     var self = this;
     var showCloseButton = true;
+    var additionalOptions = "";
     
     this.on(null, css, showCloseButton);
     
@@ -2987,8 +2991,12 @@ soysauce.overlay = (function() {
       items = items.slice(1, carousel.numChildren - 1);
     }
     
+    if (!this.infinite) {
+      additionalOptions += "finite";
+    }
+    
     items.removeAttr("data-ss-state").removeAttr("style");
-    this.content.wrapInner("<div data-ss-widget='carousel' data-ss-options='overlay' data-ss-index=" + carousel.index + "/>");
+    this.content.wrapInner("<div data-ss-widget='carousel' data-ss-options='overlay " + additionalOptions + "' data-ss-index=" + carousel.index + "/>");
     
     $carousel = this.content.find("[data-ss-widget='carousel']");
     $carousel.append(items);

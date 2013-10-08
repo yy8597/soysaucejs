@@ -32,6 +32,7 @@ task :build do
     puts "Soysauce: " + version + " already exists. Overwriting..."
     begin 
       FileUtils.rm_r "build/" + version, :force => true
+      Dir::mkdir("build/" + version)
     rescue
       abort("Soysauce: Unable to overwrite directory. Aborting.")
     end
