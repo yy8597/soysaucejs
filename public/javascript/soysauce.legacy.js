@@ -3121,8 +3121,7 @@ soysauce.overlay = (function() {
     if (carousel.infinite) {
       items = items.slice(1, carousel.numChildren - 1);
     }
-    
-    if (!this.infinite) {
+    else {
       additionalOptions += "finite";
     }
     
