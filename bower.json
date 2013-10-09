@@ -1,6 +1,6 @@
 {
   "name": "soysaucejs",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "main": "./public/javascript/soysauce.js",
   "dependencies": {
     "jquery": "~1.9.1"

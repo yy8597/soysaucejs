@@ -4130,6 +4130,12 @@ soysauce.carousels = (function() {
         self.itemWidth = self.widgetWidth;
       }
 
+      if (self.itemWidth < 250) {
+        $(window).load(function() {
+          self.handleResize();
+        });
+      }
+      
       if (self.peek) {
         self.itemWidth -= self.peekWidth*2;
         switch (self.peekAlign) {
