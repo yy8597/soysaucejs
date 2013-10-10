@@ -17,6 +17,8 @@
     overflow: hidden;
     &:not([data-ss-state]) {
       visibility: hidden;
+      position: absolute;
+      width: 100%;
     }
     &[data-ss-state="closed"] {
       height: 0 !important;
