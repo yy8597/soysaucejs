@@ -33,6 +33,8 @@
 }
 [data-ss-widget="toggler"][data-ss-options*="slide"] [data-ss-component="content"]:not([data-ss-state]) {
   visibility: hidden;
+  position: absolute;
+  width: 100%;
 }
 [data-ss-widget="toggler"][data-ss-options*="slide"] [data-ss-component="content"][data-ss-state="closed"] {
   height: 0 !important;
