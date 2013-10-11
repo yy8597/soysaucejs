@@ -8,17 +8,7 @@ http://www.soysaucejs.com/
 ## Current CDN URLs
 * Compressed (21.50 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.2.7/soysauce.min.js
 * Uncompressed (38.10 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.2.7/soysauce.js
-* Compressed Lite (14.01 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.2.7/soysauce.lite.min.js
-* Uncompressed Lite (24.43 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.2.7/soysauce.lite.js
-* Compressed Legacy (21.95 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.2.7/soysauce.legacy.min.js
-* Uncompressed Legacy (38.93 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.2.7/soysauce.legacy.js
 * CSS (8.96 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.2.7/soysauce.css
-
-Note: Lite contains only the bare essentials (which will later help with scaling as the number of widgets increase):
-* Carousel
-* Toggler
-
-Note2: Legacy contains support for older versions of jQuery (< 1.6)
 
 ## Widgets
 These pre-built widgets are simple to use. Some widgets have additional options for extra effects and functionality. To use, you will need to include both the CSS and JS file (use the CDN links above).
