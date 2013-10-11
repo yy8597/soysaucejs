@@ -320,10 +320,9 @@ soysauce.togglers = (function() {
   
   Toggler.prototype.handleResize = function() {
     var self = this;
+    var subWidgets = this.allContent.find("[data-ss-widget]");
     
-    if (this.defer) {
-      var subWidgets = this.allContent.find("[data-ss-widget]");
-      
+    if (this.defer && subWidgets.length) {
       this.allContent.css({
         "clear": "both",
         "position": "relative"
