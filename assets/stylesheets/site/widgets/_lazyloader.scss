@@ -1,0 +1,17 @@
+.lazyloader {
+	[data-ss-widget="lazyloader"] img {
+		@include transition(opacity 1s);
+		@include box-shadow(-1px 1px 2px rgba(0,0,0,0.3));
+		@include border-radius(3px);
+		display: block;
+		width: 200px;
+		height: 200px;
+		background: #BBB;
+		margin: 10px auto;
+		opacity: 0.3;
+		border: 1px solid #333;
+		&[src] {
+			opacity: 1;
+		}
+	}
+}
