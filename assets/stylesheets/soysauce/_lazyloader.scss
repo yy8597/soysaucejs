@@ -1,6 +1,0 @@
-[data-ss-widget="lazyloader"] {
-  -webkit-backface-visibility: hidden;
-  &:not([data-ss-options*="hover"]) [data-ss-component="item"]:not([data-ss-state="loaded"]) {
-    display: none !important;
-  }
-}
