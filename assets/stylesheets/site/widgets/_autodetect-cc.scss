@@ -1,0 +1,59 @@
+.autodetect-cc {
+	input, select {
+		@include appearance(none);
+		@include border-radius(3px);
+		display: block;
+		min-height: 40px;
+		border: 1px solid #333;
+		text-indent: 5px;
+		font-size: 14px;
+		font-weight: bold;
+		margin: 10px 0px;
+		width: 100%;
+	}
+	.testCards {
+		@include border-radius(3px);
+		margin: 10px;
+		padding: 0 10px;
+		border: 1px solid #777;
+		li {
+			padding: 10px 0;
+			&:not(:last-of-type) {
+			border-bottom: 1px solid #ddd;	
+			}
+		}
+	}
+	h2 {
+		margin: 10px;
+		font-size: 16px;
+		padding-top: 10px;
+		border-top: 2px solid #777;
+	}
+	.cards {
+		li {
+			@include transition(all 0.2s);
+			background-image: url("../assets/images/sprite-cards.png");
+			display: inline-block;
+			width: 51px;
+			height: 32px;
+		}
+		.mastercard {
+			background-position-x: -51px;
+		}
+		.amex {
+			background-position-x: -102px;
+		}
+		.discover {
+			background-position-x: -153px;
+		}
+		.dinersclub {
+			background-position-x: -204px;
+		}
+		.jcb {
+			background-position-x: -306px;
+		}
+		.inactive {
+			background-position-y: 32px;
+		}
+	}
+}
