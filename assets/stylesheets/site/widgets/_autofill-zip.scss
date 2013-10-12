@@ -1,0 +1,38 @@
+.zip {
+	[data-ss-widget="autofill-zip"] {
+		padding: 0 5px;
+		margin: 10px 0;
+		input, select {
+			@include appearance(none);
+			@include border-radius(3px);
+			display: block;
+			min-height: 40px;
+			border: 1px solid #333;
+			text-indent: 5px;
+			font-size: 14px;
+			font-weight: bold;
+			margin: 10px 0px;
+			width: 100%;
+		}
+		[data-ss-component="zip"] {
+			max-width: 140px;
+			float: left;
+			+ .ajaxLoader {
+				display: none;
+				position: relative;
+				top: 13px;
+			}
+		}
+	}
+	.reverseHeader {
+		margin-top: 15px;
+		padding-top: 15px;
+		border-top: 1px solid #ddd;
+	}
+	h2 {
+		font-weight: bold;
+	}
+	button {
+		display: block;
+	}
+}
