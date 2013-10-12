@@ -7,3 +7,6 @@
 /assets/main.css
 /site/
 rakefile.rb
+/public/javascript/
+/public/site*
+/bower_components/
