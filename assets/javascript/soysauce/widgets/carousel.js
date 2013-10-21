@@ -105,6 +105,7 @@ soysauce.carousels = (function() {
     // Single-item Options
     if (this.widget.attr("data-ss-single-options") && this.widget.find("[data-ss-component='item']").length === 1) {
       options = this.widget.attr("data-ss-single-options").split(" ");
+      this.widget.attr("data-ss-single-item", "true");
     }
     else {
       options = soysauce.getOptions(selector);
