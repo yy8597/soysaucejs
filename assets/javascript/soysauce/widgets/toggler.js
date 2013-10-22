@@ -47,6 +47,9 @@ soysauce.togglers = (function() {
       
       this.button.append("<span class='icon'></span>");
       this.content.wrapInner("<div data-ss-component='wrapper'/>");
+      
+      this.allButtons = this.button;
+      this.allContent = this.content;
     }
     else {
       this.widget = $(selector);
