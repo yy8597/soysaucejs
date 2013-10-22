@@ -3937,6 +3937,7 @@ soysauce.carousels = (function() {
     // Single-item Options
     if (this.widget.attr("data-ss-single-options") && this.widget.find("[data-ss-component='item']").length === 1) {
       options = this.widget.attr("data-ss-single-options").split(" ");
+      this.widget.attr("data-ss-single-item", "true");
     }
     else {
       options = soysauce.getOptions(selector);
@@ -5370,6 +5371,9 @@ soysauce.togglers = (function() {
       
       this.button.append("<span class='icon'></span>");
       this.content.wrapInner("<div data-ss-component='wrapper'/>");
+      
+      this.allButtons = this.button;
+      this.allContent = this.content;
     }
     else {
       this.widget = $(selector);
