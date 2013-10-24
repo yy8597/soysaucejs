@@ -135,7 +135,7 @@ soysauce.togglers = (function() {
       this.parent = soysauce.fetch(this.parentID);
     }
 
-    if (this.widget.attr("data-ss-state") !== undefined && this.widget.attr("data-ss-state") === "open") {
+    if (this.widget.attr("data-ss-state") === "open") {
       this.allButtons.each(function() {
         var button = $(this);
         if (!button.attr("data-ss-state"))  {
@@ -143,8 +143,8 @@ soysauce.togglers = (function() {
           button.find("+ [data-ss-component='content']").attr("data-ss-state", "closed");
         }
         else if (button.attr("data-ss-state") === "open") {
-          this.button = button;
-          this.content = button.find("+ [data-ss-component='content']");
+          self.button = button;
+          self.content = button.find("+ [data-ss-component='content']");
         }
       });
       this.opened = true;
