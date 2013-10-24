@@ -1,6 +1,6 @@
 {
   "name": "soysaucejs",
-  "title": "SoysauceJS"
+  "title": "SoysauceJS",
   "description": "Integrate widgets into your site to create an elegant UX; Image carousels, togglers, autofill city/state from zip, and more.",
   "version": "1.2.11",
   "main": "./public/soysauce.js",
