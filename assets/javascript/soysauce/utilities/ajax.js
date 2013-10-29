@@ -23,9 +23,7 @@ soysauce.ajax = function(url, callback, forceAjax) {
     try {
       var resultString = JSON.stringify(data);
       result = JSON.parse(resultString);
-      if (jqXHR.getResponseHeader("Cache-Control") === "no-cache") {
-        sessionStorage.setItem(url, resultString);
-      }
+      sessionStorage.setItem(url, resultString);
     }
     catch(e) {
       if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
