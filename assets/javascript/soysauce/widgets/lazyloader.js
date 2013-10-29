@@ -11,7 +11,6 @@ soysauce.lazyloader = (function() {
     this.widget = $(selector);
     this.items = this.widget.find("[data-ss-component='item']");
     this.threshold = parseInt(this.widget.attr("data-ss-threshold"), 10) || MIN_THRESHOLD;
-    this.timeStamp = 0; // for throttling
     this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load"), 10) || 10;
     this.initialBatchLoaded = false;
     this.batchSize = parseInt(this.widget.attr("data-ss-batch-size"), 10) || 5;
@@ -21,6 +20,8 @@ soysauce.lazyloader = (function() {
     
     // Autoload Variables
     this.autoload = false;
+    this.autoloadInterval = parseInt(this.widget.attr("data-ss-interval"), 10) || 1000;
+    this.autoloadIntervalID = 0;
     
     // Cache Variables
     this.cache = false;
@@ -89,44 +90,17 @@ soysauce.lazyloader = (function() {
     }
 
     if (this.autoload) {
-      $window.scroll(function(e) {
-        if (self.processing || self.complete) return;
-        update(e);
-      });
-      if (this.hover) {
-        var scrollTimer = 0;
-        this.widget.hammer().on("release", function(e) {
-          if ((e.gesture.velocityY > 0.25 || e.gesture.distance > 10) && /up|down/.test(e.gesture.direction)) {
-            $window.trigger("scroll");
-          }
-        });
-      }
+      this.autoloadIntervalID = window.setInterval(function() {
+        update();
+      }, self.autoloadInterval);
     }
     
-    function update(e) {
-      if ((self.hover && self.continueProcessing) || (e.timeStamp - self.timeStamp) > THROTTLE) {
-        var widgetPositionThreshold = self.widget.height() + self.widget.offset().top - self.threshold;
-        var windowPosition = $window.scrollTop() + $window.height();
-        
-        self.timeStamp = e.timeStamp;
-        
-        if ((self.hover && self.continueProcessing) || (windowPosition > widgetPositionThreshold) && Math.abs(e.timeStamp - soysauce.browser.pageLoad) > 1500) {
-          if (self.hover) {
-            if (self.items.length && (windowPosition > self.items.first().offset().top)) {
-              self.continueProcessing = true;
-              self.widget.one("SSBatchLoaded", function() {
-                $window.trigger("scroll");
-              });
-              self.processNextBatch();
-            }
-            else {
-              self.continueProcessing = false;
-            }
-          }
-          else {
-            self.processNextBatch();
-          }
-        }
+    function update() {
+      var widgetPositionThreshold = self.widget.height() + self.widget.offset().top - self.threshold;
+      var windowPosition = $window.scrollTop() + $window.height();
+      
+      if (windowPosition > widgetPositionThreshold) {
+        self.widget.trigger("SSThreshold");
       }
     }
   };
