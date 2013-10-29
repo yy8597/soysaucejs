@@ -294,6 +294,38 @@ soysauce = {
       }
     }()
   },
+  browserInfo: {
+    supportsLocalStorage: function() {
+      try { 
+        if (localStorage) {
+          localStorage.setItem("test", 1);
+          localStorage.removeItem("test");
+          return true;
+        }
+        else { 
+          return false; 
+        }
+      }
+      catch(err) { 
+        return false;
+      }
+    }(),
+    supportsSessionStorage: function() {
+      try { 
+        if (sessionStorage) {
+          sessionStorage.setItem("test", 1);
+          sessionStorage.removeItem("test");
+          return true;
+        }
+        else { 
+          return false; 
+        }
+      }
+      catch(err) { 
+        return false;
+      }
+    }()
+  },
   scrollTop: function() {
     window.setTimeout(function(){
       window.scrollTo(0, 1);
