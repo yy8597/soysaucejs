@@ -2716,6 +2716,38 @@ soysauce = {
       }
     }()
   },
+  browserInfo: {
+    supportsLocalStorage: function() {
+      try { 
+        if (localStorage) {
+          localStorage.setItem("test", 1);
+          localStorage.removeItem("test");
+          return true;
+        }
+        else { 
+          return false; 
+        }
+      }
+      catch(err) { 
+        return false;
+      }
+    }(),
+    supportsSessionStorage: function() {
+      try { 
+        if (sessionStorage) {
+          sessionStorage.setItem("test", 1);
+          sessionStorage.removeItem("test");
+          return true;
+        }
+        else { 
+          return false; 
+        }
+      }
+      catch(err) { 
+        return false;
+      }
+    }()
+  },
   scrollTop: function() {
     window.setTimeout(function(){
       window.scrollTo(0, 1);
@@ -3896,6 +3928,7 @@ soysauce.carousels = (function() {
 
     // Zoom Variables
     this.zoom = false;
+    this.containerZoom = false; // old zoom functionality
     this.zoomIcon;
     this.overlay = false;
     this.isZoomed = false;
@@ -3918,7 +3951,7 @@ soysauce.carousels = (function() {
     this.zoomScalePrev = 1;
     this.pinchEventsReady = false;
     this.lastZoomTap = 0;
-
+    
     // Multi Item Variables
     this.multi = false;
     this.multiVars = {
@@ -3959,6 +3992,10 @@ soysauce.carousels = (function() {
           break;
         case "zoom":
           self.zoom = true;
+          break;
+        case "containerZoom":
+          self.zoom = true;
+          self.containerZoom = true;
           break;
         case "multi":
           self.multi = true;
@@ -4131,11 +4168,9 @@ soysauce.carousels = (function() {
         self.itemWidth = self.widgetWidth;
       }
 
-      if (self.itemWidth < 250) {
-        $(window).load(function() {
-          self.handleResize();
-        });
-      }
+      $(window).load(function() {
+        self.handleResize();
+      });
       
       if (self.peek) {
         self.itemWidth -= self.peekWidth*2;
@@ -4163,7 +4198,7 @@ soysauce.carousels = (function() {
       
       self.widgetHeight = self.widget.outerHeight(true);
       
-      if (self.overlay) {
+      if (self.overlay || self.zoomContainer) {
         self.setZoomCenterPoint();
       }
     });
@@ -4210,9 +4245,22 @@ soysauce.carousels = (function() {
     if (this.zoom) {
       wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
       this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
-      this.container.hammer().on("tap", function(e) {
-        self.zoomIn(e);
-      });
+      if (this.containerZoom) {
+        this.zoomIcon.hammer().on("tap", function(e) {
+          self.handleContainerZoom(e, true);
+        });
+        this.container.hammer().on("tap drag", function(e) {
+          if (e.type === "drag") {
+            soysauce.stifle(e);
+          }
+          self.handleContainerZoom(e);
+        });
+      }
+      else {
+        this.container.hammer().on("tap", function(e) {
+          self.zoomIn(e);
+        });
+      }
     }
     
     this.currentItem = $(this.items.get(self.index));
@@ -4406,12 +4454,20 @@ soysauce.carousels = (function() {
   };
   
   Carousel.prototype.setFocusPoint = function(e) {
-    this.zoomTranslateX = (this.zoomElementCenterX - e.gesture.center.pageX + this.zoomTranslateXStart) * (this.zoomScale / this.zoomScalePrev);
+    this.zoomTranslateX = (this.zoomElementCenterX - e.gesture.center.pageX + this.zoomTranslateXStart + this.peekWidth) * (this.zoomScale / this.zoomScalePrev);
     this.zoomTranslateY = (this.zoomElementCenterY - e.gesture.center.pageY + this.zoomTranslateYStart) * (this.zoomScale / this.zoomScalePrev);
   };
   
   Carousel.prototype.calcTranslateLimits = function() {
-    this.zoomTranslateMinX = ((this.zoomElementWidth * this.zoomScale) - this.zoomElementWidth) / 2;
+    var padding;
+    
+    if (!this.zoomElementWidth) {
+      this.setZoomCenterPoint();
+    }
+    
+    padding = (parseInt(this.zoomElement.css("padding-left"), 10) + parseInt(this.zoomElement.css("padding-right"), 10)) || 0;
+    
+    this.zoomTranslateMinX = (((this.zoomElementWidth * this.zoomScale) - this.zoomElementWidth) / 2) - this.peekWidth - padding;
     this.zoomTranslateMaxX = -this.zoomTranslateMinX;
     this.zoomTranslateMinY = ((this.zoomElementHeight * this.zoomScale) - this.zoomElementHeight) / 2;
     this.zoomTranslateMaxY = -this.zoomTranslateMinY;
@@ -4434,16 +4490,92 @@ soysauce.carousels = (function() {
   
   Carousel.prototype.zoomIn = function(e) {
     if (this.overlay) return;
+
     soysauce.stifle(e);
+
     soysauce.overlay.injectCarousel(this, {
       "background": "black",
       "opacity": "1"
     });
   };
   
+  Carousel.prototype.handleContainerZoom = function(e, iconTap) {
+    var self = this;
+    
+    if (e.type === "tap") {
+      this.zoomElement = this.currentItem;
+      
+      this.zoomElement.off();
+      this.zoomElement.on(TRANSITION_END, function() {
+        if (self.isZoomed) {
+          self.zoomElement.attr("data-ss-state", "zoomed");
+        }
+      });
+      
+      if (!this.isZoomed) {
+        this.handleFreeze();
+        this.zoomScalePrev = this.zoomScale;
+        this.zoomElement.attr("data-ss-state", "zooming");
+        this.zoomScale = 3
+        this.isZoomed = true;
+      }
+      else {
+        this.zoomElement.attr("data-ss-state", "active");
+        this.zoomScale = 1;
+        this.isZoomed = false;
+      }
+
+      this.zoomScaleStart = this.zoomScale;
+      this.zoomTranslateXStart = this.zoomTranslateX;
+      this.zoomTranslateYStart = this.zoomTranslateY;
+
+      if (this.isZoomed) {
+        this.setZoomCenterPoint();
+        if (!iconTap) {
+          this.setFocusPoint(e);
+        }
+        this.calcTranslateLimits();
+        this.setTranslateLimits();
+      }
+      else {
+        window.setTimeout(function() {
+          self.resetZoomState();
+        }, 0);
+        return;
+      }
+
+      window.setTimeout(function() {
+        setMatrix(self.zoomElement[0], self.zoomScale, self.zoomTranslateX, self.zoomTranslateY);
+        if (!self.isZoomed) {
+          self.handleUnfreeze();
+        }
+      }, 0);
+    }
+    else {
+      if (!this.panning) {
+        this.panning = true;
+        
+        this.zoomTranslateXStart = this.zoomTranslateX;
+        this.zoomTranslateYStart = this.zoomTranslateY;
+        
+        this.container.hammer().one("release", function(releaseEvent) {
+          self.panning = false;
+        });
+      }
+      
+      this.zoomTranslateX = e.gesture.deltaX + this.zoomTranslateXStart;
+      this.zoomTranslateY = e.gesture.deltaY + this.zoomTranslateYStart;
+      
+      this.setTranslateLimits();
+      
+      setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
+    }
+  };
+  
   Carousel.prototype.resetZoomState = function() {
     var self = this;
     var transitionReset = (this.currentItem.attr("data-ss-state") === "active") ? true : false;
+    
     this.zoomTranslateX = 0;
     this.zoomTranslateY = 0;
     this.zoomScale = 1;
@@ -4453,6 +4585,7 @@ soysauce.carousels = (function() {
     this.isZoomed = false;
     this.setZoomCenterPoint();
     this.handleUnfreeze();
+    
     setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
   };
   
@@ -5123,7 +5256,6 @@ soysauce.lazyloader = (function() {
     this.widget = $(selector);
     this.items = this.widget.find("[data-ss-component='item']");
     this.threshold = parseInt(this.widget.attr("data-ss-threshold"), 10) || MIN_THRESHOLD;
-    this.timeStamp = 0; // for throttling
     this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load"), 10) || 10;
     this.initialBatchLoaded = false;
     this.batchSize = parseInt(this.widget.attr("data-ss-batch-size"), 10) || 5;
@@ -5133,6 +5265,8 @@ soysauce.lazyloader = (function() {
     
     // Autoload Variables
     this.autoload = false;
+    this.autoloadInterval = parseInt(this.widget.attr("data-ss-interval"), 10) || 1000;
+    this.autoloadIntervalID = 0;
     
     // Cache Variables
     this.cache = false;
@@ -5201,44 +5335,17 @@ soysauce.lazyloader = (function() {
     }
 
     if (this.autoload) {
-      $window.scroll(function(e) {
-        if (self.processing || self.complete) return;
-        update(e);
-      });
-      if (this.hover) {
-        var scrollTimer = 0;
-        this.widget.hammer().on("release", function(e) {
-          if ((e.gesture.velocityY > 0.25 || e.gesture.distance > 10) && /up|down/.test(e.gesture.direction)) {
-            $window.trigger("scroll");
-          }
-        });
-      }
+      this.autoloadIntervalID = window.setInterval(function() {
+        update();
+      }, self.autoloadInterval);
     }
     
-    function update(e) {
-      if ((self.hover && self.continueProcessing) || (e.timeStamp - self.timeStamp) > THROTTLE) {
-        var widgetPositionThreshold = self.widget.height() + self.widget.offset().top - self.threshold;
-        var windowPosition = $window.scrollTop() + $window.height();
-        
-        self.timeStamp = e.timeStamp;
-        
-        if ((self.hover && self.continueProcessing) || (windowPosition > widgetPositionThreshold) && Math.abs(e.timeStamp - soysauce.browser.pageLoad) > 1500) {
-          if (self.hover) {
-            if (self.items.length && (windowPosition > self.items.first().offset().top)) {
-              self.continueProcessing = true;
-              self.widget.one("SSBatchLoaded", function() {
-                $window.trigger("scroll");
-              });
-              self.processNextBatch();
-            }
-            else {
-              self.continueProcessing = false;
-            }
-          }
-          else {
-            self.processNextBatch();
-          }
-        }
+    function update() {
+      var widgetPositionThreshold = self.widget.height() + self.widget.offset().top - self.threshold;
+      var windowPosition = $window.scrollTop() + $window.height();
+      
+      if (windowPosition > widgetPositionThreshold) {
+        self.widget.trigger("SSThreshold");
       }
     }
   };
