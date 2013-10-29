@@ -14,7 +14,7 @@
   [data-ss-component="item"] {
     list-style-type: none;
     float: left;
-    &[data-ss-state="active"] {
+    &[data-ss-state="active"], &[data-ss-state="zooming"], &[data-ss-state="zoomed"] {
       z-index: 6;
     }
   }
@@ -25,6 +25,11 @@
     img {
       max-height: 85%;
       width: auto;
+    }
+  }
+  &[data-ss-options*="containerZoom"] [data-ss-component="item"] {
+    &[data-ss-state="active"], &[data-ss-state="zooming"] {
+      @include transition(transform .4s ease-in-out);
     }
   }
   [data-ss-component="loader"] {
