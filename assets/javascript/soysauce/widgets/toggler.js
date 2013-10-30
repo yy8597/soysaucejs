@@ -42,14 +42,19 @@ soysauce.togglers = (function() {
       this.orphanTabGroup = $("[data-ss-tab-group='" + tabGroupName  + "']");
       this.orphanTabs = (this.orphanTabGroup.length > 1) ? true : false;
       
-      this.setState("closed");
       this.content.attr("data-ss-id", button.attr("data-ss-id"));
-      
-      this.button.append("<span class='icon'></span>");
-      this.content.wrapInner("<div data-ss-component='wrapper'/>");
       
       this.allButtons = this.button;
       this.allContent = this.content;
+      
+      if (this.button.attr("data-ss-state") === "open") {
+        this.setState("open");
+        this.opened = true;
+      }
+      else {
+        this.setState("closed");
+        this.opened = false;
+      }
     }
     else {
       this.widget = $(selector);
@@ -68,7 +73,7 @@ soysauce.togglers = (function() {
     this.ready = true;
     this.adjustFlag = false;
     this.freeze = false;
-    this.opened = false;
+    this.opened = this.opened || false;
     
     // Slide
     this.slide = false;
