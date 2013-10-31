@@ -840,9 +840,10 @@ soysauce.carousels = (function() {
   
   Carousel.prototype.gotoPos = function(x, jumping, resettingPosition) {
     var self = this;
+    
+    this.currentItem = $(this.items.get(self.index));
 
     if (this.overlay) {
-      this.currentItem = $(this.items.get(self.index));
       this.resetZoomState();
     }
 
