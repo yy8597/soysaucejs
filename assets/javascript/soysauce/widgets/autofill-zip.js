@@ -59,6 +59,7 @@ soysauce.autofillZip = (function() {
 
     function error(err) {
       console.warn("Soysauce (err " + err.code + ") could not fetch data: " + err.message);
+      self.widget.trigger("SSDataError");
     };
   };
   
