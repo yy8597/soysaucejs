@@ -39,14 +39,27 @@ soysauce.autofillZip = (function() {
   
   autofillZip.prototype.reverseGeocode = function() {
     var self = this;
+    
     if (!navigator.geolocation || this.freeze) return;
     
     self.widget.trigger("SSDataFetch");
     
-    navigator.geolocation.getCurrentPosition(function(data) {
+    navigator.geolocation.getCurrentPosition(success, error, options);
+    
+    var options = {
+      enableHighAccuracy: true,
+      timeout: 20000,
+      maximumAge: 0
+    };
+
+    function success(data) {
       var src = AOL_URL + "&lat=" + data.coords.latitude + "&lng=" + data.coords.longitude + "&callback=soysauce.fetch(" + self.id + ").setLocationData";
       $("body").append("<script src='" + src + "'></script>");
-    });
+    };
+
+    function error(err) {
+      console.warn("Soysauce (err " + err.code + ") could not fetch data: " + err.message);
+    };
   };
   
   autofillZip.prototype.setLocationData = function(data) {
@@ -58,7 +71,7 @@ soysauce.autofillZip = (function() {
     
     this.lastRequestedData = data;
     this.widget.trigger("SSDataReady");
-
+    
     if (this.reverse) {
       this.zip.val(data.results[0].locations[0].postalCode);
     }
