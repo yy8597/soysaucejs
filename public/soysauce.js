@@ -2852,9 +2852,7 @@ soysauce.ajax = function(url, callback, forceAjax) {
     try {
       var resultString = JSON.stringify(data);
       result = JSON.parse(resultString);
-      if (jqXHR.getResponseHeader("Cache-Control") === "no-cache") {
-        sessionStorage.setItem(url, resultString);
-      }
+      sessionStorage.setItem(url, resultString);
     }
     catch(e) {
       if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
@@ -3447,14 +3445,28 @@ soysauce.autofillZip = (function() {
   
   autofillZip.prototype.reverseGeocode = function() {
     var self = this;
+    
     if (!navigator.geolocation || this.freeze) return;
     
     self.widget.trigger("SSDataFetch");
     
-    navigator.geolocation.getCurrentPosition(function(data) {
+    navigator.geolocation.getCurrentPosition(success, error, options);
+    
+    var options = {
+      enableHighAccuracy: true,
+      timeout: 20000,
+      maximumAge: 0
+    };
+
+    function success(data) {
       var src = AOL_URL + "&lat=" + data.coords.latitude + "&lng=" + data.coords.longitude + "&callback=soysauce.fetch(" + self.id + ").setLocationData";
       $("body").append("<script src='" + src + "'></script>");
-    });
+    };
+
+    function error(err) {
+      console.warn("Soysauce (err " + err.code + ") could not fetch data: " + err.message);
+      self.widget.trigger("SSDataError");
+    };
   };
   
   autofillZip.prototype.setLocationData = function(data) {
@@ -3466,7 +3478,7 @@ soysauce.autofillZip = (function() {
     
     this.lastRequestedData = data;
     this.widget.trigger("SSDataReady");
-
+    
     if (this.reverse) {
       this.zip.val(data.results[0].locations[0].postalCode);
     }
@@ -5473,14 +5485,19 @@ soysauce.togglers = (function() {
       this.orphanTabGroup = $("[data-ss-tab-group='" + tabGroupName  + "']");
       this.orphanTabs = (this.orphanTabGroup.length > 1) ? true : false;
       
-      this.setState("closed");
       this.content.attr("data-ss-id", button.attr("data-ss-id"));
-      
-      this.button.append("<span class='icon'></span>");
-      this.content.wrapInner("<div data-ss-component='wrapper'/>");
       
       this.allButtons = this.button;
       this.allContent = this.content;
+      
+      if (this.button.attr("data-ss-state") === "open") {
+        this.setState("open");
+        this.opened = true;
+      }
+      else {
+        this.setState("closed");
+        this.opened = false;
+      }
     }
     else {
       this.widget = $(selector);
@@ -5499,7 +5516,7 @@ soysauce.togglers = (function() {
     this.ready = true;
     this.adjustFlag = false;
     this.freeze = false;
-    this.opened = false;
+    this.opened = this.opened || false;
     
     // Slide
     this.slide = false;
@@ -5678,7 +5695,7 @@ soysauce.togglers = (function() {
     }
   } // End constructor
   
-  Toggler.prototype.open = function() {
+  Toggler.prototype.openToggler = function() {
     var slideOpenWithTab = this.responsiveVars.accordions;
 
     if (!this.ready && !slideOpenWithTab) return;
@@ -5726,8 +5743,9 @@ soysauce.togglers = (function() {
     this.setState("open");
   };
   
-  Toggler.prototype.close = function(collapse) {
+  Toggler.prototype.close = function(target, collapse) {
     var self = this;
+    var $target = $(target);
 
     if (!this.ready) return;
 
@@ -5739,7 +5757,39 @@ soysauce.togglers = (function() {
       this.content.css("height", "0px");
     }
 
+    if (!target) {
+      this.allButtons.attr("data-ss-state", "closed");
+      this.allContent.attr("data-ss-state", "closed");
+      this.state = "closed";
+      this.opened = false;
+    }
+    else {
+      if ($target.attr("data-ss-state") === "closed") return false;
+
+      if ($target.attr("data-ss-component") === "button") {
+        this.button = $target;
+        if (!this.orphan) {
+          this.content = $target.find("+ *");
+        }
+      }
+      else {
+        console.warn("Soysauce: target parameter must be a button");
+      }
+    }
+    
     this.setState("closed");
+  };
+  
+  Toggler.prototype.open = function(target) {
+    var $target = $(target);
+    
+    if ($target.attr("data-ss-state") === "open") return false;
+    
+    if ($target.attr("data-ss-component") === "button" && !this.orphan) {
+      $target = $target.find("+ *");
+    }
+    
+    this.toggle($target[0]);
   };
   
   Toggler.prototype.doResize = function() {
@@ -5888,7 +5938,7 @@ soysauce.togglers = (function() {
         }
       }
 
-      this.close(collapse);
+      this.close(null, collapse);
 
       this.button = $(target);
       this.content = $(target).find("+ [data-ss-component='content']");
@@ -5903,7 +5953,7 @@ soysauce.togglers = (function() {
         return;
       }
 
-      this.open();
+      this.openToggler();
     }
     else {
       this.button = $(target);
@@ -5916,7 +5966,7 @@ soysauce.togglers = (function() {
         this.opened = false;
       }
       
-      (this.button.attr("data-ss-state") === "closed") ? this.open() : this.close();
+      (this.button.attr("data-ss-state") === "closed") ? this.openToggler() : this.close();
     }
   };
 
@@ -5967,7 +6017,7 @@ soysauce.togglers = (function() {
       if (!this.opened) {
         this.button = this.widget.find("[data-ss-component='button']").first();
         this.content = this.widget.find("[data-ss-component='content']").first();
-        this.open();
+        this.openToggler();
       }
       this.widget.css("min-height", this.button.outerHeight(true) + this.content.outerHeight(true) + "px");
     }
