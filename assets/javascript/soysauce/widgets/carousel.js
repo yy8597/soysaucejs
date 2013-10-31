@@ -386,6 +386,7 @@ soysauce.carousels = (function() {
           self.handleContainerZoom(e, true);
         });
         this.container.hammer().on("tap drag", function(e) {
+          if (self.lockScroll) return;
           if (e.type === "drag") {
             soysauce.stifle(e);
           }
