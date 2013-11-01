@@ -69,13 +69,13 @@ soysauce.autodetectCC = (function() {
           }
         }
         else {
-          self.prediction = undefined;
+          self.prediction = null;
         }
         $(e.target).trigger("SSPrediction");
       }
       else {
         $(e.target).trigger("SSEmpty");
-        self.prediction = undefined;
+        self.prediction = null;
       }
     
       // State 2 - Result
@@ -139,7 +139,7 @@ soysauce.autodetectCC = (function() {
         $(e.target).trigger("SSResult");
       }
       else {
-        self.result = undefined;
+        self.result = null;
         if (!self.prediction && card_num.length === 16 ||
             /visa/.test(self.prediction) && card_num.length === 13 ||
             /visa|mastercard|discover|dinersclub|jcb/.test(self.prediction) && card_num.length === 16 ||
