@@ -2,8 +2,6 @@
 
 // Global Styles
 [data-ss-widget], [data-ss-component] {
-  position: relative;
-  z-index: 5;
 	&[data-ss-degrade] {
 		-webkit-backface-visibility: visible !important;
 		-webkit-animation: none 0 ease 0 1 normal !important;
