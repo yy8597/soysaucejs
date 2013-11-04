@@ -30,7 +30,6 @@ soysauce.lazyloader = (function() {
     
     // Hover Variables
     this.hover = false;
-    this.continueProcessing = false;
 
     if (options) options.forEach(function(option) {
       switch(option) {
@@ -119,7 +118,6 @@ soysauce.lazyloader = (function() {
     if ($items.length === 0) {
       this.processing = false;
       this.complete = true;
-      this.continueProcessing = false;
       this.widget.trigger("SSItemsEmpty");
     }
     else {
@@ -140,7 +138,6 @@ soysauce.lazyloader = (function() {
             
             if (!self.items.length) {
               self.complete = true;
-              self.continueProcessing = false;
               self.widget.trigger("SSItemsEmpty");
             }
             else if (!self.initialBatchLoaded) {
