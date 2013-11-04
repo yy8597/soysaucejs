@@ -57,7 +57,6 @@ soysauce.lazyloader = (function() {
 
       if (this.isCached) {
         this.widget.one("SSWidgetReady", function() {
-          $window.trigger("scroll");
           self.widget.trigger("SSLoadState");
           triggeredLoad = true;
         });
@@ -74,7 +73,6 @@ soysauce.lazyloader = (function() {
       $window.on("pageshow", function(e) {
         if (!e.originalEvent.persisted || triggeredLoad) return;
         $(document).ready(function() {
-          $window.trigger("scroll");
           self.widget.trigger("SSLoadState");
         });
       });
