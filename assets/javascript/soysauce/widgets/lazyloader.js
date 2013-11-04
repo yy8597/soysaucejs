@@ -1,7 +1,7 @@
 soysauce.lazyloader = (function() {
   var THROTTLE = 100; // milliseconds
   var $window = $(window);
-  var MIN_THRESHOLD = 800;
+  var MIN_THRESHOLD = 1200;
 
   function Lazyloader(selector) {
     var options = soysauce.getOptions(selector);
