@@ -17,6 +17,7 @@ soysauce.lazyloader = (function() {
     this.processing = false;
     this.button = this.widget.find("[data-ss-component='button']");
     this.complete = (this.items.length) ? false : true;
+    this.freeze = false;
     
     // Autoload Variables
     this.autoload = false;
@@ -169,6 +170,22 @@ soysauce.lazyloader = (function() {
   Lazyloader.prototype.handleResize = function() {
     if (!this.hover) return;
     this.calcHoverThreshold();
+  Lazyloader.prototype.handleFreeze = function() {
+    if (this.freeze) return false;
+    
+    this.freeze = true;
+    this.pauseAutoload();
+    
+    return true;
+  };
+  
+  Lazyloader.prototype.handleUnfreeze = function() {
+    if (!this.freeze) return false;
+    
+    this.freeze = false;
+    this.startAutoload();
+    
+    return true;
   };
   
   return {
