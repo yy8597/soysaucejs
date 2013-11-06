@@ -88,19 +88,38 @@ soysauce.lazyloader = (function() {
     }
 
     if (this.autoload) {
-      this.autoloadIntervalID = window.setInterval(function() {
-        update();
-      }, self.autoloadInterval);
+      this.startAutoload();
     }
+  };
+  
+  Lazyloader.prototype.detectThreshold = function() {
+    var widgetPositionThreshold = this.widget.height() + this.widget.offset().top - this.threshold;
+    var windowPosition = $window.scrollTop() + $window.height();
     
-    function update() {
-      var widgetPositionThreshold = self.widget.height() + self.widget.offset().top - self.threshold;
-      var windowPosition = $window.scrollTop() + $window.height();
-      
-      if (windowPosition > widgetPositionThreshold) {
-        self.widget.trigger("SSThreshold");
-      }
+    if (!this.processing && windowPosition > widgetPositionThreshold) {
+      this.widget.trigger("SSThreshold");
     }
+  };
+  
+  Lazyloader.prototype.startAutoload = function() {
+    var self = this;
+    
+    if (!this.autoload) return false;
+    
+    this.autoloadIntervalID = window.setInterval(function() {
+      self.detectThreshold();
+    }, self.autoloadInterval);
+    
+    return true;
+  };
+  
+  Lazyloader.prototype.pauseAutoload = function() {
+    if (!this.autoloadIntervalID || !this.autoload) return false;
+    
+    window.clearInterval(this.autoloadIntervalID);
+    this.autoloadIntervalID = null;
+    
+    return true;
   };
   
   Lazyloader.prototype.processNextBatch = function(batchSize) {
