@@ -183,12 +183,12 @@ soysauce.lazyloader = (function() {
     this.threshold = (this.threshold < MIN_THRESHOLD) ? MIN_THRESHOLD : this.threshold;
   };
   
-  Lazyloader.prototype.reload = function(processBatch) {
+  Lazyloader.prototype.reload = function(processBatch, batchSize) {
     this.items = this.widget.find("[data-ss-component='item']:not([data-ss-state])");
     if (this.items.length) {
       this.complete = false;
       if (processBatch !== false) {
-        this.processNextBatch();
+        this.processNextBatch(batchSize);
       }
     }
   };
