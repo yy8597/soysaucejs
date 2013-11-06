@@ -151,14 +151,15 @@ soysauce.lazyloader = (function() {
         $item.find("[data-ss-ll-src]").each(function() {
           soysauce.lateload(this);
         });
+        
         $item.imagesLoaded(function(e) {
           $item.attr("data-ss-state", "loaded");
           if (++count === $items.length) {
             self.processing = false;
             self.widget.trigger("SSBatchLoaded");
             
-            if (self.hover && self.items.length && self.initialBatchLoaded) {
-              self.calcHoverThreshold();
+            if (self.items.length && self.initialBatchLoaded) {
+              self.calcProcessingThreshold();
             }
             
             if (!self.items.length) {
@@ -167,9 +168,7 @@ soysauce.lazyloader = (function() {
             }
             else if (!self.initialBatchLoaded) {
               self.initialBatchLoaded = true;
-              if (self.hover) {
-                self.calcHoverThreshold();
-              }
+              self.calcProcessingThreshold();
             }
           }
         });
@@ -177,10 +176,10 @@ soysauce.lazyloader = (function() {
     }
   };
   
-  Lazyloader.prototype.calcHoverThreshold = function() {
-    if (!this.hover || !this.items.length) return;
-    this.threshold = this.widget.height() + this.widget.offset().top - this.items.first().offset().top;
-    this.threshold = (this.threshold < MIN_THRESHOLD) ? MIN_THRESHOLD : this.threshold;
+  Lazyloader.prototype.calcProcessingThreshold = function() {
+    if (!this.items.length) return;
+    this.processingThreshold = this.widget.height() + this.widget.offset().top - this.items.first().offset().top;
+    this.processingThreshold = (this.threshold < MIN_THRESHOLD) ? MIN_THRESHOLD : this.processingThreshold;
   };
   
   Lazyloader.prototype.reload = function(processBatch, batchSize) {
@@ -194,8 +193,9 @@ soysauce.lazyloader = (function() {
   };
   
   Lazyloader.prototype.handleResize = function() {
-    if (!this.hover) return;
-    this.calcHoverThreshold();
+    this.calcProcessingThreshold();
+  };
+  
   Lazyloader.prototype.handleFreeze = function() {
     if (this.freeze) return false;
     
