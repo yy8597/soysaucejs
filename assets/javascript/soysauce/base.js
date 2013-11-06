@@ -136,7 +136,8 @@ soysauce = {
     degrade2: (/SCH-I535/.test(navigator.userAgent)) ? true : false,
     lastResizeTime: 0,
     lastResizeTimerID: 0,
-    fastclick: []
+    fastclick: [],
+    ajaxQueue: []
   },
   getOptions: function(selector) {
     if(!$(selector).attr("data-ss-options")) return false;
