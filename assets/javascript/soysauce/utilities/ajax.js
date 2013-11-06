@@ -16,7 +16,8 @@ soysauce.ajax = function(url, callback, forceAjax) {
     }
     catch(e) {}
   }
-  $.ajax({
+  
+  var xhr = $.ajax({
     url: url,
     async: (!callback) ? false : true
   }).always(function(data, status, jqXHR) {
@@ -39,5 +40,8 @@ soysauce.ajax = function(url, callback, forceAjax) {
       return callback(result, status);
     }
   });
+  
+  soysauce.vars.ajaxQueue.push(xhr);
+  
   return result;
 };
