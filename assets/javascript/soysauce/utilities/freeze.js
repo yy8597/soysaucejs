@@ -8,7 +8,7 @@ soysauce.freezeChildren = function(selector) {
 
 soysauce.freeze = function(selector, freezeChildren) {
   if (typeof(selector) === "object") {
-    selector = parseInt($(selector).attr("data-ss-id"), 10);
+    selector = selector.id || parseInt($(selector).attr("data-ss-id"), 10);
   }
   freezeChildren = (!freezeChildren) ? true : false;
   soysauce.fetch(selector).handleFreeze();
@@ -19,7 +19,7 @@ soysauce.freeze = function(selector, freezeChildren) {
 
 soysauce.unfreeze = function(selector) {
   if (typeof(selector) === "object") {
-    selector = parseInt($(selector).attr("data-ss-id"), 10);
+    selector = selector.id || parseInt($(selector).attr("data-ss-id"), 10);
   }
   var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
   soysauce.fetch(selector).handleUnfreeze();
@@ -27,4 +27,30 @@ soysauce.unfreeze = function(selector) {
     var id = $(child).attr("data-ss-id");
     soysauce.fetch(id).handleUnfreeze();
   });
+};
+
+soysauce.freezeAll = function() {
+  try {
+    soysauce.widgets.forEach(function(widget) {
+      widget.handleFreeze();
+    });
+  }
+  catch(e) {
+    console.warn("Soysauce: Could not freeze all widgets. || Error Message: ", e.message);
+    return false;
+  }
+  return true;
+};
+
+soysauce.unfreezeAll = function() {
+  try {
+    soysauce.widgets.forEach(function(widget) {
+      widget.handleUnfreeze();
+    });
+  }
+  catch(e) {
+    console.warn("Soysauce: Could not unfreeze all widgets. || Error Message: ", e.message);
+    return false;
+  }
+  return true;
 };
