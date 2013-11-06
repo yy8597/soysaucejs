@@ -11,12 +11,14 @@ soysauce.lazyloader = (function() {
     this.widget = $(selector);
     this.items = this.widget.find("[data-ss-component='item']");
     this.threshold = parseInt(this.widget.attr("data-ss-threshold"), 10) || MIN_THRESHOLD;
-    this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load"), 10) || 10;
-    this.initialBatchLoaded = false;
-    this.batchSize = parseInt(this.widget.attr("data-ss-batch-size"), 10) || 5;
+    this.processingThreshold = 0;
     this.processing = false;
     this.button = this.widget.find("[data-ss-component='button']");
     this.complete = (this.items.length) ? false : true;
+    this.batchSize = parseInt(this.widget.attr("data-ss-batch-size"), 10) || 5;
+    this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load"), 10);
+    this.initialBatchLoaded = false;
+    this.initialLoad = (this.initialLoad === 0) ? 0 : this.batchSize;
     this.freeze = false;
     
     // Autoload Variables
@@ -31,7 +33,7 @@ soysauce.lazyloader = (function() {
     
     // Hover Variables
     this.hover = false;
-
+    
     if (options) options.forEach(function(option) {
       switch(option) {
         case "autoload":
@@ -123,12 +125,14 @@ soysauce.lazyloader = (function() {
   };
   
   Lazyloader.prototype.processNextBatch = function(batchSize) {
-    var batchSize = batchSize || this.batchSize,
-      $items = $(this.items.splice(0, batchSize)),
-      self = this,
-      count = 0;
+    var $items;
+    var self = this;
+    var count = 0;
     
-    if (this.processing || this.complete) return;
+    batchSize = (batchSize === 0) ? 0 : this.batchSize;
+    $items = $(this.items.splice(0, batchSize));
+    
+    if (this.processing || this.complete || (!this.initialBatchLoaded && this.initialLoad === 0) || this.freeze) return;
     
     this.processing = true;
     this.widget.trigger("SSBatchStart");
@@ -141,6 +145,9 @@ soysauce.lazyloader = (function() {
     else {
       $items.each(function(i, item) {
         var $item = $(item);
+        
+        if (self.freeze) return false;
+        
         $item.find("[data-ss-ll-src]").each(function() {
           soysauce.lateload(this);
         });
