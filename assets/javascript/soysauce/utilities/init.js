@@ -57,8 +57,8 @@ soysauce.init = function(selector, manual) {
       case "lazyloader":
         widget = soysauce.lazyloader.init(this);
         break;
-      case "geocoder":
-        widget = soysauce.geocoder.init(this);
+      case "autofill-zip":
+        widget = soysauce.autofillZip.init(this);
         break;
       case "autodetect-cc":
         widget = soysauce.autodetectCC.init(this);

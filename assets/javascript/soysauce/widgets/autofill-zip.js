@@ -1,8 +1,8 @@
-soysauce.geocoder = (function() {
+soysauce.autofillZip = (function() {
   var BASE_URL = "//jeocoder.herokuapp.com/zips/";
   var AOL_URL = "//www.mapquestapi.com/geocoding/v1/reverse?key=Fmjtd%7Cluub2l6tnu%2Ca5%3Do5-96tw0f";
   
-  function Geocoder(selector) {
+  function autofillZip(selector) {
     var options = soysauce.getOptions(selector);
     var self = this;
     
@@ -37,7 +37,7 @@ soysauce.geocoder = (function() {
     }
   }
   
-  Geocoder.prototype.reverseGeocode = function() {
+  autofillZip.prototype.reverseGeocode = function() {
     var self = this;
     
     if (!navigator.geolocation || this.freeze) return;
@@ -63,7 +63,7 @@ soysauce.geocoder = (function() {
     };
   };
   
-  Geocoder.prototype.setLocationData = function(data) {
+  autofillZip.prototype.setLocationData = function(data) {
     var self = this;
     var city = data.city;
     var state = data.state;
@@ -82,7 +82,7 @@ soysauce.geocoder = (function() {
     }
   };
   
-  Geocoder.prototype.getLocationData = function() {
+  autofillZip.prototype.getLocationData = function() {
     var self = this;
     var value = this.zip[0].value;
     
@@ -104,17 +104,17 @@ soysauce.geocoder = (function() {
     }
   };
   
-  Geocoder.prototype.handleFreeze = function() {
+  autofillZip.prototype.handleFreeze = function() {
     this.freeze = true;
   };
   
-  Geocoder.prototype.handleUnfreeze = function() {
+  autofillZip.prototype.handleUnfreeze = function() {
     this.freeze = false;
   };
   
   return {
     init: function(selector) {
-      return new Geocoder(selector);
+      return new autofillZip(selector);
     }
   };
   
