@@ -15,6 +15,9 @@
 [data-ss-widget="toggler"]:not([data-ss-options*="slide"]) > [data-ss-component="content"][data-ss-state="closed"], [data-ss-widget="toggler"]:not([data-ss-options*="slide"]) > [data-ss-component="content"]:not([data-ss-state]) {
   display: none;
 }
+[data-ss-widget="toggler"]:not([data-ss-options*="slide"]) > [data-ss-component="content"] [data-ss-component="button"] {
+  position: relative;
+}
 
 [data-ss-widget="toggler"][data-ss-defer] > [data-ss-component="content"] {
   display: block !important;
