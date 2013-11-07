@@ -7,7 +7,7 @@ soysauce.ajax = function(url, callback, forceAjax) {
       result = JSON.parse(sessionStorage[url]);
       if (!forceAjax) {
         if (typeof(callback) === "function") {
-          return callback(result, "success");
+          return callback(result, "cached");
         }
         else {
           return result;
