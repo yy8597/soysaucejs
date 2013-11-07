@@ -5,6 +5,9 @@
   &[data-ss-state="closed"], &:not([data-ss-state]) {
     display: none;
   }
+  [data-ss-component="button"] {
+    position: relative;
+  }
 }
 
 [data-ss-widget="toggler"][data-ss-defer] > [data-ss-component="content"] {
