@@ -2558,7 +2558,8 @@ soysauce = {
     degrade2: (/SCH-I535/.test(navigator.userAgent)) ? true : false,
     lastResizeTime: 0,
     lastResizeTimerID: 0,
-    fastclick: []
+    fastclick: [],
+    ajaxQueue: []
   },
   getOptions: function(selector) {
     if(!$(selector).attr("data-ss-options")) return false;
@@ -2836,7 +2837,7 @@ soysauce.ajax = function(url, callback, forceAjax) {
       result = JSON.parse(sessionStorage[url]);
       if (!forceAjax) {
         if (typeof(callback) === "function") {
-          return callback(result, "success");
+          return callback(result, "cached");
         }
         else {
           return result;
@@ -2845,7 +2846,8 @@ soysauce.ajax = function(url, callback, forceAjax) {
     }
     catch(e) {}
   }
-  $.ajax({
+  
+  var xhr = $.ajax({
     url: url,
     async: (!callback) ? false : true
   }).always(function(data, status, jqXHR) {
@@ -2868,6 +2870,9 @@ soysauce.ajax = function(url, callback, forceAjax) {
       return callback(result, status);
     }
   });
+  
+  soysauce.vars.ajaxQueue.push(xhr);
+  
   return result;
 };
 
@@ -2881,7 +2886,7 @@ soysauce.freezeChildren = function(selector) {
 
 soysauce.freeze = function(selector, freezeChildren) {
   if (typeof(selector) === "object") {
-    selector = parseInt($(selector).attr("data-ss-id"), 10);
+    selector = selector.id || parseInt($(selector).attr("data-ss-id"), 10);
   }
   freezeChildren = (!freezeChildren) ? true : false;
   soysauce.fetch(selector).handleFreeze();
@@ -2892,7 +2897,7 @@ soysauce.freeze = function(selector, freezeChildren) {
 
 soysauce.unfreeze = function(selector) {
   if (typeof(selector) === "object") {
-    selector = parseInt($(selector).attr("data-ss-id"), 10);
+    selector = selector.id || parseInt($(selector).attr("data-ss-id"), 10);
   }
   var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
   soysauce.fetch(selector).handleUnfreeze();
@@ -2902,6 +2907,31 @@ soysauce.unfreeze = function(selector) {
   });
 };
 
+soysauce.freezeAll = function() {
+  try {
+    soysauce.widgets.forEach(function(widget) {
+      widget.handleFreeze();
+    });
+  }
+  catch(e) {
+    console.warn("Soysauce: Could not freeze all widgets. || Error Message: ", e.message);
+    return false;
+  }
+  return true;
+};
+
+soysauce.unfreezeAll = function() {
+  try {
+    soysauce.widgets.forEach(function(widget) {
+      widget.handleUnfreeze();
+    });
+  }
+  catch(e) {
+    console.warn("Soysauce: Could not unfreeze all widgets. || Error Message: ", e.message);
+    return false;
+  }
+  return true;
+};
 soysauce.init = function(selector, manual) {
   var set;
   var numItems = 0;
@@ -2961,8 +2991,8 @@ soysauce.init = function(selector, manual) {
       case "lazyloader":
         widget = soysauce.lazyloader.init(this);
         break;
-      case "autofill-zip":
-        widget = soysauce.autofillZip.init(this);
+      case "geocoder":
+        widget = soysauce.geocoder.init(this);
         break;
       case "autodetect-cc":
         widget = soysauce.autodetectCC.init(this);
@@ -3399,128 +3429,6 @@ soysauce.autodetectCC = (function() {
   return {
     init: function(selector) {
       return new autodetectCC(selector);
-    }
-  };
-  
-})();
-
-soysauce.autofillZip = (function() {
-  var BASE_URL = "//jeocoder.herokuapp.com/zips/";
-  var AOL_URL = "//www.mapquestapi.com/geocoding/v1/reverse?key=Fmjtd%7Cluub2l6tnu%2Ca5%3Do5-96tw0f";
-  
-  function autofillZip(selector) {
-    var options = soysauce.getOptions(selector);
-    var self = this;
-    
-    this.widget = $(selector);
-    this.zip = this.widget.find("[data-ss-component='zip']");
-    this.city = this.widget.find("[data-ss-component='city']");
-    this.state = this.widget.find("[data-ss-component='state']");
-    this.lastRequestedData;
-    this.freeze = false;
-    
-    // Reverse Geocode Variables
-    this.reverse = false;
-    this.reverseGeocodeButton = this.widget.find("[data-ss-component='reverse-geocode']");
-    
-    if (options) options.forEach(function(option) {
-      switch(option) {
-        case "reverse":
-          self.reverse = true;
-          break;
-      }
-    });
-    
-    if (this.reverse) {
-      this.reverseGeocodeButton.on("click", function() {
-        self.reverseGeocode();
-      });
-    }
-    else {
-      this.zip.on("keyup change", function() {
-        self.getLocationData();
-      });
-    }
-  }
-  
-  autofillZip.prototype.reverseGeocode = function() {
-    var self = this;
-    
-    if (!navigator.geolocation || this.freeze) return;
-    
-    self.widget.trigger("SSDataFetch");
-    
-    navigator.geolocation.getCurrentPosition(success, error, options);
-    
-    var options = {
-      enableHighAccuracy: true,
-      timeout: 20000,
-      maximumAge: 0
-    };
-
-    function success(data) {
-      var src = AOL_URL + "&lat=" + data.coords.latitude + "&lng=" + data.coords.longitude + "&callback=soysauce.fetch(" + self.id + ").setLocationData";
-      $("body").append("<script src='" + src + "'></script>");
-    };
-
-    function error(err) {
-      console.warn("Soysauce (err " + err.code + ") could not fetch data: " + err.message);
-      self.widget.trigger("SSDataError");
-    };
-  };
-  
-  autofillZip.prototype.setLocationData = function(data) {
-    var self = this;
-    var city = data.city;
-    var state = data.state;
-    
-    if (this.freeze) return;
-    
-    this.lastRequestedData = data;
-    this.widget.trigger("SSDataReady");
-    
-    if (this.reverse) {
-      this.zip.val(data.results[0].locations[0].postalCode);
-    }
-    else {
-      this.city.val(city);
-      this.state.val(state);
-    }
-  };
-  
-  autofillZip.prototype.getLocationData = function() {
-    var self = this;
-    var value = this.zip[0].value;
-    
-    if (this.freeze) return;
-    
-    if ((value.length === 5) && (parseFloat(value, 10) == parseInt(value, 10)) && !isNaN(value))  {
-      this.widget.trigger("SSDataFetch");
-      $.ajax({
-        dataType: "json",
-        url: BASE_URL + value,
-        success: function(data) {
-          self.setLocationData(data);
-        },
-        error: function() {
-          self.widget.trigger("SSDataError");
-          console.warn("Soysauce: Could not fetch zip code " + value);
-        }
-      });
-    }
-  };
-  
-  autofillZip.prototype.handleFreeze = function() {
-    this.freeze = true;
-  };
-  
-  autofillZip.prototype.handleUnfreeze = function() {
-    this.freeze = false;
-  };
-  
-  return {
-    init: function(selector) {
-      return new autofillZip(selector);
     }
   };
   
@@ -5201,6 +5109,128 @@ soysauce.carousels = (function() {
   
 })();
 
+soysauce.geocoder = (function() {
+  var BASE_URL = "//jeocoder.herokuapp.com/zips/";
+  var AOL_URL = "//www.mapquestapi.com/geocoding/v1/reverse?key=Fmjtd%7Cluub2l6tnu%2Ca5%3Do5-96tw0f";
+  
+  function Geocoder(selector) {
+    var options = soysauce.getOptions(selector);
+    var self = this;
+    
+    this.widget = $(selector);
+    this.zip = this.widget.find("[data-ss-component='zip']");
+    this.city = this.widget.find("[data-ss-component='city']");
+    this.state = this.widget.find("[data-ss-component='state']");
+    this.lastRequestedData;
+    this.freeze = false;
+    
+    // Reverse Geocode Variables
+    this.reverse = false;
+    this.reverseGeocodeButton = this.widget.find("[data-ss-component='reverse-geocode']");
+    
+    if (options) options.forEach(function(option) {
+      switch(option) {
+        case "reverse":
+          self.reverse = true;
+          break;
+      }
+    });
+    
+    if (this.reverse) {
+      this.reverseGeocodeButton.on("click", function() {
+        self.reverseGeocode();
+      });
+    }
+    else {
+      this.zip.on("keyup change", function() {
+        self.getLocationData();
+      });
+    }
+  }
+  
+  Geocoder.prototype.reverseGeocode = function() {
+    var self = this;
+    
+    if (!navigator.geolocation || this.freeze) return;
+    
+    self.widget.trigger("SSDataFetch");
+    
+    navigator.geolocation.getCurrentPosition(success, error, options);
+    
+    var options = {
+      enableHighAccuracy: true,
+      timeout: 20000,
+      maximumAge: 0
+    };
+
+    function success(data) {
+      var src = AOL_URL + "&lat=" + data.coords.latitude + "&lng=" + data.coords.longitude + "&callback=soysauce.fetch(" + self.id + ").setLocationData";
+      $("body").append("<script src='" + src + "'></script>");
+    };
+
+    function error(err) {
+      console.warn("Soysauce (err " + err.code + ") could not fetch data: " + err.message);
+      self.widget.trigger("SSDataError");
+    };
+  };
+  
+  Geocoder.prototype.setLocationData = function(data) {
+    var self = this;
+    var city = data.city;
+    var state = data.state;
+    
+    if (this.freeze) return;
+    
+    this.lastRequestedData = data;
+    this.widget.trigger("SSDataReady");
+    
+    if (this.reverse) {
+      this.zip.val(data.results[0].locations[0].postalCode);
+    }
+    else {
+      this.city.val(city);
+      this.state.val(state);
+    }
+  };
+  
+  Geocoder.prototype.getLocationData = function() {
+    var self = this;
+    var value = this.zip[0].value;
+    
+    if (this.freeze) return;
+    
+    if ((value.length === 5) && (parseFloat(value, 10) == parseInt(value, 10)) && !isNaN(value))  {
+      this.widget.trigger("SSDataFetch");
+      $.ajax({
+        dataType: "json",
+        url: BASE_URL + value,
+        success: function(data) {
+          self.setLocationData(data);
+        },
+        error: function() {
+          self.widget.trigger("SSDataError");
+          console.warn("Soysauce: Could not fetch zip code " + value);
+        }
+      });
+    }
+  };
+  
+  Geocoder.prototype.handleFreeze = function() {
+    this.freeze = true;
+  };
+  
+  Geocoder.prototype.handleUnfreeze = function() {
+    this.freeze = false;
+  };
+  
+  return {
+    init: function(selector) {
+      return new Geocoder(selector);
+    }
+  };
+  
+})();
+
 soysauce.inputClear = (function() {
   
   function inputClear(selector) {
@@ -5260,7 +5290,7 @@ soysauce.inputClear = (function() {
 soysauce.lazyloader = (function() {
   var THROTTLE = 100; // milliseconds
   var $window = $(window);
-  var MIN_THRESHOLD = 800;
+  var MIN_THRESHOLD = 1200;
 
   function Lazyloader(selector) {
     var options = soysauce.getOptions(selector);
@@ -5270,12 +5300,15 @@ soysauce.lazyloader = (function() {
     this.widget = $(selector);
     this.items = this.widget.find("[data-ss-component='item']");
     this.threshold = parseInt(this.widget.attr("data-ss-threshold"), 10) || MIN_THRESHOLD;
-    this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load"), 10) || 10;
-    this.initialBatchLoaded = false;
-    this.batchSize = parseInt(this.widget.attr("data-ss-batch-size"), 10) || 5;
+    this.processingThreshold = 0;
     this.processing = false;
     this.button = this.widget.find("[data-ss-component='button']");
     this.complete = (this.items.length) ? false : true;
+    this.batchSize = parseInt(this.widget.attr("data-ss-batch-size"), 10) || 5;
+    this.initialLoad = parseInt(this.widget.attr("data-ss-initial-load"), 10);
+    this.initialBatchLoaded = false;
+    this.initialLoad = (this.initialLoad === 0) ? 0 : this.batchSize;
+    this.freeze = false;
     
     // Autoload Variables
     this.autoload = false;
@@ -5286,11 +5319,11 @@ soysauce.lazyloader = (function() {
     this.cache = false;
     this.cacheInput = $("[data-ss-component='cache']");
     this.isCached = false;
+    this.persistedLoad = false;
     
     // Hover Variables
     this.hover = false;
-    this.continueProcessing = false;
-
+    
     if (options) options.forEach(function(option) {
       switch(option) {
         case "autoload":
@@ -5317,7 +5350,6 @@ soysauce.lazyloader = (function() {
 
       if (this.isCached) {
         this.widget.one("SSWidgetReady", function() {
-          $window.trigger("scroll");
           self.widget.trigger("SSLoadState");
           triggeredLoad = true;
         });
@@ -5326,15 +5358,14 @@ soysauce.lazyloader = (function() {
         this.cacheInput.val(1);
       }
 
-      $window.one("beforeunload unload pagehide", function(e) {
-        triggeredLoad = false;
+      $window.on("pagehide", function(e) {
         self.widget.trigger("SSSaveState");
       });
       
       $window.on("pageshow", function(e) {
-        if (!e.originalEvent.persisted || triggeredLoad) return;
+        self.persistedLoad = e.originalEvent.persisted;
+        
         $(document).ready(function() {
-          $window.trigger("scroll");
           self.widget.trigger("SSLoadState");
         });
       });
@@ -5349,28 +5380,49 @@ soysauce.lazyloader = (function() {
     }
 
     if (this.autoload) {
-      this.autoloadIntervalID = window.setInterval(function() {
-        update();
-      }, self.autoloadInterval);
-    }
-    
-    function update() {
-      var widgetPositionThreshold = self.widget.height() + self.widget.offset().top - self.threshold;
-      var windowPosition = $window.scrollTop() + $window.height();
-      
-      if (windowPosition > widgetPositionThreshold) {
-        self.widget.trigger("SSThreshold");
-      }
+      this.startAutoload();
     }
   };
   
-  Lazyloader.prototype.processNextBatch = function(batchSize) {
-    var batchSize = batchSize || this.batchSize,
-      $items = $(this.items.splice(0, batchSize)),
-      self = this,
-      count = 0;
+  Lazyloader.prototype.detectThreshold = function() {
+    var widgetPositionThreshold = this.widget.height() + this.widget.offset().top - this.threshold;
+    var windowPosition = $window.scrollTop() + $window.height();
     
-    if (this.processing || this.complete) return;
+    if (!this.processing && windowPosition > widgetPositionThreshold) {
+      this.widget.trigger("SSThreshold");
+    }
+  };
+  
+  Lazyloader.prototype.startAutoload = function() {
+    var self = this;
+    
+    if (!this.autoload) return false;
+    
+    this.autoloadIntervalID = window.setInterval(function() {
+      self.detectThreshold();
+    }, self.autoloadInterval);
+    
+    return true;
+  };
+  
+  Lazyloader.prototype.pauseAutoload = function() {
+    if (!this.autoloadIntervalID || !this.autoload) return false;
+    
+    window.clearInterval(this.autoloadIntervalID);
+    this.autoloadIntervalID = null;
+    
+    return true;
+  };
+  
+  Lazyloader.prototype.processNextBatch = function(batchSize) {
+    var $items;
+    var self = this;
+    var count = 0;
+    
+    batchSize = (batchSize === 0) ? 0 : this.batchSize;
+    $items = $(this.items.splice(0, batchSize));
+    
+    if (this.processing || this.complete || (!this.initialBatchLoaded && this.initialLoad === 0) || this.freeze) return;
     
     this.processing = true;
     this.widget.trigger("SSBatchStart");
@@ -5378,35 +5430,35 @@ soysauce.lazyloader = (function() {
     if ($items.length === 0) {
       this.processing = false;
       this.complete = true;
-      this.continueProcessing = false;
       this.widget.trigger("SSItemsEmpty");
     }
     else {
       $items.each(function(i, item) {
         var $item = $(item);
+        
+        if (self.freeze) return false;
+        
         $item.find("[data-ss-ll-src]").each(function() {
           soysauce.lateload(this);
         });
+        
         $item.imagesLoaded(function(e) {
           $item.attr("data-ss-state", "loaded");
           if (++count === $items.length) {
             self.processing = false;
             self.widget.trigger("SSBatchLoaded");
             
-            if (self.hover && self.items.length && self.initialBatchLoaded) {
-              self.calcHoverThreshold();
+            if (self.items.length && self.initialBatchLoaded) {
+              self.calcProcessingThreshold();
             }
             
             if (!self.items.length) {
               self.complete = true;
-              self.continueProcessing = false;
               self.widget.trigger("SSItemsEmpty");
             }
             else if (!self.initialBatchLoaded) {
               self.initialBatchLoaded = true;
-              if (self.hover) {
-                self.calcHoverThreshold();
-              }
+              self.calcProcessingThreshold();
             }
           }
         });
@@ -5414,25 +5466,42 @@ soysauce.lazyloader = (function() {
     }
   };
   
-  Lazyloader.prototype.calcHoverThreshold = function() {
-    if (!this.hover || !this.items.length) return;
-    this.threshold = this.widget.height() + this.widget.offset().top - this.items.first().offset().top;
-    this.threshold = (this.threshold < MIN_THRESHOLD) ? MIN_THRESHOLD : this.threshold;
+  Lazyloader.prototype.calcProcessingThreshold = function() {
+    if (!this.items.length) return;
+    this.processingThreshold = this.widget.height() + this.widget.offset().top - this.items.first().offset().top;
+    this.processingThreshold = (this.threshold < MIN_THRESHOLD) ? MIN_THRESHOLD : this.processingThreshold;
   };
   
-  Lazyloader.prototype.reload = function(processBatch) {
+  Lazyloader.prototype.reload = function(processBatch, batchSize) {
     this.items = this.widget.find("[data-ss-component='item']:not([data-ss-state])");
     if (this.items.length) {
       this.complete = false;
       if (processBatch !== false) {
-        this.processNextBatch();
+        this.processNextBatch(batchSize);
       }
     }
   };
   
   Lazyloader.prototype.handleResize = function() {
-    if (!this.hover) return;
-    this.calcHoverThreshold();
+    this.calcProcessingThreshold();
+  };
+  
+  Lazyloader.prototype.handleFreeze = function() {
+    if (this.freeze) return false;
+    
+    this.freeze = true;
+    this.pauseAutoload();
+    
+    return true;
+  };
+  
+  Lazyloader.prototype.handleUnfreeze = function() {
+    if (!this.freeze) return false;
+    
+    this.freeze = false;
+    this.startAutoload();
+    
+    return true;
   };
   
   return {
