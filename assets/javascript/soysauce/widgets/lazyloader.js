@@ -30,6 +30,7 @@ soysauce.lazyloader = (function() {
     this.cache = false;
     this.cacheInput = $("[data-ss-component='cache']");
     this.isCached = false;
+    this.persistedLoad = false;
     
     // Hover Variables
     this.hover = false;
@@ -68,13 +69,13 @@ soysauce.lazyloader = (function() {
         this.cacheInput.val(1);
       }
 
-      $window.one("beforeunload unload pagehide", function(e) {
-        triggeredLoad = false;
+      $window.on("pagehide", function(e) {
         self.widget.trigger("SSSaveState");
       });
       
       $window.on("pageshow", function(e) {
-        if (!e.originalEvent.persisted || triggeredLoad) return;
+        self.persistedLoad = e.originalEvent.persisted;
+        
         $(document).ready(function() {
           self.widget.trigger("SSLoadState");
         });
