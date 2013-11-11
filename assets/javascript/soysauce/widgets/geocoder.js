@@ -64,21 +64,17 @@ soysauce.geocoder = (function() {
   };
   
   Geocoder.prototype.setLocationData = function(data) {
-    var self = this;
-    var city = data.city;
-    var state = data.state;
-    
     if (this.freeze) return;
     
     this.lastRequestedData = data;
     this.widget.trigger("SSDataReady");
     
     if (this.reverse) {
-      this.zip.val(data.results[0].locations[0].postalCode);
+      this.widget.data("zip", data.results[0].locations[0].postalCode);
     }
     else {
-      this.city.val(city);
-      this.state.val(state);
+      this.widget.data("city", data.city);
+      this.widget.data("state", data.state);
     }
   };
   
