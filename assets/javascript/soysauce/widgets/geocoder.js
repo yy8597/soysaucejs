@@ -67,14 +67,24 @@ soysauce.geocoder = (function() {
     if (this.freeze) return;
     
     this.lastRequestedData = data;
-    this.widget.trigger("SSDataReady");
-    
-    if (this.reverse) {
-      this.widget.data("zip", data.results[0].locations[0].postalCode);
+
+    try {
+      if (this.reverse) {
+        var aolData = data.results[0].locations[0];
+        
+        this.widget.data("zip", aolData.postalCode);
+        this.widget.data("city", aolData.adminArea5);
+        this.widget.data("state", aolData.adminArea3);
+      }
+      else {
+        this.widget.data("city", data.city);
+        this.widget.data("state", data.state);
+      }
+      
+      this.widget.trigger("SSDataReady");
     }
-    else {
-      this.widget.data("city", data.city);
-      this.widget.data("state", data.state);
+    catch(e) {
+      console.warn("Soysauce: Unable to set location data. Try obtaining data from 'lastRequestedData' variable.");
     }
   };
   
