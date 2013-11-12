@@ -239,9 +239,9 @@ soysauce.togglers = (function() {
         self.ready = false;
         self.ajaxing = true;
         
-        self.ajaxData = soysauce.ajax(url);
-        
-        self.setAjaxComplete();
+        self.ajaxData = soysauce.ajax(url, function() {
+          self.setAjaxComplete();
+        });
       }
     }
     
