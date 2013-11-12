@@ -239,7 +239,13 @@ soysauce.togglers = (function() {
         self.ready = false;
         self.ajaxing = true;
         
-        self.ajaxData = soysauce.ajax(url, function() {
+        soysauce.ajax(url, function(data, status) {
+          if (/success|cached/.test(status)) {
+            self.ajaxData = data;
+          }
+          else {
+            console.warn("Soysauce: AJAX request to " + url + " failed in toggler.js");
+          }
           self.setAjaxComplete();
         });
       }
