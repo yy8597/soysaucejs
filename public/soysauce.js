@@ -5175,21 +5175,27 @@ soysauce.geocoder = (function() {
   };
   
   Geocoder.prototype.setLocationData = function(data) {
-    var self = this;
-    var city = data.city;
-    var state = data.state;
-    
     if (this.freeze) return;
     
     this.lastRequestedData = data;
-    this.widget.trigger("SSDataReady");
-    
-    if (this.reverse) {
-      this.zip.val(data.results[0].locations[0].postalCode);
+
+    try {
+      if (this.reverse) {
+        var aolData = data.results[0].locations[0];
+        
+        this.widget.data("zip", aolData.postalCode);
+        this.widget.data("city", aolData.adminArea5);
+        this.widget.data("state", aolData.adminArea3);
+      }
+      else {
+        this.widget.data("city", data.city);
+        this.widget.data("state", data.state);
+      }
+      
+      this.widget.trigger("SSDataReady");
     }
-    else {
-      this.city.val(city);
-      this.state.val(state);
+    catch(e) {
+      console.warn("Soysauce: Unable to set location data. Try obtaining data from 'lastRequestedData' variable.");
     }
   };
   
@@ -5753,9 +5759,9 @@ soysauce.togglers = (function() {
         self.ready = false;
         self.ajaxing = true;
         
-        self.ajaxData = soysauce.ajax(url);
-        
-        self.setAjaxComplete();
+        self.ajaxData = soysauce.ajax(url, function() {
+          self.setAjaxComplete();
+        });
       }
     }
     
