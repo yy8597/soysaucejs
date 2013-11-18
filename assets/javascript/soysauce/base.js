@@ -282,18 +282,9 @@ soysauce = {
         return false;
       }
     }(),
-    orientation: function() {
+    getOrientation: function() {
       return (window.orientation !== 0) ? "landscape" : "portrait";
-    }(),
-    ios7BarsVisible: function() {
-      if (!/(ipod|iphone).*(7\.0 mobile)/i.test(navigator.userAgent)) return false;
-      if (window.orientation !== 0) {
-        return (window.innerHeight < 320);
-      }
-      else {
-        return (window.innerHeight < 529);
-      }
-    }()
+    }
   },
   browserInfo: {
     supportsLocalStorage: function() {
