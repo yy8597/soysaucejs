@@ -383,7 +383,8 @@ soysauce.carousels = (function() {
       this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
       if (this.containerZoom) {
         this.zoomIcon.hammer().on("tap", function(e) {
-          self.handleContainerZoom(e, true);
+          var isIcon = true;
+          self.handleContainerZoom(e, isIcon);
         });
         this.container.hammer().on("tap drag", function(e) {
           if (self.lockScroll) return;
@@ -395,6 +396,9 @@ soysauce.carousels = (function() {
       }
       else {
         this.container.hammer().on("tap", function(e) {
+          self.zoomIn(e);
+        });
+        this.zoomIcon.hammer().on("tap", function(e) {
           self.zoomIn(e);
         });
       }
