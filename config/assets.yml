@@ -11,7 +11,8 @@ javascripts:
       - bower_components/fastclick/lib/fastclick.js
       - assets/javascript/hammer.js
       - assets/javascript/legacy-support.js
-      - assets/javascript/soysauce/base.js
+      - assets/javascript/images-loaded.js
+      - assets/javascript/soysauce/core.js
       - assets/javascript/soysauce/utilities/*.js
       - assets/javascript/soysauce/widgets/*.js
   site.min:
