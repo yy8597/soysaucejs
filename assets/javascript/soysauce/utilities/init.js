@@ -1,4 +1,5 @@
 (function(window, $, soysauce) {
+  
   soysauce.init = function(selector, manual) {
     var set;
     var numItems = 0;
@@ -58,6 +59,8 @@
         case "lazyloader":
           widget = soysauce.lazyloader.init(this);
           break;
+        case "autofill-zip":
+          console.warn("Soysauce: autofill-zip is now deprecated. Please set data-ss-widget to 'geocoder'");
         case "geocoder":
           widget = soysauce.geocoder.init(this);
           break;
@@ -137,4 +140,5 @@
 
     $(window).trigger("SSReady");
   });
+  
 })(window, $, soysauce, null);
