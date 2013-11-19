@@ -1223,6 +1223,7 @@ soysauce.carousels = (function() {
 
     self.lastTransitionEnd = e.timeStamp;
     self.widget.trigger("slideEnd");
+    self.widget.trigger("SSSlideEnd");
     self.ready = true;
     self.jumping = false;
     self.interrupted = false;
