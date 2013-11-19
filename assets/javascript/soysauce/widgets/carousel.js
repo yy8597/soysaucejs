@@ -780,7 +780,7 @@ soysauce.carousels = (function() {
       var doSwipe = (swiped || e.gesture.distance >= SWIPE_THRESHOLD) ? true : false;
 
       soysauce.stifle(e);
-      self.trigger("SSSwipe");
+      self.widget.trigger("SSSwipe");
 
       self.ready = true;
       self.swiping = false;
