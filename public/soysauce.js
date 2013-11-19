@@ -2545,13 +2545,38 @@ $.fn.imagesLoaded = function( callback ) {
 };
 
 })(jQuery);
+/**
+* core.js
+* 
+* The base Soysauce object is instantiated in this file. In addition,
+* this is the section where Soyasuce stores internal variables, browser
+* information and helper functions.
+* 
+*/
 
-if(typeof(soysauce) === "undefined") {
-"use strict";
+(function(window, $) {
+  "use strict";
 
-soysauce = {
-  widgets: new Array(),
-  vars: {
+  /**
+  * The core Soysauce object.
+  *
+  * @module soysauce
+  */
+  window.soysauce = window.soysauce || {};
+  
+  /**
+  * An array of all initialized Soysauce widgets.
+  *
+  * @property widgets
+  */
+  soysauce.widgets = new Array();
+
+  /**
+  * Miscellaneous variables used both internally and externally.
+  *
+  * @property vars 
+  */
+  soysauce.vars = {
     idCount: 0,
     degradeAll: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747|SCH-I535/.test(navigator.userAgent)) ? true : false,
     degrade: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent)) ? true : false,
@@ -2560,19 +2585,45 @@ soysauce = {
     lastResizeTimerID: 0,
     fastclick: [],
     ajaxQueue: []
-  },
-  getOptions: function(selector) {
+  };
+
+  /**
+  * Returns an array of options. Used for
+  * initializing a widget.
+  *
+  * @method getOptions 
+  * @param selector {Element} DOM object in which to obtain options.
+  * @return {Array}
+  */
+  soysauce.getOptions = function(selector) {
     if(!$(selector).attr("data-ss-options")) return false;
     return $(selector).attr("data-ss-options").split(" ");
-  },
-  getPrefix: function() {
+  };
+
+  /**
+  * Returns the vendor prefix for the current browser.
+  *
+  * @method getPrefix 
+  * @return {String}
+  */
+  soysauce.getPrefix = function() {
     if (navigator.userAgent.match(/webkit/i) !== null) return "-webkit-";
     else if (navigator.userAgent.match(/windows\sphone|msie/i) !== null) return "-ms-";
     else if (navigator.userAgent.match(/^mozilla/i) !== null) return "-moz-";
     else if (navigator.userAgent.match(/opera/i) !== null) return "-o-";
     return "";
-  },
-  stifle: function(e, onlyPropagation) {
+  };
+
+  /**
+  * Prevents default event action.
+  * Prevents event propagation.
+  * Handles HammerJS events.
+  *
+  * @method stifle 
+  * @param e {Event}
+  * @param onlyPropagation {Boolean} Default event action will persist if this is set to true.
+  */
+  soysauce.stifle = function(e, onlyPropagation) {
     if (!e) return false;
     try {
       e.stopImmediatePropagation();
@@ -2591,16 +2642,23 @@ soysauce = {
     if (e.gesture) {
       e.gesture.preventDefault();
     }
-  },
-  fetch: function(selector) {
+  };
+  
+  /**
+  * Returns Soysauce widget.
+  *
+  * @method fetch 
+  * @param selector {Object} DOM object in which to return; this should point to a widget.
+  */
+  soysauce.fetch = function(selector) {
     var query, ret;
-    
+
     if (!selector) return false;
-    
+
     if (typeof(selector) === "object") {
       selector = parseInt($(selector).attr("data-ss-id"), 10);
     }
-    
+
     if (typeof(selector) === "string") {
       var val = parseInt($(selector).attr("data-ss-id"), 10);;
 
@@ -2610,7 +2668,7 @@ soysauce = {
 
       selector = val;
     }
-    
+
     if (selector===+selector && selector === (selector|0)) {
       query = "[data-ss-id='" + selector + "']";
     }
@@ -2631,47 +2689,46 @@ soysauce = {
     else {
       return ret;
     }
-  },
-  destroy: function(selector) {
-    try {
-      var widget = soysauce.fetch(selector);
-      var $widget = widget.widget;
-      
-      $widget.off("*");
-      $widget.hammer().off("*");
-      $widget.empty();
-      $widget.off();
-      $widget.hammer().off();
-      $widget.remove();
-      
-      delete soysauce.widgets[widget.id - 1];
-      
-      return true;
-    }
-    catch(e) {
-      console.warn("Soysauce: could not destroy widget with id '" + widget.id + "'. Possible memory leaks. Message: " + e.message);
-    }
-    
-    return false;
-  },
-  getCoords: function(e) {
+  };
+  
+  /**
+  * Helper function that returns coordinates of the touch event.
+  * Used for touchstart, touchmove, and touchend.
+  *
+  * @method getCoords 
+  * @param e {Event}
+  */
+  soysauce.getCoords = function(e) {
     if (!e) return;
     if (e.originalEvent !== undefined) e = e.originalEvent;
     if (e.touches && e.touches.length === 1)
-      return {x: e.touches[0].clientX, y: e.touches[0].clientY};
+    return {x: e.touches[0].clientX, y: e.touches[0].clientY};
     else if (e.touches && e.touches.length === 2)
-      return {x: e.touches[0].clientX, y: e.touches[0].clientY, x2: e.touches[1].clientX, y2: e.touches[1].clientY};
+    return {x: e.touches[0].clientX, y: e.touches[0].clientY, x2: e.touches[1].clientX, y2: e.touches[1].clientY};
     else if (e.changedTouches && e.changedTouches.length === 1)
-      return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY};
+    return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY};
     else if (e.changedTouches && e.changedTouches.length === 2)
-      return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY, x2: e.changedTouches[1].clientX, y2: e.changedTouches[1].clientY};
+    return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY, x2: e.changedTouches[1].clientX, y2: e.changedTouches[1].clientY};
     else if (e.clientX !== undefined)
-      return {x: e.clientX, y: e.clientY};
-  },
-  getArrayFromMatrix: function(matrix) {
-    return matrix.substr(7, matrix.length - 8).split(', ');
-  },
-  browser: {
+    return {x: e.clientX, y: e.clientY};
+  };
+  
+  /**
+  * Helper function that returns the array form of a matrix.
+  *
+  * @method getArrayFromMatrix 
+  * @return {Array}
+  */
+  soysauce.getArrayFromMatrix = function(matrix) {
+    return matrix.substr(7, matrix.length - 8).split(", ");
+  };
+  
+  /**
+  * Contains useful browser information.
+  *
+  * @property browser 
+  */
+  soysauce.browser = {
     pageLoad: new Date().getTime(),
     supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,
     supportsLocalStorage: function() {
@@ -2704,129 +2761,38 @@ soysauce = {
         return false;
       }
     }(),
-    orientation: function() {
+    getOrientation: function() {
       return (window.orientation !== 0) ? "landscape" : "portrait";
-    }(),
-    ios7BarsVisible: function() {
-      if (!/(ipod|iphone).*(7\.0 mobile)/i.test(navigator.userAgent)) return false;
-      if (window.orientation !== 0) {
-        return (window.innerHeight < 320);
-      }
-      else {
-        return (window.innerHeight < 529);
-      }
-    }()
-  },
-  browserInfo: {
-    supportsLocalStorage: function() {
-      try { 
-        if (localStorage) {
-          localStorage.setItem("test", 1);
-          localStorage.removeItem("test");
-          return true;
-        }
-        else { 
-          return false; 
-        }
-      }
-      catch(err) { 
-        return false;
-      }
-    }(),
-    supportsSessionStorage: function() {
-      try { 
-        if (sessionStorage) {
-          sessionStorage.setItem("test", 1);
-          sessionStorage.removeItem("test");
-          return true;
-        }
-        else { 
-          return false; 
-        }
-      }
-      catch(err) { 
-        return false;
-      }
-    }()
-  },
-  scrollTop: function() {
+    }
+  };
+
+  soysauce.browserInfo = soysauce.browser;
+  
+  /**
+  * Helper function that scrolls the user to the top of the page.
+  *
+  * @method scrollTop 
+  * @return {Array}*/
+  soysauce.scrollTop = function() {
     window.setTimeout(function(){
       window.scrollTo(0, 1);
     }, 0);
-  }
-}
-
-// Widget Resize Handler
-$(window).on("resize", function(e) {
-  if (soysauce.vars.lastResizeID) clearTimeout(soysauce.vars.lastResizeID);
-  soysauce.vars.lastResizeID = window.setTimeout(function() {
-    soysauce.vars.lastResizeTime = e.timeStamp;
-    soysauce.widgets.forEach(function(widget) {
-      if (!widget.handleResize) return;
-      widget.handleResize();
-      if (/carousel/i.test(widget.type)) {
-        if (widget.itemWidth) {
-          $(widget.widget).trigger("SSWidgetResized");
-        }
-      }
-      else {
-        $(widget.widget).trigger("SSWidgetResized");
-      }
-    });
-  }, 30);
-});
-
-// Widget Initialization
-$(document).ready(function() {
-  soysauce.init();
-  if (soysauce.vars.degradeAll) {
-    $("body").attr("data-ss-degrade", "true");
-  }
-  soysauce.widgets.forEach(function(obj) {
-    if (!obj.defer) return;
-    var deferCount = 0;
-    var innerWidgets = obj.widget.find("[data-ss-widget]");
-    innerWidgets.each(function() {
-      var widget = soysauce.fetch(this);
-      if (widget.initialized) {
-        if (++deferCount === innerWidgets.length) {
-          $(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
-          return;
-        }
-      }
-      else {
-        widget.widget.on("SSWidgetReady", function() {
-          if (++deferCount === innerWidgets.length) {
-            $(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
-          }
-        });
-      }
-    });
-  });
-  // Set HammerJS Options
-  try {
-    Hammer.gestures.Swipe.defaults.swipe_velocity = 0.35;
-    Hammer.gestures.Drag.defaults.drag_min_distance = 1;
-    Hammer.gestures.Drag.defaults.drag_lock_min_distance = 1;
-    Hammer.gestures.Drag.defaults.drag_lock_to_axis = true;
-  }
-  catch(e) {
-    console.warn("Soysauce: Error setting options with HammerJS");
-    console.error(e);
-  }
+  };
   
-  $(window).trigger("SSReady");
-});
+  /**
+  * Listener that scrolls the user to the top of the page.
+  *
+  * @event window.load 
+  */
+  $(window).load(function() {
+    var cachedLazyLoader = soysauce.fetch("[data-ss-widget='lazyloader'][data-ss-options*='cache']");
+    if (cachedLazyLoader && cachedLazyLoader.isCached) return;
+    if (!$(this).scrollTop()) {
+      soysauce.scrollTop();
+    }
+  });
 
-$(window).load(function() {
-  var cachedLazyLoader = soysauce.fetch("[data-ss-widget='lazyloader'][data-ss-options*='cache']");
-  if (cachedLazyLoader && cachedLazyLoader.isCached) return;
-  if (!$(this).scrollTop()) {
-    soysauce.scrollTop();
-  }
-});
-
-}
+})(window, jQuery, null);
 
 soysauce.ajax = function(url, callback, forceAjax) {
   var result = false;
@@ -2875,6 +2841,31 @@ soysauce.ajax = function(url, callback, forceAjax) {
   
   return result;
 };
+
+(function(window, $, soysauce) {
+  soysauce.destroy = function(selector) {
+    try {
+      var widget = soysauce.fetch(selector);
+      var $widget = widget.widget;
+
+      $widget.off("*");
+      $widget.hammer().off("*");
+      $widget.empty();
+      $widget.off();
+      $widget.hammer().off();
+      $widget.remove();
+
+      delete soysauce.widgets[widget.id - 1];
+
+      return true;
+    }
+    catch(e) {
+      console.warn("Soysauce: could not destroy widget with id '" + widget.id + "'. Possible memory leaks. Message: " + e.message);
+    }
+
+    return false;
+  }
+})(window, $, soysauce, null);
 
 soysauce.freezeChildren = function(selector) {
   var children = $("[data-ss-id='" + selector + "']").find("[data-ss-widget]");
@@ -2932,102 +2923,150 @@ soysauce.unfreezeAll = function() {
   }
   return true;
 };
-soysauce.init = function(selector, manual) {
-  var set;
-  var numItems = 0;
-  var ret = false;
-  var fastclickSelectors = "";
+(function(window, $, soysauce) {
   
-  fastclickSelectors = "[data-ss-widget='toggler'] > [data-ss-component='button']";
-  fastclickSelectors += ", [data-ss-component='button'][data-ss-toggler-id]";
-  fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='button']";
-  fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='dots']";
-  fastclickSelectors += ", [data-ss-utility='overlay'] [data-ss-component='close']";
-  
-  $(fastclickSelectors).each(function() {
-    try {
-      soysauce.vars.fastclick.push(FastClick.attach(this));
-    }
-    catch(e) {
-      console.warn("Soysauce: Could not attach Fastclick listener on soysauce component. " + e.message);
-    }
-  });
-  
-  if (!selector) {
-    set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
-  }
-  else {
-    set = $(selector);
-  }
-  
-  if ((!$(selector) && !set) || $(selector).attr("data-ss-id") !== undefined) return ret;
-  
-  numItems = set.length;
-  
-  set.each(function(i) {
-    var $this = $(this);
-    var type = $(this).attr("data-ss-widget");
-    var widget;
-    var orphan = false;
-    
-    if (!type && $this.attr("data-ss-toggler-id") !== undefined) {
-      type = "toggler";
-      orphan = true;
-    }
-    
-    if (!manual && /manual/.test($this.attr("data-ss-init"))) {
-      return;
-    }
-    
-    $this.attr("data-ss-id", ++soysauce.vars.idCount);
-    
-    switch (type) {
-      case "toggler":
-        widget = soysauce.togglers.init(this, orphan);
-        break;
-      case "carousel":
-        widget = soysauce.carousels.init(this);
-        break;
-      case "lazyloader":
-        widget = soysauce.lazyloader.init(this);
-        break;
-      case "geocoder":
-        widget = soysauce.geocoder.init(this);
-        break;
-      case "autodetect-cc":
-        widget = soysauce.autodetectCC.init(this);
-        break;
-      case "autosuggest":
-        widget = soysauce.autosuggest.init(this);
-        break;
-      case "input-clear":
-        widget = soysauce.inputClear.init(this);
-        break;
-    }
+  soysauce.init = function(selector, manual) {
+    var set;
+    var numItems = 0;
+    var ret = false;
+    var fastclickSelectors = "";
 
-    if (widget !== undefined) {
-      widget.type = type;
-      widget.id = soysauce.vars.idCount;
-      soysauce.widgets.push(widget);
-      ret = true;
-      if ($this.attr("data-ss-defer") !== undefined) {
-        widget.defer = true;
+    fastclickSelectors = "[data-ss-widget='toggler'] > [data-ss-component='button']";
+    fastclickSelectors += ", [data-ss-component='button'][data-ss-toggler-id]";
+    fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='button']";
+    fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='dots']";
+    fastclickSelectors += ", [data-ss-utility='overlay'] [data-ss-component='close']";
+
+    $(fastclickSelectors).each(function() {
+      try {
+        soysauce.vars.fastclick.push(FastClick.attach(this));
       }
-      else {
-        $this.imagesLoaded(function() {
-          widget.initialized = true;
-          $this.trigger("SSWidgetReady");
-        });
+      catch(e) {
+        console.warn("Soysauce: Could not attach Fastclick listener on soysauce component. " + e.message);
       }
+    });
+
+    if (!selector) {
+      set = $("[data-ss-widget]:not([data-ss-id]), [data-ss-component='button'][data-ss-toggler-id]");
     }
     else {
-      $this.removeAttr("data-ss-id");
-      --soysauce.vars.idCount;
+      set = $(selector);
     }
+
+    if ((!$(selector) && !set) || $(selector).attr("data-ss-id") !== undefined) return ret;
+
+    numItems = set.length;
+
+    set.each(function(i) {
+      var $this = $(this);
+      var type = $(this).attr("data-ss-widget");
+      var widget;
+      var orphan = false;
+
+      if (!type && $this.attr("data-ss-toggler-id") !== undefined) {
+        type = "toggler";
+        orphan = true;
+      }
+
+      if (!manual && /manual/.test($this.attr("data-ss-init"))) {
+        return;
+      }
+
+      $this.attr("data-ss-id", ++soysauce.vars.idCount);
+
+      switch (type) {
+        case "toggler":
+          widget = soysauce.togglers.init(this, orphan);
+          break;
+        case "carousel":
+          widget = soysauce.carousels.init(this);
+          break;
+        case "lazyloader":
+          widget = soysauce.lazyloader.init(this);
+          break;
+        case "autofill-zip":
+          console.warn("Soysauce: autofill-zip is now deprecated. Please set data-ss-widget to 'geocoder'");
+        case "geocoder":
+          widget = soysauce.geocoder.init(this);
+          break;
+        case "autodetect-cc":
+          widget = soysauce.autodetectCC.init(this);
+          break;
+        case "autosuggest":
+          widget = soysauce.autosuggest.init(this);
+          break;
+        case "input-clear":
+          widget = soysauce.inputClear.init(this);
+          break;
+      }
+
+      if (widget !== undefined) {
+        widget.type = type;
+        widget.id = soysauce.vars.idCount;
+        soysauce.widgets.push(widget);
+        ret = true;
+        if ($this.attr("data-ss-defer") !== undefined) {
+          widget.defer = true;
+        }
+        else {
+          $this.imagesLoaded(function() {
+            widget.initialized = true;
+            $this.trigger("SSWidgetReady");
+          });
+        }
+      }
+      else {
+        $this.removeAttr("data-ss-id");
+        --soysauce.vars.idCount;
+      }
+    });
+
+    return ret;
+  };
+  
+  // Widget Initialization
+  $(document).ready(function() {
+    soysauce.init();
+    if (soysauce.vars.degradeAll) {
+      $("body").attr("data-ss-degrade", "true");
+    }
+    soysauce.widgets.forEach(function(obj) {
+      if (!obj.defer) return;
+      var deferCount = 0;
+      var innerWidgets = obj.widget.find("[data-ss-widget]");
+      innerWidgets.each(function() {
+        var widget = soysauce.fetch(this);
+        if (widget.initialized) {
+          if (++deferCount === innerWidgets.length) {
+            $(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
+            return;
+          }
+        }
+        else {
+          widget.widget.on("SSWidgetReady", function() {
+            if (++deferCount === innerWidgets.length) {
+              $(obj.widget).trigger("SSWidgetReady").removeAttr("data-ss-defer");
+            }
+          });
+        }
+      });
+    });
+    // Set HammerJS Options
+    try {
+      Hammer.gestures.Swipe.defaults.swipe_velocity = 0.7;
+      Hammer.gestures.Drag.defaults.drag_min_distance = 1;
+      Hammer.gestures.Drag.defaults.drag_lock_min_distance = 1;
+      Hammer.gestures.Drag.defaults.drag_lock_to_axis = true;
+    }
+    catch(e) {
+      console.warn("Soysauce: Error setting options with HammerJS");
+      console.error(e);
+    }
+
+    $(window).trigger("SSReady");
   });
   
-  return ret;
-}
+})(window, $, soysauce, null);
 
 soysauce.lateload = function(selector) {
   
@@ -3215,6 +3254,27 @@ soysauce.overlay = (function() {
   return new Overlay();
   
 })();
+
+(function(window, $, soysauce) {
+  $(window).on("resize", function(e) {
+    if (soysauce.vars.lastResizeID) clearTimeout(soysauce.vars.lastResizeID);
+    soysauce.vars.lastResizeID = window.setTimeout(function() {
+      soysauce.vars.lastResizeTime = e.timeStamp;
+      soysauce.widgets.forEach(function(widget) {
+        if (!widget.handleResize) return;
+        widget.handleResize();
+        if (/carousel/i.test(widget.type)) {
+          if (widget.itemWidth) {
+            $(widget.widget).trigger("SSWidgetResized");
+          }
+        }
+        else {
+          $(widget.widget).trigger("SSWidgetResized");
+        }
+      });
+    }, 30);
+  });
+})(window, $, soysauce, null);
 
 soysauce.autodetectCC = (function() {
   
@@ -4167,7 +4227,8 @@ soysauce.carousels = (function() {
       this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
       if (this.containerZoom) {
         this.zoomIcon.hammer().on("tap", function(e) {
-          self.handleContainerZoom(e, true);
+          var isIcon = true;
+          self.handleContainerZoom(e, isIcon);
         });
         this.container.hammer().on("tap drag", function(e) {
           if (self.lockScroll) return;
@@ -4179,6 +4240,9 @@ soysauce.carousels = (function() {
       }
       else {
         this.container.hammer().on("tap", function(e) {
+          self.zoomIn(e);
+        });
+        this.zoomIcon.hammer().on("tap", function(e) {
           self.zoomIn(e);
         });
       }
@@ -4560,6 +4624,7 @@ soysauce.carousels = (function() {
       var doSwipe = (swiped || e.gesture.distance >= SWIPE_THRESHOLD) ? true : false;
 
       soysauce.stifle(e);
+      self.widget.trigger("SSSwipe");
 
       self.ready = true;
       self.swiping = false;
@@ -5002,6 +5067,7 @@ soysauce.carousels = (function() {
 
     self.lastTransitionEnd = e.timeStamp;
     self.widget.trigger("slideEnd");
+    self.widget.trigger("SSSlideEnd");
     self.ready = true;
     self.jumping = false;
     self.interrupted = false;
