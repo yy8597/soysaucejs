@@ -6,12 +6,14 @@
     var ret = false;
     var fastclickSelectors = "";
 
-    fastclickSelectors = "[data-ss-widget='toggler'] > [data-ss-component='button']";
-    fastclickSelectors += ", [data-ss-component='button'][data-ss-toggler-id]";
-    fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='button']";
-    fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='dots']";
-    fastclickSelectors += ", [data-ss-utility='overlay'] [data-ss-component='close']";
-
+    fastclickSelectors = fastclickSelectors.concat(
+      "[data-ss-widget='toggler'] > [data-ss-component='button']",
+      ", [data-ss-component='button'][data-ss-toggler-id]",
+      ", [data-ss-widget='carousel'] [data-ss-component='button']",
+      ", [data-ss-widget='carousel'] [data-ss-component='dots']",
+      ", [data-ss-utility='overlay'] [data-ss-component='close']"
+    );
+    
     $(fastclickSelectors).each(function() {
       try {
         soysauce.vars.fastclick.push(FastClick.attach(this));
