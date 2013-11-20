@@ -733,6 +733,7 @@ soysauce.carousels = (function() {
   Carousel.prototype.handleSwipe = function(e) {
     var targetComponent = $(e.target).attr("data-ss-component");
     var self = this;
+    var angle = Math.abs(e.gesture.angle);
     
     if (self.jumping || self.freeze || self.looping) return;
 
@@ -759,7 +760,7 @@ soysauce.carousels = (function() {
       return;
     }
     
-    self.lockScroll = (Math.abs(e.gesture.angle) >= 75 && Math.abs(e.gesture.angle) <= 105 && !self.swiping) ? true : false;
+    self.lockScroll = angle >= 60 && angle <= 120 && !self.swiping ? true : false;
     
     if (self.lockScroll) {
       return;
