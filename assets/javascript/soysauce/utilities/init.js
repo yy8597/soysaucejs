@@ -2,8 +2,6 @@
   
   soysauce.init = function(selector, manual) {
     var set;
-    var numItems = 0;
-    var ret = false;
     var fastclickSelectors = "";
 
     fastclickSelectors = fastclickSelectors.concat(
@@ -32,9 +30,7 @@
 
     if ((!$(selector) && !set) || $(selector).attr("data-ss-id") !== undefined) return ret;
 
-    numItems = set.length;
-
-    set.each(function(i) {
+    set.each(function() {
       var $this = $(this);
       var type = $(this).attr("data-ss-widget");
       var widget;
