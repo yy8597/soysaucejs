@@ -650,6 +650,10 @@ soysauce.carousels = (function() {
       this.zoomElement.on(TRANSITION_END, function() {
         if (self.isZoomed) {
           self.zoomElement.attr("data-ss-state", "zoomed");
+          self.zoomIcon.attr("data-ss-state", "in");
+        }
+        else {
+          self.zoomIcon.attr("data-ss-state", "out");
         }
       });
       
