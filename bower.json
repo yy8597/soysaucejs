@@ -2,7 +2,7 @@
   "name": "soysaucejs",
   "title": "SoysauceJS",
   "description": "Integrate widgets into your site to create an elegant UX; Image carousels, togglers, autofill city/state from zip, and more.",
-  "version": "1.3.7",
+  "version": "1.3.8beta",
   "main": "./public/soysauce.js",
   "dependencies": {
     "jquery": "~1.9.1",

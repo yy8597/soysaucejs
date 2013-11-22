@@ -2928,6 +2928,7 @@ soysauce.unfreezeAll = function() {
   soysauce.init = function(selector, manual) {
     var set;
     var fastclickSelectors = "";
+    var ret = false;
 
     fastclickSelectors = fastclickSelectors.concat(
       "[data-ss-widget='toggler'] > [data-ss-component='button']",
