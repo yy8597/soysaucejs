@@ -2927,16 +2927,16 @@ soysauce.unfreezeAll = function() {
   
   soysauce.init = function(selector, manual) {
     var set;
-    var numItems = 0;
-    var ret = false;
     var fastclickSelectors = "";
 
-    fastclickSelectors = "[data-ss-widget='toggler'] > [data-ss-component='button']";
-    fastclickSelectors += ", [data-ss-component='button'][data-ss-toggler-id]";
-    fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='button']";
-    fastclickSelectors += ", [data-ss-widget='carousel'] [data-ss-component='dots']";
-    fastclickSelectors += ", [data-ss-utility='overlay'] [data-ss-component='close']";
-
+    fastclickSelectors = fastclickSelectors.concat(
+      "[data-ss-widget='toggler'] > [data-ss-component='button']",
+      ", [data-ss-component='button'][data-ss-toggler-id]",
+      ", [data-ss-widget='carousel'] [data-ss-component='button']",
+      ", [data-ss-widget='carousel'] [data-ss-component='dots']",
+      ", [data-ss-utility='overlay'] [data-ss-component='close']"
+    );
+    
     $(fastclickSelectors).each(function() {
       try {
         soysauce.vars.fastclick.push(FastClick.attach(this));
@@ -2955,9 +2955,7 @@ soysauce.unfreezeAll = function() {
 
     if ((!$(selector) && !set) || $(selector).attr("data-ss-id") !== undefined) return ret;
 
-    numItems = set.length;
-
-    set.each(function(i) {
+    set.each(function() {
       var $this = $(this);
       var type = $(this).attr("data-ss-widget");
       var widget;
@@ -4075,7 +4073,7 @@ soysauce.carousels = (function() {
     numDots = (this.multi) ? this.maxIndex : numDots;
 
     for (i = 0; i < numDots; i++) {
-      dotsHtml += "<div data-ss-component='dot'></div>";
+      dotsHtml.concat("<div data-ss-component='dot'></div>");
     }
 
     this.dots.html(dotsHtml);
@@ -4494,6 +4492,10 @@ soysauce.carousels = (function() {
       this.zoomElement.on(TRANSITION_END, function() {
         if (self.isZoomed) {
           self.zoomElement.attr("data-ss-state", "zoomed");
+          self.zoomIcon.attr("data-ss-state", "in");
+        }
+        else {
+          self.zoomIcon.attr("data-ss-state", "out");
         }
       });
       
@@ -4577,6 +4579,7 @@ soysauce.carousels = (function() {
   Carousel.prototype.handleSwipe = function(e) {
     var targetComponent = $(e.target).attr("data-ss-component");
     var self = this;
+    var angle = Math.abs(e.gesture.angle);
     
     if (self.jumping || self.freeze || self.looping) return;
 
@@ -4603,7 +4606,7 @@ soysauce.carousels = (function() {
       return;
     }
     
-    self.lockScroll = (Math.abs(e.gesture.angle) >= 75 && Math.abs(e.gesture.angle) <= 105 && !self.swiping) ? true : false;
+    self.lockScroll = angle >= 60 && angle <= 120 && !self.swiping ? true : false;
     
     if (self.lockScroll) {
       return;
