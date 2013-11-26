@@ -12,6 +12,7 @@ soysauce.geocoder = (function() {
     this.state = this.widget.find("[data-ss-component='state']");
     this.lastRequestedData;
     this.freeze = false;
+    this.data = null;
     
     // Reverse Geocode Variables
     this.reverse = false;
@@ -75,10 +76,18 @@ soysauce.geocoder = (function() {
         this.widget.data("zip", aolData.postalCode);
         this.widget.data("city", aolData.adminArea5);
         this.widget.data("state", aolData.adminArea3);
+        
+        this.data = {};
+        
+        this.data["zip"] = aolData.postalCode;
+        this.data["city"] = aolData.adminArea5;
+        this.data["state"] = aolData.adminArea3;
       }
       else {
         this.widget.data("city", data.city);
         this.widget.data("state", data.state);
+        
+        this.data = data;
       }
       
       this.widget.trigger("SSDataReady");
