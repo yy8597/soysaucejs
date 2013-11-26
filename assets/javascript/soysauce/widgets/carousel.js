@@ -231,7 +231,7 @@ soysauce.carousels = (function() {
     numDots = (this.multi) ? this.maxIndex : numDots;
 
     for (i = 0; i < numDots; i++) {
-      dotsHtml.concat("<div data-ss-component='dot'></div>");
+      dotsHtml = dotsHtml.concat("<div data-ss-component='dot'></div>");
     }
 
     this.dots.html(dotsHtml);
