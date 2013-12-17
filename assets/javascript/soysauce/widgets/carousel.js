@@ -6,7 +6,7 @@ soysauce.carousels = (function() {
   var VENDOR_PREFIX = soysauce.getPrefix();
   var SWIPE_THRESHOLD = 240;
   var ZOOM_SENSITIVITY = 0.8;
-  
+
   function Carousel(selector) {
     var options;
     var self = this;
@@ -87,7 +87,7 @@ soysauce.carousels = (function() {
     this.zoomScalePrev = 1;
     this.pinchEventsReady = false;
     this.lastZoomTap = 0;
-    
+
     // Multi Item Variables
     this.multi = false;
     this.multiVars = {
@@ -102,7 +102,7 @@ soysauce.carousels = (function() {
 
     // Fade Variables
     this.fade = false;
-    
+
     // Single-item Options
     if (this.widget.attr("data-ss-single-options") && this.widget.find("[data-ss-component='item']").length === 1) {
       options = this.widget.attr("data-ss-single-options").split(" ");
@@ -111,7 +111,7 @@ soysauce.carousels = (function() {
     else {
       options = soysauce.getOptions(selector);
     }
-    
+
     if (options) options.forEach(function(option) {
       switch(option) {
         case "peek":
@@ -147,16 +147,16 @@ soysauce.carousels = (function() {
           break;
       }
     });
-    
+
     if (this.multi) {
       this.infinite = false;
     }
-    
+
     this.widgetWidth = this.widget.outerWidth();
     this.widget.wrapInner("<div data-ss-component='container' />");
     this.widget.wrapInner("<div data-ss-component='container_wrapper' />");
     this.container = this.widget.find("[data-ss-component='container']");
-    
+
     wrapper = this.widget.find("[data-ss-component='container_wrapper']");
 
     if (this.infinite) {
@@ -266,7 +266,7 @@ soysauce.carousels = (function() {
         this.widget.attr("data-ss-peek-width", ++this.peekWidth);
       }
     }
-    
+
     this.items.attr("data-ss-state", "inactive");
 
     this.index = parseInt(this.widget.attr("data-ss-index"), 10) || 0;
@@ -289,7 +289,7 @@ soysauce.carousels = (function() {
         $(this.items[this.index]).attr("data-ss-state", "active");
       }
     }
-    
+
     this.container.imagesLoaded(function(items) {
       var firstItem = self.items.first();
       var margin = parseInt(firstItem.css("margin-left"), 10) + parseInt(firstItem.css("margin-right"), 10);
@@ -307,7 +307,7 @@ soysauce.carousels = (function() {
       $(window).load(function() {
         self.handleResize();
       });
-      
+
       if (self.peek) {
         self.itemWidth -= self.peekWidth*2;
         switch (self.peekAlign) {
@@ -328,17 +328,17 @@ soysauce.carousels = (function() {
       }
 
       self.offset -= (self.itemWidth * self.index);
-      
+
       self.container.attr("data-ss-state", "notransition");
       setTranslate(self.container[0], self.offset);
-      
+
       self.widgetHeight = self.widget.outerHeight(true);
-      
+
       if (self.overlay || self.zoomContainer) {
         self.setZoomCenterPoint();
       }
     });
-    
+
     this.container.hammer().on("release click", function(e) {
       if (e.type === "click") {
         if (self.sendClick) {
@@ -349,7 +349,7 @@ soysauce.carousels = (function() {
           return false;
         }
       }
-      
+
       if (e.type === "release") {
         if (e.gesture.distance === 0 && !self.swiping && !self.isZoomed && !self.lockScroll) {
           self.sendClick = true;
@@ -366,7 +366,7 @@ soysauce.carousels = (function() {
         var $ios7fix = $("#ios7fix");
         if (!$ios7fix.length) {
           $("body").append("<div id='ios7fix' style='color: transparent; z-index: -1; height: 1px; width: 1px; position: absolute; top: 0; left: 0;'></div>");
-        } 
+        }
         this.container.on("touchmove touchend", function(e) {
           $ios7fix.html(e.type);
         });
@@ -377,7 +377,7 @@ soysauce.carousels = (function() {
         self.handleSwipe(e);
       });
     }
-    
+
     if (this.zoom) {
       wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
       this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
@@ -403,7 +403,7 @@ soysauce.carousels = (function() {
         });
       }
     }
-    
+
     this.currentItem = $(this.items.get(self.index));
 
     if (this.overlay) {
@@ -413,11 +413,11 @@ soysauce.carousels = (function() {
         self.handleZoom(e);
       });
     }
-    
+
     this.container.on(TRANSITION_END, function(e) {
       self.setTransitionedStates(e);
     });
-    
+
     if (this.autoscroll) {
       this.autoscrollOn();
     }
@@ -426,7 +426,7 @@ soysauce.carousels = (function() {
       var height = $(this.items[this.index]).outerHeight(true);
       this.widget.css("min-height", height);
     }
-    
+
     this.widget.one("SSWidgetReady", function() {
       self.widget.attr("data-ss-state", "ready");
       self.ready = true;
@@ -442,24 +442,24 @@ soysauce.carousels = (function() {
       }
     });
   } // End Constructor
-  
+
   Carousel.prototype.handleZoom = function(e) {
     var self = this;
-    
+
     if (this.swiping) return;
-    
+
     soysauce.stifle(e);
-    
+
     if (e.type === "doubletap") {
       if (e.timeStamp - this.lastZoomTap < 500) return;
-      
+
       this.zoomElement = this.currentItem;
       this.lastZoomTap = e.timeStamp;
-      
+
       this.handleFreeze();
-      
+
       this.zoomScalePrev = this.zoomScale;
-      
+
       if (this.zoomScale < 1.5) {
         this.zoomElement.attr("data-ss-state", "zooming");
         this.zoomScale = 1.5
@@ -475,7 +475,7 @@ soysauce.carousels = (function() {
         this.zoomScale = 1;
         this.isZoomed = false;
       }
-      
+
       this.zoomScaleStart = this.zoomScale;
       this.zoomTranslateXStart = this.zoomTranslateX;
       this.zoomTranslateYStart = this.zoomTranslateY;
@@ -491,7 +491,7 @@ soysauce.carousels = (function() {
         }, 0);
         return;
       }
-      
+
       window.setTimeout(function() {
         setMatrix(self.zoomElement[0], self.zoomScale, self.zoomTranslateX, self.zoomTranslateY);
         if (self.zoomScale === 1) {
@@ -506,19 +506,19 @@ soysauce.carousels = (function() {
 
         this.zoomScalePrev = this.zoomScale;
         this.zoomScaleStart = this.zoomScale;
-        
+
         this.zoomTranslateXStart = this.zoomTranslateX;
         this.zoomTranslateYStart = this.zoomTranslateY;
-        
+
         this.isZoomed = true;
         this.handleFreeze();
-        
+
         this.container.one("touchend", function() {
           if (self.zoomScale <= 1) {
             self.zoomElement.attr("data-ss-state", "active");
           }
         });
-        
+
         this.container.hammer().one("release", function(releaseEvent) {
           soysauce.stifle(releaseEvent);
 
@@ -528,35 +528,35 @@ soysauce.carousels = (function() {
             self.resetZoomState();
             return;
           }
-          
+
           if (self.zoomScale > 4) {
             self.zoomScale = 4;
             self.zoomScaleStart = self.zoomScale;
             return;
           }
-          
+
           self.zoomScaleStart = self.zoomScale;
 
           setMatrix(self.zoomElement[0], self.zoomScale, self.zoomTranslateX, self.zoomTranslateY);
         });
-        
+
         this.pinchEventsReady = true;
       }
-      
+
       this.zoomScale = (((e.gesture.scale - 1) * ZOOM_SENSITIVITY) * this.zoomScaleStart) + this.zoomScaleStart;
       this.zoomScale = (this.zoomScale < 0.3) ? 0.3 : this.zoomScale;
-      
+
       if (this.zoomScale >= 4) {
         this.zoomScale = 4;
         return;
       }
-      
+
       this.setFocusPoint(e);
       this.calcTranslateLimits();
       this.setTranslateLimits();
-      
+
       this.zoomElement.attr("data-ss-state", "zooming");
-      
+
       if (this.zoomScale < 1) {
         var zoomScale = (((e.gesture.scale - 1) * ZOOM_SENSITIVITY) * this.zoomScaleStart) + this.zoomScaleStart;
         setMatrix(this.zoomElement[0], zoomScale, 0, 0);
@@ -568,24 +568,24 @@ soysauce.carousels = (function() {
     else if (this.isZoomed) {
       if (!this.panning) {
         this.panning = true;
-        
+
         this.zoomTranslateXStart = this.zoomTranslateX;
         this.zoomTranslateYStart = this.zoomTranslateY;
-        
+
         this.container.hammer().one("release", function(releaseEvent) {
           self.panning = false;
         });
       }
-      
+
       this.zoomTranslateX = e.gesture.deltaX + this.zoomTranslateXStart;
       this.zoomTranslateY = e.gesture.deltaY + this.zoomTranslateYStart;
-      
+
       this.setTranslateLimits();
-      
+
       setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
     }
   };
-  
+
   Carousel.prototype.setZoomCenterPoint = function() {
     this.zoomElementWidth = this.zoomElement.width();
     this.zoomElementHeight = this.zoomElement.height();
@@ -593,27 +593,27 @@ soysauce.carousels = (function() {
     this.zoomElementCenterX = (this.zoomElementWidth / 2) + this.zoomElementOffset.left;
     this.zoomElementCenterY = (this.zoomElementHeight / 2) + this.zoomElementOffset.top;
   };
-  
+
   Carousel.prototype.setFocusPoint = function(e) {
     this.zoomTranslateX = (this.zoomElementCenterX - e.gesture.center.pageX + this.zoomTranslateXStart + this.peekWidth) * (this.zoomScale / this.zoomScalePrev);
     this.zoomTranslateY = (this.zoomElementCenterY - e.gesture.center.pageY + this.zoomTranslateYStart) * (this.zoomScale / this.zoomScalePrev);
   };
-  
+
   Carousel.prototype.calcTranslateLimits = function() {
     var padding;
-    
+
     if (!this.zoomElementWidth) {
       this.setZoomCenterPoint();
     }
-    
+
     padding = (parseInt(this.zoomElement.css("padding-left"), 10) + parseInt(this.zoomElement.css("padding-right"), 10)) || 0;
-    
+
     this.zoomTranslateMinX = (((this.zoomElementWidth * this.zoomScale) - this.zoomElementWidth) / 2) - this.peekWidth - padding;
     this.zoomTranslateMaxX = -this.zoomTranslateMinX;
     this.zoomTranslateMinY = ((this.zoomElementHeight * this.zoomScale) - this.zoomElementHeight) / 2;
     this.zoomTranslateMaxY = -this.zoomTranslateMinY;
   };
-  
+
   Carousel.prototype.setTranslateLimits = function() {
     if (this.zoomTranslateX > this.zoomTranslateMinX) {
       this.zoomTranslateX = this.zoomTranslateMinX;
@@ -628,7 +628,7 @@ soysauce.carousels = (function() {
       this.zoomTranslateY = this.zoomTranslateMaxY;
     }
   };
-  
+
   Carousel.prototype.zoomIn = function(e) {
     if (this.overlay) return;
 
@@ -639,13 +639,13 @@ soysauce.carousels = (function() {
       "opacity": "1"
     });
   };
-  
+
   Carousel.prototype.handleContainerZoom = function(e, iconTap) {
     var self = this;
-    
+
     if (e.type === "tap") {
       this.zoomElement = this.currentItem;
-      
+
       this.zoomElement.off();
       this.zoomElement.on(TRANSITION_END, function() {
         if (self.isZoomed) {
@@ -656,7 +656,7 @@ soysauce.carousels = (function() {
           self.zoomIcon.attr("data-ss-state", "out");
         }
       });
-      
+
       if (!this.isZoomed) {
         this.handleFreeze();
         this.zoomScalePrev = this.zoomScale;
@@ -699,28 +699,28 @@ soysauce.carousels = (function() {
     else {
       if (!this.panning) {
         this.panning = true;
-        
+
         this.zoomTranslateXStart = this.zoomTranslateX;
         this.zoomTranslateYStart = this.zoomTranslateY;
-        
+
         this.container.hammer().one("release", function(releaseEvent) {
           self.panning = false;
         });
       }
-      
+
       this.zoomTranslateX = e.gesture.deltaX + this.zoomTranslateXStart;
       this.zoomTranslateY = e.gesture.deltaY + this.zoomTranslateYStart;
-      
+
       this.setTranslateLimits();
-      
+
       setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
     }
   };
-  
+
   Carousel.prototype.resetZoomState = function() {
     var self = this;
     var transitionReset = (this.currentItem.attr("data-ss-state") === "active") ? true : false;
-    
+
     this.zoomTranslateX = 0;
     this.zoomTranslateY = 0;
     this.zoomScale = 1;
@@ -730,15 +730,15 @@ soysauce.carousels = (function() {
     this.isZoomed = false;
     this.setZoomCenterPoint();
     this.handleUnfreeze();
-    
+
     setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
   };
-  
+
   Carousel.prototype.handleSwipe = function(e) {
     var targetComponent = $(e.target).attr("data-ss-component");
     var self = this;
     var angle = Math.abs(e.gesture.angle);
-    
+
     if (self.jumping || self.freeze || self.looping) return;
 
     if (e.type === "swipe" && e.gesture.eventType === "end" && !self.ready) {
@@ -749,7 +749,7 @@ soysauce.carousels = (function() {
       self.container.attr("data-ss-state", "ready");
       return;
     }
-    
+
     if (self.lockScroll && e.type === "release") {
       self.lockScroll = false;
       self.widget.attr("data-ss-state", "ready");
@@ -759,13 +759,13 @@ soysauce.carousels = (function() {
       }, 0);
       return;
     }
-    
+
     if (self.lockScroll) {
       return;
     }
-    
+
     self.lockScroll = angle >= 60 && angle <= 120 && !self.swiping ? true : false;
-    
+
     if (self.lockScroll) {
       return;
     }
@@ -779,22 +779,21 @@ soysauce.carousels = (function() {
       setTranslate(self.container[0], self.interruptedOffset);
       return;
     }
-    
+
     if (e.gesture.eventType === "end") {
       var swiped = (e.gesture.velocityX >= Hammer.gestures.Swipe.defaults.swipe_velocity) ? true : false;
       var doSwipe = (swiped || e.gesture.distance >= SWIPE_THRESHOLD) ? true : false;
 
       soysauce.stifle(e);
-      self.widget.trigger("SSSwipe");
 
       self.ready = true;
       self.swiping = false;
-      
+
       self.widget.attr("data-ss-state", "intransit");
       self.container.attr("data-ss-state", "intransit");
-      
+
       if (doSwipe && e.gesture.direction === "left") {
-        if (!self.infinite && ((self.index === self.numChildren - 1) 
+        if (!self.infinite && ((self.index === self.numChildren - 1)
         || (self.multi && self.index === self.maxIndex - Math.floor(self.multiVars.numItems / self.multiVars.stepSize)))) {
           if (self.multi)  {
             if (self.index === self.maxIndex - 1) {
@@ -802,10 +801,12 @@ soysauce.carousels = (function() {
             }
             else {
               self.gotoPos(self.index * -self.itemWidth * self.multiVars.stepSize + self.peekWidth);
+              self.widget.trigger("SSSwipe");
             }
           }
           else {
             self.gotoPos(self.index * -self.itemWidth + self.peekWidth);
+            self.widget.trigger("SSSwipe");
           }
         }
         else {
@@ -813,6 +814,7 @@ soysauce.carousels = (function() {
             self.rewindCoord = parseInt(self.container.css("left"), 10);
           }
           self.slideForward();
+          self.widget.trigger("SSSwipe");
         }
       }
       else if (doSwipe && e.gesture.direction === "right") {
@@ -824,6 +826,7 @@ soysauce.carousels = (function() {
             self.rewindCoord = parseInt(self.container.css("left"), 10);
           }
           self.slideBackward();
+          self.widget.trigger("SSSwipe");
         }
       }
       else {
@@ -832,13 +835,13 @@ soysauce.carousels = (function() {
     }
     else if (e.gesture.eventType === "move") {
       soysauce.stifle(e);
-      
+
       self.swiping = true;
       self.ready = false;
-      
+
       self.container.attr("data-ss-state", "notransition");
       self.widget.attr("data-ss-state", "intransit");
-      
+
       if (self.interrupted) {
         setTranslate(self.container[0], self.interruptedOffset + e.gesture.deltaX);
       }
@@ -847,10 +850,10 @@ soysauce.carousels = (function() {
       }
     }
   };
-  
+
   Carousel.prototype.gotoPos = function(x, jumping, resettingPosition) {
     var self = this;
-    
+
     this.currentItem = $(this.items.get(self.index));
 
     if (this.overlay) {
@@ -859,11 +862,11 @@ soysauce.carousels = (function() {
 
     this.offset = x;
     setTranslate(this.container[0], x);
-    
+
     this.container.attr("data-ss-state", "intransit");
     this.widget.attr("data-ss-state", "intransit");
     this.ready = true;
-    
+
     if (this.autoscroll) {
       this.autoscrollOff();
       if (this.autoscrollRestartID) {
@@ -871,12 +874,12 @@ soysauce.carousels = (function() {
         this.autoscrollRestartID = null;
       }
     }
-    
+
     if (this.infinite) {
       var duration = 0, xcoord = 0;
-      
+
       duration = parseFloat(this.container.css(VENDOR_PREFIX + "transition-duration").replace(/s$/,"")) * 1000;
-      
+
       duration = (!duration) ? 650 : duration;
       // Slide Backward Rewind
       if (!resettingPosition && !jumping && this.index === this.numChildren - 2 && !this.forward) {
@@ -925,18 +928,18 @@ soysauce.carousels = (function() {
       }
     }
   };
-  
+
   Carousel.prototype.slideForward = function() {
     var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]),
         lastInfiniteIndex = this.numChildren - 1,
         stepSize = (this.multi) ? this.multiVars.stepSize * this.itemWidth : this.itemWidth;
-    
+
     if (!this.ready || this.isZooming ||
       (!this.infinite && this.index === lastInfiniteIndex) ||
       (!this.infinite && this.multi && this.index === this.maxIndex - 1)) return false;
-    
+
     $dots.attr("data-ss-state", "inactive");
-    
+
     if (this.multi) {
       var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
       $items.attr("data-ss-state", "inactive");
@@ -945,7 +948,7 @@ soysauce.carousels = (function() {
     else {
       $(this.items[this.index++]).attr("data-ss-state", "inactive");
     }
-    
+
     if (this.infinite && this.index === lastInfiniteIndex) {
       $(this.items[1]).attr("data-ss-state", "active");
       this.index = 1;
@@ -965,7 +968,7 @@ soysauce.carousels = (function() {
         $(this.items[this.index]).attr("data-ss-state", "active");
       }
     }
-    
+
     $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]);
     $dots.attr("data-ss-state", "active");
 
@@ -977,28 +980,28 @@ soysauce.carousels = (function() {
         this.prevBtn.attr("data-ss-state", "enabled");
       }
     }
-    
+
     this.ready = false;
     this.forward = true;
-    
+
     if (this.multi && !this.multiVars.even && this.index === this.maxIndex - 1) {
       stepSize -= (this.multiVars.stepSize - (this.items.length % this.multiVars.stepSize)) * this.itemWidth;
     }
-    
+
     this.gotoPos(this.offset - stepSize);
-    
+
     return true;
   };
-  
+
   Carousel.prototype.slideBackward = function() {
     var $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]),
         lastInfiniteIndex = this.numChildren - 1,
         stepSize = (this.multi) ? this.multiVars.stepSize * this.itemWidth : this.itemWidth;
-    
+
     if (!this.ready || (!this.infinite && this.index === 0) || this.isZooming) return false;
-    
+
     $dots.attr("data-ss-state", "inactive");
-    
+
     if (this.multi) {
       var $items = $(this.items.slice(this.index * this.multiVars.stepSize, this.index * this.multiVars.stepSize + this.multiVars.numItems));
       $items.attr("data-ss-state", "inactive");
@@ -1007,7 +1010,7 @@ soysauce.carousels = (function() {
     else {
       $(this.items[this.index--]).attr("data-ss-state", "inactive");
     }
-    
+
     if (this.infinite && this.index === 0) {
       $(this.items[lastInfiniteIndex - 1]).attr("data-ss-state", "active");
       this.index = lastInfiniteIndex - 1;
@@ -1021,10 +1024,10 @@ soysauce.carousels = (function() {
         $(this.items[this.index]).attr("data-ss-state", "active");
       }
     }
-    
+
     $dots = (this.infinite) ? $(this.dots[this.index - 1]) : $(this.dots[this.index]);
     $dots.attr("data-ss-state", "active");
-    
+
     if (!this.infinite) {
       if (this.index === 0) {
         this.prevBtn.attr("data-ss-state", "disabled");
@@ -1033,28 +1036,28 @@ soysauce.carousels = (function() {
         this.nextBtn.attr("data-ss-state", "enabled");
       }
     }
-      
+
     this.ready = false;
     this.forward = false;
-    
+
     if (this.multi && !this.multiVars.even && this.index === 0) {
       this.gotoPos(0 + this.peekWidth);
     }
     else {
       this.gotoPos(this.offset + stepSize);
     }
-    
+
     return true;
   };
-  
+
   Carousel.prototype.handleResize = function() {
     var parentWidgetContainer;
     var diff = 0;
     var prevState = "";
     var self = this;
-    
+
     window.clearTimeout(this.resizeID);
-    
+
     if (this.widget.is(":hidden") && !this.defer) return;
 
     this.widgetWidth = this.widget.outerWidth();
@@ -1070,11 +1073,11 @@ soysauce.carousels = (function() {
     if (this.fade) {
       return;
     }
-    
+
     if (this.overlay && this.isZoomed) {
       this.resetZoomState();
     }
-    
+
     if (this.multi) {
       if (this.multiVars.minWidth) {
         this.multiVars.numItems = Math.floor(this.widgetWidth / this.multiVars.minWidth)
@@ -1118,7 +1121,7 @@ soysauce.carousels = (function() {
     if (this.autoheight) {
       this.widget.css("height", $(this.items[this.index]).outerHeight(true));
     }
-    
+
     this.resizeID = window.setTimeout(function() {
       self.container.attr("data-ss-state", "ready");
       if (self.widget.attr("data-ss-state")) {
@@ -1126,14 +1129,14 @@ soysauce.carousels = (function() {
       }
     }, 300);
   };
-  
+
   Carousel.prototype.autoscrollOn = function(forceEnable) {
     var self = this;
-    
+
     if (!this.autoscroll && !forceEnable) return false;
-    
+
     this.autoscroll = !forceEnable ? this.autoscroll : true;
-    
+
     if (!this.autoscrollID) {
       if (!this.autoscrollInterval) {
         var interval = this.widget.attr("data-ss-autoscroll-interval");
@@ -1147,10 +1150,10 @@ soysauce.carousels = (function() {
       }, self.autoscrollInterval);
       return true;
     }
-    
+
     return false;
   };
-  
+
   Carousel.prototype.autoscrollOff = function(freezing) {
     var self = this;
     if (!this.autoscroll || !this.autoscrollID && !freezing) return false;
@@ -1158,21 +1161,21 @@ soysauce.carousels = (function() {
     this.autoscrollID = null;
     return true;
   };
-  
+
   Carousel.prototype.handleFreeze = function() {
     if (this.freeze) return;
     this.freeze = true;
     this.autoscrollOff(true);
     return true;
   };
-  
+
   Carousel.prototype.handleUnfreeze = function() {
     if (!this.freeze) return;
     this.freeze = false;
     this.autoscrollOn();
     return true;
   };
-  
+
   Carousel.prototype.jumpTo = function(index, noZoomTransition) {
     var self = this;
 
@@ -1186,7 +1189,7 @@ soysauce.carousels = (function() {
       if (index < 0 || index > this.maxIndex - 1)
         return false;
     }
-    
+
     this.jumping = true;
     this.ready = false;
 
@@ -1220,10 +1223,10 @@ soysauce.carousels = (function() {
 
     return true;
   };
-  
+
   Carousel.prototype.setTransitionedStates = function(e) {
     var self = this;
-    
+
     if (Math.abs(e.timeStamp - self.lastTransitionEnd) < 300) return;
 
     self.lastTransitionEnd = e.timeStamp;
@@ -1242,20 +1245,20 @@ soysauce.carousels = (function() {
         self.autoscrollOn();
       }, 1000);
     }
-    
+
     if (self.autoheight) {
       self.widget.css("height", $(self.items[self.index]).outerHeight(true));
     }
   };
-  
+
   // Known issues:
   //  * Does not update dots
   Carousel.prototype.updateItems = function() {
     var self = this;
-    
+
     this.ready = false;
     this.container.find("> [data-ss-component='item']:not([data-ss-state])").attr("data-ss-state", "inactive");
-    
+
     if (!this.container.find("> [data-ss-component][data-ss-state='active']").length) {
       if (this.infinite) {
         this.container.find("> [data-ss-component='item']:nth-of-type(2)").attr("data-ss-state", "active");
@@ -1264,27 +1267,27 @@ soysauce.carousels = (function() {
         this.items.first().attr("data-ss-state", "active");
       }
     }
-    
+
     this.index = this.container.find("> [data-ss-component][data-ss-state='active']").index();
-    
+
     this.items = this.container.find("> [data-ss-component='item']");
     this.items.css("width", this.itemWidth);
-    
+
     this.numChildren = this.items.length;
-    
+
     if (this.infinite) {
       this.maxIndex = this.numChildren - 2;
     }
     else {
       this.maxIndex = this.numChildren - 1;
     }
-    
+
     this.container.css("width", this.itemWidth * this.numChildren);
     this.container.imagesLoaded(function() {
       self.ready = true;
     });
   };
-  
+
   // Helper Functions
   function setTranslate(element, x, y) {
     x = x || 0;
@@ -1293,45 +1296,45 @@ soysauce.carousels = (function() {
       element.style.left = x + "px";
     }
     else {
-      element.style.webkitTransform = 
-      element.style.msTransform = 
-      element.style.OTransform = 
-      element.style.MozTransform = 
+      element.style.webkitTransform =
+      element.style.msTransform =
+      element.style.OTransform =
+      element.style.MozTransform =
       element.style.transform =
         "translate3d(" + x + "px," + y + "px,0)";
     }
   }
-  
+
   function setMatrix(element, scale, x, y) {
     x = x || 0;
     y = y || 0;
-    element.style.webkitTransform = 
-    element.style.msTransform = 
-    element.style.OTransform = 
-    element.style.MozTransform = 
-    element.style.transform = 
+    element.style.webkitTransform =
+    element.style.msTransform =
+    element.style.OTransform =
+    element.style.MozTransform =
+    element.style.transform =
       "matrix(" + scale + ",0,0," + scale + "," + x + "," + y + ")";
   }
-  
+
   function createClones(carousel, cloneDepth) {
     var items = carousel.container.find("> [data-ss-component='item']");
     var cloneSet1, cloneSet2;
-    
+
     if (cloneDepth > carousel.maxIndex) return;
-    
+
     carousel.cloneDepth = cloneDepth;
-    
+
     cloneSet1 = items.slice(0, cloneDepth).clone();
     cloneSet2 = items.slice(carousel.maxIndex - cloneDepth, carousel.maxIndex).clone();
 
     cloneSet1.appendTo(carousel.container);
     cloneSet2.prependTo(carousel.container);
   }
-  
+
   return {
     init: function(selector) {
       return new Carousel(selector);
     }
   };
-  
+
 })();
