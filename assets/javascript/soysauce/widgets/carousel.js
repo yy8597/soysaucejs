@@ -1218,8 +1218,8 @@ soysauce.carousels = (function() {
       this.widget.height(newHeight);
     }
 
-    this.gotoPos(newOffset, true);
     this.index = index;
+    this.gotoPos(newOffset, true);
 
     return true;
   };
