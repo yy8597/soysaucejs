@@ -1219,7 +1219,17 @@ soysauce.carousels = (function() {
     }
 
     this.index = index;
-    this.gotoPos(newOffset, true);
+
+    if (noZoomTransition) {
+      this.container.attr('data-ss-state', 'notransition');
+      setTranslate(self.container[0], newOffset);
+      setTimeout(function () {
+        self.gotoPos(newOffset, true);
+        self.setTransitionedStates({timestamp:new Date()});
+      }, 10);
+    } else {
+      this.gotoPos(newOffset, true);
+    }
 
     return true;
   };
