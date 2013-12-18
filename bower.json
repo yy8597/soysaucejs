@@ -4,6 +4,9 @@
   "description": "Integrate widgets into your site to create an elegant UX; Image carousels, togglers, autofill city/state from zip, and more.",
   "version": "1.3.9",
   "main": "./public/soysauce.js",
+  "styles": [
+    "assets/soysauce.css"
+  ],
   "dependencies": {
     "jquery": "~1.9.1",
     "fastclick": "latest"
