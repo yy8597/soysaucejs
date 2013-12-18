@@ -7,6 +7,14 @@ package_path:           .                     # (defaults to assets)
 javascript_compressor:  closure               # (yui, closure)
 
 javascripts:
+  soysauce:
+      - bower_components/fastclick/lib/fastclick.js
+      - assets/javascript/hammer.js
+      - assets/javascript/legacy-support.js
+      - assets/javascript/images-loaded.js
+      - assets/javascript/soysauce/core.js
+      - assets/javascript/soysauce/utilities/*.js
+      - assets/javascript/soysauce/widgets/*.js
   soysauce.min:
       - bower_components/fastclick/lib/fastclick.js
       - assets/javascript/hammer.js
@@ -15,5 +23,3 @@ javascripts:
       - assets/javascript/soysauce/core.js
       - assets/javascript/soysauce/utilities/*.js
       - assets/javascript/soysauce/widgets/*.js
-  site.min:
-      - assets/javascript/site/*.js
