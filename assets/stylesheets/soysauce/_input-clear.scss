@@ -1,6 +1,6 @@
 [data-ss-component="input-wrapper"] {
   position: relative;
-	[data-ss-widget="input-clear"] {
+	[data-ss-widget] {
 		&[data-ss-clear="on"] + [data-ss-component="icon"] {
 			display: block;
 		}

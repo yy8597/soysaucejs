@@ -1,5 +1,5 @@
 (function(window, $, soysauce) {
-  
+
   soysauce.init = function(selector, manual) {
     var set;
     var fastclickSelectors = "";
@@ -12,7 +12,7 @@
       ", [data-ss-widget='carousel'] [data-ss-component='dots']",
       ", [data-ss-utility='overlay'] [data-ss-component='close']"
     );
-    
+
     $(fastclickSelectors).each(function() {
       try {
         soysauce.vars.fastclick.push(FastClick.attach(this));
@@ -97,7 +97,7 @@
 
     return ret;
   };
-  
+
   // Widget Initialization
   $(document).ready(function() {
     soysauce.init();
@@ -139,5 +139,5 @@
 
     $(window).trigger("SSReady");
   });
-  
+
 })(window, $, soysauce, null);
