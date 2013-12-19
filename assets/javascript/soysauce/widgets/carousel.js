@@ -1226,7 +1226,7 @@ soysauce.carousels = (function() {
       setTimeout(function () {
         self.gotoPos(newOffset, true);
         self.setTransitionedStates({timestamp:new Date()});
-      }, 10);
+      }, 0);
     } else {
       this.gotoPos(newOffset, true);
     }
