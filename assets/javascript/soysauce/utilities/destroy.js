@@ -1,8 +1,13 @@
 (function(window, $, soysauce) {
   soysauce.destroy = function(selector, removeWidget) {
+
     try {
       var widget = soysauce.fetch(selector);
       var $widget = widget.widget;
+
+      $widget.find("[data-ss-widget][data-ss-id]").each(function() {
+        soysauce.destroy(this);
+      });
 
       $widget.off("*");
       $widget.hammer().off("*");
