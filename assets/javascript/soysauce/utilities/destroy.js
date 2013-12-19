@@ -1,5 +1,5 @@
 (function(window, $, soysauce) {
-  soysauce.destroy = function(selector) {
+  soysauce.destroy = function(selector, removeWidget) {
     try {
       var widget = soysauce.fetch(selector);
       var $widget = widget.widget;
@@ -9,7 +9,10 @@
       $widget.empty();
       $widget.off();
       $widget.hammer().off();
-      $widget.remove();
+
+      if (removeWidget) {
+        $widget.remove();
+      }
 
       delete soysauce.widgets[widget.id - 1];
 
