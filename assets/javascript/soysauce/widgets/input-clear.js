@@ -37,19 +37,20 @@ soysauce.inputClear = (function() {
       });
     });
   }
-  
+
   inputClear.prototype.clear = function() {
     this.widget.val("").attr("data-ss-clear", "off");
+    this.widget.trigger("SSEmpty");
   };
-  
+
   inputClear.prototype.handleIcon = function() {
     this.widget.attr("data-ss-clear", (!this.widget.val().length) ? "off" : "on");
   };
-  
+
   return {
     init: function(selector) {
       return new inputClear(selector);
     }
   };
-  
+
 })();
