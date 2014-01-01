@@ -1,10 +1,10 @@
 /**
 * core.js
-* 
+*
 * The base Soysauce object is instantiated in this file. In addition,
 * this is the section where Soyasuce stores internal variables, browser
 * information and helper functions.
-* 
+*
 */
 
 (function(window, $) {
@@ -16,7 +16,7 @@
   * @module soysauce
   */
   window.soysauce = window.soysauce || {};
-  
+
   /**
   * An array of all initialized Soysauce widgets.
   *
@@ -27,7 +27,7 @@
   /**
   * Miscellaneous variables used both internally and externally.
   *
-  * @property vars 
+  * @property vars
   */
   soysauce.vars = {
     idCount: 0,
@@ -44,7 +44,7 @@
   * Returns an array of options. Used for
   * initializing a widget.
   *
-  * @method getOptions 
+  * @method getOptions
   * @param selector {Element} DOM object in which to obtain options.
   * @return {Array}
   */
@@ -56,7 +56,7 @@
   /**
   * Returns the vendor prefix for the current browser.
   *
-  * @method getPrefix 
+  * @method getPrefix
   * @return {String}
   */
   soysauce.getPrefix = function() {
@@ -72,7 +72,7 @@
   * Prevents event propagation.
   * Handles HammerJS events.
   *
-  * @method stifle 
+  * @method stifle
   * @param e {Event}
   * @param onlyPropagation {Boolean} Default event action will persist if this is set to true.
   */
@@ -96,11 +96,11 @@
       e.gesture.preventDefault();
     }
   };
-  
+
   /**
   * Returns Soysauce widget.
   *
-  * @method fetch 
+  * @method fetch
   * @param selector {Object} DOM object in which to return; this should point to a widget.
   */
   soysauce.fetch = function(selector) {
@@ -143,12 +143,12 @@
       return ret;
     }
   };
-  
+
   /**
   * Helper function that returns coordinates of the touch event.
   * Used for touchstart, touchmove, and touchend.
   *
-  * @method getCoords 
+  * @method getCoords
   * @param e {Event}
   */
   soysauce.getCoords = function(e) {
@@ -165,52 +165,52 @@
     else if (e.clientX !== undefined)
     return {x: e.clientX, y: e.clientY};
   };
-  
+
   /**
   * Helper function that returns the array form of a matrix.
   *
-  * @method getArrayFromMatrix 
+  * @method getArrayFromMatrix
   * @return {Array}
   */
   soysauce.getArrayFromMatrix = function(matrix) {
     return matrix.substr(7, matrix.length - 8).split(", ");
   };
-  
+
   /**
   * Contains useful browser information.
   *
-  * @property browser 
+  * @property browser
   */
   soysauce.browser = {
     pageLoad: new Date().getTime(),
     supportsSVG: (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) ? true : false,
     supportsLocalStorage: function() {
-      try { 
+      try {
         if (localStorage) {
           localStorage.setItem("test", 1);
           localStorage.removeItem("test");
           return true;
         }
-        else { 
-          return false; 
+        else {
+          return false;
         }
       }
-      catch(err) { 
+      catch(err) {
         return false;
       }
     }(),
     supportsSessionStorage: function() {
-      try { 
+      try {
         if (sessionStorage) {
           sessionStorage.setItem("test", 1);
           sessionStorage.removeItem("test");
           return true;
         }
-        else { 
-          return false; 
+        else {
+          return false;
         }
       }
-      catch(err) { 
+      catch(err) {
         return false;
       }
     }(),
@@ -220,22 +220,22 @@
   };
 
   soysauce.browserInfo = soysauce.browser;
-  
+
   /**
   * Helper function that scrolls the user to the top of the page.
   *
-  * @method scrollTop 
+  * @method scrollTop
   * @return {Array}*/
   soysauce.scrollTop = function() {
     window.setTimeout(function(){
       window.scrollTo(0, 1);
     }, 0);
   };
-  
+
   /**
   * Listener that scrolls the user to the top of the page.
   *
-  * @event window.load 
+  * @event window.load
   */
   $(window).load(function() {
     var cachedLazyLoader = soysauce.fetch("[data-ss-widget='lazyloader'][data-ss-options*='cache']");
