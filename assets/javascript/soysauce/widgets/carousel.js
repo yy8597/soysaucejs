@@ -57,6 +57,7 @@ soysauce.carousels = (function() {
     this.peek = false;
     this.peekWidth = 0;
     this.peekAlign;
+    this.responsivePeek = false;
 
     // Swipe Variables
     this.swipe = true;
@@ -261,7 +262,23 @@ soysauce.carousels = (function() {
 
     if (this.peek) {
       this.peekAlign = this.widget.attr("data-ss-peek-align") || "center";
-      this.peekWidth = parseInt(this.widget.attr("data-ss-peek-width"), 10) || PEEK_WIDTH;
+
+      if (this.widget.attr("data-ss-responsive-peek")) {
+        this.responsivePeek = true;
+
+        switch (soysauce.browser.getOrientation()) {
+          case "portrait":
+            this.peekWidth = parseInt(this.widget.attr("data-ss-peek-width-portrait"), 10) || parseInt(this.widget.attr("data-ss-peek-width"), 10) || PEEK_WIDTH;
+            break;
+          case "landscape":
+            this.peekWidth = parseInt(this.widget.attr("data-ss-peek-width-landscape"), 10) || parseInt(this.widget.attr("data-ss-peek-width"), 10) || PEEK_WIDTH;
+            break;
+        }
+      }
+      else {
+        this.peekWidth = parseInt(this.widget.attr("data-ss-peek-width"), 10) || PEEK_WIDTH;
+      }
+
       if (this.peekWidth % 2) {
         this.widget.attr("data-ss-peek-width", ++this.peekWidth);
       }
@@ -1115,6 +1132,17 @@ soysauce.carousels = (function() {
     }
 
     if (this.peek) {
+      if (this.responsivePeek) {
+        switch (soysauce.browser.getOrientation()) {
+          case "portrait":
+            this.peekWidth = parseInt(this.widget.attr("data-ss-peek-width-portrait"), 10) || parseInt(this.widget.attr("data-ss-peek-width"), 10) || PEEK_WIDTH;
+            break;
+          case "landscape":
+            this.peekWidth = parseInt(this.widget.attr("data-ss-peek-width-landscape"), 10) || parseInt(this.widget.attr("data-ss-peek-width"), 10) || PEEK_WIDTH;
+            break;
+        }
+      }
+
       this.itemWidth -= this.peekWidth*2;
     }
 
