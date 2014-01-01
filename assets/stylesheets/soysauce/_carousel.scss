@@ -17,7 +17,7 @@
   }
 
   [data-ss-component="item"] {
-    -webkit-filter: grayscale(0);
+    opacity: 1;
     position: relative;
     list-style-type: none;
     float: left;
@@ -25,7 +25,7 @@
       z-index: 6;
     }
     &[data-ss-state="loading"] {
-      -webkit-filter: grayscale(0.5);
+      opacity: 0.9;
     }
   }
 
@@ -41,7 +41,7 @@
 
   &[data-ss-options*="containerZoom"] [data-ss-component="item"] {
     &[data-ss-state="active"], &[data-ss-state="zooming"] {
-      @include transition(transform 0.4s ease-in-out, -webkit-filter 0.4s ease-in-out);
+      @include transition(transform 0.4s ease-in-out, opacity 0.3s ease-in-out);
     }
   }
 
