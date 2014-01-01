@@ -88,6 +88,7 @@ soysauce.carousels = (function() {
     this.zoomScalePrev = 1;
     this.pinchEventsReady = false;
     this.lastZoomTap = 0;
+    this.zoomLoader;
 
     // Multi Item Variables
     this.multi = false;
@@ -396,8 +397,11 @@ soysauce.carousels = (function() {
     }
 
     if (this.zoom) {
-      wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div>");
+      wrapper.after("<div data-ss-component='zoom_icon' data-ss-state='out'></div><div data-ss-component='zoom_loader'><div data-ss-component='ring_loader'></div><div data-ss-component='loading_text'><span>loading</span></div></div>");
+
       this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
+      this.zoomLoader = wrapper.find("~ [data-ss-component='zoom_loader']");
+
       if (this.containerZoom) {
         this.zoomIcon.hammer().on("tap", function(e) {
           var centeredZoom = true;
@@ -668,8 +672,11 @@ soysauce.carousels = (function() {
 
       this.zoomElement = this.currentItem;
 
-      if (zoomImg.length) {
+      if (zoomImg.length && !zoomImg.data("isLoaded")) {
         zoomImg.attr("src", zoomImg.attr("data-ss-zoom-src"));
+
+        this.currentItem.attr("data-ss-state", "loading");
+        this.zoomLoader.show();
       }
 
       loadComplete = this.zoomElement.imagesLoaded();
@@ -679,6 +686,11 @@ soysauce.carousels = (function() {
       });
 
       loadComplete.always(function() {
+        zoomImg.data("isLoaded", true);
+
+        self.zoomLoader.hide();
+        self.currentItem.attr("data-ss-state", "active");
+
         $.proxy(completeZoom, self)();
       });
 
