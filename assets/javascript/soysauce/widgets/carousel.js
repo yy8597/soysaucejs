@@ -400,9 +400,10 @@ soysauce.carousels = (function() {
       this.zoomIcon = wrapper.find("~ [data-ss-component='zoom_icon']");
       if (this.containerZoom) {
         this.zoomIcon.hammer().on("tap", function(e) {
-          var isIcon = true;
-          self.handleContainerZoom(e, isIcon);
+          var centeredZoom = true;
+          self.handleContainerZoom(e, centeredZoom);
         });
+
         this.container.hammer().on("tap drag", function(e) {
           if (self.lockScroll) return;
           if (e.type === "drag") {
@@ -657,7 +658,7 @@ soysauce.carousels = (function() {
     });
   };
 
-  Carousel.prototype.handleContainerZoom = function(e, iconTap) {
+  Carousel.prototype.handleContainerZoom = function(e, centeredZoom) {
     var self = this;
 
     if (e.type === "tap") {
@@ -712,7 +713,7 @@ soysauce.carousels = (function() {
 
         if (this.isZoomed) {
           this.setZoomCenterPoint();
-          if (!iconTap) {
+          if (!centeredZoom) {
             this.setFocusPoint(e);
           }
           this.calcTranslateLimits();
@@ -1111,7 +1112,7 @@ soysauce.carousels = (function() {
       return;
     }
 
-    if (this.overlay && this.isZoomed) {
+    if (this.isZoomed) {
       this.resetZoomState();
     }
 
