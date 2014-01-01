@@ -644,57 +644,77 @@ soysauce.carousels = (function() {
     var self = this;
 
     if (e.type === "tap") {
+      var zoomImg = this.currentItem.find("img[data-ss-zoom-src]");
+      var originalSrc = zoomImg.attr("src") || this.currentItem.find("img").attr("src");
+      var loadComplete;
+
       this.zoomElement = this.currentItem;
 
-      this.zoomElement.off();
-      this.zoomElement.on(TRANSITION_END, function() {
-        if (self.isZoomed) {
-          self.zoomElement.attr("data-ss-state", "zoomed");
-          self.zoomIcon.attr("data-ss-state", "in");
-        }
-        else {
-          self.zoomIcon.attr("data-ss-state", "out");
-        }
+      if (zoomImg.length) {
+        zoomImg.attr("src", zoomImg.attr("data-ss-zoom-src"));
+      }
+
+      loadComplete = this.zoomElement.imagesLoaded();
+
+      loadComplete.fail(function() {
+        zoomImg.attr("src", originalSrc);
       });
 
-      if (!this.isZoomed) {
-        this.handleFreeze();
-        this.zoomScalePrev = this.zoomScale;
-        this.zoomElement.attr("data-ss-state", "zooming");
-        this.zoomScale = 3
-        this.isZoomed = true;
-      }
-      else {
-        this.zoomElement.attr("data-ss-state", "active");
-        this.zoomScale = 1;
-        this.isZoomed = false;
-      }
+      loadComplete.always(function() {
+        $.proxy(completeZoom, self)();
+      });
 
-      this.zoomScaleStart = this.zoomScale;
-      this.zoomTranslateXStart = this.zoomTranslateX;
-      this.zoomTranslateYStart = this.zoomTranslateY;
+      function completeZoom() {
+        this.zoomElement.off();
+        this.zoomElement.on(TRANSITION_END, function() {
+          if (self.isZoomed) {
+            self.zoomElement.attr("data-ss-state", "zoomed");
+            self.zoomIcon.attr("data-ss-state", "in");
+          }
+          else {
+            self.zoomIcon.attr("data-ss-state", "out");
+          }
+        });
 
-      if (this.isZoomed) {
-        this.setZoomCenterPoint();
-        if (!iconTap) {
-          this.setFocusPoint(e);
+        if (!this.isZoomed) {
+          this.handleFreeze();
+          this.zoomScalePrev = this.zoomScale;
+          this.zoomElement.attr("data-ss-state", "zooming");
+          this.zoomScale = 3
+          this.isZoomed = true;
         }
-        this.calcTranslateLimits();
-        this.setTranslateLimits();
-      }
-      else {
+        else {
+          this.zoomElement.attr("data-ss-state", "active");
+          this.zoomScale = 1;
+          this.isZoomed = false;
+        }
+
+        this.zoomScaleStart = this.zoomScale;
+        this.zoomTranslateXStart = this.zoomTranslateX;
+        this.zoomTranslateYStart = this.zoomTranslateY;
+
+        if (this.isZoomed) {
+          this.setZoomCenterPoint();
+          if (!iconTap) {
+            this.setFocusPoint(e);
+          }
+          this.calcTranslateLimits();
+          this.setTranslateLimits();
+        }
+        else {
+          window.setTimeout(function() {
+            self.resetZoomState();
+          }, 0);
+          return;
+        }
+
         window.setTimeout(function() {
-          self.resetZoomState();
+          setMatrix(self.zoomElement[0], self.zoomScale, self.zoomTranslateX, self.zoomTranslateY);
+          if (!self.isZoomed) {
+            self.handleUnfreeze();
+          }
         }, 0);
-        return;
       }
-
-      window.setTimeout(function() {
-        setMatrix(self.zoomElement[0], self.zoomScale, self.zoomTranslateX, self.zoomTranslateY);
-        if (!self.isZoomed) {
-          self.handleUnfreeze();
-        }
-      }, 0);
     }
     else {
       if (!this.panning) {
