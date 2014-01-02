@@ -468,7 +468,7 @@ soysauce.carousels = (function() {
   Carousel.prototype.handleZoom = function(e) {
     var self = this;
 
-    if (this.swiping) return;
+    if (this.swiping || this.freeze) return;
 
     soysauce.stifle(e);
 
@@ -652,7 +652,7 @@ soysauce.carousels = (function() {
   };
 
   Carousel.prototype.zoomIn = function(e) {
-    if (this.overlay) return;
+    if (this.overlay || this.freeze) return;
 
     soysauce.stifle(e);
 
@@ -664,6 +664,8 @@ soysauce.carousels = (function() {
 
   Carousel.prototype.handleContainerZoom = function(e, centeredZoom) {
     var self = this;
+
+    if (this.freeze) return;
 
     if (e.type === "tap") {
       var zoomImg = this.currentItem.find("img[data-ss-zoom-src]");
@@ -707,13 +709,14 @@ soysauce.carousels = (function() {
         });
 
         if (!this.isZoomed) {
-          this.handleFreeze();
+          this.swipe = false;
           this.zoomScalePrev = this.zoomScale;
           this.zoomElement.attr("data-ss-state", "zooming");
           this.zoomScale = 3
           this.isZoomed = true;
         }
         else {
+          this.swipe = true;
           this.zoomElement.attr("data-ss-state", "active");
           this.zoomScale = 1;
           this.isZoomed = false;
@@ -789,7 +792,7 @@ soysauce.carousels = (function() {
     var self = this;
     var angle = Math.abs(e.gesture.angle);
 
-    if (self.jumping || self.freeze || self.looping) return;
+    if (self.jumping || self.freeze || self.looping || !self.swipe) return;
 
     if (e.type === "swipe" && e.gesture.eventType === "end" && !self.ready) {
       self.ready = true;
