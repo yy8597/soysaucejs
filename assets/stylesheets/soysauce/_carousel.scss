@@ -1,3 +1,33 @@
+@-webkit-keyframes rotate {
+  from { -webkit-transform: rotate(0deg) }
+  to { -webkit-transform: rotate(360deg) } }
+@-moz-keyframes rotate {
+  from { -moz-transform: rotate(0deg) }
+  to { -moz-transform: rotate(360deg) } }
+@-o-keyframes rotate {
+  from { -o-transform: rotate(0deg) }
+  to { -o-transform: rotate(360deg) } }
+@keyframes rotate {
+  from { transform: rotate(0deg) }
+  to { transform: rotate(360deg) } }
+
+@-webkit-keyframes fade {
+  from { opacity: 1 }
+  50% { opacity: 0 }
+  to { opacity: 1 } }
+@-moz-keyframes fade {
+  from { opacity: 1 }
+  50% { opacity: 0 }
+  to { opacity: 1 } }
+@-o-keyframes fade {
+  from { opacity: 1 }
+  50% { opacity: 0 }
+  to { opacity: 1 } }
+@keyframes fade {
+  from { opacity: 1 }
+  50% { opacity: 0 }
+  to { opacity: 1 } }
+
 [data-ss-widget="carousel"] {
   @include transition(opacity 0.5s ease-in-out);
   position: relative;
@@ -132,86 +162,56 @@
       }
     }
   }
-}
 
-@-webkit-keyframes rotate {
-  from { -webkit-transform: rotate(0deg) }
-  to { -webkit-transform: rotate(360deg) } }
-@-moz-keyframes rotate {
-  from { -moz-transform: rotate(0deg) }
-  to { -moz-transform: rotate(360deg) } }
-@-o-keyframes rotate {
-  from { -o-transform: rotate(0deg) }
-  to { -o-transform: rotate(360deg) } }
-@keyframes rotate {
-  from { transform: rotate(0deg) }
-  to { transform: rotate(360deg) } }
-
-@-webkit-keyframes fade {
-  from { opacity: 1 }
-  50% { opacity: 0 }
-  to { opacity: 1 } }
-@-moz-keyframes fade {
-  from { opacity: 1 }
-  50% { opacity: 0 }
-  to { opacity: 1 } }
-@-o-keyframes fade {
-  from { opacity: 1 }
-  50% { opacity: 0 }
-  to { opacity: 1 } }
-@keyframes fade {
-  from { opacity: 1 }
-  50% { opacity: 0 }
-  to { opacity: 1 } }
-
-[data-ss-component="zoom_loader"] {
-  display: none;
-  width: 70px;
-  height: 70px;
-  margin: auto;
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  cursor: pointer;
-  -webkit-user-select: none;
-
-  [data-ss-component="loading_text"] {
-    @include border-radius(50%);
-    background: rgba(0, 0, 0, 0.7);
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    right: 5px;
-    bottom: 5px;
-    text-align: center;
-    font: normal normal normal 12px/140px Helvetica, Arial, sans-serif;
-    color: #fff;
-    letter-spacing: 2px;
-  }
-
-  [data-ss-component="loading_text"] span {
-    display: block;
-    position: absolute;
-    top: -50%;
-    text-indent: 5px;
-    margin-top: -10px;
-  }
-
-  [data-ss-component="ring_loader"] {
-    @include background(linear-gradient(#fff,transparent,#fff));
-    margin: 0 auto;
-    border-radius: 110px;
-    padding: 10px;
+  [data-ss-component="zoom_loader"] {
+    display: none;
+    width: 70px;
+    height: 70px;
+    margin: auto;
     position: absolute;
     top: 0;
-    right: 0;
-    bottom: 0;
     left: 0;
-    -webkit-animation: rotate 1s linear infinite;
-    -moz-animation: rotate 1s linear infinite;
-    -o-animation: rotate 1s linear infinite;
-    animation: rotate 1s linear infinite;
+    bottom: 0;
+    right: 0;
+    cursor: pointer;
+    -webkit-user-select: none;
+
+    [data-ss-component="loading_text"] {
+      @include border-radius(50%);
+      background: rgba(0, 0, 0, 0.7);
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      right: 5px;
+      bottom: 5px;
+      text-align: center;
+      font: normal normal normal 12px/140px Helvetica, Arial, sans-serif;
+      color: #fff;
+      letter-spacing: 2px;
+    }
+
+    [data-ss-component="loading_text"] span {
+      display: block;
+      position: absolute;
+      top: -50%;
+      text-indent: 5px;
+      margin-top: -10px;
+    }
+
+    [data-ss-component="ring_loader"] {
+      @include background(linear-gradient(#fff,transparent,#fff));
+      margin: 0 auto;
+      border-radius: 110px;
+      padding: 10px;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      -webkit-animation: rotate 1s linear infinite;
+      -moz-animation: rotate 1s linear infinite;
+      -o-animation: rotate 1s linear infinite;
+      animation: rotate 1s linear infinite;
+    }
   }
 }
