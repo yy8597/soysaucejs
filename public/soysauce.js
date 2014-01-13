@@ -1,7 +1,7 @@
 /**
  * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
  *
- * @version 0.6.9
+ * @version 0.6.11
  * @codingstandard ftlabs-jsv2
  * @copyright The Financial Times Limited [All Rights Reserved]
  * @license MIT License (see LICENSE.txt)
@@ -245,8 +245,9 @@ FastClick.prototype.needsFocus = function(target) {
 	'use strict';
 	switch (target.nodeName.toLowerCase()) {
 	case 'textarea':
-	case 'select':
 		return true;
+	case 'select':
+		return !this.deviceIsAndroid;
 	case 'input':
 		switch (target.type) {
 		case 'button':
@@ -285,9 +286,20 @@ FastClick.prototype.sendClick = function(targetElement, event) {
 
 	// Synthesise a click event, with an extra attribute so it can be tracked
 	clickEvent = document.createEvent('MouseEvents');
-	clickEvent.initMouseEvent('click', true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
+	clickEvent.initMouseEvent(this.determineEventType(targetElement), true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
 	clickEvent.forwardedTouchEvent = true;
 	targetElement.dispatchEvent(clickEvent);
+};
+
+FastClick.prototype.determineEventType = function(targetElement) {
+	'use strict';
+
+	//Issue #159: Android Chrome Select Box does not open with a synthetic click event
+	if (this.deviceIsAndroid && targetElement.tagName.toLowerCase() === 'select') {
+		return 'mousedown';
+	}
+
+	return 'click';
 };
 
 
@@ -298,7 +310,8 @@ FastClick.prototype.focus = function(targetElement) {
 	'use strict';
 	var length;
 
-	if (this.deviceIsIOS && targetElement.setSelectionRange) {
+	// Issue #160: on iOS 7, some input elements (e.g. date datetime) throw a vague TypeError on setSelectionRange. These elements don't have an integer value for the selectionStart and selectionEnd properties, but unfortunately that can't be used for detection because accessing the properties also throws a TypeError. Just check the type instead. Filed as Apple bug #15122724.
+	if (this.deviceIsIOS && targetElement.setSelectionRange && targetElement.type.indexOf('date') !== 0 && targetElement.type !== 'time') {
 		length = targetElement.value.length;
 		targetElement.setSelectionRange(length, length);
 	} else {
@@ -507,6 +520,9 @@ FastClick.prototype.onTouchEnd = function(event) {
 		return true;
 	}
 
+	// Reset to prevent wrong click cancel on input (issue #156).
+	this.cancelNextClick = false;
+
 	this.lastClickTime = event.timeStamp;
 
 	trackingClickStart = this.trackingClickStart;
@@ -705,19 +721,30 @@ FastClick.prototype.destroy = function() {
 FastClick.notNeeded = function(layer) {
 	'use strict';
 	var metaViewport;
+	var chromeVersion;
 
 	// Devices that don't support touch don't need FastClick
 	if (typeof window.ontouchstart === 'undefined') {
 		return true;
 	}
 
-	if ((/Chrome\/[0-9]+/).test(navigator.userAgent)) {
+	// Chrome version - zero for other browsers
+	chromeVersion = +(/Chrome\/([0-9]+)/.exec(navigator.userAgent) || [,0])[1];
 
-		// Chrome on Android with user-scalable="no" doesn't need FastClick (issue #89)
+	if (chromeVersion) {
+
 		if (FastClick.prototype.deviceIsAndroid) {
 			metaViewport = document.querySelector('meta[name=viewport]');
-			if (metaViewport && metaViewport.content.indexOf('user-scalable=no') !== -1) {
-				return true;
+			
+			if (metaViewport) {
+				// Chrome on Android with user-scalable="no" doesn't need FastClick (issue #89)
+				if (metaViewport.content.indexOf('user-scalable=no') !== -1) {
+					return true;
+				}
+				// Chrome 32 and above with width=device-width or less don't need FastClick
+				if (chromeVersion > 31 && window.innerWidth <= window.screen.width) {
+					return true;
+				}
 			}
 
 		// Chrome desktop doesn't need FastClick (issue #15)
@@ -6459,7 +6486,7 @@ soysauce.lazyloader = (function() {
 
 soysauce.togglers = (function() {
   var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
-  
+
   // Togglers
   function Toggler(selector, orphan) {
     var self = this;
@@ -6471,10 +6498,10 @@ soysauce.togglers = (function() {
       var togglerID = button.attr("data-ss-toggler-id");
       var query = "[data-ss-toggler-id='" + togglerID + "']";
       var tabGroupName = "";
-      
+
       this.orphan = true;
       this.widget = $(query);
-      
+
       this.widget.each(function(i, component) {
         var type = $(component).attr("data-ss-component");
         switch (type) {
@@ -6486,26 +6513,26 @@ soysauce.togglers = (function() {
             break;
         }
       });
-      
+
       if (!this.content) {
         console.warn("Soysauce: No content found for toggler-id '" + togglerID + "'. Toggler may not work.");
         return;
       }
-      
+
       this.button.click(function(e) {
         self.toggle(null, e);
       });
-      
+
       tabGroupName = button.attr("data-ss-tab-group");
-      
+
       this.orphanTabGroup = $("[data-ss-tab-group='" + tabGroupName  + "']");
       this.orphanTabs = (this.orphanTabGroup.length > 1) ? true : false;
-      
+
       this.content.attr("data-ss-id", button.attr("data-ss-id"));
-      
+
       this.allButtons = this.button;
       this.allContent = this.content;
-      
+
       if (this.button.attr("data-ss-state") === "open") {
         this.setState("open");
         this.opened = true;
@@ -6523,7 +6550,7 @@ soysauce.togglers = (function() {
       this.allContent = this.widget.find("> [data-ss-component='content']");
       this.content = this.allContent.first();
     }
-    
+
     this.parentID = 0;
     this.state = "closed";
     this.isChildToggler = false;
@@ -6533,30 +6560,30 @@ soysauce.togglers = (function() {
     this.adjustFlag = false;
     this.freeze = false;
     this.opened = this.opened || false;
-    
+
     // Slide
     this.slide = false;
     this.height = 0;
     this.prevChildHeight = 0;
-    
+
     // Ajax
     this.ajax = false;
     this.ajaxData;
     this.ajaxing = false;
     this.ajaxOnLoad = false;
-    
+
     // Tab
     this.tab = false;
     this.childTabOpen = false;
     this.nocollapse = false;
-    
+
     // Responsive
     this.responsive = false;
     this.responsiveVars = {
       threshold: parseInt(this.widget.attr("data-ss-responsive-threshold"), 10) || 768,
       accordions: true
     };
-    
+
     if (options) options.forEach(function(option) {
       switch(option) {
         case "ajax":
@@ -6590,7 +6617,7 @@ soysauce.togglers = (function() {
     this.allButtons.append("<span class='icon'></span>");
     this.allContent.wrapInner("<div data-ss-component='wrapper'/>");
 
-    this.hasTogglers = (this.widget.has("[data-ss-widget='toggler']").length > 0) ? true : false; 
+    this.hasTogglers = (this.widget.has("[data-ss-widget='toggler']").length > 0) ? true : false;
     this.isChildToggler = (this.widget.parents("[data-ss-widget='toggler']").length > 0) ? true : false;
 
     if (this.isChildToggler) {
@@ -6619,7 +6646,7 @@ soysauce.togglers = (function() {
       this.widget.attr("data-ss-state", "closed");
       this.opened = false;
     }
-    
+
     if (this.slide) {
       this.widget.find("> [data-ss-component='content'][data-ss-state='open']").attr("data-ss-open-onload", "true");
       this.allContent.attr("data-ss-state", "open");
@@ -6654,15 +6681,15 @@ soysauce.togglers = (function() {
         self.ready = true;
       });
     }
-    
+
     this.allButtons.click(function(e) {
       self.toggle(null, e);
     });
-    
+
     if (this.responsive) {
       this.handleResponsive();
     }
-    
+
     if (this.ajax) {
       var obj = this.widget;
       var content = this.widget.find("> [data-ss-component='content'][data-ss-ajax-url]");
@@ -6671,12 +6698,12 @@ soysauce.togglers = (function() {
       var callback;
       var self = this;
       var firstTime = false;
-      
+
       if (content.length === 0) {
         console.warn("Soysauce: 'data-ss-ajax-url' tag required on content. Must be on the same domain if site doesn't support CORS.");
         return;
       }
-      
+
       content.each(function(i, contentItem) {
         ajaxButton = $(contentItem.previousElementSibling);
         if (self.ajaxOnLoad) {
@@ -6690,14 +6717,14 @@ soysauce.togglers = (function() {
           });
         }
       });
-      
+
       function injectAjaxContent(self, contentItem) {
         url = $(contentItem).attr("data-ss-ajax-url");
-        
+
         self.setState("ajaxing");
         self.ready = false;
         self.ajaxing = true;
-        
+
         soysauce.ajax(url, function(data, status) {
           if (/success|cached/.test(status)) {
             self.ajaxData = data;
@@ -6709,14 +6736,14 @@ soysauce.togglers = (function() {
         });
       }
     }
-    
+
     if (this.tab && this.nocollapse) {
       this.content.imagesLoaded(function() {
         self.widget.css("min-height", self.button.outerHeight(true) + self.content.outerHeight(true));
       });
     }
   } // End constructor
-  
+
   Toggler.prototype.openToggler = function() {
     var slideOpenWithTab = this.responsiveVars.accordions;
 
@@ -6756,7 +6783,7 @@ soysauce.togglers = (function() {
         self.content.css("height", self.height + "px");
       }
     }
-    
+
     if (this.tab && this.nocollapse) {
       this.widget.css("min-height", this.button.outerHeight(true) + this.content.outerHeight(true));
     }
@@ -6764,7 +6791,7 @@ soysauce.togglers = (function() {
     this.opened = true;
     this.setState("open");
   };
-  
+
   Toggler.prototype.close = function(target, collapse) {
     var self = this;
     var $target = $(target);
@@ -6798,22 +6825,22 @@ soysauce.togglers = (function() {
         console.warn("Soysauce: target parameter must be a button");
       }
     }
-    
+
     this.setState("closed");
   };
-  
+
   Toggler.prototype.open = function(target) {
     var $target = $(target);
-    
+
     if ($target.attr("data-ss-state") === "open") return false;
-    
+
     if ($target.attr("data-ss-component") === "button" && !this.orphan) {
       $target = $target.find("+ *");
     }
-    
+
     this.toggle($target[0]);
   };
-  
+
   Toggler.prototype.doResize = function() {
     this.adjustFlag = true;
     if (this.opened) {
@@ -6823,11 +6850,11 @@ soysauce.togglers = (function() {
       this.handleResponsive();
     }
   };
-  
+
   Toggler.prototype.handleResize = function() {
     var self = this;
     var subWidgets = this.allContent.find("[data-ss-widget]");
-    
+
     if (this.defer && subWidgets.length) {
       this.allContent.css({
         "clear": "both",
@@ -6842,7 +6869,7 @@ soysauce.togglers = (function() {
           var widget = soysauce.fetch(e).widget;
 
           if ((i + 1) !== subWidgets.length) return;
-            
+
           widget.one("SSWidgetResized", function () {
             self.allContent.css({
               "clear": "",
@@ -6855,10 +6882,10 @@ soysauce.togglers = (function() {
       }
     }
     else {
-      this.doResize();  
+      this.doResize();
     }
   };
-  
+
   Toggler.prototype.adjustHeight = function() {
     if (!this.slide) {
       if (this.tab && this.nocollapse) {
@@ -6893,7 +6920,7 @@ soysauce.togglers = (function() {
   Toggler.prototype.toggle = function(component, e) {
     var self = this;
     var target;
-    
+
     if (this.freeze || this.ajaxing) return;
 
     if (e) {
@@ -6939,7 +6966,7 @@ soysauce.togglers = (function() {
             if (tab.opened) {
               tab.toggle();
             }
-          }); 
+          });
         }
         this.opened = true;
         this.setState("open");
@@ -6978,17 +7005,19 @@ soysauce.togglers = (function() {
       this.openToggler();
     }
     else {
+      var collapse;
+
       this.button = $(target);
       this.content = $(target).find("+ [data-ss-component='content']");
 
-      var collapse = (this.button.attr("data-ss-state") === "open" &&
+      collapse = (this.button.attr("data-ss-state") === "open" &&
                       this.widget.find("[data-ss-component='button'][data-ss-state='open']").length === 1) ? true : false;
-      
+
       if (collapse) {
         this.opened = false;
       }
-      
-      (this.button.attr("data-ss-state") === "closed") ? this.openToggler() : this.close();
+
+      (this.button.attr("data-ss-state") === "closed") ? this.openToggler() : this.close(target);
     }
   };
 
@@ -6998,7 +7027,7 @@ soysauce.togglers = (function() {
     this.content.attr("data-ss-state", state);
 
     if (this.orphan) return;
-    
+
     if (this.opened) {
       this.widget.attr("data-ss-state", "open");
     }
@@ -7049,11 +7078,11 @@ soysauce.togglers = (function() {
       this.widget.css("min-height", "0");
     }
   };
-  
+
   return {
     init: function(selector, orphan) {
       return new Toggler(selector, orphan);
     }
   };
-  
+
 })();
