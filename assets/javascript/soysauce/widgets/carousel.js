@@ -1359,6 +1359,7 @@ soysauce.carousels = (function() {
     this.container.css("width", this.itemWidth * this.numChildren);
     this.container.imagesLoaded(function() {
       self.ready = true;
+      self.widget.attr("data-ss-state", "ready");
     });
   };
 
