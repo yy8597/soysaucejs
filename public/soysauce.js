@@ -5064,7 +5064,12 @@ soysauce.carousels = (function() {
         this.container.hammer().on("tap drag", function(e) {
           if (self.lockScroll) return;
           if (e.type === "drag") {
-            soysauce.stifle(e);
+            if (self.isZoomed) {
+              soysauce.stifle(e);
+            }
+            else {
+              return;
+            }
           }
           self.handleContainerZoom(e);
         });
@@ -6012,6 +6017,7 @@ soysauce.carousels = (function() {
     this.container.css("width", this.itemWidth * this.numChildren);
     this.container.imagesLoaded(function() {
       self.ready = true;
+      self.widget.attr("data-ss-state", "ready");
     });
   };
 
