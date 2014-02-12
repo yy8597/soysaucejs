@@ -270,10 +270,10 @@
   }
 }
 [data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"]), [data-ss-widget="carousel"][data-ss-options*="zoom"] img[data-ss-state="ready"] {
-  -webkit-transition: -webkit-transform 0.3s cubic-bezier(0.15, 0.3, 0.3, 1), left 0.3s cubic-bezier(0.15, 0.3, 0.3, 1);
-  -moz-transition: -moz-transform 0.3s cubic-bezier(0.15, 0.3, 0.3, 1), left 0.3s cubic-bezier(0.15, 0.3, 0.3, 1);
-  -o-transition: -o-transform 0.3s cubic-bezier(0.15, 0.3, 0.3, 1), left 0.3s cubic-bezier(0.15, 0.3, 0.3, 1);
-  transition: transform 0.3s cubic-bezier(0.15, 0.3, 0.3, 1), left 0.3s cubic-bezier(0.15, 0.3, 0.3, 1);
+  -webkit-transition: -webkit-transform 0.2s cubic-bezier(0.15, 0.3, 0.3, 1), left 0.2s cubic-bezier(0.15, 0.3, 0.3, 1);
+  -moz-transition: -moz-transform 0.2s cubic-bezier(0.15, 0.3, 0.3, 1), left 0.2s cubic-bezier(0.15, 0.3, 0.3, 1);
+  -o-transition: -o-transform 0.2s cubic-bezier(0.15, 0.3, 0.3, 1), left 0.2s cubic-bezier(0.15, 0.3, 0.3, 1);
+  transition: transform 0.2s cubic-bezier(0.15, 0.3, 0.3, 1), left 0.2s cubic-bezier(0.15, 0.3, 0.3, 1);
 }
 @media (-webkit-transform-3d) {
   [data-ss-widget="carousel"][data-ss-state] [data-ss-component="container"]:not([data-ss-state="notransition"]), [data-ss-widget="carousel"][data-ss-options*="zoom"] img[data-ss-state="ready"] {
