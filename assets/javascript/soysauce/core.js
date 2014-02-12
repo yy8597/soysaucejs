@@ -32,7 +32,7 @@
   soysauce.vars = {
     idCount: 0,
     degradeAll: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747|SCH-I535/.test(navigator.userAgent)) ? true : false,
-    degrade: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent)) ? true : false,
+    degrade: (/Android ([12]|4\.0)|Opera|SAMSUNG-SGH-I747/.test(navigator.userAgent) && !/SCH-R530U/.test(navigator.userAgent)) ? true : false,
     degrade2: (/SCH-I535/.test(navigator.userAgent)) ? true : false,
     lastResizeTime: 0,
     lastResizeTimerID: 0,
