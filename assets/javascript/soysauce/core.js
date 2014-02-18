@@ -239,7 +239,10 @@
   */
   $(window).load(function() {
     var cachedLazyLoader = soysauce.fetch("[data-ss-widget='lazyloader'][data-ss-options*='cache']");
-    if (cachedLazyLoader && cachedLazyLoader.isCached) return;
+    var scrollTop = $("body").attr("data-ss-scrolltop") != "false";
+
+    if (!scrollTop || cachedLazyLoader && cachedLazyLoader.isCached) return;
+
     if (!$(this).scrollTop()) {
       soysauce.scrollTop();
     }
