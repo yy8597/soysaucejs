@@ -363,6 +363,7 @@ soysauce.carousels = (function() {
           return;
         }
         else {
+          self.widget.trigger("SSClick");
           soysauce.stifle(e);
           return false;
         }
@@ -371,6 +372,7 @@ soysauce.carousels = (function() {
       if (e.type === "release") {
         if (e.gesture.distance === 0 && !self.swiping && !self.isZoomed && !self.lockScroll) {
           self.sendClick = true;
+          self.widget.trigger("SSClick");
         }
         else {
           self.sendClick = false;
