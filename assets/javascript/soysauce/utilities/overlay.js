@@ -98,9 +98,7 @@ soysauce.overlay = (function() {
     }
 
     if (this.startingOrientation !== soysauce.browser.getOrientation()) {
-      soysauce.widgets.forEach(function(widget) {
-        widget.handleResize();
-      });
+      $(window).trigger(("onorientationchange" in window) ? "orientationchange" : "resize")
     }
   };
 
