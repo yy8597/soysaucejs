@@ -358,6 +358,7 @@ soysauce.carousels = (function() {
     });
 
     this.container.hammer().on("release click", function(e) {
+      if (this.freeze) return;
       if (e.type === "click") {
         if (self.sendClick) {
           return;
@@ -370,6 +371,7 @@ soysauce.carousels = (function() {
       }
 
       if (e.type === "release") {
+        if (this.freeze) return;
         if (e.gesture.distance === 0 && !self.swiping && !self.isZoomed && !self.lockScroll) {
           self.sendClick = true;
           self.widget.trigger("SSClick");
