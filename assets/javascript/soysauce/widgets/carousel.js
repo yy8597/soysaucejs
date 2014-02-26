@@ -357,30 +357,49 @@ soysauce.carousels = (function() {
       }
     });
 
-    this.container.hammer().on("release click", function(e) {
-      if (self.freeze) return;
-
-      if (e.type === "click") {
-        if (self.sendClick) {
-          return;
-        }
-        else {
-          self.widget.trigger("SSClick");
+    // Handle click events
+    if (/ipod|iphone|ipad|android/i.test(navigator.userAgent)) {
+      this.container.hammer().on("tap", function(e) {
+        if (self.freeze || self.swiping || self.lockScroll || e.gesture && e.gesture.distance > 0) {
           soysauce.stifle(e);
           return false;
         }
-      }
 
-      if (e.type === "release") {
-        if (e.gesture.distance === 0 && !self.swiping && !self.isZoomed && !self.lockScroll) {
-          self.sendClick = true;
-          self.widget.trigger("SSClick");
+        if (self.isZoomed) {
+          return;
         }
-        else {
-          self.sendClick = false;
+
+        self.widget.trigger("SSClick");
+        $(e.target).trigger("click");
+      });
+    }
+    // For desktop only
+    else {
+      this.container.hammer().on("release click", function(e) {
+        if (self.freeze) return;
+
+        if (e.type === "click") {
+          if (self.sendClick) {
+            return;
+          }
+          else {
+            self.widget.trigger("SSClick");
+            soysauce.stifle(e);
+            return false;
+          }
         }
-      }
-    });
+
+        if (e.type === "release") {
+          if (e.gesture.distance === 0 && !self.swiping && !self.isZoomed && !self.lockScroll) {
+            self.sendClick = true;
+            self.widget.trigger("SSClick");
+          }
+          else {
+            self.sendClick = false;
+          }
+        }
+      });
+    }
 
     if (this.swipe) {
       this.container.hammer().on("touch release drag swipe", function(e) {
