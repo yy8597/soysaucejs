@@ -3530,7 +3530,10 @@ if ( typeof define === 'function' && define.amd ) {
   */
   $(window).load(function() {
     var cachedLazyLoader = soysauce.fetch("[data-ss-widget='lazyloader'][data-ss-options*='cache']");
-    if (cachedLazyLoader && cachedLazyLoader.isCached) return;
+    var scrollTop = $("body").attr("data-ss-scrolltop") != "false";
+
+    if (!scrollTop || cachedLazyLoader && cachedLazyLoader.isCached) return;
+
     if (!$(this).scrollTop()) {
       soysauce.scrollTop();
     }
@@ -3804,10 +3807,7 @@ soysauce.unfreezeAll = function() {
     });
     // Set HammerJS Options
     try {
-      Hammer.gestures.Swipe.defaults.swipe_velocity = 0.7;
-      Hammer.gestures.Drag.defaults.drag_min_distance = 1;
-      Hammer.gestures.Drag.defaults.drag_lock_min_distance = 1;
-      Hammer.gestures.Drag.defaults.drag_lock_to_axis = true;
+      Hammer.gestures.Swipe.defaults.swipe_velocity = 0.6;
     }
     catch(e) {
       console.warn("Soysauce: Error setting options with HammerJS");
@@ -3951,9 +3951,7 @@ soysauce.overlay = (function() {
     }
 
     if (this.startingOrientation !== soysauce.browser.getOrientation()) {
-      soysauce.widgets.forEach(function(widget) {
-        widget.handleResize();
-      });
+      $(window).trigger(("onorientationchange" in window) ? "orientationchange" : "resize")
     }
   };
 
@@ -4624,7 +4622,7 @@ soysauce.carousels = (function() {
   var PEEK_WIDTH = 20;
   var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
   var VENDOR_PREFIX = soysauce.getPrefix();
-  var SWIPE_THRESHOLD = 120;
+  var SWIPE_THRESHOLD = 60;
   var ZOOM_SENSITIVITY = 0.8;
 
   function Carousel(selector) {
@@ -4977,26 +4975,49 @@ soysauce.carousels = (function() {
       }
     });
 
-    this.container.hammer().on("release click", function(e) {
-      if (e.type === "click") {
-        if (self.sendClick) {
-          return;
-        }
-        else {
+    // Handle click events
+    if (/ipod|iphone|ipad|android/i.test(navigator.userAgent)) {
+      this.container.hammer().on("tap", function(e) {
+        if (self.freeze || self.swiping || self.lockScroll || e.gesture && e.gesture.distance > 0) {
           soysauce.stifle(e);
           return false;
         }
-      }
 
-      if (e.type === "release") {
-        if (e.gesture.distance === 0 && !self.swiping && !self.isZoomed && !self.lockScroll) {
-          self.sendClick = true;
+        if (self.isZoomed) {
+          return;
         }
-        else {
-          self.sendClick = false;
+
+        self.widget.trigger("SSClick");
+        $(e.target).trigger("click");
+      });
+    }
+    // For desktop only
+    else {
+      this.container.hammer().on("release click", function(e) {
+        if (self.freeze) return;
+
+        if (e.type === "click") {
+          if (self.sendClick) {
+            return;
+          }
+          else {
+            self.widget.trigger("SSClick");
+            soysauce.stifle(e);
+            return false;
+          }
         }
-      }
-    });
+
+        if (e.type === "release") {
+          if (e.gesture.distance === 0 && !self.swiping && !self.isZoomed && !self.lockScroll) {
+            self.sendClick = true;
+            self.widget.trigger("SSClick");
+          }
+          else {
+            self.sendClick = false;
+          }
+        }
+      });
+    }
 
     if (this.swipe) {
       this.container.hammer().on("touch release drag swipe", function(e) {
@@ -5266,7 +5287,7 @@ soysauce.carousels = (function() {
   };
 
   Carousel.prototype.zoomIn = function(e) {
-    if (this.overlay || this.freeze) return;
+    if (this.overlay || this.freeze || this.currentItem.attr("data-ss-no-zoom") === "true") return;
 
     soysauce.stifle(e);
 
@@ -5282,9 +5303,13 @@ soysauce.carousels = (function() {
     if (this.freeze) return;
 
     if (e.type === "tap") {
-      var zoomImg = this.currentItem.find("img[data-ss-zoom-src]");
-      var originalSrc = zoomImg.attr("src") || this.currentItem.find("img").attr("src");
-      var loadComplete;
+      var zoomImg, originalSrc, loadComplete;
+
+      if (this.currentItem.attr("data-ss-no-zoom") === "true") return;
+
+      zoomImg = this.currentItem.find("img[data-ss-zoom-src]");
+      originalSrc = zoomImg.attr("src") || this.currentItem.find("img").attr("src");
+      loadComplete;
 
       this.zoomElement = this.currentItem;
 
