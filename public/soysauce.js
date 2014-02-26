@@ -791,7 +791,7 @@ if (typeof define !== 'undefined' && define.amd) {
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
- * Licensed under the MIT license *//*! Hammer.JS - v1.0.6 - 2014-01-02
+ * Licensed under the MIT license *//* Hammer.JS - v1.0.6 - 2014-01-02
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;

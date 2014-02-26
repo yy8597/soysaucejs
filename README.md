@@ -6,7 +6,7 @@ Soysauce is a customizable javascript widget library. Popular widgets included a
 http://www.soysaucejs.com/
 
 ## Installation - HTML
-* Compressed (25.31 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.3.17/soysauce.min.js
+* Compressed (25.18 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.3.17/soysauce.min.js
 * Uncompressed (45.69 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.3.17/soysauce.js
 * CSS (9.59 KB) - http://divgzeiu68c7e.cloudfront.net/soysauce/v1.3.17/soysauce.css
 
