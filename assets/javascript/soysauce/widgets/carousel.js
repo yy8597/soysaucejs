@@ -669,7 +669,7 @@ soysauce.carousels = (function() {
   };
 
   Carousel.prototype.zoomIn = function(e) {
-    if (this.overlay || this.freeze) return;
+    if (this.overlay || this.freeze || this.currentItem.attr("data-ss-no-zoom") === "true") return;
 
     soysauce.stifle(e);
 
@@ -685,9 +685,13 @@ soysauce.carousels = (function() {
     if (this.freeze) return;
 
     if (e.type === "tap") {
-      var zoomImg = this.currentItem.find("img[data-ss-zoom-src]");
-      var originalSrc = zoomImg.attr("src") || this.currentItem.find("img").attr("src");
-      var loadComplete;
+      var zoomImg, originalSrc, loadComplete;
+
+      if (this.currentItem.attr("data-ss-no-zoom") === "true") return;
+
+      zoomImg = this.currentItem.find("img[data-ss-zoom-src]");
+      originalSrc = zoomImg.attr("src") || this.currentItem.find("img").attr("src");
+      loadComplete;
 
       this.zoomElement = this.currentItem;
 
