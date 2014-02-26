@@ -114,7 +114,7 @@
     @media (-webkit-transform-3d) {
       -webkit-backface-visibility: hidden;
     }
-    @include transition(transform .2s cubic-bezier(0.15, 0.3, 0.3, 1), left .2s cubic-bezier(0.15, 0.3, 0.3, 1));
+    @include transition(transform .35s cubic-bezier(0.14, 0.34, 0.18, .93), left .35s cubic-bezier(0.14, 0.34, 0.18, .93));
   }
 
   &[data-ss-state="zoomed"] [data-ss-component="button"] {
