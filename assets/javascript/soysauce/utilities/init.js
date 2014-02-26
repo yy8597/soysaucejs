@@ -127,10 +127,7 @@
     });
     // Set HammerJS Options
     try {
-      Hammer.gestures.Swipe.defaults.swipe_velocity = 0.7;
-      Hammer.gestures.Drag.defaults.drag_min_distance = 1;
-      Hammer.gestures.Drag.defaults.drag_lock_min_distance = 1;
-      Hammer.gestures.Drag.defaults.drag_lock_to_axis = true;
+      Hammer.gestures.Swipe.defaults.swipe_velocity = 0.6;
     }
     catch(e) {
       console.warn("Soysauce: Error setting options with HammerJS");
