@@ -1,5 +1,6 @@
 .sass-cache
 .DS_Store
+/aws_cf_invalidate.rb
 /nbproject/private/
 /build/
 /config/cdn.yml
