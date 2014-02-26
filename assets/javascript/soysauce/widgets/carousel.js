@@ -4,7 +4,7 @@ soysauce.carousels = (function() {
   var PEEK_WIDTH = 20;
   var TRANSITION_END = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
   var VENDOR_PREFIX = soysauce.getPrefix();
-  var SWIPE_THRESHOLD = 80;
+  var SWIPE_THRESHOLD = 60;
   var ZOOM_SENSITIVITY = 0.8;
 
   function Carousel(selector) {
