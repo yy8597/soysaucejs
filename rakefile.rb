@@ -151,7 +151,7 @@ task :build do
   readme = readme.gsub(/(Compressed \()[\d\.]+/, "\\1" + size)
   size = '%.2f' % (File.size("public/soysauce.js.gz").to_f / 1000)
   readme = readme.gsub(/(Uncompressed \()[\d\.]+/, "\\1" + size)
-  size = '%.2f' % (File.size("assets/soysauce.css").to_f / 1000)
+  size = '%.2f' % (File.size("public/soysauce.css").to_f / 1000)
   readme = readme.gsub(/(CSS \()[\d\.]+/, "\\1" + size)
 
   File.open("README.md", "w") {

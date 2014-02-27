@@ -1,9 +1,9 @@
-[data-ss-widget][data-ss-degrade], [data-ss-component][data-ss-degrade], [test][data-ss-degrade] {
+[data-ss-widget][data-ss-degrade], [data-ss-component][data-ss-degrade] {
   -webkit-backface-visibility: visible !important;
   -webkit-animation: none 0 ease 0 1 normal !important;
   animation: none 0 ease 0 1 normal !important;
 }
-[data-ss-widget][data-ss-degrade] *, [data-ss-component][data-ss-degrade] *, [test][data-ss-degrade] * {
+[data-ss-widget][data-ss-degrade] *, [data-ss-component][data-ss-degrade] * {
   -webkit-backface-visibility: visible !important;
   -webkit-animation: none 0 ease 0 1 normal !important;
   animation: none 0 ease 0 1 normal !important;
