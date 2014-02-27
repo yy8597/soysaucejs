@@ -78,11 +78,11 @@ task :build do
 
   FileUtils.copy("public/soysauce.js.gz", "build/" + version + "/soysauce.js")
   FileUtils.copy("public/soysauce.min.js.gz", "build/" + version + "/soysauce.min.js")
-  FileUtils.copy("assets/soysauce.css", "build/" + version)
+  FileUtils.copy("public/soysauce.css", "build/" + version)
 
   FileUtils.copy("public/soysauce.js.gz", "build/latest/soysauce.js")
   FileUtils.copy("public/soysauce.min.js.gz", "build/latest/soysauce.min.js")
-  FileUtils.copy("assets/soysauce.css", "build/latest")
+  FileUtils.copy("public/soysauce.css", "build/latest")
 
   # Publish to CDN
   puts "Soysauce: Uploading to CDN..."
