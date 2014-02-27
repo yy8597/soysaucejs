@@ -1,0 +1,15 @@
+{
+  "name": "soysaucejs",
+  "version": "2.0.0-pre-alpha.1",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/egaba88/soysaucejs.git#v2"
+  },
+  "preferGlobal": true,
+  "author": "Edward Gaba",
+  "license": "MIT",
+  "devDependencies": {
+    "ember-runtime": "~0.9.2"
+  }
+}
