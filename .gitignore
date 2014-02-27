@@ -11,6 +11,7 @@
 /public/site*
 /public/*.gz
 /bower_components/
+/node_modules/
 /assets/main.css
 /assets/javascript/site/
 /assets/stylesheets/site/
