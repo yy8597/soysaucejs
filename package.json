@@ -1,0 +1,14 @@
+{
+  "name": "soysaucejs",
+  "version": "1.3.x",
+  "scripts": {
+    "postinstall": "bower install"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.3",
+    "gulp": "^3.5.5",
+    "gulp-concat": "^2.1.7",
+    "express": "^3.5.0",
+    "gulp-compass": "^1.1.4"
+  }
+}
