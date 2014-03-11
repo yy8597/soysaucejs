@@ -2,6 +2,7 @@ var gulp = require('gulp');
 
 var concat = require('gulp-concat');
 var compass = require('gulp-compass');
+var uglify = require('gulp-uglify');
 var express = require('express');
 var path = require('path');
 
@@ -43,9 +44,16 @@ gulp.task('scripts', function() {
     .pipe(gulp.dest(DEST));
 });
 
+gulp.task('min scripts', function() {
+  return gulp.src(paths.scripts)
+    .pipe(concat('soysauce.min.js'))
+    .pipe(uglify())
+    .pipe(gulp.dest(DEST));
+});
+
 gulp.task('watch', function() {
   gulp.watch(paths.stylesheets, ['compass']);
-  gulp.watch(paths.scripts, ['scripts']);
+  gulp.watch(paths.scripts, ['scripts', 'min scripts']);
 });
 
 gulp.task('express', function() {
@@ -53,4 +61,4 @@ gulp.task('express', function() {
   app.listen(PORT);
 });
 
-gulp.task('default', ['compass', 'scripts', 'watch', 'express']);
+gulp.task('default', ['compass', 'scripts', 'min scripts', 'watch', 'express']);

@@ -16,32 +16,51 @@ You will need to include both the CSS and JS file (use the CDN links above). jQu
 
 Simply run `bower install soysaucejs`. The CSS and JS will need to be included. Example with your bower components folder named 'vendor':
 
-```
-<link rel="stylesheet" type="text/css" href="/vendor/soysaucejs/assets/soysauce.css">
-<script src="/vendor/soysaucejs/public/soysauce.js"></script>
-```
+  ```
+  <link rel="stylesheet" type="text/css" href="/vendor/soysaucejs/assets/soysauce.css">
+  <script src="/vendor/soysaucejs/public/soysauce.js"></script>
+  ```
 
 ## Contribute
-If you would like to contribute, fork the repo (git@github.com:brandingbrand/soysauce.git) and make pull requests. You will need to have Java and the gems bundle, compass, jammit, rake, and aws-sdk. Just run these two simple commands to obtain the gems (Java is separate):
+You will need the following pre-requisites:
 
-	gem install bundle
-	bundle
+  * compass
 
-Note: If you have trouble installing gems, make sure you have XCode with Command Line Tools and RVM. RVM can be installed via:
+  ```
+  gem update --system
+  gem install compass
+  ```
 
-	curl -L https://get.rvm.io | bash -s stable
+  * bower
 
-To create a build, run this command in the main directory. This compiles the CSS/JS, places the assets in the "build" directory, pushes it up to the CDN, and updates the readme. You must have cdn.yml located in the assets folder.
+  ```
+  npm install -g bower
+  ```
 
-	rake v=[VERSION_NUMBER]
-	(ex. rake v=1.0.5)
+  * gulp
 
-To compile the css, run this command in the main directory:
+  ```
+  npm install -g gulp
+  ```
 
-	compass watch
-		-OR-
-	compass compile
+1) Install your packages:
 
-To bundle the javascript, run this command in the main directory:
+  ```
+  npm install
+  ```
 
-	jammit
+2) Start the local development server:
+
+  ```
+  gulp
+  ```
+
+The following assets will be served on port 5000 and can be found in the public directory:
+
+  * [soysauce.js](http://localhost:5000/public/soysauce.js)
+  * [soysauce.min.js](http://localhost:5000/public/soysauce.min.js)
+  * [soysauce.css](http://localhost:5000/public/soysauce.css)
+
+The widget javascript files can be found under `./assets/javascript/soysauce`
+
+The css files can be found under `./assets/stylesheets/soysauce`
