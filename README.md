@@ -24,7 +24,7 @@ Simply run `bower install soysaucejs`. The CSS and JS will need to be included. 
 ## Contribute
 You will need the following pre-requisites:
 
-  * compass
+  * compass gem
 
   ```
   gem update --system
@@ -35,12 +35,6 @@ You will need the following pre-requisites:
 
   ```
   npm install -g bower
-  ```
-
-  * gulp
-
-  ```
-  npm install -g gulp
   ```
 
 1) Install your packages:
