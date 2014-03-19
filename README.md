@@ -24,18 +24,20 @@ Simply run `bower install soysaucejs`. The CSS and JS will need to be included. 
 ## Contribute
 You will need the following pre-requisites:
 
-  * compass gem
+* [ruby](https://www.ruby-lang.org/en/downloads/) or [rvm](https://rvm.io/rvm/install)
 
-  ```
-  gem update --system
-  gem install compass
-  ```
+* [compass gem](http://compass-style.org/install/)
 
-  * bower
+```
+gem update --system
+gem install compass
+```
 
-  ```
-  npm install -g bower
-  ```
+* [bower](http://bower.io/)
+
+```
+npm install -g bower
+```
 
 1) Install your packages:
 
