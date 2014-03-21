@@ -13,7 +13,7 @@ soysauce.carousels = (function() {
     var wrapper;
     var dotsHtml = "";
     var numDots;
-    
+
     // Base Variables
     this.widget = $(selector);
     this.index = 0;
@@ -113,6 +113,8 @@ soysauce.carousels = (function() {
     else {
       options = soysauce.getOptions(selector);
     }
+
+    this.options = options;
 
     if (options) options.forEach(function(option) {
       switch(option) {
@@ -730,14 +732,14 @@ soysauce.carousels = (function() {
         });
 
         if (!this.isZoomed) {
-          this.swipe = false;
+          this.disableSwipe();
           this.zoomScalePrev = this.zoomScale;
           this.zoomElement.attr("data-ss-state", "zooming");
           this.zoomScale = 3
           this.isZoomed = true;
         }
         else {
-          this.swipe = true;
+          this.enableSwipe();
           this.zoomElement.attr("data-ss-state", "active");
           this.zoomScale = 1;
           this.isZoomed = false;
@@ -806,6 +808,16 @@ soysauce.carousels = (function() {
     this.handleUnfreeze();
 
     setMatrix(this.zoomElement[0], this.zoomScale, this.zoomTranslateX, this.zoomTranslateY);
+  };
+
+  Carousel.prototype.enableSwipe = function() {
+    if ($.inArray("noswipe", this.options) === -1) {
+      this.swipe = true;
+    }
+  };
+
+  Carousel.prototype.disableSwipe = function() {
+    this.swipe = false;
   };
 
   Carousel.prototype.handleSwipe = function(e) {
@@ -1150,7 +1162,7 @@ soysauce.carousels = (function() {
 
     if (this.isZoomed) {
       this.resetZoomState();
-      this.swipe = true;
+      this.enableSwipe();
     }
 
     if (this.multi) {
