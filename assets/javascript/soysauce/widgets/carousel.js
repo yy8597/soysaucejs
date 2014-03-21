@@ -13,7 +13,7 @@ soysauce.carousels = (function() {
     var wrapper;
     var dotsHtml = "";
     var numDots;
-
+    
     // Base Variables
     this.widget = $(selector);
     this.index = 0;
@@ -1150,6 +1150,7 @@ soysauce.carousels = (function() {
 
     if (this.isZoomed) {
       this.resetZoomState();
+      this.swipe = true;
     }
 
     if (this.multi) {
