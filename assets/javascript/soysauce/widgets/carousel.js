@@ -13,6 +13,7 @@ soysauce.carousels = (function() {
     var wrapper;
     var dotsHtml = "";
     var numDots;
+    var activeDotIndex;
 
     // Base Variables
     this.widget = $(selector);
@@ -240,8 +241,7 @@ soysauce.carousels = (function() {
 
     this.dots.html(dotsHtml);
     this.dots = this.dots.find("div");
-    this.dots.attr("data-ss-state", "inactive")
-    this.dots.first().attr("data-ss-state", "active");
+    this.dots.attr("data-ss-state", "inactive");
     this.dots.on("click", function(e) {
       var currXPos = parseInt(soysauce.getArrayFromMatrix(self.container.css(VENDOR_PREFIX + "transform"))[4], 10);
       var index = 0;
@@ -287,9 +287,9 @@ soysauce.carousels = (function() {
       }
     }
 
-    this.items.attr("data-ss-state", "inactive");
-
     this.index = parseInt(this.widget.attr("data-ss-index"), 10) || 0;
+
+    this.items.attr("data-ss-state", "inactive");
 
     if (this.infinite) {
       if (!this.index) {
@@ -309,6 +309,10 @@ soysauce.carousels = (function() {
         $(this.items[this.index]).attr("data-ss-state", "active");
       }
     }
+
+    activeDotIndex = this.infinite ? this.index-1 : this.index;
+
+    this.dots[activeDotIndex].setAttribute("data-ss-state", "active");
 
     this.container.imagesLoaded(function(items) {
       var firstItem = self.items.first();
