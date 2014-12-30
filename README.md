@@ -1,3 +1,5 @@
+#A SIMPLE, MOBILE JAVASCRIPT LIBRARY FOR CREATING ELEGANT WIDGETS
+
 # Soysauce (v1.3.22)
 Original Author: Edward Gaba
 
